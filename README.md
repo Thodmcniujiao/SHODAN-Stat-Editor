@@ -1,6 +1,6 @@
 # SHODAN Stat Editor — Thodmcniujiao fork
 
-> 本 fork 基于 [SHODAN-HORAI/SHODAN-Stat-Editor](https://github.com/SHODAN-HORAI/SHODAN-Stat-Editor) v4.1.0。下面先说明本 fork 的改动，原版 README 附在后面，未作修改。
+> 本 fork 基于 [SHODAN-HORAI/SHODAN-Stat-Editor](https://github.com/SHODAN-HORAI/SHODAN-Stat-Editor) v4.1.0。下面先说明本 fork 的改动
 >
 > This fork is based on [SHODAN-HORAI/SHODAN-Stat-Editor](https://github.com/SHODAN-HORAI/SHODAN-Stat-Editor) v4.1.0. What this fork changes comes first; the original README follows unchanged.
 
@@ -42,7 +42,6 @@
 
 ### 3. 其他
 
-- **实体拆毁（Entity Demolition）**：顶栏最右侧的独立页面，统一设置实体的拆毁参数。
 - **打包脚本**：运行项目根目录的 `build_release.bat`，会把当前源码打包到 `offline\release\<时间>\`，并把根目录快捷方式指向新 exe。脚本还会检查正在运行的实例和各处快捷方式是否用的是旧代码。窗口标题末尾显示 `build <打包时间>`。
 - **自动更新已关闭**：避免本 fork 被上游版本覆盖。
 - **分支**：`dev` 分支只放源码，不含任何打包产物；打包好的 zip 只发布在 Releases。
