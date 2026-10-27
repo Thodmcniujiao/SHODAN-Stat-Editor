@@ -60,6 +60,10 @@ for _, declaration in ipairs({
     'uint32_t SetTextAlign(void *dc, uint32_t align);',
     'int TextOutW(void *dc, int x, int y, const uint16_t *text, int count);',
     'int GetTextExtentPoint32W(void *dc, const uint16_t *text, int count, int32_t *size);',
+    'typedef struct { int32_t height, ascent, descent, internal_leading, external_leading, ave_width, max_width,'
+        .. ' weight, overhang, aspect_x, aspect_y; uint16_t first, last, default_char, break_char;'
+        .. ' uint8_t italic, underlined, struck_out, pitch, charset; } host_textmetric;',
+    'int GetTextMetricsW(void *dc, host_textmetric *metrics);',
     'int GdiFlush(void);',
     'uint64_t GetTickCount64(void);',
     'typedef struct { void *hwnd; uint32_t message; uint32_t pad; uintptr_t wparam; intptr_t lparam;'
@@ -331,6 +335,18 @@ function M.text(text, x, y, size, c, bold)
     gdi.SetTextColor(M.dc, c[2] + c[3] * 256 + c[4] * 65536)
     local w, n = wide(text)
     gdi.TextOutW(M.dc, math.floor(x + 0.5), math.floor(y + 0.5), w, n)
+end
+
+-- Top-aligned text for desktop controls. Keep text()'s baseline contract for the engine GUI.
+local metrics = ffi.new('host_textmetric')
+function M.text_height(size, bold)
+    gdi.SelectObject(M.dc, font_of(size, bold))
+    assert(gdi.GetTextMetricsW(M.dc, metrics) ~= 0, 'Cannot measure the UI font')
+    return tonumber(metrics.height)
+end
+function M.text_top(text, x, y, size, c, bold)
+    M.text_height(size, bold)
+    M.text(text, x, y + tonumber(metrics.ascent), size, c, bold)
 end
 
 function M.flush() gdi.GdiFlush() end

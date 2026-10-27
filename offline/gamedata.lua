@@ -302,6 +302,32 @@ function M.correct(p, n, target, edited_floats, log)
 end
 
 -- ---------------------------------------------------------------- game files
+-- Exact hash correction in an unreferenced numeric record. Unlike the native
+-- partial-header search, this is bounded and does not round an edited live float.
+function M.correct_numeric_slot(p, n, target, host, knob, log)
+    log = log or function() end
+    if host % 8 ~= 0 or host + 8 > n or knob + 2 > host then return nil, 'invalid unused-record correction slot' end
+    local start = knob - knob % 8
+    local prefix = forward(bit.bxor(SEED, (n + 0ULL) * MUL), p, 0, start)
+    local wanted, whole = before_final(target, p, n)
+    wanted = backward(wanted, p, host + 8, whole)
+    local salt = ffi.cast('uint16_t *', p + knob)
+    local word = ffi.cast('uint64_t *', p + host)
+    local floats = ffi.cast('float *', p + host)
+    for value = 0, 65535 do
+        salt[0] = value
+        local h = forward(prefix, p, start, host)
+        word[0] = unmix(bit.bxor(wanted * INV, h))
+        local a,b = tonumber(floats[0]),tonumber(floats[1])
+        if a == a and b == b and a >= 0 and b >= 0 and a <= 1e9 and b <= 1e9 then
+            if M.murmur64(p,n) ~= target then return nil, 'unused-record correction did not verify' end
+            log(string.format('hash corrected in unreferenced record at %#x, salt %#x, %d tries', host, knob, value + 1))
+            return true
+        end
+    end
+    return nil, 'no finite unused-record hash correction found'
+end
+
 function M.game_dll_has(dll, hash) return dll:find(le64(hash), 1, true) ~= nil end
 
 return M

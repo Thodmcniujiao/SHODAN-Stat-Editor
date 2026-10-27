@@ -1,0 +1,37 @@
+local I=require('install')
+local A=require('entity_assets')
+local work=assert(TEST_WORK)
+assert(I.home:gsub('\\','/'):sub(1,#work)==work,'use --isolated-profile for this test')
+I.game_running=function()return false end
+local game=work..'/fake/data/game';I.mkdirs(game)
+local function write(p,s)local f=assert(io.open(p,'wb'));f:write(s);f:close()end
+local a,b='generated_fake_a.dl_bin','generated_fake_b.dl_bin'
+local original={[a]='old A',[b]='old B'}
+for n,s in pairs(original)do write(game..'/'..n,s)end
+local patch='0123456789abcdef.patch_0'
+local asset=A.begin(game,{[patch]='new asset'})
+assert(asset:activate())
+local actual_move=I.move_file;local calls=0
+I.move_file=function(from,to,flags)
+ calls=calls+1;if calls==2 then return 0 end;return actual_move(from,to,flags)
+end
+local ok,why=I.write_files(game,{[a]='new A',[b]='new B'},original)
+assert(not ok and why:find('restored',1,true))
+I.move_file=actual_move
+assert(asset:rollback())
+assert(I.read(game..'/'..a)=='old A'and I.read(game..'/'..b)=='old B')
+assert(not I.read(work..'/fake/data/'..patch)and not next(A.owned()))
+assert(#I.installed(game)==0,'ownership was not rolled back')
+local asset2=A.begin(game,{[patch]='installed asset'})
+assert(asset2:activate())
+assert(I.write_files(game,{[a]='installed A',[b]='installed B'},original))
+assert(asset2:commit())
+assert(#I.installed(game)==2 and A.owned()[patch])
+local asset3=A.begin(game,{})
+assert(asset3:activate());assert(I.write_files(game,original,original,true));assert(asset3:commit())
+assert(I.read(game..'/'..a)=='old A'and not I.read(work..'/fake/data/'..patch))
+assert(not pcall(function()A.begin(game,{['../outside']='bad'})end))
+write(work..'/fake/data/'..patch,'another mod')
+assert(not pcall(function()A.begin(game,{[patch]='overwrite'})end))
+assert(I.read(work..'/fake/data/'..patch)=='another mod')
+print('PASS: partial-write rollback, coordinated asset rollback, install/restore and foreign-file protection')
