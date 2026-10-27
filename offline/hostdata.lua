@@ -430,7 +430,25 @@ function M.build(change, log)
         change.plain, change.n, change.floats = grown, salt + 16, { salt }
         log(string.format('no float among the changes: the table grows by %d bytes for the hash correction', salt + 16 - n))
     end
-    local ok, why = G.correct(change.plain, change.n, change.hash, change.floats, log)
+    local ok, why
+    if change.demolition_schemas then
+        local Demo = require('demolition')
+        local before = ffi.string(change.plain, change.n)
+        local valid, slot = pcall(Demo.entity_hash_slot, before, change.demolition_schemas)
+        if not valid then G.free(change.plain); return nil, tostring(slot) end
+        ok, why = G.correct_numeric_slot(change.plain, change.n, change.hash, slot.host, slot.knob, log)
+        if ok then
+            local layout = slot.layout
+            for index in pairs(layout.users) do
+                local at = layout.block.payload + layout.array.offset + index * layout.row.size
+                if ffi.string(change.plain + at, layout.row.size) ~= before:sub(at + 1, at + layout.row.size) then
+                    ok, why = nil, 'a referenced wind-up record changed during hash correction'; break
+                end
+            end
+        end
+    else
+        ok, why = G.correct(change.plain, change.n, change.hash, change.floats, log)
+    end
     if not ok then G.free(change.plain); return nil, why end
     local sealed = G.seal(change.plain, change.n)
     local back, m = G.open_sealed(sealed)

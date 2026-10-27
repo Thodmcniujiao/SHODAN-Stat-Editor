@@ -222,14 +222,20 @@ function M.originals(game)
 end
 
 -- ---------------------------------------------------------------- writing
+function M.move_file(from, to, flags) return kernel.MoveFileExA(from, to, flags) end
+
 -- writes: name -> bytes (a changed file, or the original for one going back); originals: name -> original bytes.
 -- A game file another tool changed after this editor read it (neither its original nor written by an install,
 -- issue #90) is never written over: skip_changed (Restore) leaves it be and returns its name, Install stops.
 function M.write_files(game, writes, originals, skip_changed)
     if M.game_running() then return nil, 'Helldivers 2 is running: close it first.' end
-    local list, changed = load_list(), {}
+    local old_list = read(LIST)
+    local list, changed, before = load_list(), {}, {}
     for name in pairs(writes) do
+        if not name:match('^generated_[%w_]+%.dl_bin$') then return nil, 'invalid game data filename' end
         local current = read(game .. '/' .. name)
+        before[name] = current
+        if not current then return nil, name .. ' disappeared after the editor opened' end
         if current and current ~= originals[name] and not (list[name] and list[name][hash_of(current)]) then
             changed[#changed + 1] = name
         end
@@ -267,20 +273,45 @@ function M.write_files(game, writes, originals, skip_changed)
         for _, s in ipairs(staged) do os.remove(s.tmp) end
         return nil, 'could not write ' .. LIST
     end
-    local failed = {}
+    local function rollback()
+        local failed = {}
+        for _, s in ipairs(staged) do
+            local path = game .. '/' .. s.name
+            local current = read(path)
+            if current ~= before[s.name] then
+                if current ~= s.data then
+                    failed[#failed + 1] = s.name .. ' changed outside this install'
+                else
+                    local tmp = path .. '.shodan-rollback'
+                    if not write(tmp, before[s.name]) or M.move_file(tmp, path, 0x9) == 0 or read(path) ~= before[s.name] then
+                        failed[#failed + 1] = s.name
+                    end
+                    os.remove(tmp)
+                end
+            end
+            os.remove(s.tmp)
+        end
+        if old_list then
+            if not write(LIST, old_list) then failed[#failed + 1] = LIST end
+        else os.remove(LIST) end
+        return #failed == 0, table.concat(failed, ', ')
+    end
     for _, s in ipairs(staged) do
         -- MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH
-        if kernel.MoveFileExA(s.tmp, game .. '/' .. s.name, 0x9) == 0 or read(game .. '/' .. s.name) ~= s.data then
-            failed[#failed + 1] = s.name
-            os.remove(s.tmp)
+        if read(game .. '/' .. s.name) ~= before[s.name]
+           or M.move_file(s.tmp, game .. '/' .. s.name, 0x9) == 0 or read(game .. '/' .. s.name) ~= s.data then
+            local ok, why = rollback()
+            return nil, 'could not replace ' .. s.name .. (ok and '; previous files restored' or '; rollback failed: ' .. why)
         elseif s.data == originals[s.name] then
             list[s.name] = nil
         else
             list[s.name] = { [hash_of(s.data)] = true }
         end
     end
-    save_list(list)
-    if #failed > 0 then return nil, 'could not replace ' .. table.concat(failed, ', ') end
+    if not save_list(list) then
+        local ok, why = rollback()
+        return nil, 'could not save install ownership' .. (ok and '; previous files restored' or '; rollback failed: ' .. why)
+    end
     return true, changed
 end
 

@@ -7,3 +7,8 @@ offline/launcher/*.obj
 offline/launcher/*.lib
 offline/launcher/*.exp
 offline/launcher/*.res
+# build_release.bat: the shortcut it points at the latest build
+/SHODAN Stat Editor Offline.lnk
+# local work files (not source)
+/_backup_before_layout/
+/_src_export.tgz

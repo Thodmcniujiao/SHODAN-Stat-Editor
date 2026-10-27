@@ -15,8 +15,11 @@ files = {
     'shodan_hash.dll': os.path.join(HERE, 'launcher', 'shodan_hash.dll'),
     'app/stat_editor.lua': PANEL,
 }
-for m in ('host', 'engine_shim', 'install', 'gamedata', 'hostdata', 'update'):
+for m in ('host', 'engine_shim', 'install', 'gamedata', 'hostdata', 'update',
+          'demolition', 'demolition_panel', 'demolition_bridge', 'unit_aliases', 'entity_assets'):
     files['app/%s.lua' % m] = os.path.join(HERE, m + '.lua')
+files['app/entity_names.tsv'] = os.path.join(HERE, 'entity_names.tsv')
+files['ENTITY_DEMOLITION.md'] = os.path.join(HERE, 'ENTITY_DEMOLITION.md')
 DEV = re.compile(r'[ \t]*--\[\[DEV\]\].*?--\[\[/DEV\]\][^\n]*\n', re.S)   # test hooks: not in the package
 VERSION = re.search(r"version = '([\d.]+)'", open(PANEL, encoding='utf-8').read()).group(1)
 readme = r"""SHODAN Stat Editor Offline v{version}  (SSEO)

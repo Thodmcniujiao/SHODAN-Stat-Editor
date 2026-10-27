@@ -1,3 +1,96 @@
+# SHODAN Stat Editor — Thodmcniujiao fork
+
+> 本 fork 基于 [SHODAN-HORAI/SHODAN-Stat-Editor](https://github.com/SHODAN-HORAI/SHODAN-Stat-Editor) v4.1.0。下面先说明本 fork 的改动
+>
+> This fork is based on [SHODAN-HORAI/SHODAN-Stat-Editor](https://github.com/SHODAN-HORAI/SHODAN-Stat-Editor) v4.1.0. What this fork changes comes first; the original README follows unchanged.
+
+**下载 / Download:** [Releases](../../releases) — 只含打包好的可执行文件 zip / the packaged executable zip only.
+
+## 本 fork 做了什么
+
+### 1. 重新编排修改器的布局
+
+原版只有一排标签页：主武器、副武器、支援武器、投掷物、战略配备、载具、强化资源、配件、护甲、记录；敌人编辑器是另一个独立窗口。本 fork 按一份布局文档重新组织为两级导航：窗口顶栏是 **页面**，每页下面是 **子页**。子页有多个分类时，分类按钮显示在页面标题旁边。
+
+| 页面 | 子页（★ = 已有功能，其余为占位） |
+|---|---|
+| 游戏功能 | 玩家主体、玩家移动、玩家武器、任务设置、兴趣点设置、终端设置、战备设置 |
+| 人物数据 | ★ 人物数据、★ 快速编辑 |
+| 材料货币 | 抓包发蓝币、古法刷资源 |
+| 敌人设置 | ★ 敌人编辑（虫族 / 机器人 / 光能者 / SEAF / 生成）、AI设置、拉烟编辑器、敌人替换器 |
+| 军械库 | 解锁、★ 武器编辑（主武器 / 副武器 / 支援武器 / 投掷物）、★ 武器配件自定义、★ 护甲编辑、★ 强化资源、装备替换、当前装备栏编辑 |
+| 星球任务 | 星球设置、战役编辑、行动编辑、任务编辑、S的任务微调 |
+| 实体组件 | 武器组件、炮塔与制导、背包、挂载、阵营、地雷、投掷物、淹没、生命、护盾 |
+| 轨道飞鹰 | ★ 轨道编辑、★ 飞鹰编辑、轨道武器编辑 |
+| 游戏数据 | 伤害id、★ 射弹id、★ 爆炸id、电弧id、激光id、★ 状态效果id、★ 战备id（战略配备 / 载具） |
+| 杂项与设置 | 身份设置、修改器设置、预载设置、寻找器 |
+| 额外 | ★ 布局文档未列出的原版功能 |
+
+- **占位子页**：布局文档里有、修改器还没有的功能，子页名称显示为灰色，页面上列出计划中的项目。它们不会改动游戏。
+- **人物数据**：绝地潜兵的数值按布局文档的格子（速度、攀爬、耐力、转向速度、侦查/潜行、投掷/减速修正、自我治疗、滑铲、布娃娃/杂项、人物切枪状态、手动修改）逐字段排列。已有的参数沿用修改器原来的名字，按数据中的位置填入对应字段；文档中没有对应参数的字段留空。
+- **兼容**：原版保存的数值、预设和配置都能照常读取。「设置」「预设」「写入游戏」「恢复游戏原始文件」的位置和用法与原版相同。
+
+### 2. 从「从实体找组件」变成「从组件找实体」
+
+原版的思路是 **先选实体，再看它的组件**：在列表里点一把武器或一个战略配备，右边列出这个实体用到的全部数值，包括伤害、弹匣、射弹、爆炸等。
+
+本 fork 把布局改为 **先选组件/数据类型，再找使用它的实体**：
+
+- **游戏数据 › 射弹id / 爆炸id / 状态效果id**：直接按记录（射弹、爆炸、状态效果）的 id 浏览和修改，每条记录注明被哪些武器或战略配备使用（Fired by / Set off by）。
+- **人物数据 › 快速编辑**：按组件编辑绝地潜兵实体（`5556372446766824087:Player`），目前已接上 health 组件，faction 组件为占位。
+- **实体组件**（规划中，目前为占位）：先选组件类型，例如 weapondata、weaponreload、weaponmagazine、weaponcharge、projectileweapon、sprayweapon、arcweapon、sensoreye、turret、inventory、mount、faction、minefield / minespawner、thrower、drownable、health、shield、orbitalweapon；再输入或选择任意实体的哈希，修改该实体的这个组件。
+
+### 3. 其他
+
+- **打包脚本**：运行项目根目录的 `build_release.bat`，会把当前源码打包到 `offline\release\<时间>\`，并把根目录快捷方式指向新 exe。脚本还会检查正在运行的实例和各处快捷方式是否用的是旧代码。窗口标题末尾显示 `build <打包时间>`。
+- **自动更新已关闭**：避免本 fork 被上游版本覆盖。
+- **分支**：`dev` 分支只放源码，不含任何打包产物；打包好的 zip 只发布在 Releases。
+
+## What this fork does
+
+### 1. A reorganized layout
+
+The original has one row of tabs (Primary, Secondary, Support, Throwables, Stratagems, Mechas, Boosters, Attachments, Armors, Records) and the Enemy Editor as a separate window. This fork follows a layout document with two levels of navigation: **pages** in the window's top bar and **sub-pages** under each page. A sub-page with several categories shows them as buttons beside the page title.
+
+| Page | Sub-pages (★ = working, the rest are placeholders) |
+|---|---|
+| Features | Player, Movement, Weapons, Missions, Points of interest, Terminals, Stratagem settings |
+| Character | ★ Character data, ★ Quick edit |
+| Currency | Capture and send currency, Classic resource farming |
+| Enemies | ★ Enemy editor (Terminids / Automatons / Illuminate / SEAF / Spawning), AI settings, Flare editor, Enemy swapper |
+| Armory | Unlock, ★ Weapon editing (Primary / Secondary / Support / Throwables), ★ Weapon attachments, ★ Armor editing, ★ Boosters, Loadout swap, Current loadout |
+| Planets | Planet settings, Campaign editing, Operation editing, Mission editing, S's mission tweaks |
+| Components | Weapon components, Turrets and guidance, Backpack, Mounts, Faction, Mines, Throwers, Drowning, Health, Shield |
+| Orbital & Eagle | ★ Orbital editing, ★ Eagle editing, Orbital weapon editing |
+| Game data | Damage ids, ★ Projectile ids, ★ Explosion ids, Arc ids, Laser ids, ★ Status effect ids, ★ Stratagem ids (Stratagems / Vehicles) |
+| Misc & settings | Identity, Editor settings, Preload, Finder |
+| Extra | ★ Original features the layout document does not list |
+
+- **Placeholder sub-pages**: features in the layout document that the editor does not have yet. Their names are greyed out and their pages list what is planned. They change nothing in the game.
+- **Character data**: the helldiver's stats laid out by the document's boxes (Speed, Climbing, Stamina, Turn speed, Detection / stealth, Throwing / slowdown, Self-healing, Sliding, Ragdoll / misc, Weapon switching, Manual edit), field by field. Existing stats keep the editor's own names and fill the field at their place in the data; fields with no stat yet are left empty.
+- **Compatibility**: values, presets and config saved by the original still load. Settings, Presets, Install and Restore work as before.
+
+### 2. From "entity → components" to "component → entities"
+
+The original works **entity first**: pick a weapon or a stratagem in the list, and every value it uses is listed beside it (damage, magazine, projectile, explosion and so on).
+
+This fork reorganizes the layout **component (data type) first**, then the entities that use it:
+
+- **Game data › Projectile / Explosion / Status effect ids**: browse and edit the records themselves by id; each record names the weapons and stratagems that use it (Fired by / Set off by).
+- **Character › Quick edit**: the helldiver entity (`5556372446766824087:Player`) edited by component. The health component works; the faction component is a placeholder.
+- **Components** (planned; placeholders for now): pick a component type (weapondata, weaponreload, weaponmagazine, weaponcharge, projectileweapon, sprayweapon, arcweapon, sensoreye, turret, inventory, mount, faction, minefield / minespawner, thrower, drownable, health, shield, orbitalweapon), then enter or pick any entity's hash and edit that component of it.
+
+### 3. Also
+
+- **Entity Demolition**: its own page at the right end of the top bar; one set of demolition settings for entities.
+- **Build script**: run `build_release.bat` in the project root. It packs the current source into `offline\release\<time>\` and points the shortcut in the project root at the new exe. It also checks whether running copies or shortcuts still use old code. The window title ends with `build <time>`.
+- **Automatic updates are off**, so the upstream release does not replace this fork.
+- **Branches**: `dev` holds source only, no build output; the packaged zip is published only under Releases.
+
+---
+
+*以下为原版 README / The original README follows.*
+
 # SHODAN Stat Editor
 
 Change the stats of weapons, throwables, stratagems, mechas, boosters, attachments, armor passives and your

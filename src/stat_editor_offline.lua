@@ -11908,6 +11908,7 @@ local function peek4(address)
 end
 
 local function read_field(f)
+    if f.demolition then return f.demolition:read(f) end
     if f.storage == 'virtual' then   -- a value the editor keeps itself (no table field)
         if f.value == nil then return f.default end
         return f.value
@@ -11945,12 +11946,14 @@ local function encode(f, value)
 end
 
 local function default_of(f)
+    if f.demolition then defaults[f.key] = f.demolition:read(f, true); return defaults[f.key] end
     if defaults[f.key] == nil then defaults[f.key] = read_field(f) end
     return defaults[f.key]
 end
 
 -- Writes every copy of the table; read back, or rolled back.
 local function write_field(f, value)
+    if f.demolition then return f.demolition:write(f, value) end
     if f.storage == 'virtual' then
         default_of(f)
         f.value = value
@@ -12374,9 +12377,15 @@ KINDS[TYPES.passive].build = function()
     local key = hash_key(A.ENTITY)
     if MOD.offline and not by_hash[A.ENTITY] and ((tables[TYPES.health] and tables[TYPES.health].index[key])
                                                   or (tables[TYPES.avatar] and tables[TYPES.avatar].index[key])) then
-        by_hash[A.ENTITY] = { name = 'Helldiver', slot = 'Armors', hash = A.ENTITY, key = key, rows = {}, by_id = {}, player = true,
-                              note = 'Every helldiver in your game. Restore the game\'s files before joining other players\' lobbies.' }
-        weapons[#weapons + 1] = by_hash[A.ENTITY]
+        -- three pages (MOD.nav): the layout document's 人物数据 (the editor's own helldiver page: its hash kept), its
+        -- 快速编辑 (the health component), and under 额外 the stats the document does not list
+        local note = 'Every helldiver in your game. Restore the game\'s files before joining other players\' lobbies.'
+        for _, v in ipairs({ { A.ENTITY, 'Helldiver' }, { 'FFFFFFF800000001', 'Helldiver: health and faction', 'quick' },
+                             { 'FFFFFFF800000002', 'Helldiver: water and hellpods', 'other' } }) do
+            by_hash[v[1]] = { name = v[2], slot = 'Armors', hash = v[1], key = not v[3] and key or nil, rows = {}, by_id = {},
+                              player = true, player_view = v[3], note = note }
+            weapons[#weapons + 1] = by_hash[v[1]]
+        end
     end
     local spec, list = KINDS[TYPES.passive], {}
     for _, group in ipairs(spec.list) do
@@ -12475,13 +12484,170 @@ KINDS[TYPES.avatar].MOVE = {
     { 'Climbing and sliding', 'climb_height', 'Highest ledge it climbs (m)', 260, 10, 0.05, 0.25 } }
 -- the player hellpods (initial drop, reinforcements): entity, label
 KINDS[TYPES.avatar].PODS = { { 'E58163E71928D3E2', 'Initial drop' }, { 'EF9EB729A9D6D849', 'Reinforcement' } }
+-- The layout document's 人物数据 page (第二页): its boxes, each field and the stat id that fills it (nil: none
+-- yet, an empty row). The doc lists a box's fields in the avatar data's order (速度 +0..+48, 耐力 +52..+84,
+-- 滑铲 +152..+172), so a field takes the stat at its place; QUICK: its 快速编辑 (Player = the helldiver entity).
+KINDS[TYPES.avatar].DOC = {
+    { name = { 'Speed', '速度', '速度' }, fields = {
+        { name = { 'Stance time', '姿势时间', '姿勢時間' } },
+        { name = { 'Twist', '扭转', '扭轉' }, id = 'reversing' },
+        { name = { 'Aim', '瞄准', '瞄準' }, id = 'aim' },
+        { name = { 'Walk', '步行', '步行' }, id = 'walk' },
+        { name = { 'Jog', '慢跑', '慢跑' }, id = 'jog' },
+        { name = { 'Run', '快跑', '快跑' }, id = 'sprint' },
+        { name = { 'Sprint', '冲刺', '衝刺' }, id = 'sprint_exerted' },
+        { name = { 'Crouched aim', '蹲瞄', '蹲瞄' }, id = 'crouch_aim' },
+        { name = { 'Crouched walk', '蹲走', '蹲走' }, id = 'crouch_walk' },
+        { name = { 'Crouched jog', '蹲跑', '蹲跑' }, id = 'crouch_jog' },
+        { name = { 'Crouched sprint', '蹲冲', '蹲衝' }, id = 'crouch_sprint' },
+        { name = { 'Prone', '卧倒', '臥倒' }, id = 'prone' },
+        { name = { 'Swim', '游泳', '遊泳' }, id = 'swim' },
+    } },
+    { name = { 'Climbing', '攀爬', '攀爬' }, fields = {
+        { name = { 'Fall height', '坠落高度', '墜落高度' } },
+        { name = { 'Climb height X', '攀爬高度X', '攀爬高度X' } },
+        { name = { 'Climb height Y', '攀爬高度Y', '攀爬高度Y' } },
+        { name = { 'Climb forward X', '攀爬前进X', '攀爬前進X' } },
+        { name = { 'Climb forward Y', '攀爬前进Y', '攀爬前進Y' } },
+        { name = { 'Vault height', '跨越高度', '跨越高度' }, id = 'climb_height' },
+        { name = { 'Vault cooldown', '跨越冷却', '跨越冷卻' } },
+        { name = { 'Climb speed', '攀爬速度', '攀爬速度' } },
+    } },
+    { name = { 'Stamina', '耐力', '耐力' }, fields = {
+        { name = { 'Sprint drain', '冲消耗', '衝消耗' }, id = 'sprint_drain' },
+        { name = { 'Jog drain', '跑消耗', '跑消耗' }, id = 'jog_drain' },
+        { name = { 'Refill standing', '站恢复', '站恢復' }, id = 'recover_stand' },
+        { name = { 'Refill crouched', '蹲恢复', '蹲恢復' }, id = 'recover_crouch' },
+        { name = { 'Refill prone', '卧恢复', '臥恢復' }, id = 'recover_prone' },
+        { name = { 'Refill delay', '恢复延迟', '恢復延遲' }, id = 'recover_delay' },
+        { name = { 'Jump cost', '跳消耗', '跳消耗' }, id = 'cost_jump' },
+        { name = { 'Dive cost', '闪消耗', '閃消耗' }, id = 'cost_dive' },
+        { name = { 'Slide cost', '滑消', '滑消' } },
+    } },
+    { name = { 'Turn speed', '转向速度', '轉向速度' }, fields = {
+        { name = { 'Crouched turn', '蹲伏转向', '蹲伏轉向' } },
+        { name = { 'Jog turn', '慢跑转向', '慢跑轉向' } },
+        { name = { 'Jump turn', '跳跃转向', '跳躍轉向' } },
+        { name = { 'Sprint turn', '冲刺转向', '衝刺轉向' } },
+        { name = { 'Downed turn', '倒地转向', '倒地轉向' } },
+        { name = { 'Swim turn', '游泳转向', '遊泳轉向' } },
+    } },
+    { name = { 'Detection / stealth', '侦查/潜行', '偵查/潛行' }, fields = {
+        { name = { 'Noise range', '噪音范围', '噪音範圍' } },
+        { name = { 'Jump', '跳跃', '跳躍' } },
+        { name = { 'Dodge', '闪避', '閃避' } },
+        { name = { 'Vault', '翻越', '翻越' } },
+        { name = { 'Climb', '攀爬', '攀爬' } },
+        { name = { 'Slide', '滑铲', '滑鏟' } },
+        { name = { 'Standing', '站立', '站立' } },
+        { name = { 'Crouched', '蹲伏', '蹲伏' } },
+        { name = { 'Prone', '卧倒', '臥倒' } },
+    } },
+    { name = { 'Throwing / slowdown', '投掷/减速修正', '投擲/減速修正' }, fields = {
+        { name = { 'Short throw angle', '短距角度', '短距角度' } },
+        { name = { 'Short throw force', '短距力度', '短距力度' } },
+        { name = { 'Long throw angle', '长距角度', '長距角度' } },
+        { name = { 'Long throw force', '长距力度', '長距力度' } },
+        { name = { 'Trigger requirement', '触发要求', '觸發要求' } },
+        { name = { 'Standing', '站立', '站立' } },
+        { name = { 'Crouched', '蹲伏', '蹲伏' } },
+        { name = { 'Prone', '卧倒', '臥倒' } },
+        { name = { 'Sliding', '滑铲', '滑鏟' } },
+    } },
+    { name = { 'Self-healing', '自我治疗', '自我治療' }, fields = {
+        { name = { 'Heal duration', '治疗持续时间', '治療持續時間' } },
+        { name = { 'Decay wait', '衰减等待时间', '衰減等待時間' } },
+        { name = { 'Heal decay rate', '治疗衰减速率', '治療衰減速率' } },
+        { name = { 'Damage that cancels healing', '治疗取消伤害', '治療取消傷害' } },
+    } },
+    { name = { 'Sliding', '滑铲', '滑鏟' }, fields = {
+        { name = { 'Slide angle', '滑铲角度', '滑鏟角度' }, id = 'slide_enter' },
+        { name = { 'Enter time', '进入时间', '進入時間' } },
+        { name = { 'Slide speed', '滑铲速度', '滑鏟速度' } },
+        { name = { 'Slide gravity', '滑铲重力', '滑鏟重力' } },
+        { name = { 'Duration', '持续时间', '持續時間' } },
+        { name = { 'Exit angle', '退出角度', '退出角度' }, id = 'slide_exit' },
+        { name = { 'Exit time', '退出时间', '退出時間' } },
+        { name = { 'Uphill slowdown (small)', '上坡减速（小）', '上坡減速（小）' } },
+        { name = { 'Uphill slowdown (large)', '上坡减速（大）', '上坡減速（大）' } },
+        { name = { 'Uphill speed', '上坡速度', '上坡速度' } },
+        { name = { 'Downhill slowdown (small)', '下坡减速（小）', '下坡減速（小）' } },
+        { name = { 'Downhill slowdown (large)', '下坡减速（大）', '下坡減速（大）' } },
+        { name = { 'Downhill speed', '下坡速度', '下坡速度' } },
+        { name = { 'Slope check', '坡度检测', '坡度檢測' } },
+        { name = { 'Flat time', '平地时间', '平地時間' } },
+        { name = { 'Flat speed', '平地速度', '平地速度' } },
+        { name = { 'Uphill time', '上坡时间', '上坡時間' } },
+        { name = { 'Uphill speed', '上坡速度', '上坡速度' } },
+        { name = { 'Downhill time', '下坡时间', '下坡時間' } },
+        { name = { 'Downhill speed', '下坡速度', '下坡速度' } },
+    } },
+    { name = { 'Ragdoll / misc', '布娃娃/杂项', '佈娃娃/雜項' }, fields = {
+        { name = { 'Damage speed, lowest', '伤害速度下限', '傷害速度下限' } },
+        { name = { 'Damage speed, highest', '伤害速度上限', '傷害速度上限' } },
+        { name = { 'Damage, least', '伤害最小值', '傷害最小值' } },
+        { name = { 'Damage, most', '伤害最大值', '傷害最大值' } },
+        { name = { 'Snow factor', '雪地修正系数', '雪地修正係數' } },
+        { name = { 'Shortest aim time', '最小瞄准时间', '最小瞄準時間' } },
+        { name = { 'Longest aim time', '最大瞄准时间', '最大瞄準時間' } },
+        { name = { 'Shortest fire time', '最小射击时间', '最小射擊時間' } },
+        { name = { 'Longest fire time', '最大射击时间', '最大射擊時間' } },
+    } },
+    { name = { 'Weapon switching', '人物切枪状态', '人物切槍狀態' }, fields = {
+        { name = { 'Threshold', '阈值', '閾值' } },
+        { name = { 'Switch, scoped', '开镜切枪', '開鏡切槍' } },
+        { name = { 'Switch, unscoped', '关镜切枪', '關鏡切槍' } },
+        { name = { 'Switch, scoped', '开镜切枪', '開鏡切槍' } },
+        { name = { 'Switch, unscoped', '关镜切枪', '關鏡切槍' } },
+        { name = { 'Recoil, scoped', '开镜后坐', '開鏡後坐' } },
+        { name = { 'Recoil, unscoped', '关镜后坐', '關鏡後坐' } },
+        { name = { 'Sway', '晃动', '晃動' } },
+    } },
+    { name = { 'Manual edit', '手动修改', '手動修改' }, fields = {
+        { name = { 'Weapon ID', '武器ID', '武器ID' } },
+        { name = { 'Weapon damage', '武器伤害', '武器傷害' } },
+        { name = { 'Armor damage', '护甲伤害', '護甲傷害' } },
+        { name = { 'Penetration [1]', '穿透【1】', '穿透【1】' } },
+        { name = { 'Penetration [2]', '穿透【2】', '穿透【2】' } },
+        { name = { 'Penetration [3]', '穿透【3】', '穿透【3】' } },
+        { name = { 'Demolition damage', '爆破伤害', '爆破傷害' } },
+        { name = { 'Stagger', '摇晃', '搖晃' } },
+        { name = { 'Demolition [1]', '拆除【1】', '拆除【1】' } },
+        { name = { 'Demolition [2]', '拆除【2】', '拆除【2】' } },
+    } },
+}
+KINDS[TYPES.avatar].QUICK = {
+    { name = { 'health component', 'health 组件', 'health 組件' }, kind = 'health' },
+    { name = { 'faction component', 'faction 组件', 'faction 組件' } },
+}
+KINDS[TYPES.avatar].NONE = { '(no parameter in the editor yet)', '（修改器暂无此参数）', '（修改器暫無此參數）' }
+KINDS[TYPES.avatar].NAMES = {
+    ['Helldiver: health and faction'] = { '绝地潜兵：health / faction 组件', '絕地潛兵：health / faction 組件' },
+    ['Helldiver: water and hellpods'] = { '绝地潜兵：水下与空降舱', '絕地潛兵：水下與空降艙' },
+}
+for _, l in ipairs(MOD.langs or {}) do   -- (the new pages' names in the list)
+    for en, t in pairs(KINDS[TYPES.avatar].NAMES) do
+        l.exact[en] = l.exact[en] or (l.id == 'zh-Hans' and t[1] or l.id == 'zh-Hant' and t[2] or nil)
+    end
+end
 KINDS[TYPES.avatar].resolve = function(entry)
     local A, ht, at = KINDS[TYPES.avatar], tables[TYPES.health], tables[TYPES.avatar]
-    local h = ht and ht.index[entry.key]
+    local key = hash_key(A.ENTITY)
+    -- Every stat first (its row, not on a page yet), then the page's own: 'doc' (人物数据: the layout document's boxes,
+    -- each field in turn, the stat that fills it or an empty row), 'quick' (快速编辑: the health component) or
+    -- 'other' (额外: what the document does not list).
+    local made, order = {}, {}
+    local function add(section, id, label, storage, parts, min, max, small, big)
+        local r = { section = section, id = id, label = label, storage = storage, parts = parts,
+                    min = min, max = max, small = small, big = big }
+        made[id], order[#order + 1] = r, r
+        return r
+    end
+    local h = ht and ht.index[key]
     if h then
-        add_row(entry, 'Health', 'health', 'Health', 'u32', { part('health', TYPES.health, h, 'u32', 10000000) }, 1, 100000, 5, 25)
+        add('Health', 'health', 'Health', 'u32', { part('health', TYPES.health, h, 'u32', 10000000) }, 1, 100000, 5, 25)
         -- Native Helldiver HealthComponentData regeneration field (+4).
-        add_row(entry, 'Health', 'health_regen', 'Regeneration (health/s)', 'f32',
+        add('Health', 'health_regen', 'Regeneration (health/s)', 'f32',
                 { part('health_regen', TYPES.health, h + 4, 'f32', 1000000) }, 0, 100, 1, 5)
         local top = ht.copies[1] + HEADER_BYTES
         for z = 0, 37 do
@@ -12489,20 +12655,20 @@ KINDS[TYPES.avatar].resolve = function(entry)
             local label = A.ZONES[peek4(top + base + 96) or 0]
             if label then
                 local id = 'zone' .. z .. '_health'
-                add_row(entry, 'Body parts', id, label .. ' health', 'u32',
+                add('Body parts', id, label .. ' health', 'u32',
                         { part(id, TYPES.health, base + 232, 'u32', 10000000) }, 1, 100000, 5, 25)
             end
         end
     end
-    local m = at and at.index[entry.key]
+    local m = at and at.index[key]
     if m then
         for _, f in ipairs(A.MOVE) do
-            add_row(entry, f[1], f[2], f[3], 'f32', { part(f[2], TYPES.avatar, m + f[4], 'f32', 100000) }, 0, f[5], f[6], f[7])
+            add(f[1], f[2], f[3], 'f32', { part(f[2], TYPES.avatar, m + f[4], 'f32', 100000) }, 0, f[5], f[6], f[7])
         end
     end
     -- water (Shallow Water Diving's fields): the two depth offsets are below the water line (negative)
     local dt = tables[TYPES.drown]
-    local d = dt and dt.index[entry.key]
+    local d = dt and dt.index[key]
     if d then
         for _, f in ipairs({ { 'drown_depth', 'Drowning depth offset (m)', 4, -5, 0 }, { 'float_depth', 'Floating depth offset (m)', 8, -5, 0 },
                              { 'drown_time', 'Time before drowning (s)', 12, 0.1, 3600 } }) do
@@ -12510,7 +12676,7 @@ KINDS[TYPES.avatar].resolve = function(entry)
             p.field.signed = f[4] < 0 or nil   -- (before the first read: negative values are refused otherwise)
             local v = default_of(p.field)
             if v and v >= f[4] and v <= f[5] then
-                local r = add_row(entry, 'Water', f[1], f[2], 'f32', { p }, f[4], f[5], 0.1, f[3] == 12 and 5 or 0.5)
+                local r = add('Water', f[1], f[2], 'f32', { p }, f[4], f[5], 0.1, f[3] == 12 and 5 or 0.5)
                 if f[3] == 4 then r.note = 'lower (more negative): you go deeper before drowning starts' end
             end
         end
@@ -12529,9 +12695,57 @@ KINDS[TYPES.avatar].resolve = function(entry)
                 local v = default_of(p.field)
                 if v and v == v and math.abs(v) < 100000 then
                     p.field.signed = v < 0 or nil
-                    add_row(entry, section, prefix .. f[1], f[2], 'f32', { p }, v < 0 and -f[4] or 0, f[4], f[5], f[6])
+                    add(section, prefix .. f[1], f[2], 'f32', { p }, v < 0 and -f[4] or 0, f[4], f[5], f[6])
                 end
             end
+        end
+    end
+    local view, in_doc = entry.player_view or 'doc', {}
+    for _, box in ipairs(A.DOC) do
+        for _, f in ipairs(box.fields) do if f.id then in_doc[f.id] = true end end
+    end
+    local function health(id) return id == 'health' or id == 'health_regen' or id:find('^zone%d+_health$') ~= nil end
+    local function named(n) return function() return MOD.nav.text(n) end end
+    local function put(r, section, section_of, label_of, tip)
+        local row = add_row(entry, section, r.id, r.label, r.storage, r.parts, r.min, r.max, r.small, r.big)
+        row.note, row.section_of, row.label_of, row.tip = r.note, section_of, label_of, tip
+        r.placed = true
+    end
+    -- a field of the document the editor has no stat for: shown, left empty
+    local function empty(section, section_of, name)
+        entry.rows[#entry.rows + 1] = { section = section, id = 'empty' .. (#entry.rows + 1), label = name[1], storage = 'f32',
+                                        parts = {}, min = 0, max = 0, small = 1, big = 1, empty = true,
+                                        section_of = section_of, label_of = named(name) }
+    end
+    if view == 'doc' then   -- a filled field keeps the editor's own name; an empty one shows the document's
+        for _, box in ipairs(A.DOC) do
+            for _, f in ipairs(box.fields) do
+                local r = f.id and made[f.id]
+                if r then put(r, box.name[1], named(box.name))
+                else empty(box.name[1], named(box.name), f.name) end
+            end
+        end
+        -- the stats the other two pages show stay found by their id here: this page keeps the hash the helldiver's
+        -- values were saved under (config.txt, presets)
+        for _, r in ipairs(order) do
+            if not r.placed then
+                for _, p in ipairs(r.parts) do
+                    entry.by_id[p.id] = entry.by_id[p.id] or p
+                    p.row = p.row or r
+                end
+            end
+        end
+    elseif view == 'quick' then
+        for _, box in ipairs(A.QUICK) do
+            local any = false
+            for _, r in ipairs(box.kind == 'health' and order or {}) do
+                if health(r.id) then put(r, box.name[1], named(box.name)); any = true end
+            end
+            if not any then empty(box.name[1], named(box.name), A.NONE) end
+        end
+    else
+        for _, r in ipairs(order) do
+            if not in_doc[r.id] and not health(r.id) then put(r, r.section) end
         end
     end
 end
@@ -13722,8 +13936,23 @@ KINDS[TYPES.destruction].body_rows = function(entry, key, section, prefix)
     if prefix == 'unit_' then   -- (issue #86; the deployers have their own Armor row) +280, with the zones that match
         add_row(entry, section, prefix .. 'armor', 'Armor', 'u32', follow('armor', 280, 216, 'u32', 10), 0, 10, 1, 1)
     end
+    local bridge = MOD.offline and rawget(_G, 'SHODAN_DEMOLITION_BRIDGE')
+    if bridge then
+        for _, l in ipairs(bridge:rows(key)) do
+            local id = prefix .. 'demolition' .. (l.level > 0 and l.level + 1 or '') .. (l.hit and '_hit' or '')
+            fields[l.field.key] = l.field
+            local label = 'Demolition force to destroy it' .. (l.level > 0 and (' (entry ' .. (l.level + 1) .. ')') or '')
+                          .. (l.hit and ' (direct hits)' or '')
+            local row = add_row(entry, section, id, label, 'u32', { { id = id, field = l.field } }, 0, 4294967295, 10, 10)
+            row.note = 'Synced with Entity Demolition; independent per entity. Direct hits inherit Normal until overridden.'
+        end
+        return
+    end
     local spec = KINDS[TYPES.destruction]
-    local n = spec.ready() and tables[TYPES.destruction_map].index[key]
+    local unit_key = key
+    local unit_for = rawget(_G, 'SHODAN_DEMOLITION_UNIT')
+    if type(unit_for) == 'function' then unit_key = unit_for(key) or key end
+    local n = spec.ready() and (tables[TYPES.destruction_map].index[unit_key] or tables[TYPES.destruction_map].index[key])
     local block = n and spec.found[n + 1]
     if not block then return end
     local base = block - spec.found[1]
@@ -15980,6 +16209,7 @@ end
 
 -- A row's value (the mean of its parts); default = true: the game's own value instead.
 local function row_value(row, default)
+    if row.empty then return nil end   -- (a document's field the editor has no stat for)
     local get = default and default_of or read_field
     if row.choice == 'grenade' and not default and row.parts[1].field.pending_value ~= nil then
         return row.parts[1].field.pending_value
@@ -16069,6 +16299,14 @@ do
         state.update_channel = function() return settings.update_channel end   -- 'releases' or 'commits'
         state.stacks = function() return settings.stacks end   -- passive id -> { passive ids stacked on it }
         state.own_off = function() return settings.own_off end -- passive id -> true: its own effects left out
+        state.entity_demolition_enabled = function() return settings.changes end
+        state.demolition_labels = function()
+            local out = {}
+            for _, w in ipairs(weapons) do
+                if w.key and #w.key == 8 then out[string.format('%08X%08X', u32(w.key, 4), u32(w.key, 0))] = w.name end
+            end
+            return out
+        end
         -- stratagem type -> { arrow, ... }: every call-in code set here (hostdata.lua M.codes writes them)
         state.codes = function()
             local out = {}
@@ -16190,11 +16428,15 @@ local function save_config()
     lines[#lines + 1] = 'editor ' .. (settings.enemy_last and 'enemy' or 'stat')
     for _, o in ipairs(overrides) do
         local weapon = by_hash[o.hash]
-        lines[#lines + 1] = o.hash .. ' ' .. o.id .. ' ' .. number_text(o.value) ..
-                            (weapon and ('   # ' .. weapon.name) or '')
+        local p = weapon and weapon.by_id[o.id]
+        if not (p and p.field.demolition) then
+            lines[#lines + 1] = o.hash .. ' ' .. o.id .. ' ' .. number_text(o.value) ..
+                                (weapon and ('   # ' .. weapon.name) or '')
+        end
     end
     local ok, why = MOD.write_text(path, table.concat(lines, '\r\n') .. '\r\n')
     if not ok then log('could not write ' .. path .. ': ' .. why) end
+    return ok, why
 end
 
 local function load_config()
@@ -16296,8 +16538,40 @@ end
 
 local function mark_config_dirty() config_dirty_at = api.now() + 0.75; MOD.enemy.refresh_due = true end
 
+-- Only a derived cache for the original page's changed markers, counts and presets.
+-- Canonical values live in entity_demolition.txt and are never saved to config.txt.
+function MOD.sync_demolition()
+    local kept, seen = {}, {}
+    for _, o in ipairs(overrides) do
+        local w = by_hash[o.hash]
+        local p = w and w.by_id[o.id]
+        if not (p and p.field.demolition) then kept[#kept + 1] = o end
+    end
+    for _, w in ipairs(weapons) do
+        for _, row in ipairs(w.rows) do
+            for _, p in ipairs(row.parts) do
+                local f = p.field
+                if f.demolition and not seen[f.key] then
+                    seen[f.key] = true
+                    local value = f.demolition:own(f)
+                    if value ~= nil then kept[#kept + 1] = {hash=w.hash,id=p.id,value=value,demolition=true} end
+                end
+            end
+        end
+    end
+    overrides = kept
+    state.demolition_revision = (state.demolition_revision or 0) + 1
+end
+if MOD.offline then state.sync_demolition = MOD.sync_demolition end
+
 -- Drops every override that writes the same memory as (hash, id), then optionally adds one.
 local function set_override(weapon, p, value)
+    if p.field and p.field.demolition then
+        -- write_field already committed the exact input, including an explicit baseline.
+        -- Resets use the bridge explicitly; nil here only means the old cache needs no entry.
+        if value ~= nil then return p.field.demolition:write(p.field, value) end
+        return true
+    end
     local kept = {}
     for _, o in ipairs(overrides) do
         local other = by_hash[o.hash]
@@ -16745,6 +17019,35 @@ local function prepare(deadline)
         if not resolve_some(progress, deadline) then return end
         progress.resolved = true
     end
+    if not progress.demolition_migrated then
+        local bridge = MOD.offline and rawget(_G, 'SHODAN_DEMOLITION_BRIDGE')
+        if bridge then
+            local records, kept = {}, {}
+            for _, o in ipairs(overrides) do
+                local w = by_hash[o.hash]
+                local p = w and w.by_id[o.id]
+                if p and p.field.demolition and not o.demolition then
+                    records[#records + 1] = {field=p.field,value=o.value}
+                else kept[#kept + 1] = o end
+            end
+            local ok, why = bridge:migrate(records)
+            if not ok then set_status('gave_up', 'Demolition settings migration failed: ' .. tostring(why)); return end
+            overrides = kept
+            local ordinary = {}
+            for _, o in ipairs(pending) do
+                local w = by_hash[o.hash]
+                local p = w and w.by_id[o.id]
+                if not (p and p.field.demolition) then ordinary[#ordinary + 1] = o end
+            end
+            pending, apply_at = ordinary, 1
+            MOD.sync_demolition()
+            if #records > 0 then
+                local saved, problem = save_config()
+                if not saved then set_status('gave_up', 'Could not save unified demolition settings: ' .. tostring(problem)); return end
+            end
+        end
+        progress.demolition_migrated = true
+    end
     if not MOD.snapshot_defaults(progress, deadline) then return end
     if api.now() >= deadline or not apply_config(deadline) then return end
     progress = nil
@@ -16774,10 +17077,14 @@ end
 local function searching() return state.phase == 'searching' end
 
 local function wants(kind, address)
+    local permitted = rawget(_G, 'SHODAN_OFFLINE_TABLE_ADDRESS')
+    if MOD.offline and type(permitted) == 'function' and not permitted(address) then return false end
     return KINDS[kind] ~= nil and not parsed_blocks[address]
 end
 
 local function handle_table(address, kind, payload, blob)
+    local permitted = rawget(_G, 'SHODAN_OFFLINE_TABLE_ADDRESS')
+    if MOD.offline and type(permitted) == 'function' and not permitted(address) then return end
     local spec = KINDS[kind]
     if not spec or parsed_blocks[address] then return end
     if spec.found then   -- one of many tables taken by address (the destruction settings)
@@ -17003,11 +17310,249 @@ local ui = { open = false, measured = {}, measures = 0, tab = 'Primary', page = 
 -- the status line, for code above the panel's
 function MOD.notify(text, seconds) ui.message = { text = text, till = api.now() + (seconds or 4) } end
 local TABS = { 'Primary', 'Secondary', 'Support', 'Throwables', 'Stratagems', 'Mechas', 'Boosters', 'Attachments', 'Armors', 'Records' }
--- the tabs Settings > Tabs shown leaves on
+
+-- ---------------------------------------------------------------- pages (the layout document)
+-- The window's pages (offline/host.lua's bar at the top, in the layout document's order) and each page's sub-pages
+-- (the panel's tab row). A sub-page shows one or more of the editor's tabs (`tabs`: picked on the title's line when
+-- there are several), or holds the place of a feature the editor does not have yet (`todo`: what it is to hold, in
+-- groups). Names: { English, 简体, 繁體 }. Tabs beyond TABS split one by what a page is: Orbital / Eagle (the
+-- Stratagems tab's orbital and Eagle strikes), RecProjectile / RecExplosion / RecStatus (the Records tab by kind),
+-- Helldiver (the Armors tab's helldiver). Settings > Tabs shown still turns off the original tabs (MOD.nav.base).
+MOD.nav = { BASE = { Orbital = 'Stratagems', Eagle = 'Stratagems', RecProjectile = 'Records', RecExplosion = 'Records',
+                     RecStatus = 'Records', Helldiver = 'Armors', HelldiverQuick = 'Armors', HelldiverOther = 'Armors' },
+            REC = { F1 = 'RecProjectile', F2 = 'RecExplosion', F3 = 'RecStatus' } }
+-- the page shown, by page the sub-page shown, by sub-page ('<page>:<n>') its tab shown, by tab the page last chosen
+ui.nav = { page = 'armory', sub = {}, cat = {}, weapon = {} }
+MOD.nav.PAGES = {
+    { id = 'features', name = { 'Features', '游戏功能', '遊戲功能' }, subs = {
+        { name = { 'Player', '玩家主体', '玩家主體' }, todo = {
+            { items = { { 'God mode', '无敌', '無敵' }, { 'Infinite stims', '无限治疗针', '無限治療針' }, { 'Infinite backpack', '无限背包', '無限背包' }, { 'Infinite stamina', '无限耐力', '無限耐力' }, { 'No fall damage', '坠落无伤', '墜落無傷' }, { 'Melee speed', '近战攻速设置', '近戰攻速設置' }, { 'Edit current health', '当前玩家血量编辑', '當前玩家血量編輯' }, { 'Infinite shield', '无限护盾', '無限護盾' }, { 'Ignore Automaton jammers', '无视机器人干扰塔', '無視機器人干擾塔' }, { 'Ignore Illuminate interference', '无视光能者干扰', '無視光能者干擾' }, { 'Show every objective on the map', '显示全图目标', '顯示全圖目標' }, { 'Infinite reinforcements', '无限增援', '無限增援' } } },
+        } },
+        { name = { 'Movement', '玩家移动', '玩家移動' }, todo = {
+            { items = { { 'Movement speed', '移动速度', '移動速度' }, { 'Map teleport', '地图传送', '地圖傳送' }, { 'Teleport with Q', 'Q键传送', 'Q鍵傳送' }, { 'Never slowed', '不会减速', '不會減速' }, { 'Fast dive', '快速卧倒', '快速臥倒' }, { 'No map boundary', '地图无边界', '地圖無邊界' }, { 'Infinite jump pack', '无限跳包', '無限跳包' }, { 'Longer jump pack jumps', '跳包更远', '跳包更遠' }, { 'Infinite warp pack', '无限传包', '無限傳包' }, { 'Warp pack distance', '传送背包距离', '傳送背包距離' }, { 'Hover pack settings', '悬浮背包的参数', '懸浮背包的參數' }, { 'Infinite hover pack', '无限悬浮背包', '無限懸浮背包' }, { 'Free flight', '上下左右飞行', '上下左右飛行' } } },
+        } },
+        { name = { 'Weapons', '玩家武器', '玩家武器' }, todo = {
+            { items = { { 'Infinite grenades', '无限手雷', '無限手雷' }, { 'Infinite ammo', '无限子弹', '無限子彈' }, { 'Infinite magazines', '无限弹夹', '無限彈夾' }, { 'No charge-up', '无需蓄力', '無需蓄力' }, { 'Lasers never overheat', '激光不过热', '激光不過熱' }, { 'Automaton turrets never overheat', '机器人炮台不过热', '機器人炮臺不過熱' }, { 'No recoil', '无后坐力', '無後坐力' }, { 'Steady crosshair', '准星不晃', '準星不晃' }, { 'Fire while moving', '移动射击', '移動射擊' }, { 'Max ergonomics', '武器最大人体工学', '武器最大人體工學' }, { 'Endless sentry duration', '无限炮台持续时间', '無限炮臺持續時間' }, { 'Clear every sentry', '清除所有炮台', '清除所有炮臺' }, { 'Infinite autocannon ammo', '机炮无限子弹', '機炮無限子彈' }, { 'Double-edged sickle always hot', '双刃镰始终发热', '雙刃鐮始終發熱' }, { 'Infinite G-50 Seeker grenades', '无限寻踪者G50手雷', '無限尋蹤者G50手雷' }, { 'Quasar never overheats', '类星体不会过热', '類星體不會過熱' }, { 'Chainsaw always running', '电锯始终运行', '電鋸始終運行' }, { 'Every fuse detonates at once', '所有引信立即爆炸', '所有引信立即爆炸' } } },
+        } },
+        { name = { 'Missions', '任务设置', '任務設置' }, todo = {
+            { items = { { 'Complete the main objective', '完成主线任务', '完成主線任務' }, { 'Complete side objectives', '完成支线任务', '完成支線任務' }, { 'Complete outposts', '完成哨站任务', '完成哨站任務' }, { 'Pelican lands at once', '鹈鹕立即降落', '鵜鶘立即降落' }, { 'Freeze the mission timer', '冻结任务时间', '凍結任務時間' }, { 'Complete rescue missions', '完成救人任务', '完成救人任務' }, { 'Complete eradicate missions', '完成歼灭任务', '完成殲滅任務' }, { 'SEAF artillery mission editing', 'SEAF大炮任务编辑', 'SEAF大炮任務編輯' }, { 'Evacuate citizens: score', '营救公民任务得分设置', '營救公民任務得分設置' }, { 'Repel the fleet: ships left', '击退舰队任务剩余舰船数量', '擊退艦隊任務剩餘艦船數量' }, { 'Eradicate: score', '歼灭任务得分设置', '殲滅任務得分設置' }, { 'Rocket launch defense: score', '保护火箭发射任务得分设置', '保護火箭發射任務得分設置' } } },
+        } },
+        { name = { 'Points of interest', '兴趣点设置', '興趣點設置' }, todo = {
+            { items = { { 'Open bunkers solo', '单人开启地堡', '單人開啟地堡' } } },
+        } },
+        { name = { 'Terminals', '终端设置', '終端設置' }, todo = {
+            { items = { { 'Every arrow right', '箭头全对', '箭頭全對' }, { 'Complete coordinate terminals', '完成坐标终端任务', '完成坐標終端任務' }, { 'Complete pipe terminals', '完成管道终端任务', '完成管道終端任務' }, { 'Complete the ship stratagem game', '完成舰船战备游戏', '完成艦船戰備遊戲' } } },
+        } },
+        { name = { 'Stratagem settings', '战备设置', '戰備設置' }, todo = {
+            { items = { { 'Infinite stratagems', '无限战备', '無限戰備' }, { 'Stratagems land at once', '战备立即降落', '戰備立即降落' }, { 'Call stratagems anywhere', '战备随处呼叫', '戰備隨處呼叫' }, { 'Spawn stratagems underfoot', '脚下立即生成战备', '腳下立即生成戰備' }, { 'Spawn stratagems beside you', '身边立即生成战备', '身邊立即生成戰備' }, { 'Several stratagems at once', '多倍战备', '多倍戰備' }, { 'View and edit the mission\'s stratagems', '局内战备查看与修改', '局內戰備查看與修改' } } },
+        } },
+    } },
+    { id = 'character', name = { 'Character', '人物数据', '人物數據' }, subs = {
+        { name = { 'Character data', '人物数据', '人物數據' }, tabs = { 'Helldiver' }, solo = true },
+        { name = { 'Quick edit', '快速编辑', '快速編輯' }, tabs = { 'HelldiverQuick' }, solo = true },
+    } },
+    { id = 'currency', name = { 'Currency', '材料货币', '材料貨幣' }, subs = {
+        { name = { 'Capture and send currency', '抓包发蓝币', '抓包發藍幣' }, todo = {
+            { items = { { 'Enable', '开启', '開啟' } } },
+        } },
+        { name = { 'Classic resource farming', '古法刷资源', '古法刷資源' }, todo = {
+            { items = { { 'Edit supply drops', '修改空投', '修改空投' }, { 'Replace a stratagem with', '替换战备为', '替換戰備為' }, { 'Collect samples', '获取样本', '獲取樣本' }, { 'Super mission rewards', '超级结算', '超級結算' } } },
+        } },
+    } },
+    { id = 'enemies', name = { 'Enemies', '敌人设置', '敵人設置' }, enemy = true, subs = {
+        { name = { 'Enemy editor', '敌人编辑', '敵人編輯' }, tabs = { 'Terminids', 'Automatons', 'Illuminate', 'SEAF', 'Spawning' } },
+        { name = { 'AI settings', 'AI设置', 'AI設置' }, todo = {
+            { items = { { 'Block every AI\'s own targeting', '阻断所有AI主动锁敌', '阻斷所有AI主動鎖敵' }, { 'Block every AI\'s awareness', '阻断所有AI主动感知环境', '阻斷所有AI主動感知環境' }, { 'Remove the enemy limit', '去除敌人数量上限', '去除敵人數量上限' }, { 'Edit and spawn patrols', '巡逻队编辑与生成', '巡邏隊編輯與生成' } } },
+        } },
+        { name = { 'Flare editor', '拉烟编辑器', '拉煙編輯器' }, todo = {
+            { note = { 'Set every enemy that calls reinforcements to (pick or type one).', '设置所有拉烟的敌人为（可选择或输入）', '設置所有拉煙的敵人為（可選擇或輸入）' }, items = {} },
+        } },
+        { name = { 'Enemy swapper', '敌人替换器', '敵人替換器' }, todo = {
+            { note = { 'Watch for a chosen creature entity and swap it for another.', '监听并截取指定的生物实体为另一个', '監聽並截取指定的生物實體為另一個' }, items = { { 'Terminids', '虫族', '蟲族' }, { 'Automatons', '机器人', '機器人' }, { 'Illuminate', '光能者', '光能者' } } },
+        } },
+    } },
+    { id = 'armory', name = { 'Armory', '军械库', '軍械庫' }, subs = {
+        { name = { 'Unlock', '解锁', '解鎖' }, todo = {
+            { items = { { 'Unlock every weapon', '解锁所有武器', '解鎖所有武器' }, { 'Unlock all equipment', '解锁所有装备', '解鎖所有裝備' }, { 'Unlock every stratagem', '解锁所有战备', '解鎖所有戰備' }, { 'Unlock the rest', '解锁其他', '解鎖其他' } } },
+        } },
+        { name = { 'Weapon editing', '武器编辑', '武器編輯' }, tabs = { 'Primary', 'Secondary', 'Support', 'Throwables' } },
+        { name = { 'Weapon attachments', '武器配件自定义', '武器配件自定義' }, tabs = { 'Attachments' } },
+        { name = { 'Armor editing', '护甲编辑', '護甲編輯' }, tabs = { 'Armors' } },
+        { name = { 'Boosters', '强化资源', '強化資源' }, tabs = { 'Boosters' } },
+        { name = { 'Loadout swap', '装备替换', '裝備替換' }, todo = {
+            { note = { 'Click a weapon first, then change the chosen one.', '请先点击武器，再修改选中', '請先點擊武器，再修改選中' }, items = { { 'Weapon swap', '武器替换', '武器替換' }, { 'Swap the chosen one', '修改选中', '修改選中' } } },
+        } },
+        { name = { 'Current loadout', '当前装备栏编辑', '當前裝備欄編輯' }, todo = {
+            { items = { { 'Helmet', '当前头盔', '當前頭盔' }, { 'Armor', '当前护甲', '當前護甲' }, { 'Cape', '当前披风', '當前披風' }, { 'Primary', '当前主手', '當前主手' }, { 'Secondary', '当前副手', '當前副手' }, { 'Grenade', '当前手雷', '當前手雷' }, { 'Title', '当前称号', '當前稱號' }, { 'Background', '当前背景', '當前背景' }, { 'Body type', '当前体型', '當前體型' }, { 'Voice', '当前声音', '當前聲音' } } },
+        } },
+    } },
+    { id = 'planets', name = { 'Planets', '星球任务', '星球任務' }, subs = {
+        { name = { 'Planet settings', '星球设置', '星球設置' }, todo = {
+            { title = { 'Galaxy map', '银河地图编辑', '銀河地圖編輯' }, items = { { 'Planet', '行星', '行星' }, { 'Owner', '所有者', '所有者' }, { 'Health', '生命值', '生命值' }, { 'Regen per second', '每秒恢复', '每秒恢復' }, { 'X', '坐标X', '坐標X' }, { 'Y', '坐标Y', '坐標Y' }, { 'Locked', '锁定', '鎖定' }, { 'Sector', '区域', '區域' }, { 'Active effects', '几个生效效果', '幾個生效效果' }, { 'Effects 1-8', '效果1-8', '效果1-8' } } },
+            { title = { 'Planet edit', '星球修改', '星球修改' }, note = { 'Hover a planet and read it once to keep editing it.', '光标放在星球上，获取一次即可一直修改', '光標放在星球上，獲取一次即可一直修改' }, items = { { 'Planet data', '星球数据', '星球數據' }, { 'Change planet', '修改星球', '修改星球' } } },
+        } },
+        { name = { 'Campaign editing', '战役编辑', '戰役編輯' }, todo = {
+            { note = { 'Applies from the next map.', '需下一次地图', '需下一次地圖' }, items = { { 'Active', '活跃', '活躍' }, { 'Planet', '行星', '行星' }, { 'Event flag', '活动标识', '活動標識' }, { 'Count', '计数', '計數' }, { 'Type', '类型', '類型' }, { 'Faction', '种族', '種族' } } },
+        } },
+        { name = { 'Operation editing', '行动编辑', '行動編輯' }, todo = {
+            { items = { { 'Operation type', '作战类型', '作戰類型' }, { 'Operation ID', '作战ID', '作戰ID' }, { 'Active modifiers', '修饰符生效数量', '修飾符生效數量' }, { 'Modifiers 1-12', '修饰符1-12', '修飾符1-12' } } },
+        } },
+        { name = { 'Mission editing', '任务编辑', '任務編輯' }, todo = {
+            { note = { 'Pick a mission, then edit it.', '选择任务以后即可编辑', '選擇任務以後即可編輯' }, items = { { 'Mission types 1-3', '任务类型1-3', '任務類型1-3' }, { 'Mission ID', '任务ID', '任務ID' }, { 'Mission seed', '任务种子', '任務種子' }, { 'Reinforce time', '强化时间', '強化時間' }, { 'Solo reinforce time', '单人强化时间', '單人強化時間' }, { 'Extra time per team death', '每个死亡团队的额外强化时间', '每個死亡團隊的額外強化時間' }, { 'Reinforce cooldown', '强化冷却时间', '強化冷卻時間' }, { 'Extra time per own death', '每个死亡自我额外强化时间', '每個死亡自我額外強化時間' }, { 'Extra time per death minute', '每死亡分钟额外强化时间', '每死亡分鐘額外強化時間' } } },
+        } },
+        { name = { 'S\'s mission tweaks', 'S的任务微调', 'S的任務微調' }, todo = {
+            { note = { 'After S\' super Mission Editor.', '参考 S\' super Mission Editor', '參考 S\' super Mission Editor' }, items = { { 'ID', 'ID', 'ID' }, { 'Faction', '种族', '種族' }, { 'Type', '类型', '類型' }, { 'Generate in operation (level range)', '行动内生成（等级范围）', '行動內生成（等級範圍）' }, { 'Name / description IDs', '名称/描述ID', '名稱/描述ID' }, { 'Objectives', '目标', '目標' }, { 'Generate count', '生成数量', '生成數量' } } },
+        } },
+    } },
+    { id = 'components', name = { 'Components', '实体组件', '實體組件' }, subs = {
+        { name = { 'Weapon components', '武器组件', '武器組件' }, todo = {
+            { title = { 'common weapon', 'common weapon', 'common weapon' }, note = { 'Enter or pick any entity\'s hash and edit its weapon component.', '输入/选择任意实体的哈希，修改其 weapon 组件参数', '輸入/選擇任意實體的哈希，修改其 weapon 組件參數' }, items = { { 'weapondata', 'weapondata', 'weapondata' }, { 'weaponreload', 'weaponreload', 'weaponreload' }, { 'weaponmagazine', 'weaponmagazine', 'weaponmagazine' }, { 'weaponcharge', 'weaponcharge', 'weaponcharge' } } },
+            { title = { 'projectileweapon', 'projectileweapon', 'projectileweapon' }, note = { 'Enter or pick any entity\'s hash and edit its projectileweapon component.', '输入/选择任意实体的哈希，修改其 projectileweapon 组件参数', '輸入/選擇任意實體的哈希，修改其 projectileweapon 組件參數' }, items = {} },
+            { title = { 'sprayweapon', 'sprayweapon', 'sprayweapon' }, note = { 'Enter or pick any entity\'s hash and edit its sprayweapon component.', '输入/选择任意实体的哈希，修改其 sprayweapon 组件参数', '輸入/選擇任意實體的哈希，修改其 sprayweapon 組件參數' }, items = {} },
+            { title = { 'arcweapon', 'arcweapon', 'arcweapon' }, note = { 'Enter or pick any entity\'s hash and edit its arcweapon component.', '输入/选择任意实体的哈希，修改其 arcweapon 组件参数', '輸入/選擇任意實體的哈希，修改其 arcweapon 組件參數' }, items = {} },
+        } },
+        { name = { 'Turrets and guidance', '炮塔与制导', '炮塔與制導' }, todo = {
+            { title = { 'sensor eyes', 'sensor eyes', 'sensor eyes' }, note = { 'Enter or pick any entity\'s hash and edit its sensoreye component.', '输入/选择任意实体的哈希，修改其 sensoreye 组件参数', '輸入/選擇任意實體的哈希，修改其 sensoreye 組件參數' }, items = {} },
+            { title = { 'turret', 'turret', 'turret' }, note = { 'Enter or pick any entity\'s hash and edit its turret component.', '输入/选择任意实体的哈希，修改其 turret 组件参数', '輸入/選擇任意實體的哈希，修改其 turret 組件參數' }, items = {} },
+        } },
+        { name = { 'Backpack', '背包', '背包' }, todo = {
+            { title = { 'inventory', 'inventory', 'inventory' }, note = { 'Enter or pick any entity\'s hash and edit its inventory component.', '输入/选择任意实体的哈希，修改其 inventory 组件参数', '輸入/選擇任意實體的哈希，修改其 inventory 組件參數' }, items = {} },
+        } },
+        { name = { 'Mounts', '挂载', '掛載' }, todo = {
+            { title = { 'mount', 'mount', 'mount' }, note = { 'Enter or pick any entity\'s hash and edit its mount component.', '输入/选择任意实体的哈希，修改其 mount 组件参数', '輸入/選擇任意實體的哈希，修改其 mount 組件參數' }, items = {} },
+        } },
+        { name = { 'Faction', '阵营', '陣營' }, todo = {
+            { title = { 'faction', 'faction', 'faction' }, note = { 'Enter or pick any entity\'s hash and edit its faction component.', '输入/选择任意实体的哈希，修改其 faction 组件参数', '輸入/選擇任意實體的哈希，修改其 faction 組件參數' }, items = {} },
+        } },
+        { name = { 'Mines', '地雷', '地雷' }, todo = {
+            { title = { 'minefield / minespawner', 'minefield 和 minespawner', 'minefield 和 minespawner' }, note = { 'Enter or pick any entity\'s hash and edit its minefield / minespawner component.', '输入/选择任意实体的哈希，修改其 minefield / minespawner 组件参数', '輸入/選擇任意實體的哈希，修改其 minefield / minespawner 組件參數' }, items = {} },
+        } },
+        { name = { 'Throwers', '投掷物', '投擲物' }, todo = {
+            { title = { 'thrower', 'thrower', 'thrower' }, note = { 'Enter or pick any entity\'s hash and edit its thrower component.', '输入/选择任意实体的哈希，修改其 thrower 组件参数', '輸入/選擇任意實體的哈希，修改其 thrower 組件參數' }, items = {} },
+        } },
+        { name = { 'Drowning', '淹没', '淹沒' }, todo = {
+            { title = { 'drownable', 'drownable', 'drownable' }, note = { 'Enter or pick any entity\'s hash and edit its drownable component.', '输入/选择任意实体的哈希，修改其 drownable 组件参数', '輸入/選擇任意實體的哈希，修改其 drownable 組件參數' }, items = {} },
+        } },
+        { name = { 'Health', '生命', '生命' }, todo = {
+            { title = { 'health', 'health', 'health' }, note = { 'Enter or pick any entity\'s hash and edit its health component.', '输入/选择任意实体的哈希，修改其 health 组件参数', '輸入/選擇任意實體的哈希，修改其 health 組件參數' }, items = {} },
+        } },
+        { name = { 'Shield', '护盾', '護盾' }, todo = {
+            { title = { 'shield', 'shield', 'shield' }, note = { 'Enter or pick any entity\'s hash and edit its shield component.', '输入/选择任意实体的哈希，修改其 shield 组件参数', '輸入/選擇任意實體的哈希，修改其 shield 組件參數' }, items = {} },
+        } },
+    } },
+    { id = 'orbitals', name = { 'Orbital & Eagle', '轨道飞鹰', '軌道飛鷹' }, subs = {
+        { name = { 'Orbital editing', '轨道编辑', '軌道編輯' }, tabs = { 'Orbital' } },
+        { name = { 'Eagle editing', '飞鹰编辑', '飛鷹編輯' }, tabs = { 'Eagle' } },
+        { name = { 'Orbital weapon editing', '轨道武器编辑', '軌道武器編輯' }, todo = {
+            { title = { 'orbitalweapon', 'orbitalweapon', 'orbitalweapon' }, note = { 'Enter or pick any entity\'s hash and edit its orbitalweapon component.', '输入/选择任意实体的哈希，修改其 orbitalweapon 组件参数', '輸入/選擇任意實體的哈希，修改其 orbitalweapon 組件參數' }, items = {} },
+        } },
+    } },
+    { id = 'gamedata', name = { 'Game data', '游戏数据', '遊戲數據' }, subs = {
+        { name = { 'Damage ids', '伤害id修改', '傷害id修改' }, todo = {
+            { title = { 'Damage id swap', '伤害ID交换', '傷害ID交換' }, note = { 'Hook the game\'s calls to a chosen damage id and redirect them to another.', '汇编监听对指定伤害ID的调用，并篡改为另一个', '匯編監聽對指定傷害ID的調用，並篡改為另一個' }, items = {} },
+        } },
+        { name = { 'Projectile ids', '射弹id修改', '射彈id修改' }, tabs = { 'RecProjectile' } },
+        { name = { 'Explosion ids', '爆炸id修改', '爆炸id修改' }, tabs = { 'RecExplosion' } },
+        { name = { 'Arc ids', '电弧id修改', '電弧id修改' }, todo = {
+            { title = { 'Arc id swap', '电弧ID交换', '電弧ID交換' }, note = { 'Hook the game\'s calls to a chosen arc id and redirect them to another.', '汇编监听对指定电弧ID的调用，并篡改为另一个', '匯編監聽對指定電弧ID的調用，並篡改為另一個' }, items = {} },
+        } },
+        { name = { 'Laser ids', '激光id修改', '激光id修改' }, todo = {
+            { title = { 'Laser id swap', '激光ID交换', '激光ID交換' }, note = { 'Hook the game\'s calls to a chosen laser id and redirect them to another.', '汇编监听对指定激光ID的调用，并篡改为另一个', '匯編監聽對指定激光ID的調用，並篡改為另一個' }, items = {} },
+        } },
+        { name = { 'Status effect ids', '状态效果id', '狀態效果id' }, tabs = { 'RecStatus' } },
+        { name = { 'Stratagem ids', '战备id', '戰備id' }, tabs = { 'Stratagems', 'Mechas' } },
+    } },
+    { id = 'misc', name = { 'Misc & settings', '杂项与设置', '雜項與設置' }, subs = {
+        { name = { 'Identity', '身份设置', '身份設置' }, todo = {
+            { items = { { 'Your name (size, colour, custom text)', '设置自己的名字（可更改字号和颜色并自定义名称）', '設置自己的名字（可更改字號和顏色並自定義名稱）' }, { 'Invisible', '设置隐身', '設置隱身' }, { 'Chat text colour', '设置打字颜色', '設置打字顏色' } } },
+        } },
+        { name = { 'Editor settings', '修改器设置', '修改器設置' }, todo = {
+            { note = { 'Language, updates and the other settings there are now: the Settings button at the bottom right.', '语言、更新等现有设置：右下角的“设置”按钮。', '語言、更新等現有設置：右下角的“設置”按鈕。' }, items = { { 'Apply every ini now', '立即应用所有ini', '立即應用所有ini' }, { 'Keep every setting and close the editor', '保留所有设置并关闭修改器', '保留所有設置並關閉修改器' }, { 'Force-quit the game', '强制退出游戏', '強制退出遊戲' }, { 'Window, font and resolution size', '调整窗口大小 字体大小 分辨率大小', '調整窗口大小 字體大小 分辨率大小' }, { 'Switch and save config groups', '切换与保存配置文件组', '切換與保存配置文件組' } } },
+        } },
+        { name = { 'Preload', '预载设置', '預載設置' }, todo = {
+            { note = { 'Pick the packages to preload.', '选择预载包', '選擇預載包' }, items = { { 'Terminids / Automatons / Illuminate', '虫族 机器人 光能者', '蟲族 機器人 光能者' }, { 'Enemies', '敌人', '敵人' }, { 'Every package', '所有包', '所有包' } } },
+        } },
+        { name = { 'Finder', '寻找器', '尋找器' }, todo = {
+            { items = { { 'Held item hash', '手中物品哈希', '手中物品哈希' }, { 'Marked item hash', '标记物品哈希', '標記物品哈希' }, { 'Damage id', '伤害id', '傷害id' }, { 'Projectile id', '射弹id', '射彈id' }, { 'Explosion id', '爆炸id', '爆炸id' }, { 'Arc id', '电弧id', '電弧id' }, { 'Laser id', '激光id', '激光id' } } },
+        } },
+    } },
+    { id = 'extra', name = { 'Extra', '额外', '額外' }, subs = {
+        { name = { 'Helldiver: not in the document', '绝地潜兵（文档未列出）', '絕地潛兵（文檔未列出）' }, tabs = { 'HelldiverOther' }, solo = true },
+    } },
+}
+MOD.nav.T = {
+    todo_note = { 'Not in the editor yet: a placeholder kept from the layout document.', '此功能尚未加入编辑器：按布局文档保留的占位。', '此功能尚未加入編輯器：按佈局文檔保留的佔位。' },
+    todo_help = { 'This sub-page is a placeholder: it lists what is planned and changes nothing in the game.', '本子页为占位：仅列出计划中的功能，不会修改游戏。', '本子頁為佔位：僅列出計劃中的功能，不會修改遊戲。' },
+    todo_help2 = { 'Pick another sub-page above, or another page at the top of the window.', '请在上方选择其他子页，或在窗口顶部选择其他页面。', '請在上方選擇其他子頁，或在窗口頂部選擇其他頁面。' },
+}
+
+function MOD.nav.text(n)
+    if type(n) ~= 'table' then return settings.tr(n) end
+    return settings.lang == 'zh-Hans' and n[2] or settings.lang == 'zh-Hant' and n[3] or n[1]
+end
+function MOD.nav.base(tab) return MOD.nav.BASE[tab] or tab end
+-- the tab a weapon's (stratagem's, record's...) page is listed on
+function MOD.nav.tab_of(w)
+    if w.record then return MOD.nav.REC[w.hash:sub(1, 2)] or 'RecStatus' end
+    if w.player then
+        return w.player_view == 'quick' and 'HelldiverQuick' or w.player_view == 'other' and 'HelldiverOther' or 'Helldiver'
+    end
+    local family = w.slot == 'Stratagems' and w.stratagem and w.stratagem.family
+    return family == 'orbital' and 'Orbital' or family == 'eagle' and 'Eagle' or w.slot
+end
+function MOD.nav.page(id)
+    for _, p in ipairs(MOD.nav.PAGES) do if p.id == id then return p end end
+    return nil
+end
+-- the sub-page a page opens on the first time: its first with tabs
+function MOD.nav.first(page)
+    for k, sub in ipairs(page.subs) do if sub.tabs then return k end end
+    return 1
+end
+function MOD.nav.current()
+    local page = MOD.nav.page(ui.nav.page) or MOD.nav.PAGES[1]
+    local k = ui.nav.sub[page.id] or MOD.nav.first(page)
+    return page, page.subs[k], k
+end
+-- the page and sub-page that show a tab
+function MOD.nav.locate(tab)
+    for _, page in ipairs(MOD.nav.PAGES) do
+        for k, sub in ipairs(page.subs) do
+            for _, t in ipairs(sub.tabs or {}) do if t == tab then return page, k end end
+        end
+    end
+    return nil
+end
+-- a tab's name: an original tab's own, a split one's its sub-page's
+function MOD.nav.tab_label(tab)
+    if MOD.nav.BASE[tab] then
+        local page, k = MOD.nav.locate(tab)
+        if page then return MOD.nav.text(page.subs[k].name) end
+    end
+    return settings.tr(tab)
+end
+-- The page and sub-page follow the tab shown (a weapon chosen from a search, the editor's last tab at start);
+-- a placeholder (ui.tab 'todo') and Presets leave them.
+function MOD.nav.sync()
+    local page, sub, k = MOD.nav.current()
+    for _, t in ipairs(sub and sub.tabs or {}) do
+        if t == ui.tab then ui.nav.cat[page.id .. ':' .. k] = t; return end
+    end
+    page, k = MOD.nav.locate(ui.tab)
+    if page then ui.nav.page, ui.nav.sub[page.id], ui.nav.cat[page.id .. ':' .. k] = page.id, k, ui.tab end
+end
+-- the tabs Settings > Tabs shown leaves on, in the pages' order (the shown editor's: the Enemy Editor's on its page)
 function settings.shown_tabs()
-    if MOD.enemy.on then return MOD.enemy.TABS end
     local list = {}
-    for _, tab in ipairs(TABS) do if not settings.hidden[tab] then list[#list + 1] = tab end end
+    for _, page in ipairs(MOD.nav.PAGES) do
+        if (page.enemy == true) == MOD.enemy.on then
+            for _, sub in ipairs(page.subs) do
+                for _, tab in ipairs(sub.tabs or {}) do
+                    if not settings.hidden[MOD.nav.base(tab)] then list[#list + 1] = tab end
+                end
+            end
+        end
+    end
     return list
 end
 local LIST_ROWS = 27
@@ -17021,9 +17566,12 @@ local function weapons_in(tab)
         words = {}
         for word in ui.search.text:lower():gmatch('%S+') do words[#words + 1] = word end
     end
-    if tab == 'Records' or words and ui.tab == 'Records' then
+    -- (a record tab: its kind of records; a search there: every record)
+    local function records(t) return t == 'Records' or MOD.nav.BASE[t] == 'Records' end
+    if records(tab) or words and records(ui.tab) then
         for _, page in ipairs(MOD.records.all()) do
-            local text, all = (page.name .. ' ' .. page.note):lower(), true
+            local text = (page.name .. ' ' .. page.note):lower()
+            local all = words ~= nil or tab == 'Records' or MOD.nav.tab_of(page) == tab
             for _, word in ipairs(words or {}) do
                 if not text:find(word, 1, true) then all = false; break end
             end
@@ -17039,7 +17587,7 @@ local function weapons_in(tab)
                     if not name:find(word, 1, true) then all = false; break end
                 end
                 if all then list[#list + 1] = weapon end
-            elseif weapon.slot == tab then
+            elseif MOD.nav.tab_of(weapon) == tab then
                 list[#list + 1] = weapon
             end
         end
@@ -17183,12 +17731,13 @@ local function select_weapon(weapon)
     ui.weapon = weapon
     ui.row, ui.scroll, ui.settings, ui.binding, ui.stack_pick, ui.code = 1, 1, false, nil, nil, nil
     local last = settings.last[MOD.enemy.on and 'enemy' or 'stat']
-    if weapon and state.phase == 'ready' and (last.weapon ~= weapon.hash or last.tab ~= weapon.slot) then
-        last.tab, last.weapon = weapon.slot, weapon.hash
+    if weapon and state.phase == 'ready' and (last.weapon ~= weapon.hash or last.tab ~= MOD.nav.tab_of(weapon)) then
+        last.tab, last.weapon = MOD.nav.tab_of(weapon), weapon.hash
         mark_config_dirty()
     end
     if weapon then
-        ui.tab = weapon.slot
+        ui.tab = MOD.nav.tab_of(weapon)
+        ui.nav.weapon[ui.tab] = weapon.hash
         local list = weapons_in(ui.search.text ~= '' and '?search' or ui.tab)
         for n, w in ipairs(list) do
             if w == weapon and n < ui.page then ui.page = n
@@ -17434,6 +17983,22 @@ local function finish_value(keep)
 end
 
 -- A call-in code row: recording starts (the arrow keys or WASD add arrows), or ends with keep = true / false.
+if MOD.offline then
+    state.commit_value = function()
+        if not ui.value then return true end
+        local edit = ui.value
+        local value = tonumber((edit.text:gsub(',', '.')))
+        if not value or not MOD.parse_number(value) then return nil, 'Enter a finite number before switching pages or installing.' end
+        local row = edit.weapon and edit.weapon.rows[edit.n]
+        finish_value(true)
+        if row and row.parts[1].field.demolition then
+            local expected = math.max(row.min, math.min(row.max, math.floor(value + .5)))
+            if row_value(row) ~= expected then return nil, 'Could not save the current demolition value.' end
+        end
+        return true
+    end
+end
+
 function MOD.code.start(n)
     local weapon = ui.weapon
     if not settings.changes then
@@ -17462,9 +18027,14 @@ end
 local function reset_row(weapon, row)
     local keep = MOD.times_of(row)
     for _, p in ipairs(row.parts) do
-        local d = default_of(p.field)
-        if d ~= nil then write_field(p.field, d) end
-        set_override(weapon, p, nil)
+        if p.field.demolition then
+            local ok, why = p.field.demolition:write(p.field, nil)
+            if not ok then ui.message = {text=tostring(why),till=api.now()+5}; return end
+        else
+            local d = default_of(p.field)
+            if d ~= nil then write_field(p.field, d) end
+            set_override(weapon, p, nil)
+        end
     end
     MOD.keep_times(weapon, keep)
     ui.version = ui.version + 1
@@ -17494,7 +18064,8 @@ function MOD.reset_side(enemy)
             local weapon = by_hash[o.hash]
             local p = weapon and weapon.by_id[o.id]
             local d = p and default_of(p.field)
-            if d ~= nil then write_field(p.field, d) end
+            if p and p.field.demolition then p.field.demolition:write(p.field, nil)
+            elseif d ~= nil then write_field(p.field, d) end
         else
             keep[#keep + 1] = o
         end
@@ -17514,7 +18085,12 @@ local function reset_all()
         local weapon = by_hash[o.hash]
         local p = weapon and weapon.by_id[o.id]
         local d = p and default_of(p.field)
-        if d ~= nil then write_field(p.field, d) end
+        if d ~= nil and not p.field.demolition then write_field(p.field, d) end
+    end
+    local bridge = MOD.offline and rawget(_G, 'SHODAN_DEMOLITION_BRIDGE')
+    if bridge then
+        local ok, why = bridge:clear()
+        if not ok then ui.message = {text=tostring(why),till=api.now()+5}; return end
     end
     overrides = {}
     mark_config_dirty()
@@ -17527,9 +18103,9 @@ function settings.set_changes(on)
     if on then
         pending, apply_at = {}, 1
         for _, o in ipairs(overrides) do
-            pending[#pending + 1] = { hash = o.hash, id = o.id, value = o.value }
             local w = by_hash[o.hash]
             local p = w and w.by_id[o.id]
+            if not (p and p.field.demolition) then pending[#pending + 1] = { hash = o.hash, id = o.id, value = o.value } end
             if p and p.field.storage == 'grenade' then p.field.pending_value = o.value end
         end
         log('settings: changes on (' .. #pending .. ' value(s) applied again)')
@@ -17540,7 +18116,7 @@ function settings.set_changes(on)
             local weapon = by_hash[o.hash]
             local p = weapon and weapon.by_id[o.id]
             local d = p and default_of(p.field)
-            if d ~= nil then write_field(p.field, d) end
+            if d ~= nil and not p.field.demolition then write_field(p.field, d) end
         end
         log('settings: changes off (' .. #overrides .. ' value(s) kept, the game\'s values written)')
     end
@@ -17757,7 +18333,7 @@ do
                 local v, d = p.field.pending_value or read_field(p.field), default_of(p.field)   -- a grenade still loading counts
                 local own = mine[p.field.key]
                 local pin = weapon.enemy and MOD.enemy.covered and MOD.enemy.covered[p.field.key]   -- (a faction-wide row's exception)
-                if own and v and d and (pin or math.abs(v - d) > 1e-4) then out[#out + 1] = { id = p.id, value = own } end
+                if own and v and d and (p.field.demolition or pin or math.abs(v - d) > 1e-4) then out[#out + 1] = { id = p.id, value = own } end
             end
         end
         return out
@@ -17801,17 +18377,23 @@ do
             for _, p in ipairs(row.parts) do
                 local d = default_of(p.field)
                 local target = want[p.id]
+                local explicit = target ~= nil
                 if target == nil then target = d end
                 want[p.id] = nil
-                local current = read_field(p.field)
-                local accepted = true
-                if target ~= nil and current ~= nil and math.abs(current - target) > 1e-6 then
-                    local ok, why = write_field(p.field, target)
-                    accepted = ok or (p.field.storage == 'grenade' and why == 'grenade assets loading')
-                    if not accepted then refused = refused + 1; log('preset refused: ' .. weapon.name .. ' ' .. p.id .. ': ' .. why) end
-                end
-                if target ~= nil and (accepted or p.field.storage ~= 'grenade') then
-                    set_override(weapon, p, unless_default(target, d))
+                if p.field.demolition then
+                    local ok, why = p.field.demolition:write(p.field, explicit and target or nil)
+                    if not ok then refused = refused + 1; log('preset refused: ' .. weapon.name .. ' ' .. p.id .. ': ' .. tostring(why)) end
+                else
+                    local current = read_field(p.field)
+                    local accepted = true
+                    if target ~= nil and current ~= nil and math.abs(current - target) > 1e-6 then
+                        local ok, why = write_field(p.field, target)
+                        accepted = ok or (p.field.storage == 'grenade' and why == 'grenade assets loading')
+                        if not accepted then refused = refused + 1; log('preset refused: ' .. weapon.name .. ' ' .. p.id .. ': ' .. why) end
+                    end
+                    if target ~= nil and (accepted or p.field.storage ~= 'grenade') then
+                        set_override(weapon, p, unless_default(target, d))
+                    end
                 end
             end
         end
@@ -18057,7 +18639,11 @@ local function draw(width, height)
     rect(0, 0, W, H, color(8, 11, 15, math.floor(255 * settings.opacity / 100 + 0.5)), 950)
     outline(0, 0, W, H, GOLD)
     region('panel', 0, 0, W, H, false)
-    text(MOD.enemy.on and 'SHODAN ENEMY EDITOR' or 'SHODAN STAT EDITOR', 18, 12, 24, GOLD)
+    -- the page's name (the layout document's; before the stats are found, the editor's)
+    local nav_page, nav_sub, nav_k
+    if state.phase == 'ready' then MOD.nav.sync(); nav_page, nav_sub, nav_k = MOD.nav.current() end
+    local title = nav_page and MOD.nav.text(nav_page.name) or (MOD.enemy.on and 'SHODAN ENEMY EDITOR' or 'SHODAN STAT EDITOR')
+    text(title, 18, 12, 24, GOLD)
     if not MOD.offline then   -- (offline the panel is the window)
         text(hotkey_name .. ' to open/close', W - 56, 16, 15, MUTED, nil, true)
         button('close', 'X', W - 16 - 30, 10, 30, 30, true)
@@ -18073,20 +18659,47 @@ local function draw(width, height)
         return regions
     end
 
-    -- the tabs, each as wide as its (translated) name, the row shrunk to end before the reset button (offline the
-    -- reset button sits up on the title's line: the tabs get the whole row)
+    -- the page's sub-pages, each as wide as its (translated) name, the row shrunk to end before the reset button
+    -- (offline the reset button sits up on the title's line: the sub-pages get the whole row); a placeholder's name
+    -- dimmer, and one whose tabs Settings > Tabs shown all turned off left out
     do
-        local tabs, widths, total = settings.shown_tabs(), {}, 0
-        for i, tab in ipairs(tabs) do
-            widths[i] = math.max(#tab * 7 + 8, width(tab, 16) + 18)
-            total = total + widths[i]
+        local shown, widths, total = {}, {}, 0
+        for k, sub in ipairs(nav_page.subs) do
+            local on = sub.tabs == nil
+            for _, t in ipairs(sub.tabs or {}) do on = on or not settings.hidden[MOD.nav.base(t)] end
+            if on then
+                shown[#shown + 1] = k
+                widths[#shown] = math.max(48, width(MOD.nav.text(sub.name), 16) + 22)
+                total = total + widths[#shown]
+            end
         end
-        local room = W - 16 - (MOD.offline and 0 or 124 + 16) - 4 * (#tabs - 1)
-        local fit, tab_x = math.min(1, room / total), 16
-        for i, tab in ipairs(tabs) do
-            local w = math.floor(widths[i] * fit + 0.5)
-            button('tab:' .. tab, tab, tab_x, 52, w, 32, true, ui.tab == tab)
+        local room = W - 16 - (MOD.offline and 0 or 124 + 16) - 4 * (#shown - 1)
+        local fit, tab_x = math.min(1, room / math.max(1, total)), 16
+        for i, k in ipairs(shown) do
+            local sub, w = nav_page.subs[k], math.floor(widths[i] * fit + 0.5)
+            button('nav:' .. nav_page.id .. ':' .. k, MOD.nav.text(sub.name), tab_x, 52, w, 32, true,
+                   k == nav_k and ui.tab ~= 'Presets', sub.todo and k ~= nav_k and MUTED or nil)
             tab_x = tab_x + w + 4
+        end
+        -- the sub-page's tabs when it has several (Weapon editing: primary ... throwables), after the page's name
+        local cats = {}
+        for _, t in ipairs(nav_sub.tabs or {}) do
+            if not settings.hidden[MOD.nav.base(t)] then cats[#cats + 1] = t end
+        end
+        if #cats > 1 then
+            local cx = 18 + width(title, 24) + 24
+            local right = MOD.offline and W - 16 - 124 - 16 or W - 320
+            local cw, ctotal = {}, 0
+            for i, t in ipairs(cats) do
+                cw[i] = math.max(60, width(MOD.nav.tab_label(t), 16) + 24)
+                ctotal = ctotal + cw[i]
+            end
+            local cfit = math.min(1, (right - cx - 4 * (#cats - 1)) / ctotal)
+            for i, t in ipairs(cats) do
+                local w = math.floor(cw[i] * cfit + 0.5)
+                button('cat:' .. t, MOD.nav.tab_label(t), cx, 10, w, 30, true, ui.tab == t)
+                cx = cx + w + 4
+            end
         end
     end
     button('reset_weapon', ui.weapon and (ui.weapon.passive and 'Reset passive' or ui.weapon.booster and 'Reset booster' or ui.weapon.enemy and (ui.weapon.slot == 'Spawning' and 'Reset spawning' or 'Reset enemy') or ui.weapon.player and 'Reset helldiver' or ui.weapon.record and 'Reset record') or (MOD.enemy.on and 'Reset enemy' or 'Reset weapon'), W - 16 - 124, MOD.offline and 10 or 52, 124, MOD.offline and 30 or 32, ui.weapon ~= nil and modified(ui.weapon))
@@ -18109,6 +18722,12 @@ local function draw(width, height)
     end
 
     local presets_tab = ui.tab == 'Presets'
+    -- a placeholder sub-page: what it is to hold, over the whole panel (a search shows the list as ever)
+    local todo_view = not presets_tab and not ui.settings and nav_sub and nav_sub.todo and ui.search.text == ''
+                      and not ui.search.active
+    -- a sub-page of one page (人物数据): no list beside it, its stats across the panel (the wheel scrolls them anywhere)
+    local solo_view = not presets_tab and not ui.settings and nav_sub and nav_sub.solo
+    if solo_view then ui.split_gx = ox end
     if presets_tab then
         -- full presets: the list holds them by name, the right side the chosen one
         local order, chosen = presets.full_order(), presets.chosen()
@@ -18192,7 +18811,7 @@ local function draw(width, height)
 
     -- weapon list
     local searching = ui.search.text ~= '' or ui.search.active
-    local list = presets_tab and {} or weapons_in(ui.search.text ~= '' and '?search' or ui.tab)
+    local list = (presets_tab or todo_view or solo_view) and {} or weapons_in(ui.search.text ~= '' and '?search' or ui.tab)
     local last_top = math.max(1, #list - LIST_ROWS + 1)
     ui.page = math.max(1, math.min(ui.page, last_top))
     for k = 1, LIST_ROWS do
@@ -18200,7 +18819,7 @@ local function draw(width, height)
         if not weapon then break end
         local y = 96 + (k - 1) * 26
         local key = 'weapon:' .. weapon.hash
-        if searching then text(weapon.slot, 326, y + 5, 13, DIM, 80, true) end
+        if searching then text(MOD.nav.tab_label(MOD.nav.tab_of(weapon)), 326, y + 5, 13, DIM, 80, true) end
         local selected = weapon == ui.weapon
         if selected then rect(16, y, 318, 25, (MOD.enemy.on and color(96, 20, 16) or color(90, 74, 8)), 951)
         elseif ui.hover == key then rect(16, y, 318, 25, color(40, 52, 64), 951) end
@@ -18245,7 +18864,7 @@ local function draw(width, height)
         text(line, 24, y, 14, MUTED)
     end
     local py = 96 + LIST_ROWS * 26 + 8
-    if not presets_tab then
+    if not presets_tab and not todo_view and not solo_view then
         if ui.search.text ~= '' and #list == 0 then text('Nothing matches.', 24, 100, 16, MUTED) end
         button('page:prev', '<', 16, py, 40, 30, ui.page > 1)
         list_bar('page', #list)
@@ -18269,7 +18888,7 @@ local function draw(width, height)
 
     -- stats of the selected weapon
     local weapon = ui.weapon
-    local x0 = 356
+    local x0 = solo_view and 24 or 356
     if ui.settings then
         text('Settings', x0, 94, 22, GOLD)
         local y = 132
@@ -18411,6 +19030,36 @@ local function draw(width, height)
              x0, y + 36, 14, MUTED, W - x0 - 16)
     elseif presets_tab then
         -- drawn above
+    elseif todo_view then
+        -- a placeholder: a feature of the layout document not in the editor yet, and what it is to hold
+        local x, y, right = 24, 100, W - 24
+        text(MOD.nav.text(nav_sub.name), x, y, 24, GOLD, right - x)
+        y = y + 36
+        text(MOD.nav.text(MOD.nav.T.todo_note), x, y, 15, WARN, right - x)
+        y = y + 34
+        for _, group in ipairs(nav_sub.todo) do
+            if y > H - 130 then break end
+            if group.title then
+                rect(x, y + 11, 4, 4, GOLD, 951)
+                text(MOD.nav.text(group.title), x + 12, y, 18, WHITE, right - x - 12)
+                y = y + 28
+            end
+            if group.note then
+                text(MOD.nav.text(group.note), x, y, 15, MUTED, right - x)
+                y = y + 26
+            end
+            local cx, any = x, false
+            for _, item in ipairs(group.items or {}) do
+                local label = MOD.nav.text(item)
+                local w = math.min(right - x, width(label, 15) + 26)
+                if cx > x and cx + w > right then cx, y = x, y + 36 end
+                rect(cx, y, w, 30, color(20, 26, 34), 951)
+                outline(cx, y, w, 30, color(56, 66, 78))
+                text(label, cx + 13, y + 7, 15, MUTED, w - 22)
+                cx, any = cx + w + 8, true
+            end
+            y = y + (any and 50 or 14)
+        end
     elseif not weapon then
         text('Choose a weapon on the left.', x0, 100, 18, MUTED)
     else
@@ -18475,7 +19124,7 @@ local function draw(width, height)
                             if k == 1 or not ink_font or width(note, 14 * s) <= room * s then break end
                         end
                     end
-                    text(section:upper(), x0, y + 4, 15, MUTED)
+                    text((row.section_of and row.section_of() or section):upper(), x0, y + 4, 15, MUTED)
                     if note ~= '' then text(note, x0 + nx, y + 4, 14, WARN, room) end
                     -- a list cut short: hovering it shows every name
                     if #others > shown then   -- (a note of its own lists none)
@@ -18487,6 +19136,9 @@ local function draw(width, height)
                 end
                 local value, default = row_value(row), row_value(row, true)
                 local changed = value ~= nil and default ~= nil and math.abs(value - default) > 1e-4
+                for _, p in ipairs(row.parts) do
+                    if p.field.demolition and p.field.demolition:own(p.field) ~= nil then changed = true end
+                end
                 -- changed only by an 'All <faction>' row: its value in that colour, no Reset (nothing of its own)
                 local by_all = weapon.enemy and not weapon.enemy.faction and MOD.enemy.by_all_value(row)
                 local ink = changed and GOLD or WHITE
@@ -18500,12 +19152,16 @@ local function draw(width, height)
                 if focus then rect(x0 - 6, y - 1, W - x0 - 10, pitch - 1, color(30, 38, 48), 951) end
                 local label = row.label
                 if row.label_of then label = row.label_of() end
-                text(label, x0, y + bh / 2 - 8, 16, focus and GOLD or WHITE, 236)
+                text(label, x0, y + bh / 2 - 8, 16, focus and GOLD or row.empty and DIM or WHITE, 236)
                 if row.tip then
                     text('(?)', x0 + math.min(width(label, 16), 236) + 6, y + bh / 2 - 7, 14, DIM)
                     if ui.hover == 'row:' .. n then tip_overlay = { lines = row.tip, x = x0, y = y + bh + 2 } end
                 end
-                if row.code then   -- a call-in code: its arrows, and Record
+                if row.empty then   -- a field of the layout document the editor has no stat for: an empty box
+                    rect(696, y, 88, bh, color(20, 26, 34), 951)
+                    outline(696, y, 88, bh, color(56, 66, 78))
+                    region('row:' .. n, x0 - 6, y - 1, 430, pitch - 1)
+                elseif row.code then   -- a call-in code: its arrows, and Record
                     local rec = ui.code and ui.code.n == n and ui.code.weapon == weapon and ui.code
                     if rec or ui.hover == 'value:' .. n then
                         rect(572, y, 212, bh, rec and color(20, 26, 34) or color(40, 52, 64), 951)
@@ -18632,6 +19288,8 @@ local function draw(width, height)
     elseif presets_tab then
         text('Up/Down choose, Enter loads, Insert makes a new one, Shift+Insert saves into it, F2 renames, Del deletes.',
              18, H - 56, 14, MUTED, W - 260)
+    elseif todo_view then
+        text(MOD.nav.text(MOD.nav.T.todo_help), 18, H - 56, 14, MUTED, W - 260)
     else
         text('Up/Down choose a stat, Left/Right change it (Shift: bigger steps), click a value or press Enter to type it,',
              18, H - 56, 14, MUTED, W - 260)
@@ -18641,6 +19299,8 @@ local function draw(width, height)
     elseif presets_tab then
         text('Overwriting and deleting ask twice. Changes apply at once and are saved; ' .. #overrides ..
              ' value(s) changed.', 18, H - 34, 14, MUTED, W - 260)
+    elseif todo_view then
+        text(MOD.nav.text(MOD.nav.T.todo_help2), 18, H - 34, 14, MUTED, W - 260)
     else
         text('PgUp/PgDn change weapon, Del resets, Ctrl+1-5 loads a weapon preset, Ctrl+Shift+1-5 saves one; ' .. #overrides ..
              ' value(s) changed.', 18, H - 34, 14, MUTED, W - 260)
@@ -18731,7 +19391,7 @@ function MOD.restore_last()
     ui.tab, ui.page, ui.search, ui.settings, ui.weapon = tabs[1], 1, { text = '', active = false }, false, nil
     for _, t in ipairs(tabs) do if t == last.tab then ui.tab = t end end
     local page = last.weapon and by_hash[last.weapon]
-    if page and page.slot == ui.tab and #page.rows > 0 and (page.enemy ~= nil) == MOD.enemy.on then
+    if page and MOD.nav.tab_of(page) == ui.tab and #page.rows > 0 and (page.enemy ~= nil) == MOD.enemy.on then
         select_weapon(page)
     else
         select_weapon(weapons_in(ui.tab)[1])
@@ -18754,6 +19414,58 @@ local function click(key)
         if state.phase == 'ready' and last.tab ~= arg then
             last.tab = arg
             mark_config_dirty()
+        end
+    elseif kind == 'nav' or kind == 'cat' then
+        -- a page (the host's bar: 'nav:<page>'), a sub-page (the tab row: 'nav:<page>:<n>'), or a tab of the
+        -- sub-page shown (the title's line: 'cat:<tab>')
+        local nav, page, k, tab = ui.nav, nil, nil, nil
+        if kind == 'cat' then
+            page, tab = MOD.nav.page(nav.page), arg
+            k = page and (nav.sub[page.id] or MOD.nav.first(page))
+        else
+            local id, n = arg:match('^([%w_]+):?(%d*)$')
+            page = MOD.nav.page(id or '')
+            k = page and (tonumber(n) or nav.sub[page.id] or MOD.nav.first(page))
+        end
+        local sub = page and page.subs[k]
+        if sub then
+            if (page.enemy == true) ~= MOD.enemy.on then   -- the Enemy Editor's page, or back from it
+                MOD.enemy.on = not MOD.enemy.on
+                settings.enemy_last = MOD.enemy.on
+                MOD.restore_last()
+                mark_config_dirty()
+            end
+            nav.page, nav.sub[page.id] = page.id, k
+            ui.page, ui.search, ui.settings, ui.stack_pick = 1, { text = '', active = false }, false, nil
+            if sub.tabs then
+                local key, shown = page.id .. ':' .. k, {}
+                for _, t in ipairs(sub.tabs) do
+                    if not settings.hidden[MOD.nav.base(t)] then shown[#shown + 1] = t end
+                end
+                local function has(t)
+                    for _, s in ipairs(shown) do if s == t then return true end end
+                    return false
+                end
+                -- the tab clicked, else the one shown, else the one this sub-page was left on, else its first
+                if not (tab and has(tab)) then
+                    tab = has(ui.tab) and ui.tab or has(nav.cat[key]) and nav.cat[key] or shown[1] or sub.tabs[1]
+                end
+                nav.cat[key], ui.tab = tab, tab
+                -- the page last chosen on that tab, else its first
+                local w = ui.weapon
+                if not (w and MOD.nav.tab_of(w) == tab) then
+                    w = nav.weapon[tab] and by_hash[nav.weapon[tab]]
+                    if not (w and MOD.nav.tab_of(w) == tab and #w.rows > 0) then w = weapons_in(tab)[1] end
+                end
+                select_weapon(w)
+                local last = settings.last[MOD.enemy.on and 'enemy' or 'stat']
+                if state.phase == 'ready' and last.tab ~= tab then
+                    last.tab = tab
+                    mark_config_dirty()
+                end
+            else   -- a placeholder: nothing to choose
+                ui.tab, ui.weapon = 'todo', nil
+            end
         end
     elseif kind == 'enemy_mode' then   -- the other editor, on the tab and page it was left on
         MOD.enemy.on = not MOD.enemy.on
@@ -18794,7 +19506,7 @@ local function click(key)
             for _, tab in ipairs(TABS) do if not settings.hidden[tab] then on = on + 1 end end
             if settings.hidden[value] then settings.hidden[value] = nil
             elseif on > 1 then settings.hidden[value] = true end
-            if settings.hidden[ui.tab] then ui.tab, ui.page = settings.shown_tabs()[1], 1 end
+            if settings.hidden[MOD.nav.base(ui.tab)] then ui.tab, ui.page = settings.shown_tabs()[1], 1 end
         elseif name == 'lang' and (value == 'en' or settings.LANGS[value]) then
             local chinese = settings.lang == 'zh-Hans' or value == 'zh-Hans'
             settings.lang = value
@@ -18885,7 +19597,23 @@ local function click(key)
     end
 end
 
--- the window's titles (offline/host.lua): which editor is shown, and a click on the other one's title
+-- the window's pages (offline/host.lua's bar at the top): their names, the one shown, and a click on one
+state.nav_pages = function()
+    local out = {}
+    for _, p in ipairs(MOD.nav.PAGES) do
+        out[#out + 1] = { id = p.id, label = MOD.nav.text(p.name), enemy = p.enemy == true }
+    end
+    return out
+end
+state.nav_page = function()
+    if state.phase == 'ready' then MOD.nav.sync() end
+    return ui.nav.page
+end
+state.nav_open = function(id)
+    click('nav:' .. id)
+    ui.version = ui.version + 1
+end
+-- the window's titles (offline/host.lua, before the pages): which editor is shown, and a click on the other one's title
 state.enemy_on = function() return MOD.enemy.on end
 state.switch_editor = function(enemy)
     if enemy ~= MOD.enemy.on then click('enemy_mode'); ui.version = ui.version + 1 end
@@ -19023,7 +19751,9 @@ local function keyboard(now)
         for _, c in ipairs(typed or {}) do add(c) end
         return
     end
-    if ui.tab ~= 'Presets' and key_down(VK.Ctrl) and pressed('T70', now) then     -- Ctrl+F
+    local _, nav_sub = MOD.nav.current()
+    if ui.tab ~= 'Presets' and not (nav_sub and nav_sub.solo and not ui.settings) and key_down(VK.Ctrl)
+       and pressed('T70', now) then     -- Ctrl+F (a sub-page of one page has no list to search)
         ui.search.active = true
         return
     end
@@ -19036,12 +19766,15 @@ local function keyboard(now)
         return
     end
     if pressed('PageDown', now) or pressed('PageUp', now) then
+        -- every page of the sub-page shown (each of its tabs), in turn
         local all = {}
-        for _, tab in ipairs(settings.shown_tabs()) do
-            if (tab == 'Records') == (weapon ~= nil and weapon.record == true) then
+        local _, sub = MOD.nav.current()
+        for _, tab in ipairs(sub and sub.tabs or {}) do
+            if not settings.hidden[MOD.nav.base(tab)] then
                 for _, w in ipairs(weapons_in(tab)) do all[#all + 1] = w end
             end
         end
+        if #all == 0 then return end
         local at = 0
         for n, w in ipairs(all) do if w == weapon then at = n end end
         local forward = held.PageDown ~= nil
@@ -19323,6 +20056,12 @@ function cursor.give_input(now)
     return false
 end
 
+-- The standalone host owns other pages too. Release this page's game-input filter
+-- before handing keyboard/IME input to a desktop control on another page.
+if MOD.offline then
+    state.release_input = function() return cursor.give_input() end
+end
+
 -- The keyboard and the mouse buttons reach the game as window messages, not raw input. A small native
 -- filter goes in front of the game window's procedure (installed once, never removed: other mods may
 -- chain after it): while its flag is set it drops key presses and typed characters (WM_KEYDOWN, WM_CHAR,
@@ -19519,10 +20258,12 @@ local function panel_frame(now)
     local width, height = sr.Gui.resolution()
     if ui.message and api.now() >= ui.message.till then ui.message = nil end
     if ui.confirm and api.now() >= ui.confirm.till then ui.confirm = nil; ui.version = ui.version + 1 end
-    local signature = table.concat({ width, height, state.phase, state.tables, ui.tab, ui.page, ui.row, ui.scroll,
+    local signature = table.concat({ width, height, state.phase, state.tables, ui.tab, ui.nav.page,
+                                     ui.nav.sub[ui.nav.page] or 0, ui.page, ui.row, ui.scroll,
                                      tostring(ui.hover), tostring(ui.drag ~= nil), ui.weapon and ui.weapon.hash or '-', ui.version,
                                      tostring(ui.settings), tostring(ui.binding), hotkey_name,
                                      #overrides, ui.wslot, tostring(ui.fslot), ui.fpage,
+                                     state.demolition_revision or 0,
                                      ui.message and ui.message.text or '', ui.editing and ui.editing.text or '-',
                                      ui.search.text, tostring(ui.search.active),
                                      ui.value and (ui.value.n .. '=' .. ui.value.text) or '-' }, '|')
