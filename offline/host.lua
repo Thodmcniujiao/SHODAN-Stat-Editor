@@ -16,6 +16,11 @@ local DemoPanel = require('demolition_panel')
 local DemoBridge = require('demolition_bridge')
 local UnitAliases = require('unit_aliases')
 local EntityAssets = require('entity_assets')
+local PreloadStore=require('preload_store')
+local PreloadIO=require('preload_io')
+local PlayerSave=require('player_save')
+local PlayerSaveIO=require('player_save_io')
+local EditorFooter=require('editor_footer')
 local LOCAL_ENTITY_EXTENSION = true
 
 pcall(ffi.cdef, 'uint64_t GetTickCount64(void);')
@@ -59,14 +64,14 @@ local function fatal(text)
 end
 
 -- ---------------------------------------------------------------- start
--- where the window was when it last closed: its top left (window.txt: x y)
+-- where the window was when it last closed: its top left and size (window.txt: x y w h)
 local PLACE = I.home .. '/window.txt'
 local function saved_place()
     local f = io.open(PLACE, 'r')
     local text = f and f:read('*a') or ''
     if f then f:close() end
-    local x, y = text:match('^(%-?%d+) (%-?%d+)')
-    return x and { tonumber(x), tonumber(y) } or nil
+    local x, y, w, h = text:match('^(%-?%d+) (%-?%d+) ?(%d*) ?(%d*)')   -- (and its size, since the window can be dragged to any)
+    return x and { tonumber(x), tonumber(y), tonumber(w), tonumber(h) } or nil
 end
 
 local function main()
@@ -135,6 +140,12 @@ local function main()
     if rawget(_G, 'SHODAN_OFFLINE_LANG') == nil then rawset(_G, 'SHODAN_OFFLINE_LANG', primary == 0x04 and ((sub == 2 or sub == 4) and 'zh-Hans' or 'zh-Hant')
                                       or primary == 0x19 and 'ru' or nil) end
     stingray = shim.engine()
+    -- 杂项与设置 › 修改器设置: the text's size and the resolution drawn at, set by the panel
+    -- (font: a factor of the text's size; height: the resolution drawn at, pixels, 0 = the window's; to_canvas: a client
+    -- point -> the panel's pixel, nil beside it)
+    rawset(_G, 'SHODAN_DISPLAY', { apply = function(font, height) return shim.set_display(font, height) end,
+                                   get = function() return { font = shim.display.font, height = shim.display.height, w = shim.w, h = shim.h } end,
+                                   to_canvas = function(x, y) return shim.to_canvas(x, y) end })
     function update(dt) end
     local editor = arg and arg[1] or here .. 'stat_editor.lua'
     local chunk, why = loadfile(editor)
@@ -183,25 +194,50 @@ local function main()
         log(string.format('entity demolition: %d targets catalogued',#demolition_model.targets))
     end)
     if not demo_ok then demolition_error=tostring(demo_why);log('entity demolition unavailable: '..demolition_error) end
+    local preload_io=PreloadIO.new({game=game,here=here,owned=function()return EntityAssets.owned()end,
+        log=log,pump=function()return shim.pump()end})
+    I.mkdirs(I.home)
+    local preload_ok,preload_model=pcall(PreloadStore.new,{path=I.home..'/preload_config.json',
+        load=function(hash)return preload_io:load(hash)end,
+        pump=function()return shim.pump()end,
+        changed=function()if state.preload_touch then state.preload_touch()end end})
+    if preload_ok then rawset(_G,'SHODAN_PRELOAD_MODEL',preload_model)
+    else log('preload configuration failed: '..tostring(preload_model));state.preload_error=tostring(preload_model)end
+    local save_ok,player_save=pcall(function()
+        assert(demolition_model,'current entity schemas are unavailable')
+        local catalog=PlayerSave.catalog(demolition_model.entities,
+            source_plain(assert(D.files['generated_customization_armor_sets.dl_bin']).cipher),
+            demolition_model.schemas,demolition_model.names)
+        return PlayerSave.new({catalog=catalog,paths=PlayerSaveIO.discover(game),io=PlayerSaveIO.new(),
+            preset_path=I.home..'/player_save_presets.json',
+            changed=function()if state.preload_touch then state.preload_touch()end end})
+    end)
+    if save_ok then rawset(_G,'SHODAN_PLAYER_SAVE_MODEL',player_save)
+    else rawset(_G,'SHODAN_PLAYER_SAVE_ERROR',tostring(player_save));log('player save unavailable: '..tostring(player_save))end
+    local function save_page()return type(state.player_save_active)=='function'and state.player_save_active()end
+    local preload_marker=I.home..'/preload_applied.txt'
+    local preload_applied=(I.read(preload_marker)or''):match('^(%x+)')
+    local function remember_preload()
+        if not preload_ok then return end
+        local signature=preload_model:signature();local f=io.open(preload_marker,'wb')
+        if f then local ok=f:write(signature..'\n');f:close();if ok then preload_applied=signature end end
+    end
 
     -- ------------------------------------------------------------ the host's bar (below the panel)
     local bar = { hover = nil, message = nil, tone = MUTED, busy = nil, base = nil, buttons = {} }
     local function layout()
         local s = shim.h / 1080
-        local y0, y1 = 1038 * s, 1072 * s
-        bar.buttons = {
-            { key = 'install', label = 'Install into the game', x0 = 30 * s, x1 = 290 * s, y0 = y0, y1 = y1 },
-            { key = 'restore', label = 'Restore the game\'s files', x0 = 302 * s, x1 = 562 * s, y0 = y0, y1 = y1 },
-        }
+        local sx = shim.w / 1060   -- (across: the panel stretches to the window's shape; its edges at 30 and 1030)
+        bar.buttons=EditorFooter.layout(shim.w,shim.h)
         if bar.release then
             local x1 = shim.w - 30 * s
-            bar.buttons[3] = { key = 'update', label = 'Update to ' .. bar.release.label, x0 = x1 - 170 * s, x1 = x1,
+            bar.buttons[#bar.buttons+1] = { key = 'update', label = 'Update to ' .. bar.release.label, x0 = x1 - 170 * s, x1 = x1,
                                y0 = 9 * s, y1 = 41 * s, gold = true }   -- top right, in the tagline's place
         end
         -- the titles (paint_bar): the editor's pages (the layout document's, state.nav_pages; the Enemy Editor's
         -- page red), then Entity Demolition; an editor without pages: Stat Editor, then Enemy Editor. The labels
         -- shrink together until the row fits the window (and the update button, when there is one).
-        local x = 30 * s
+        local x = 30 * sx
         bar.titles = {}
         local items = {}
         local pages = type(state.nav_pages) == 'function' and state.nav_pages() or {}
@@ -219,7 +255,7 @@ local function main()
                                   label = demolition and demolition:tr('title') or 'Entity Demolition' }
         end
         local size, pad, gap = 17 * s, 10 * s, 6 * s
-        local room = shim.w - 60 * s - (bar.release and 182 * s or 0)
+        local room = shim.w - 60 * sx - (bar.release and 182 * s or 0)
         local function total()
             local t = gap * (#items - 1)
             for _, it in ipairs(items) do t = t + shim.text_width(it.label, size, true) + 2 * pad end
@@ -232,27 +268,39 @@ local function main()
                                             x0 = x, x1 = x + w, y0 = 6 * s, y1 = 42 * s }
             x = x + w + gap
         end
-        bar.s, bar.h, bar.lang = s, shim.h, shim.lang()
+        bar.s, bar.sx, bar.h, bar.w, bar.lang = s, sx, shim.h, shim.w, shim.lang()
     end
     layout()
 
-    local function installed_count() local n = 0; for _, v in pairs(ours) do if v then n = n + 1 end end return n end
+    local function installed_count()
+        local n=0;for _,v in pairs(ours)do if v then n=n+1 end end
+        for _ in pairs(EntityAssets.owned())do n=n+1 end
+        return n
+    end
 
     local function status()
         if bar.busy then return bar.busy, WARN end
         if bar.message then return bar.message, bar.tone end
+        if save_page()and save_ok then
+            return player_save:count()>0 and('存档配装有 '..player_save:count()..' 项修改，点击“写入存档”生效。')or player_save.error or player_save.status,
+                player_save:count()>0 and WARN or MUTED
+        end
         if state.phase == 'gave_up' then return 'Startup error: ' .. tostring(state.status or ''), RED end
         if state.phase ~= 'ready' then return 'Finding the stats...', MUTED end
         local n = installed_count()
-        local dirty = bar.base and state.writes ~= bar.base
+        local preload_dirty=preload_ok and((preload_applied and preload_model:signature()~=preload_applied)
+            or(not preload_applied and preload_model:has_changes()))
+        local dirty = (bar.base and state.writes ~= bar.base)or preload_dirty
         if dirty and n == 0 then return 'Your values are not in the game yet: close the game, then Install.', WARN end
         if dirty then return 'Changed since the last install: Install to put it in the game.', WARN end
         if n > 0 then return 'Your values are installed (' .. n .. ' game files). Close the game before installing.', GOOD end
         return 'The game\'s own files are in place. Close the game, then Install to play with your values.', MUTED
     end
+    state.host_status=function()local value=status();return tr(value)end
 
     local function paint_bar()
         local s = bar.s
+        local workspace=type(state.workspace_mode)=='function'and state.workspace_mode()or'editor'
         shim.fill(0, 1032 * s, shim.w, shim.h, BACK)
         shim.fill(0, 0, shim.w, 46 * s, BACK)
         -- the two editors' titles, as buttons: the one shown bright in a box of its colour, the other dimmed
@@ -265,7 +313,7 @@ local function main()
             return { 255, math.floor(BACK[2] + (c[2] - BACK[2]) * k), math.floor(BACK[3] + (c[3] - BACK[3]) * k),
                      math.floor(BACK[4] + (c[4] - BACK[4]) * k) }
         end
-        for _, t in ipairs(bar.titles) do
+        for _, t in ipairs(workspace=='editor'and bar.titles or{}) do
             local on = t.key == active_title
             local hovered = bar.hover == t.key and not on
             local c = on and t.color or toward_back(t.color, hovered and 0.65 or 0.4)
@@ -278,8 +326,11 @@ local function main()
             shim.flush()
             shim.text(t.label, t.x0 + t.pad, (t.y0 + t.y1) / 2 + t.size * 0.35, t.size, c, true)
         end
+        if workspace~='editor'then
+            shim.text('SHODAN Stat Editor',30*(bar.sx or s),31*s,17*s,MUTED,true)
+        end
         local t = (shim.lang()=='zh-Hans' or shim.lang()=='zh-Hant') and '拆毁设置已统一' or 'Unified demolition'
-        if not bar.release then
+        if not bar.release and workspace=='editor' then
             -- smaller where it would run into the titles (a longer translation)
             local last = bar.titles[#bar.titles]
             local room, size = shim.w - 30 * s - (last and last.x1 + 16 * s or 0), 15 * s
@@ -291,24 +342,30 @@ local function main()
         end
         for _, b in ipairs(bar.buttons) do
             local hovered = bar.hover == b.key and not bar.busy
-            shim.fill(b.x0, b.y0, b.x1, b.y1, hovered and { 255, 52, 66, 80 } or { 255, 28, 34, 42 })
-            local edge = hovered and GOLD or { 255, 70, 82, 94 }
+            local active=b.key==workspace
+            shim.fill(b.x0,b.y0,b.x1,b.y1,active and{255,90,74,8}or hovered and{255,52,66,80}or{255,28,34,42})
+            local edge=(hovered or active)and GOLD or{255,70,82,94}
             local e = math.max(1, math.floor(2 * s + 0.5))
             shim.fill(b.x0, b.y0, b.x1, b.y0 + e, edge); shim.fill(b.x0, b.y1 - e, b.x1, b.y1, edge)
             shim.fill(b.x0, b.y0, b.x0 + e, b.y1, edge); shim.fill(b.x1 - e, b.y0, b.x1, b.y1, edge)
             shim.flush()
             local size, label = 16 * s, tr(b.label)
+            if save_page()then
+                if b.key=='install'then label=shim.lang()=='en'and'Write save'or'写入存档'
+                elseif b.key=='restore'then label=shim.lang()=='en'and'Restore save backup'or'恢复存档备份'end
+            end
             while size > 10 * s and shim.text_width(label, size) > b.x1 - b.x0 - 12 * s do size = size - 0.5 end
             shim.text(label, (b.x0 + b.x1 - shim.text_width(label, size)) / 2, (b.y0 + b.y1) / 2 + size * 0.35, size,
-                      b.gold and GOLD or WHITE)
+                      (b.gold or active)and GOLD or WHITE)
         end
-        local text, tone = status()
-        text = tr(text)
-        local x = 576 * s
-        local size = 14 * s
-        local limit = shim.w - 30 * s - x
-        while size > 9 * s and shim.text_width(text, size) > limit do size = size - 0.5 end
-        shim.text(text, x, 1055 * s + size * 0.35, size, tone)
+        -- Busy operations paint without a panel tick; refresh the reserved status line directly.
+        if bar.busy or bar.message then
+            local value,tone=status();value=tr(value)
+            local x,limit=48*(bar.sx or s),shim.w-96*(bar.sx or s)
+            shim.fill(46*(bar.sx or s),992*s,shim.w-46*(bar.sx or s),1024*s,BACK)
+            local size=14*s;while size>9*s and shim.text_width(value,size)>limit do size=size-.5 end
+            shim.text(value,x,1009*s,size,tone)
+        end
     end
 
     local function paint()
@@ -354,6 +411,10 @@ local function main()
     local function install()
         if not commit_active()then return end
         if I.game_running() then say('Helldivers 2 is running: close it, then Install.', WARN); return end
+        if save_page()then
+            if not save_ok then say(tostring(player_save),WARN);return end
+            local ok,why=player_save:commit();say(ok and player_save.status or tostring(why),ok and GOOD or WARN);return
+        end
         busy('Installing: finding what changed...')
         -- each step's time in the log ('install timing: ...')
         local t0 = clock()
@@ -383,12 +444,13 @@ local function main()
         end
         timing('changes, passives, codes')
         local writes, made, back = {}, 0, 0
-        local asset_writes, asset_report = {}, {}
+        local asset_writes, asset_report,asset_aliases = {}, {},{}
         if demolition then
             busy('Preparing independent entity demolition...')
             local success, why = pcall(function()
                 local enabled = type(state.entity_demolition_enabled)~='function' or state.entity_demolition_enabled()
                 local aliases,result = demolition_model:changes(changes,demolition:overrides(enabled),D)
+                asset_aliases=aliases
                 if result then log(string.format('entity demolition: %d isolated targets, %d private templates',#result.report,
                     result.template_count-result.original_template_count)) end
                 asset_writes,asset_report = UnitAliases.prepare(aliases,{game=game,
@@ -403,6 +465,21 @@ local function main()
             end
         end
         if demolition then timing('entity demolition') end
+        if preload_ok then
+            local enabled=type(state.entity_demolition_enabled)~='function'or state.entity_demolition_enabled()
+            local ok,why=pcall(function()
+                if enabled then
+                    preload_model:apply_arrays(changes,D,demolition_model and demolition_model.schemas or{})
+                    local report
+                    asset_writes,report=preload_io:prepare(preload_model,asset_writes,asset_aliases)
+                    log(string.format('preload: %d package resources prepared; generated, not live verified',#report))
+                end
+            end)
+            if not ok then
+                for _,c in ipairs(changes)do G.free(c.plain)end
+                bar.busy=nil;log('preload preparation failed: '..tostring(why));say('Not installed: '..tostring(why),WARN);return
+            end
+        end
         for k, c in ipairs(changes) do
             if c.name=='generated_entities.dl_bin'and demolition_model then c.demolition_schemas=demolition_model.schemas end
             busy(string.format('Installing: preparing %s (%d of %d)...', c.name, k, #changes))
@@ -422,6 +499,7 @@ local function main()
         end
         if not next(writes) and not next(asset_writes) and not next(EntityAssets.owned()) then
             bar.busy, bar.base = nil, state.writes
+            remember_preload()
             say('Nothing to install: your values are the game\'s own.', GOOD)
             return
         end
@@ -444,14 +522,21 @@ local function main()
         if not recorded then log('entity assets remain in recoverable pending ownership: '..tostring(record_why))end
         log(string.format('entity resource patches installed: %d source triads',#asset_report))
         for name, data in pairs(writes) do ours[name] = data ~= originals[name] end
+        if recorded then remember_preload()end
         bar.base = state.writes
         log(string.format('installed: %d changed, %d back to the original', made, back))
-        say(string.format('Installed (%d game files changed%s). Start the game to play with your values.', made,
+        local touched=0;for _,entry in ipairs(asset_transaction.entries)do if entry.before~=entry.after then touched=touched+1 end end
+        say(string.format('Installed (%d game files changed%s). Start the game to play with your values.', made+touched,
             back > 0 and ', ' .. back .. ' back to the original' or ''), GOOD)
     end
 
     local function restore()
         if I.game_running() then say('Helldivers 2 is running: close it, then restore.', WARN); return end
+        if save_page()then
+            if not commit_active()then return end
+            if not save_ok then say(tostring(player_save),WARN);return end
+            local ok,why=player_save:restore();say(ok and player_save.status or tostring(why),ok and GOOD or WARN);return
+        end
         local writes = {}
         for name, mine in pairs(ours) do if mine then writes[name] = originals[name] end end
         if not next(writes) and not next(EntityAssets.owned()) then say('The game\'s own files are already in place.', GOOD); return end
@@ -465,7 +550,8 @@ local function main()
         local done, why = I.write_files(game, writes, originals, true)
         bar.busy = nil
         if not done then asset_transaction:rollback();say('Not restored: ' .. tostring(why), WARN); return end
-        asset_transaction:commit()
+        local committed=asset_transaction:commit()
+        if committed then os.remove(preload_marker);preload_applied=nil end
         -- files another tool changed since: left as they are (theirs now); files another mod had changed before
         -- this editor: back to that mod's version, which Steam's file check replaces (issue #90)
         local modded = 0
@@ -518,6 +604,8 @@ local function main()
     -- ------------------------------------------------------------ the frame loop
     local painted, was_down, armed, said_ready = nil, false, nil, false
     local function sync_component_page()
+        local active_save=save_page()
+        if bar.save_page~=active_save then bar.save_page=active_save;bar.message=nil end
         if type(state.component_view)~='function'then return end
         local on=not state.native_component_browser and state.component_view()=='demolition'
         if on and not demolition_on then
@@ -539,7 +627,7 @@ local function main()
         sync_component_page()
         last = now
         -- moved onto another screen: sized for that one; another language: the pages' names again
-        if bar.h ~= shim.h or bar.lang ~= shim.lang() then layout() end
+        if bar.h ~= shim.h or bar.w ~= shim.w or bar.lang ~= shim.lang() then layout() end
         if state.phase == 'ready' and not said_ready then
             said_ready = true
             if demolition and type(state.demolition_labels)=='function' then
@@ -548,7 +636,7 @@ local function main()
                 table.sort(demolition_model.targets,function(a,b)return a.name:lower()<b.name:lower()end)
                 demolition:refilter()
             end
-            bar.base = installed_count() > 0 and state.writes or nil
+            bar.base = state.writes
             log(string.format('ready: %s weapons, %s values applied, %s refused', tostring(state.weapons),
                 tostring(state.applied), tostring(state.refused)))
             log(string.format('startup timing: %.3f s to ready; table discovery: %s',clock()-startup_started,
@@ -590,7 +678,7 @@ local function main()
         for _, b in ipairs(bar.buttons) do
             if x and x >= b.x0 and x < b.x1 and y >= b.y0 and y < b.y1 then hover = b.key end
         end
-        if #bar.titles > 1 then
+        if #bar.titles > 1 and(not state.workspace_mode or state.workspace_mode()=='editor')then
             for _, b in ipairs(bar.titles) do
                 if x and x >= b.x0 and x < b.x1 and y >= b.y0 and y < b.y1 then hover = b.key end
             end
@@ -601,6 +689,10 @@ local function main()
         if not down and was_down and armed and armed == hover and state.phase == 'ready' then
             bar.message = nil
             if hover == 'install' then install() elseif hover == 'restore' then restore()
+            elseif hover=='presets'or hover=='settings'then
+                if type(state.open_workspace)=='function'then
+                    local ok,why=state.open_workspace(hover);if not ok then say(tostring(why),WARN)end
+                end
             elseif hover == 'update' and update_program() then break
             elseif hover == 'title_demolition' then
                 if commit_active()then
@@ -632,7 +724,7 @@ local function main()
     if shim.place then
         I.mkdirs(I.home)
         local f = io.open(PLACE, 'w')
-        if f then f:write(shim.place[1], ' ', shim.place[2], '\n'); f:close() end
+        if f then f:write(table.concat(shim.place, ' '), '\n'); f:close() end
     end
     -- the editor saves its values a moment after a change
     local stop = clock() + 1.5

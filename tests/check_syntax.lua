@@ -2,5 +2,14 @@ for _,name in ipairs({'demolition','demolition_panel','demolition_bridge','healt
  assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))
 end
 assert(loadfile(TEST_ROOT..'/src/stat_editor_offline.lua'))
-print('PASS: all offline modules and the original panel compile with the bundled LuaJIT')
 assert(loadfile(TEST_ROOT..'/offline/orbital_components.lua'))
+assert(loadfile(TEST_ROOT..'/offline/identity_components.lua'))
+assert(loadfile(TEST_ROOT..'/offline/preload_components.lua'))
+assert(loadfile(TEST_ROOT..'/offline/preload_data.lua'))
+for _,name in ipairs({'preload_store','preload_io','preload_authoring'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
+assert(loadfile(TEST_ROOT..'/offline/planet_components.lua'))
+assert(loadfile(TEST_ROOT..'/offline/planet_data.lua'))
+for _,name in ipairs({'player_save','player_save_io','player_save_view'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
+for _,name in ipairs({'preset_library','preset_controller','preset_panel','editor_footer'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
+for _,name in ipairs({'modifier_components','modifier_data','mission_components','hellpod_components','spawn_components','enemy_components','ai_components'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
+print('PASS: all offline modules and the original panel compile with the bundled LuaJIT')

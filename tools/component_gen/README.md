@@ -20,3 +20,30 @@
 `walk.py` 展开结构，`align.py` 做数值对齐，`build_names.py` 合并字段名，`shal.py` 读取 2024 年结构，`zh.py` 是词表（新增词在此补充）。
 
 `python -X utf8 gen.py --orbital` 使用相同的类型库、实体和参考数据生成 `offline/orbital_components.lua`。轨道字段分为持续时间与追踪、伤害区域、射弹生成、特效与音效、阵营过滤、移动轨迹、56 个二维控制点七组；四项既有参数保留 `beam_*` 保存 ID。该模式不会改写 `weapon_components.lua`。
+
+## 任务组件与修饰符
+
+- `python gen_mission.py`：生成 `offline/mission_components.lua`（任务编辑页的 GameModeComponent、HiveMindComponent、GameModeMissionComponent），沿用 `gen.py` 的流程。名称优先取 RawData 差异解码给出的字段名（`Data/entity_deltas`），其次取 2024 年结构的名称。GameModeComponent 的增援字段在脚本里按数值手动排定，并写有说明。词表在 `mission_zh.py`。
+- `python gen_modifiers.py`：生成 `offline/modifier_data.lua`，内容包括：实体差异表的组件序号与组件类型的对应、差异改动字段的名称，以及差异和实体的显示名。数据都来自 RawData。
+
+## 地狱舱组件
+
+- `python gen_hellpod.py`：生成 `offline/hellpod_components.lua`（实体组件 › 地狱舱：HellpodComponent、HellpodPayloadComponent、HellpodRackComponent、ShipHellpodComponent），流程与 `gen_mission.py` 相同。
+- 字段名来源：载荷和挂架取 RawData dump；下落组件的五个参数按额外页已在编辑的偏移写在 `MANUAL` 里，地狱舱变体和未知字段的说明写在 `OVERRIDE` 里，其余按 2024 年结构推断。
+- 挂架载荷槽的物品标为实体引用。
+- 词表在 `hellpod_zh.py`。
+
+## 人物数据页
+
+- `python check_avatar_doc.py`：核对“人物数据”页每一行的偏移和成员名。方法是用类型库展开绝地潜兵的 AvatarComponentData，与 RawData dump 逐值比对。说明见 `offline/PLAYER_DATA.md`。
+
+## AI 与接触伤害组件
+
+- `python gen_enemy.py`：生成 `offline/enemy_components.lua`，包含 AiEnemy、AiCharacter、SensorEar、SensorDanger 和 OverlapDamage 五个组件。
+- `offline/ai_components.lua` 把它们和视觉组件 `sensor_eye_components.lua` 放进标签页：前四个和视觉放在“敌人设置 › AI设置”，OverlapDamage 放在“实体组件 › 接触伤害”。
+- 字段名来自 RawData dump，按全部实体的数值对齐。
+- 两处数值对齐出错，已按 dump 名字里自带的偏移在 `FIX` 中改正：
+  - AiEnemy +0x264～+0x274：同一个名字被分给了两个成员；
+  - +0x2B0～+0x2C2：dump 的未命名成员整体错开了一位。
+- 改正后，5 个组件共 59744 个值与 RawData 逐项一致。
+- 词表在 `enemy_zh.py`。

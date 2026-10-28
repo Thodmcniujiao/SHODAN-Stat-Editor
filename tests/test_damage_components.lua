@@ -92,7 +92,7 @@ local status_page=E.MOD.records.page(E.T_STATUS,kind)
 assert(E.MOD.references.open(by('StatusEffectType1'))and E.ui.weapon==status_page)
 E.ui.weapon=raw
 E.change(by('Damage'),0,false,1234);E.change(by('ElementType'),0,false,5)
-E.presets.save_weapon_preset(raw,1);assert(E.save_config())
+TEST_PRESETS_HELPER.save(E,raw,1);assert(E.save_config())
 local cfg=read(I.home..'/config.txt');assert(cfg:find('element_type 5',1,true))
 assert(not cfg:find('damage_id ',1,true),'record identity was saved as editable data')
 local staged=H.diff();assert(#staged==1 and staged[1].name=='generated_damage_settings.dl_bin')
@@ -107,7 +107,7 @@ for _,h in ipairs(G.headers(plain,n))do if h.type==E.T_DAMAGE then
 end end
 assert(verified);G.free(plain)
 E.reset_weapon(raw);assert(bytes()==original)
-E.presets.load_weapon_preset(raw,1);assert(bytes()==expected,'preset round trip')
+TEST_PRESETS_HELPER.load(E,raw,1);assert(bytes()==expected,'preset round trip')
 E.reset_weapon(raw);assert(bytes()==original and #H.diff()==0)
 local info=ffi.new('host_bitmapinfo');info.size=ffi.sizeof(info)
 info.width,info.height,info.planes,info.bits=S.w,-S.h,1,32

@@ -73,11 +73,11 @@ E.change(row('factions[3].faction'),0,false,8)
 assert(E.MOD.stratagem.set_hash(w,row('ship_effect'),'4593671620989558785'))
 local base=E.tables[E.T_ORBITAL].copies[1]+24+E.tables[E.T_ORBITAL].index[w.key]
 local expected=ffi.string(ffi.cast('const void *',base),C.SIZE)
-assert(E.save_config());E.presets.save_weapon_preset(w,1)
+assert(E.save_config());TEST_PRESETS_HELPER.save(E,w,1)
 local config=read(I.home..'/config.txt')
 assert(config:find(w.hash..' beam_duration 31',1,true),'legacy page hash/id changed')
 assert(config:find(w.hash..' pattern_control_points_55__y -123.5',1,true))
-E.reset_weapon(w);E.presets.load_weapon_preset(w,1)
+E.reset_weapon(w);TEST_PRESETS_HELPER.load(E,w,1)
 assert(ffi.string(ffi.cast('const void *',base),C.SIZE)==expected,'preset did not restore full record')
 -- Build and decrypt the resulting entity file in memory, checking the record and original checksum.
 local diff=H.diff();assert(#diff==1 and diff[1].name=='generated_entities.dl_bin')

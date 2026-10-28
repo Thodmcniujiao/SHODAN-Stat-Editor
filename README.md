@@ -17,18 +17,17 @@
 | 游戏功能 | 玩家主体、玩家移动、玩家武器、任务设置、兴趣点设置、终端设置、战备设置 |
 | 人物数据 | ★ 人物数据、★ 快速编辑 |
 | 材料货币 | 抓包发蓝币、古法刷资源 |
-| 敌人设置 | ★ 敌人编辑（虫族 / 机器人 / 光能者 / SEAF / 生成）、AI设置、拉烟编辑器、敌人替换器 |
-| 军械库 | 解锁、★ 武器编辑（主武器 / 副武器 / 支援武器 / 投掷物）、★ 武器配件自定义、★ 护甲编辑、★ 强化资源、装备替换、当前装备栏编辑 |
-| 星球任务 | 星球设置、战役编辑、行动编辑、任务编辑、S的任务微调 |
-| 实体组件 | 武器组件、炮塔与制导、背包、挂载、阵营、地雷、投掷物、淹没、生命、护盾 |
+| 敌人设置 | ★ 敌人编辑（敌人：虫族 / 机器人 / 光能者，左侧按阵营筛选；SEAF；敌人生成；敌人数据：全局倍率）、★ AI设置（敌人 AI / 角色 AI / 视觉 / 听觉 / 危险感知）、★ 刷怪编辑器（敌人调度 / SEAF 目标）、敌人替换器 |
+| 军械库 | 解锁、★ 武器编辑（主武器 / 副武器 / 支援武器 / 投掷物）、★ 武器配件自定义、★ 护甲编辑、★ 强化资源、装备替换、★ 当前装备栏编辑 |
+| 星球任务 | ★ 星球设置、★ 本地环境实体、战役编辑、★ 行动编辑（行动修饰符）、★ 任务编辑（任务规则与增援 / 任务目标编辑（占位）/ 任务模式开关） |
+| 实体组件 | ★ 武器组件、武器类型、武器配件、炮塔与制导、背包、挂载、阵营、地雷与投掷、淹没、生命与拆毁、护盾、地狱舱、接触伤害 |
 | 轨道飞鹰 | ★ 轨道编辑、★ 飞鹰编辑、轨道武器编辑 |
-| 游戏数据 | 伤害id、★ 射弹id、★ 爆炸id、电弧id、激光id、★ 状态效果id、★ 战备id（战略配备 / 载具） |
-| 杂项与设置 | 身份设置、修改器设置、预载设置、寻找器 |
-| 额外 | ★ 布局文档未列出的原版功能 |
+| 游戏数据 | ★ 伤害id、★ 射弹id、★ 爆炸id、★ 电弧id、★ 激光id、★ 状态效果id、★ 战备id（战略配备 / 载具） |
+| 杂项与设置 | 身份设置、★ 已解析参数（角色名称 / 字体样式 / 网络接口参考）、修改器设置（显示：字体大小 / 分辨率）、★ 预载设置、寻找器 |
 
 - **占位子页**：布局文档里有、修改器还没有的功能，子页名称显示为灰色，页面上列出计划中的项目。它们不会改动游戏。
-- **人物数据**：绝地潜兵的数值按布局文档的格子（速度、攀爬、耐力、转向速度、侦查/潜行、投掷/减速修正、自我治疗、滑铲、布娃娃/杂项、人物切枪状态、手动修改）逐字段排列。已有的参数沿用修改器原来的名字，按数据中的位置填入对应字段；文档中没有对应参数的字段留空。
-- **兼容**：原版保存的数值、预设和配置都能照常读取。「设置」「预设」「写入游戏」「恢复游戏原始文件」的位置和用法与原版相同。
+- **人物数据**：绝地潜兵 Avatar 组件按布局文档的格子（速度、攀爬、耐力、转向速度、侦查/潜行、投掷/沾污、自我治疗、滑铲、布娃娃/杂项、人物切枪状态的 8 个疲劳等级）逐字段排列，偏移和成员名已用类型库与 RawData 逐项核对。「快速编辑」只放生命组件和阵营 1～3。详见 [人物数据说明](offline/PLAYER_DATA.md)。
+- **预设与底部栏**：「写入游戏」「恢复游戏原始文件」「预设」「设置」统一放在底部。预设采用独立编辑模式及命名方案，旧预设自动导入；页面内 1–5 快捷槽已移除。详见 [预设说明](offline/PRESETS.md)。
 
 ### 2. 从「从实体找组件」变成「从组件找实体」
 
@@ -41,6 +40,8 @@
 - **实体组件**（规划中，目前为占位）：先选组件类型，例如 weapondata、weaponreload、weaponmagazine、weaponcharge、projectileweapon、sprayweapon、arcweapon、sensoreye、turret、inventory、mount、faction、minefield / minespawner、thrower、drownable、health、shield、orbitalweapon；再输入或选择任意实体的哈希，修改该实体的这个组件。
 
 ### 3. 其他
+
+- **已解析参数**：在“杂项与设置”中紧邻身份设置，开放角色字幕名称与本机字体样式的真实字段，支持配置、预设、重置与写入游戏。网络接口描述仅供只读参考。详见 [字段说明](offline/NAMED_PARAMETERS.md)。
 
 - **当前组件解析**：实体组件、伤害/射弹/爆炸/电弧/激光/状态效果 ID、战备参数及引用跳转均已接入。轨道武器编辑完整覆盖当前两条 OrbitalAbility 记录，每条 140 项字段（含 56 个二维轨迹控制点）。详见 [轨道武器参数说明](offline/ORBITAL_WEAPON_COMPONENTS.md)。
 
@@ -66,17 +67,16 @@ The original has one row of tabs (Primary, Secondary, Support, Throwables, Strat
 | Features | Player, Movement, Weapons, Missions, Points of interest, Terminals, Stratagem settings |
 | Character | ★ Character data, ★ Quick edit |
 | Currency | Capture and send currency, Classic resource farming |
-| Enemies | ★ Enemy editor (Terminids / Automatons / Illuminate / SEAF / Spawning), AI settings, Flare editor, Enemy swapper |
-| Armory | Unlock, ★ Weapon editing (Primary / Secondary / Support / Throwables), ★ Weapon attachments, ★ Armor editing, ★ Boosters, Loadout swap, Current loadout |
-| Planets | Planet settings, Campaign editing, Operation editing, Mission editing, S's mission tweaks |
-| Components | Weapon components, Turrets and guidance, Backpack, Mounts, Faction, Mines, Throwers, Drowning, Health, Shield |
+| Enemies | ★ Enemy editor (Enemies: Terminids / Automatons / Illuminate, filtered by faction in the list; SEAF; Spawning; Enemy data: global multipliers), ★ AI settings (enemy AI / AI character / sight / hearing / danger sense), ★ Spawn editor (hive mind / SEAF objectives), Enemy swapper |
+| Armory | Unlock, ★ Weapon editing (Primary / Secondary / Support / Throwables), ★ Weapon attachments, ★ Armor editing, ★ Boosters, Loadout swap, ★ Current loadout |
+| Planets | ★ Planet settings, ★ Local environment entities, Campaign editing, ★ Operation editing (operation modifiers), ★ Mission editing (mission rules and reinforcements / mission objectives (placeholder) / mission mode switches) |
+| Components | ★ Weapon components, Weapon kinds, Weapon attachments, Turrets and guidance, Backpack, Mounts, Faction, Mines and throwing, Drowning, Health and demolition, Shield, Hellpods, Contact damage |
 | Orbital & Eagle | ★ Orbital editing, ★ Eagle editing, Orbital weapon editing |
-| Game data | Damage ids, ★ Projectile ids, ★ Explosion ids, Arc ids, Laser ids, ★ Status effect ids, ★ Stratagem ids (Stratagems / Vehicles) |
-| Misc & settings | Identity, Editor settings, Preload, Finder |
-| Extra | ★ Original features the layout document does not list |
+| Game data | ★ Damage ids, ★ Projectile ids, ★ Explosion ids, ★ Arc ids, ★ Laser ids, ★ Status effect ids, ★ Stratagem ids (Stratagems / Vehicles) |
+| Misc & settings | Identity, ★ Named parameters (character names / font styles / network reference), Editor settings (display: text size / resolution), ★ Preload, Finder |
 
 - **Placeholder sub-pages**: features in the layout document that the editor does not have yet. Their names are greyed out and their pages list what is planned. They change nothing in the game.
-- **Character data**: the helldiver's stats laid out by the document's boxes (Speed, Climbing, Stamina, Turn speed, Detection / stealth, Throwing / slowdown, Self-healing, Sliding, Ragdoll / misc, Weapon switching, Manual edit), field by field. Existing stats keep the editor's own names and fill the field at their place in the data; fields with no stat yet are left empty.
+- **Character data**: the helldiver's AvatarComponentData laid out by the document's boxes (Speed, Climbing, Stamina, Turn speed, Detection / stealth, Throwing / dirt, Self-healing, Sliding, Ragdoll / misc, and Weapon switching for each of the 8 exertion levels), field by field; every offset and member name is checked against the type library and RawData. Quick edit holds the health component and factions 1-3 only. See [the character data notes](offline/PLAYER_DATA.md).
 - **Compatibility**: values, presets and config saved by the original still load. Settings, Presets, Install and Restore work as before.
 
 ### 2. From "entity → components" to "component → entities"
@@ -310,7 +310,7 @@ The window is the panel: click, or use the keys.
 | PgUp / PgDn | Previous / next weapon |
 | Ctrl+F | Search (or click the box under the list) |
 | Del | Reset the stat to the game's value |
-| Ctrl+1–5 / Ctrl+Shift+1–5 | Load / save a weapon preset |
+| Insert / Shift+Insert (preset mode) | Create / replace a named preset |
 
 **Typing values.** Click a number (or press Enter on a stat) and type: digits, and "." or ","
 for decimals. Enter sets it, Esc cancels, and clicking elsewhere also sets it. A value outside

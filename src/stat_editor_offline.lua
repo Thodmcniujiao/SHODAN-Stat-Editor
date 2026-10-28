@@ -11570,12 +11570,30 @@ KINDS[TYPES.faction] = { name = 'faction', stride = 152, keyed = true }
 MOD.weapon_components = require('weapon_components')
 MOD.component_tab_kind, MOD.component_tab_label = {}, {}
 MOD.weapon_components.register = function()   -- (a function: the main chunk is at LuaJIT's local limit)
+    -- the mission game mode's components (offline/mission_components.lua, 星球任务 › 任务编辑) ride along with them
+    local specs = MOD.weapon_components.SPECS
+    for _, spec in ipairs(require('mission_components').SPECS) do   -- (the hive mind: 刷怪编辑器's, offline/spawn_components.lua)
+        if spec.TYPE ~= 'HiveMindComponentData' then specs[#specs + 1] = spec end
+    end
+    -- the hellpods' components (offline/hellpod_components.lua, 实体组件 › 地狱舱): descent, payload, rack, ship
+    for _, spec in ipairs(require('hellpod_components').SPECS) do specs[#specs + 1] = spec end
+    -- 敌人设置 › 刷怪编辑器 (offline/spawn_components.lua): the hive mind regrouped as 敌人生成's groups, SEAF objectives
+    for _, spec in ipairs(require('spawn_components').SPECS) do specs[#specs + 1] = spec end
+    -- 敌人设置 › AI设置 and 实体组件 › 接触伤害 (offline/ai_components.lua): the enemies' AI, senses, contact damage
+    for _, spec in ipairs(require('ai_components').SPECS) do specs[#specs + 1] = spec end
     for _, spec in ipairs(MOD.weapon_components.SPECS) do
         if not KINDS[spec.HASH] then KINDS[spec.HASH] = { name = spec.KEY, stride = spec.SIZE, keyed = true } end
         MOD.component_tab_kind[spec.SLOT], MOD.component_tab_label[spec.SLOT] = spec.KEY, spec.TAB
     end
 end
 MOD.weapon_components.register()
+MOD.identity = require('identity_components')
+MOD.identity.register(KINDS)
+MOD.preload = require('preload_components')
+MOD.preload.register(KINDS)
+MOD.player_save_view=require('player_save_view')
+MOD.planet=require('planet_components')
+MOD.planet.register(KINDS)
 -- EquipmentComponentData (232 bytes): +196 one-handed (bool byte). HelldiverCustomizationKit (one block per
 -- armor, helmet or cape): +16 name (text id), +40 kit type (0 armor), +48 body types (pointer, count; 24 bytes:
 -- +8 pieces, pointer, count; 112 bytes: +8 slot (2 torso), +12 piece type, +16 weight 0 light / 1 medium / 2 heavy)
@@ -11900,10 +11918,14 @@ local defaults = {}     -- key -> value before this mod first wrote it
 
 local function field_at(kind, offset, storage, limit)
     local mask = type(storage) == 'string' and storage:match('^bit([0-7])$')
-    local key = kind .. ':' .. offset .. (mask and (':' .. storage) or '')
+    -- (three captures: `x and s:match()` would keep only the first)
+    local packed_bytes,packed_shift,packed_width
+    if type(storage)=='string' then packed_bytes,packed_shift,packed_width=storage:match('^bits([124])_(%d+)_(%d+)$') end
+    local key = kind .. ':' .. offset .. ((mask or packed_bytes) and (':' .. storage) or '')
     local f = fields[key]
     if not f then
         f = { key = key, kind = kind, offset = offset, storage = mask and 'flag' or storage, mask = mask and 2^tonumber(mask), limit = limit, users = {} }
+        if packed_bytes then f.storage='bits';f.bit_bytes=tonumber(packed_bytes);f.bit_shift=tonumber(packed_shift);f.bit_width=tonumber(packed_width)end
         fields[key] = f
     end
     return f
@@ -11931,6 +11953,11 @@ local function read_field(f)
     end
     local entry = tables[f.kind]
     if not entry then return nil end
+    if f.storage=='bits'then
+        local b=api.read(entry.copies[1]+HEADER_BYTES+f.offset,f.bit_bytes);if not b then return nil end
+        local v=0;for i=#b,1,-1 do v=v*256+b:byte(i)end
+        return math.floor(v/2^f.bit_shift)%2^f.bit_width
+    end
     if f.storage == 'tier' then   -- a destruction level: its template pointer and type, read as the threshold
         return KINDS[TYPES.destruction].threshold(api.read(entry.copies[1] + HEADER_BYTES + f.offset, 12))
     end
@@ -11964,6 +11991,12 @@ local function read_field(f)
 end
 
 local function encode(f, value)
+    if f.storage=='bits'then
+        local t=tables[f.kind];local b=t and api.read(t.copies[1]+HEADER_BYTES+f.offset,f.bit_bytes);if not b then return nil end
+        local v=0;for i=#b,1,-1 do v=v*256+b:byte(i)end
+        local scale=2^f.bit_shift;v=v-(math.floor(v/scale)%2^f.bit_width)*scale+math.floor(value+.5)*scale
+        local out={};for i=1,f.bit_bytes do out[i]=string.char(v%256);v=math.floor(v/256)end;return table.concat(out)
+    end
     if f.storage == 'grenade' then return KINDS[TYPES.throwable].entity_bytes(value) end
     if f.storage == 'gun' then local g = MOD.enemy.gun_choices().by_id[value]; return g and g.key end
     if f.storage == 'f32' then return f32_bytes(value) end
@@ -12421,7 +12454,7 @@ KINDS[TYPES.passive].build = function()
         for _, v in ipairs({ { A.ENTITY, 'Helldiver' }, { 'FFFFFFF800000001', 'Helldiver: health and faction', 'quick' },
                              { 'FFFFFFF800000002', 'Helldiver: water and hellpods', 'other' } }) do
             by_hash[v[1]] = { name = v[2], slot = 'Armors', hash = v[1], key = not v[3] and key or nil, rows = {}, by_id = {},
-                              player = true, player_view = v[3], note = note }
+                              player = true, player_view = v[3], note = note, nav_hidden = v[3] == 'other' or nil }
             weapons[#weapons + 1] = by_hash[v[1]]
         end
     end
@@ -12527,7 +12560,7 @@ KINDS[TYPES.avatar].PODS = { { 'E58163E71928D3E2', 'Initial drop' }, { 'EF9EB729
 -- 滑铲 +152..+172), so a field takes the stat at its place; QUICK: its 快速编辑 (Player = the helldiver entity).
 KINDS[TYPES.avatar].DOC = {
     { name = { 'Speed', '速度', '速度' }, fields = {
-        { name = { 'Stance time', '姿势时间', '姿勢時間' }, off = 0, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Stance time', '姿势时间', '姿勢時間' }, off = 0, max = 10, small = 0.05, big = 0.25, m = 'input_info.hold_stance_button_time_for_prone' },
         { name = { 'Twist', '扭转', '扭轉' }, id = 'reversing' },
         { name = { 'Aim', '瞄准', '瞄準' }, id = 'aim' },
         { name = { 'Walk', '步行', '步行' }, id = 'walk' },
@@ -12541,15 +12574,24 @@ KINDS[TYPES.avatar].DOC = {
         { name = { 'Prone', '卧倒', '臥倒' }, id = 'prone' },
         { name = { 'Swim', '游泳', '游泳' }, id = 'swim' },
     } },
+    -- (offsets and member names: AvatarComponentData, 852 bytes, checked against the game's type library and the
+    -- RawData dump of the helldiver's record: 213 leaves, every value equal)
     { name = { 'Climbing', '攀爬', '攀爬' }, fields = {
-        { name = { 'Fall height', '坠落高度', '墜落高度' }, off = 256, max = 10, small = 0.05, big = 0.25, guess = true },
+        { name = { 'Fall height', '坠落高度', '墜落高度' }, off = 256, max = 10, small = 0.05, big = 0.25, m = 'climb_info.min_height_falling' },
         { name = { 'Climb height X', '攀爬高度X', '攀爬高度X' }, id = 'climb_height' },
-        { name = { 'Climb height Y', '攀爬高度Y', '攀爬高度Y' }, off = 264, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Climb forward X', '攀爬前进X', '攀爬前進X' }, off = 268, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Climb forward Y', '攀爬前进Y', '攀爬前進Y' }, off = 272, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Vault height', '跨越高度', '跨越高度' }, off = 276, max = 10, small = 0.05, big = 0.25, guess = true },
-        { name = { 'Vault cooldown', '跨越冷却', '跨越冷卻' }, off = 280, max = 10, small = 0.05, big = 0.25, guess = true },
-        { name = { 'Climb speed', '攀爬速度', '攀爬速度' }, off = 284, max = 50, small = 0.1, big = 0.5, guess = true },
+        { name = { 'Climb height Y', '攀爬高度Y', '攀爬高度Y' }, off = 264, max = 10, small = 0.05, big = 0.25, m = 'climb_info.max_height.y' },
+        { name = { 'Climb forward X', '攀爬前进X', '攀爬前進X' }, off = 268, max = 10, small = 0.05, big = 0.25, m = 'climb_info.max_forward_distance.x' },
+        { name = { 'Climb forward Y', '攀爬前进Y', '攀爬前進Y' }, off = 272, max = 10, small = 0.05, big = 0.25, m = 'climb_info.max_forward_distance.y' },
+        { name = { 'Forward check distance (per ms)', '前进检测距离（每毫秒）', '前進檢測距離（每毫秒）' }, off = 276, max = 1, small = 0.005, big = 0.05, m = 'climb_info.forward_start_check_distance_per_ms' },
+        { name = { 'Auto step-up height', '自动跨上高度', '自動跨上高度' }, off = 280, max = 10, small = 0.05, big = 0.25, m = 'climb_info.max_auto_step_up_height' },
+        { name = { 'Auto step-up cooldown', '自动跨上冷却', '自動跨上冷卻' }, off = 284, max = 10, small = 0.05, big = 0.25, m = 'climb_info.auto_step_up_cd' },
+        { name = { 'Climb alignment speed', '攀爬对位速度', '攀爬對位速度' }, off = 288, max = 50, small = 0.1, big = 0.5, m = 'climb_info.climb_ref_interpolation_speed' },
+        { name = { 'Climb start offset X', '攀爬起始偏移X', '攀爬起始偏移X' }, off = 232, min = -10, max = 10, small = 0.05, big = 0.25, m = 'climb_info.start_offset.x' },
+        { name = { 'Climb start offset Y', '攀爬起始偏移Y', '攀爬起始偏移Y' }, off = 236, min = -10, max = 10, small = 0.05, big = 0.25, m = 'climb_info.start_offset.y' },
+        { name = { 'Climb start offset Z', '攀爬起始偏移Z', '攀爬起始偏移Z' }, off = 240, min = -10, max = 10, small = 0.05, big = 0.25, m = 'climb_info.start_offset.z' },
+        { name = { 'Climb offset X', '攀爬偏移X', '攀爬偏移X' }, off = 244, min = -10, max = 10, small = 0.05, big = 0.25, m = 'climb_info.climb_offset.x' },
+        { name = { 'Climb offset Y', '攀爬偏移Y', '攀爬偏移Y' }, off = 248, min = -10, max = 10, small = 0.05, big = 0.25, m = 'climb_info.climb_offset.y' },
+        { name = { 'Climb offset Z', '攀爬偏移Z', '攀爬偏移Z' }, off = 252, min = -10, max = 10, small = 0.05, big = 0.25, m = 'climb_info.climb_offset.z' },
     } },
     { name = { 'Stamina', '耐力', '耐力' }, fields = {
         { name = { 'Sprint drain', '冲消耗', '衝消耗' }, id = 'sprint_drain' },
@@ -12560,94 +12602,157 @@ KINDS[TYPES.avatar].DOC = {
         { name = { 'Refill delay', '恢复延迟', '恢復延遲' }, id = 'recover_delay' },
         { name = { 'Jump cost', '跳消耗', '跳消耗' }, id = 'cost_jump' },
         { name = { 'Dive cost', '闪消耗', '閃消耗' }, id = 'cost_dive' },
-        { name = { 'Slide cost', '滑消', '滑消' }, off = 84, max = 1, small = 0.05, big = 0.1 },
+        { name = { 'Vault cost', '翻越消耗', '翻越消耗' }, off = 84, max = 1, small = 0.05, big = 0.1, m = 'move_info.stamina_cost_vault' },
+        { name = { 'Climb cost', '攀爬消耗', '攀爬消耗' }, off = 88, max = 1, small = 0.05, big = 0.1, m = 'move_info.stamina_cost_climb' },
+        { name = { 'Slide cost', '滑消', '滑消' }, off = 92, max = 1, small = 0.05, big = 0.1, m = 'move_info.stamina_cost_slide' },
     } },
     { name = { 'Turn speed', '转向速度', '轉向速度' }, fields = {
-        { name = { 'Crouched turn', '蹲伏转向', '蹲伏轉向' }, off = 96, max = 10, small = 0.05, big = 0.25, guess = true },
-        { name = { 'Jog turn', '慢跑转向', '慢跑轉向' }, off = 100, max = 10, small = 0.05, big = 0.25, guess = true },
-        { name = { 'Jump turn', '跳跃转向', '跳躍轉向' }, off = 104, max = 10, small = 0.05, big = 0.25, guess = true },
-        { name = { 'Sprint turn', '冲刺转向', '衝刺轉向' }, off = 108, max = 10, small = 0.05, big = 0.25, guess = true },
-        { name = { 'Downed turn', '倒地转向', '倒地轉向' }, off = 112, max = 10, small = 0.05, big = 0.25, guess = true },
-        { name = { 'Swim turn', '游泳转向', '游泳轉向' }, off = 116, max = 10, small = 0.05, big = 0.25, guess = true },
+        { name = { 'Crouched turn', '蹲伏转向', '蹲伏轉向' }, off = 124, max = 10, small = 0.05, big = 0.25, m = 'move_info.crouch_turn_speed_multiplier' },
+        { name = { 'Prone turn', '卧倒转向', '臥倒轉向' }, off = 128, max = 10, small = 0.05, big = 0.25, m = 'move_info.prone_turn_speed_multiplier' },
+        { name = { 'Jog turn', '慢跑转向', '慢跑轉向' }, off = 132, max = 10, small = 0.05, big = 0.25, m = 'move_info.jog_turn_speed_multiplier' },
+        { name = { 'Sprint turn', '冲刺转向', '衝刺轉向' }, off = 136, max = 10, small = 0.05, big = 0.25, m = 'move_info.sprint_turn_speed_multiplier' },
+        { name = { 'Downed turn', '倒地转向', '倒地轉向' }, off = 140, max = 10, small = 0.05, big = 0.25, m = 'move_info.downed_turn_speed_multiplier' },
+        { name = { 'Swim turn', '游泳转向', '游泳轉向' }, off = 144, max = 10, small = 0.05, big = 0.25, m = 'move_info.swim_turn_speed_multiplier' },
     } },
     { name = { 'Detection / stealth', '侦查/潜行', '偵查/潛行' }, fields = {
-        { name = { 'Noise range', '噪音范围', '噪音範圍' } },
-        { name = { 'Jump', '跳跃', '跳躍' } },
-        { name = { 'Dodge', '闪避', '閃避' } },
-        { name = { 'Vault', '翻越', '翻越' } },
-        { name = { 'Climb', '攀爬', '攀爬' } },
-        { name = { 'Slide', '滑铲', '滑鏟' } },
-        { name = { 'Standing', '站立', '站立' } },
-        { name = { 'Crouched', '蹲伏', '蹲伏' } },
-        { name = { 'Prone', '卧倒', '臥倒' } },
+        { name = { 'Sprint noise range (m)', '冲刺噪音范围（米）', '衝刺噪音範圍（公尺）' }, off = 148, max = 200, small = 1, big = 5, m = 'move_info.sprint_noise_radius' },
+        { name = { 'Jump visibility', '跳跃可见度', '跳躍可見度' }, off = 96, max = 10, small = 0.05, big = 0.25, m = 'move_info.visibility_jump' },
+        { name = { 'Dodge visibility', '闪避可见度', '閃避可見度' }, off = 100, max = 10, small = 0.05, big = 0.25, m = 'move_info.visibility_dodge' },
+        { name = { 'Vault visibility', '翻越可见度', '翻越可見度' }, off = 104, max = 10, small = 0.05, big = 0.25, m = 'move_info.visibility_vault' },
+        { name = { 'Climb visibility', '攀爬可见度', '攀爬可見度' }, off = 108, max = 10, small = 0.05, big = 0.25, m = 'move_info.visibility_climb' },
+        { name = { 'Slide visibility', '滑铲可见度', '滑鏟可見度' }, off = 112, max = 10, small = 0.05, big = 0.25, m = 'move_info.visibility_slide' },
+        { name = { 'Sighted standing (multiplier)', '站立被发现系数', '站立被發現係數' }, off = 308, max = 10, small = 0.05, big = 0.25, m = 'detection_info.sight_modifier_standing' },
+        { name = { 'Sighted crouched (multiplier)', '蹲伏被发现系数', '蹲伏被發現係數' }, off = 312, max = 10, small = 0.05, big = 0.25, m = 'detection_info.sight_modifier_crouching' },
+        { name = { 'Sighted prone (multiplier)', '卧倒被发现系数', '臥倒被發現係數' }, off = 316, max = 10, small = 0.05, big = 0.25, m = 'detection_info.sight_modifier_prone' },
     } },
-    { name = { 'Throwing / slowdown', '投掷/减速修正', '投擲/減速修正' }, fields = {
-        { name = { 'Short throw angle', '短距角度', '短距角度' }, off = 292, max = 89, small = 1, big = 5 },
-        { name = { 'Short throw force', '短距力度', '短距力度' }, off = 296, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Long throw angle', '长距角度', '長距角度' }, off = 300, max = 89, small = 1, big = 5 },
-        { name = { 'Long throw force', '长距力度', '長距力度' }, off = 304, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Trigger requirement', '触发要求', '觸發要求' } },
-        { name = { 'Standing', '站立', '站立' }, off = 308, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Crouched', '蹲伏', '蹲伏' }, off = 312, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Prone', '卧倒', '臥倒' }, off = 316, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Sliding', '滑铲', '滑鏟' } },
+    { name = { 'Throwing / dirt', '投掷/沾污', '投擲/沾污' }, fields = {
+        { name = { 'Short throw angle', '短距角度', '短距角度' }, off = 292, max = 89, small = 1, big = 5, m = 'short_throw_info.throw_angle_offset' },
+        { name = { 'Short throw force', '短距力度', '短距力度' }, off = 296, max = 10, small = 0.05, big = 0.25, m = 'short_throw_info.power_multiplier' },
+        { name = { 'Long throw angle', '长距角度', '長距角度' }, off = 300, max = 89, small = 1, big = 5, m = 'long_throw_info.throw_angle_offset' },
+        { name = { 'Long throw force', '长距力度', '長距力度' }, off = 304, max = 10, small = 0.05, big = 0.25, m = 'long_throw_info.power_multiplier' },
+        { name = { 'Dirt: speed needed (m/s)', '沾污触发移动速度（米/秒）', '沾污觸發移動速度（公尺/秒）' }, off = 320, max = 50, small = 0.1, big = 0.5, m = 'weathering_settings.move_speed_requirement' },
+        { name = { 'Dirt rate standing', '站立沾污速度', '站立沾污速度' }, off = 324, max = 100, small = 0.5, big = 2, m = 'weathering_settings.dirt_speed_standing' },
+        { name = { 'Dirt rate crouched', '蹲伏沾污速度', '蹲伏沾污速度' }, off = 328, max = 100, small = 0.5, big = 2, m = 'weathering_settings.dirt_speed_crouching' },
+        { name = { 'Dirt rate prone', '卧倒沾污速度', '臥倒沾污速度' }, off = 332, max = 100, small = 0.5, big = 2, m = 'weathering_settings.dirt_speed_prone' },
+        { name = { 'Dirt rate sliding', '滑铲沾污速度', '滑鏟沾污速度' }, off = 336, max = 100, small = 0.5, big = 2, m = 'weathering_settings.dirt_speed_sliding' },
     } },
     { name = { 'Self-healing', '自我治疗', '自我治療' }, fields = {
-        { name = { 'Heal duration', '治疗持续时间', '治療持續時間' } },
-        { name = { 'Decay wait', '衰减等待时间', '衰減等待時間' } },
-        { name = { 'Heal decay rate', '治疗衰减速率', '治療衰減速率' } },
-        { name = { 'Damage that cancels healing', '治疗取消伤害', '治療取消傷害' } },
+        { name = { 'Heal duration', '治疗持续时间', '治療持續時間' }, off = 784, max = 600, small = 0.5, big = 2, m = 'heal_self_duration' },
+        { name = { 'Decay wait', '衰减等待时间', '衰減等待時間' }, off = 788, max = 60, small = 0.05, big = 0.25, m = 'heal_self_decay_wait_time' },
+        { name = { 'Heal decay rate', '治疗衰减速率', '治療衰減速率' }, off = 792, max = 100, small = 0.05, big = 0.25, m = 'heal_self_decay_rate' },
+        { name = { 'Damage that cancels healing', '治疗取消伤害', '治療取消傷害' }, off = 796, max = 100000, small = 1, big = 5, m = 'heal_self_cancle_damage_amount' },
     } },
     { name = { 'Sliding', '滑铲', '滑鏟' }, fields = {
         { name = { 'Slide angle', '滑铲角度', '滑鏟角度' }, id = 'slide_enter' },
-        { name = { 'Enter time', '进入时间', '進入時間' }, off = 156, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Slide speed', '滑铲速度', '滑鏟速度' }, off = 160, max = 50, small = 0.1, big = 0.5 },
-        { name = { 'Slide gravity', '滑铲重力', '滑鏟重力' }, off = 164, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Duration', '持续时间', '持續時間' }, off = 168, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Enter time', '进入时间', '進入時間' }, off = 156, max = 10, small = 0.05, big = 0.25, m = 'steep_slope_movement.slide_enter_minimum_duration' },
+        { name = { 'Slide speed', '滑铲速度', '滑鏟速度' }, off = 160, max = 50, small = 0.1, big = 0.5, m = 'steep_slope_movement.slide_speed' },
+        { name = { 'Slide gravity', '滑铲重力', '滑鏟重力' }, off = 164, max = 10, small = 0.05, big = 0.25, m = 'steep_slope_movement.slide_gravity_multiplier' },
+        { name = { 'Duration', '持续时间', '持續時間' }, off = 168, max = 10, small = 0.05, big = 0.25, m = 'steep_slope_movement.slide_minimum_duration' },
         { name = { 'Exit angle', '退出角度', '退出角度' }, id = 'slide_exit' },
-        { name = { 'Exit time', '退出时间', '退出時間' }, off = 176, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Uphill slowdown (small)', '上坡减速（小）', '上坡減速（小）' }, off = 180, max = 89, small = 1, big = 5 },
-        { name = { 'Uphill slowdown (large)', '上坡减速（大）', '上坡減速（大）' }, off = 184, max = 89, small = 1, big = 5 },
-        { name = { 'Uphill speed', '上坡速度', '上坡速度' }, off = 188, max = 1, small = 0.005, big = 0.05 },
-        { name = { 'Downhill slowdown (small)', '下坡减速（小）', '下坡減速（小）' }, off = 192, max = 89, small = 1, big = 5 },
-        { name = { 'Downhill slowdown (large)', '下坡减速（大）', '下坡減速（大）' }, off = 196, max = 89, small = 1, big = 5 },
-        { name = { 'Downhill speed', '下坡速度', '下坡速度' }, off = 200, max = 1, small = 0.005, big = 0.05 },
-        { name = { 'Slope check', '坡度检测', '坡度檢測' }, off = 204, max = 1, small = 0.0001, big = 0.001 },
-        { name = { 'Flat time', '平地时间', '平地時間' }, off = 208, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Flat speed', '平地速度', '平地速度' }, off = 212, max = 50, small = 0.1, big = 0.5 },
-        { name = { 'Uphill time', '上坡时间', '上坡時間' }, off = 216, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Uphill speed', '上坡速度', '上坡速度' }, off = 220, max = 50, small = 0.1, big = 0.5 },
-        { name = { 'Downhill time', '下坡时间', '下坡時間' }, off = 224, max = 10, small = 0.05, big = 0.25 },
-        { name = { 'Downhill speed', '下坡速度', '下坡速度' }, off = 228, max = 50, small = 0.1, big = 0.5 },
+        { name = { 'Exit time', '退出时间', '退出時間' }, off = 176, max = 10, small = 0.05, big = 0.25, m = 'steep_slope_movement.slide_beyond_mover_max_angle_exit_duration' },
+        { name = { 'Uphill slowdown (small)', '上坡减速（小）', '上坡減速（小）' }, off = 180, max = 89, small = 1, big = 5, m = 'steep_slope_movement.slowed_movement_start_angle_uphill' },
+        { name = { 'Uphill slowdown (large)', '上坡减速（大）', '上坡減速（大）' }, off = 184, max = 89, small = 1, big = 5, m = 'steep_slope_movement.slowed_movement_max_angle_uphill' },
+        { name = { 'Uphill speed', '上坡速度', '上坡速度' }, off = 188, max = 1, small = 0.005, big = 0.05, m = 'steep_slope_movement.slowed_movement_speed_multiplier_uphill' },
+        { name = { 'Downhill slowdown (small)', '下坡减速（小）', '下坡減速（小）' }, off = 192, max = 89, small = 1, big = 5, m = 'steep_slope_movement.slowed_movement_start_angle_downhill' },
+        { name = { 'Downhill slowdown (large)', '下坡减速（大）', '下坡減速（大）' }, off = 196, max = 89, small = 1, big = 5, m = 'steep_slope_movement.slowed_movement_max_angle_downhill' },
+        { name = { 'Downhill speed', '下坡速度', '下坡速度' }, off = 200, max = 1, small = 0.005, big = 0.05, m = 'steep_slope_movement.slowed_movement_speed_multiplier_downhill' },
+        { name = { 'Slope check', '坡度检测', '坡度檢測' }, off = 204, max = 1, small = 0.0001, big = 0.001, m = 'steep_slope_movement.slope_angle_interpolation_fraction_per_second' },
+        { name = { 'Flat time', '平地时间', '平地時間' }, off = 208, max = 10, small = 0.05, big = 0.25, m = 'action_slide_movement_info.slide_flat_duration' },
+        { name = { 'Flat speed', '平地速度', '平地速度' }, off = 212, max = 50, small = 0.1, big = 0.5, m = 'action_slide_movement_info.slide_flat_speed' },
+        { name = { 'Uphill time', '上坡时间', '上坡時間' }, off = 216, max = 10, small = 0.05, big = 0.25, m = 'action_slide_movement_info.slide_uphill_duration' },
+        { name = { 'Uphill speed', '上坡速度', '上坡速度' }, off = 220, max = 50, small = 0.1, big = 0.5, m = 'action_slide_movement_info.slide_uphill_speed' },
+        { name = { 'Downhill time', '下坡时间', '下坡時間' }, off = 224, max = 10, small = 0.05, big = 0.25, m = 'action_slide_movement_info.slide_downhill_duration' },
+        { name = { 'Downhill speed', '下坡速度', '下坡速度' }, off = 228, max = 50, small = 0.1, big = 0.5, m = 'action_slide_movement_info.slide_downhill_speed' },
     } },
     { name = { 'Ragdoll / misc', '布娃娃/杂项', '佈娃娃/雜項' }, fields = {
-        { name = { 'Damage speed, lowest', '伤害速度下限', '傷害速度下限' } },
-        { name = { 'Damage speed, highest', '伤害速度上限', '傷害速度上限' } },
-        { name = { 'Damage, least', '伤害最小值', '傷害最小值' } },
-        { name = { 'Damage, most', '伤害最大值', '傷害最大值' } },
-        { name = { 'Snow factor', '雪地修正系数', '雪地修正係數' } },
-        { name = { 'Shortest aim time', '最小瞄准时间', '最小瞄準時間' } },
-        { name = { 'Longest aim time', '最大瞄准时间', '最大瞄準時間' } },
-        { name = { 'Shortest fire time', '最小射击时间', '最小射擊時間' } },
-        { name = { 'Longest fire time', '最大射击时间', '最大射擊時間' } },
-    } },
-    { name = { 'Weapon switching', '人物切枪状态', '人物切槍狀態' }, fields = {
-        { name = { 'Threshold', '阈值', '閾值' } },
-        { name = { 'Switch, scoped', '开镜切枪', '開鏡切槍' } },
-        { name = { 'Switch, unscoped', '关镜切枪', '關鏡切槍' } },
-        { name = { 'Switch, scoped', '开镜切枪', '開鏡切槍' } },
-        { name = { 'Switch, unscoped', '关镜切枪', '關鏡切槍' } },
-        { name = { 'Recoil, scoped', '开镜后坐', '開鏡後坐' } },
-        { name = { 'Recoil, unscoped', '关镜后坐', '關鏡後坐' } },
-        { name = { 'Sway', '晃动', '晃動' } },
+        { name = { 'Damage speed, lowest', '伤害速度下限', '傷害速度下限' }, off = 800, max = 1000, small = 1, big = 5, m = 'ragdoll_damage_velocity_lower' },
+        { name = { 'Damage speed, highest', '伤害速度上限', '傷害速度上限' }, off = 804, max = 1000, small = 1, big = 5, m = 'ragdoll_damage_velocity_upper' },
+        { name = { 'Damage, least', '伤害最小值', '傷害最小值' }, off = 808, max = 100000, small = 1, big = 10, m = 'ragdoll_damage_min' },
+        { name = { 'Damage, most', '伤害最大值', '傷害最大值' }, off = 812, max = 100000, small = 1, big = 10, m = 'ragdoll_damage_max' },
+        { name = { 'Snow factor', '雪地修正系数', '雪地修正係數' }, off = 816, max = 10, small = 0.05, big = 0.25, m = 'ragdoll_damage_snow_modifier' },
+        { name = { 'Shortest aim time', '最小瞄准时间', '最小瞄準時間' }, off = 820, max = 10, small = 0.01, big = 0.05, m = 'min_aim_duration' },
+        { name = { 'Longest aim time', '最大瞄准时间', '最大瞄準時間' }, off = 824, max = 10, small = 0.01, big = 0.05, m = 'max_aim_duration' },
+        { name = { 'Shortest fire time', '最小射击时间', '最小射擊時間' }, off = 828, max = 10, small = 0.01, big = 0.05, m = 'min_fire_ready_duration' },
+        { name = { 'Longest fire time', '最大射击时间', '最大射擊時間' }, off = 832, max = 10, small = 0.01, big = 0.05, m = 'max_fire_ready_duration' },
+        { name = { 'Hip-fire time', '腰射保持时间', '腰射保持時間' }, off = 116, max = 10, small = 0.05, big = 0.25, m = 'move_info.hipfire_time' },
+        { name = { 'Throw hip-fire time', '投掷腰射保持时间', '投擲腰射保持時間' }, off = 120, max = 10, small = 0.05, big = 0.25, m = 'move_info.throw_hipfire_time' },
+        { name = { 'Injury voice at health', '受伤语音血量比例', '受傷語音血量比例' }, off = 776, max = 1, small = 0.01, big = 0.05, m = 'exertion_vo_params.injury_hp_threshold' },
+        { name = { 'Critical bleed voice at health', '重伤出血语音血量比例', '重傷出血語音血量比例' }, off = 780, max = 1, small = 0.01, big = 0.05, m = 'exertion_vo_params.critical_bleed_hp_threshold' },
+        { name = { 'Taunt time before drain', '嘲讽衰减前时间', '嘲諷衰減前時間' }, off = 836, max = 600, small = 0.5, big = 2, m = 'taunt_time_before_drain' },
+        { name = { 'Taunt drain per second', '嘲讽每秒衰减', '嘲諷每秒衰減' }, off = 840, max = 1, small = 0.005, big = 0.05, m = 'taunt_drain_per_second' },
+        { name = { 'Taunt trigger probability (multiplier)', '嘲讽触发概率倍率', '嘲諷觸發機率倍率' }, off = 844, max = 10, small = 0.05, big = 0.25, m = 'taunt_on_trigger_probability_mul' },
+        { name = { 'Taunt cooldown', '嘲讽冷却', '嘲諷冷卻' }, off = 848, max = 600, small = 0.5, big = 2, m = 'taunt_cooldown_timer' },
     } },
 }
+-- 人物切枪状态 (the document's box): one set per exertion level (the avatar data's exertion_levels, 8 of 52 bytes from
+-- +340: +0 the level, +4 threshold, +8..+28 the sway multipliers, +32 interpolation speed), one box each
+KINDS[TYPES.avatar].EXERTION = {
+    { 'None', '无', '無' }, { 'Inconsiderable', '轻微', '輕微' }, { 'Low', '低', '低' }, { 'Medium', '中', '中' },
+    { 'High', '高', '高' }, { 'Injured', '受伤', '受傷' }, { 'Hemorrhage', '出血', '出血' }, { 'Critical hemorrhage', '严重出血', '嚴重出血' } }
+KINDS[TYPES.avatar].add_exertion = function(A)   -- (a function: the main chunk is at LuaJIT's local limit)
+    local F = {
+        { { 'Exertion threshold', '疲劳阈值', '疲勞閾值' }, 4, 'exertion_threshold' },
+        { { 'Sway, scoped (multiplier)', '开镜晃动倍率', '開鏡晃動倍率' }, 8, 'sway_multiplier_scoped' },
+        { { 'Sway, third person (multiplier)', '第三人称晃动倍率', '第三人稱晃動倍率' }, 12, 'sway_multiplier_thirdperson' },
+        { { 'Sway frequency, scoped (multiplier)', '开镜晃动频率倍率', '開鏡晃動頻率倍率' }, 16, 'sway_frequency_multiplier_scoped' },
+        { { 'Sway frequency, third person (multiplier)', '第三人称晃动频率倍率', '第三人稱晃動頻率倍率' }, 20, 'sway_frequency_multiplier_thirdperson' },
+        { { 'Recoil sway, scoped (multiplier)', '开镜后坐晃动倍率', '開鏡後坐晃動倍率' }, 24, 'sway_recoil_multiplier_scoped' },
+        { { 'Recoil sway, third person (multiplier)', '第三人称后坐晃动倍率', '第三人稱後坐晃動倍率' }, 28, 'sway_recoil_multiplier_thirdperson' },
+        { { 'Sway blend speed', '晃动过渡速度', '晃動過渡速度' }, 32, 'sway_interp_speed' } }
+    for i, lv in ipairs(A.EXERTION) do
+        local box = { name = { 'Weapon sway: ' .. lv[1], '人物切枪状态 · ' .. lv[2], '人物切槍狀態 · ' .. lv[3] }, fields = {} }
+        for _, f in ipairs(F) do
+            box.fields[#box.fields + 1] = { name = f[1], off = 340 + (i - 1) * 52 + f[2], max = 10, small = 0.05, big = 0.25,
+                                            m = 'exertion_levels[' .. (i - 1) .. '].' .. f[3] }
+        end
+        A.DOC[#A.DOC + 1] = box
+    end
+end
+KINDS[TYPES.avatar].add_exertion(KINDS[TYPES.avatar])
 KINDS[TYPES.avatar].QUICK = {
     { name = { 'health component', 'health 组件', 'health 組件' }, kind = 'health' },
-    { name = { 'faction component', 'faction 组件', 'faction 組件' } },
+    { name = { 'faction component', 'faction 组件', 'faction 組件' }, kind = 'faction' },
 }
+-- 快速编辑's health rows, laid out as the faction rows below them: the component's band (生命组件), then its groups
+-- (the body, its parts)
+KINDS[TYPES.avatar].health_band = function(row, id)
+    row.component = 'HealthComponentData'
+    row.component_of = function() return MOD.nav.text({ 'Health component', '生命组件（Health）', '生命組件（Health）' }) end
+    local part = id:match('^zone%d+_health$') ~= nil
+    row.section = part and 'quick_health:parts' or 'quick_health:body'
+    row.section_of = function() return MOD.nav.text(part and { 'Body parts', '身体部位', '身體部位' } or { 'Body', '本体', '本體' }) end
+end
+-- 快速编辑's faction box: the helldiver's three factions only (FactionComponentData's 阵营 group, from
+-- offline/faction_components.lua: the same fields as its 实体组件 › 阵营 page, so a change on one shows on the other),
+-- rows moved onto `entry`
+KINDS[TYPES.avatar].faction_rows = function(entry, key)
+    local ft = tables[TYPES.faction]
+    local at = ft and ft.index[key]
+    if not at then return false end
+    local tmp = { hash = entry.hash .. ':faction', rows = {}, by_id = {}, field_keys = {} }   -- (a stand-in page: its rows move to entry)
+    require('component_view').build(require('faction_components'), { table = { index = { [key] = at } }, kind = TYPES.faction,
+        weapons = {}, by_hash = {}, page_for = function() return tmp end, field_at = field_at, read = read_field,
+        add_row = add_row, default_of = default_of, log = log,
+        schemas = (rawget(_G, 'SHODAN_COMPONENT_CATALOG_SOURCE') or {}).schemas, names = rawget(_G, 'SHODAN_COMPONENT_NAMES'),
+        lang = function() return MOD.nav.text({ 'en', 'zh-Hans', 'zh-Hant' }) end })
+    if tmp.ensure_rows then tmp.ensure_rows() end
+    local kept = 0
+    for _, row in ipairs(tmp.rows) do
+        local keep = row.section == 'faction:faction'   -- (the 阵营 group: faction 1-3)
+        if keep then entry.rows[#entry.rows + 1] = row; kept = kept + 1 end
+        for _, p in ipairs(row.parts) do
+            if keep then entry.by_id[p.id] = entry.by_id[p.id] or p end
+            for i = #p.field.users, 1, -1 do
+                if p.field.users[i] == tmp then
+                    if keep then p.field.users[i] = entry else table.remove(p.field.users, i) end
+                end
+            end
+        end
+    end
+    return kept > 0
+end
 KINDS[TYPES.avatar].NONE = { '(no parameter in the editor yet)', '（修改器暂无此参数）', '（修改器暫無此參數）' }
-KINDS[TYPES.avatar].GUESS = { 'Placed by the layout document\'s order (not certain): avatar data +%d', '按布局文档顺序推断（不确定）：avatar 数据 +%d', '按佈局文檔顺序推斷（不確定）：avatar 數據 +%d' }
+KINDS[TYPES.avatar].MEMBER = { 'AvatarComponentData +%d · %s (checked against the type library and the game data)', 'Avatar 组件（AvatarComponentData）+%d · %s（已按游戏类型库与游戏数据核对）', 'Avatar 組件（AvatarComponentData）+%d · %s（已按遊戲類型庫與遊戲資料核對）' }
 KINDS[TYPES.avatar].NAMES = {
     ['Helldiver: health and faction'] = { '绝地潜兵：health / faction 组件', '絕地潛兵：health / faction 組件' },
     ['Helldiver: water and hellpods'] = { '绝地潜兵：水下与空降舱', '絕地潛兵：水下與空降艙' },
@@ -12751,11 +12856,12 @@ KINDS[TYPES.avatar].resolve = function(entry)
                 if r then put(r, box.name[1], named(box.name))
                 elseif f.off and m then   -- a field of the avatar data parsed here (f.off), under the document's name
                     local id = 'avatar_' .. f.off
-                    local row = add_row(entry, box.name[1], id, f.name[1], 'f32',
-                                        { part(id, TYPES.avatar, m + f.off, 'f32', 100000) }, 0, f.max, f.small, f.big)
+                    local p = part(id, TYPES.avatar, m + f.off, 'f32', 100000)
+                    if f.min and f.min < 0 then p.field.signed = true end   -- (before the first read: negatives are refused otherwise)
+                    local row = add_row(entry, box.name[1], id, f.name[1], 'f32', { p }, f.min or 0, f.max, f.small, f.big)
                     row.section_of, row.label_of = named(box.name), named(f.name)
-                    if f.guess then   -- placed by the document's order alone: said in its tip
-                        row.tip_of = function() return { string.format(MOD.nav.text(A.GUESS), f.off) } end
+                    if f.m then   -- the avatar data's member (AvatarComponentData), in its tip
+                        row.tip_of = function() return { string.format(MOD.nav.text(A.MEMBER), f.off, f.m) } end
                     end
                 else empty(box.name[1], named(box.name), f.name) end
             end
@@ -12774,8 +12880,9 @@ KINDS[TYPES.avatar].resolve = function(entry)
         for _, box in ipairs(A.QUICK) do
             local any = false
             for _, r in ipairs(box.kind == 'health' and order or {}) do
-                if health(r.id) then put(r, box.name[1], named(box.name)); any = true end
+                if health(r.id) then put(r, box.name[1], named(box.name)); A.health_band(entry.rows[#entry.rows], r.id); any = true end
             end
+            if box.kind == 'faction' then any = A.faction_rows(entry, key) end
             if not any then empty(box.name[1], named(box.name), A.NONE) end
         end
     else
@@ -15986,6 +16093,7 @@ MOD.enemy.SPAWN = {
     { 'Outposts and spawners', 'spawner_release', 'Fabricator / bug hole release speed (x)', 796 },
 }
 MOD.enemy.FACTION_IDS = { Terminids = 2, Automatons = 8, Illuminate = 4, SEAF = 16 }
+MOD.enemy.GLOBAL_NOTE = "Every enemy of the Terminids, Automatons and Illuminate at once, times each faction page's multiplier. Enemies you have edited on their own page keep their values."
 
 function MOD.enemy.spawning_build()
     for _, name in ipairs({ 'Terminids', 'Automatons', 'Illuminate' }) do
@@ -15996,6 +16104,13 @@ function MOD.enemy.spawning_build()
         weapons[#weapons + 1] = entry
         by_hash[hash] = entry
     end
+    -- 敌人数据: the whole-game page (MOD.enemy.FACTION_STATS over every Terminid, Automaton and Illuminate enemy;
+    -- MOD.enemy.faction_refresh multiplies it with the faction pages' rows)
+    local gh = 'FFFFFFFB000000FE'
+    local gp = { name = 'All enemies', slot = 'EnemyData', hash = gh, rows = {}, by_id = {}, enemy = { faction = 'All', global = true },
+                 note = MOD.enemy.GLOBAL_NOTE }
+    weapons[#weapons + 1] = gp
+    by_hash[gh] = gp
     local hash = 'FFFFFFFC000000FF'
     local entry = { name = 'All factions', slot = 'Spawning', hash = hash, rows = {}, by_id = {}, enemy = { floors = true },
                     note = 'Spawning limits every faction shares.' }
@@ -17224,6 +17339,7 @@ end
 
 -- A row's value (the mean of its parts); default = true: the game's own value instead.
 local function row_value(row, default)
+    if row.custom_value then return row.custom_value(default)end
     if row.empty then return nil end   -- (a document's field the editor has no stat for)
     if row.button_slot then
         local value=(default and default_of or read_field)(row.parts[1].field)
@@ -17267,11 +17383,14 @@ local config_dirty_at = nil
 -- or the id of a translation: fixed by the build (a language's release, MOD.lang), not a choice; offline (every
 -- language built in) a choice, saved as 'lang'.
 local settings = { changes = true, block_input = true, size = 80, side = 'right', opacity = 90,
-                   component_show_missing = true, component_category = 'all', weapon_category = 'all',
+                   component_show_missing = true, component_category = 'all', weapon_category = 'all', enemy_category = 'all',
                    arc_mp = true, updates = 'ask', update_channel = 'releases', stacks = {}, own_off = {}, hidden = {}, lang = MOD.lang or MOD.offline and rawget(_G, 'SHODAN_OFFLINE_LANG') or 'en',
                    last = { stat = {}, enemy = {} }, enemy_last = false,
                    GITHUB = 'https://github.com/SHODAN-HORAI/SHODAN-Stat-Editor',
-                   RANGE = { size = { 50, 100 }, opacity = { 10, 100 } } }
+                   -- offline (杂项与设置 › 修改器设置): font_px, the body text's size in panel pixels (16: as designed; the
+                   -- rest of the text follows); render_height, the resolution drawn at (pixels high, 0: the window's own)
+                   font_px = 16, render_height = 0,
+                   RANGE = { size = { 50, 100 }, opacity = { 10, 100 }, font_px = { 10, 28 }, render_height = { 360, 4320 } } }
 
 -- Translations (MOD.langs, built from lang/*.json): the panel's text by its English text, so every
 -- branch still runs on English and config.txt / presets stay the same in every language. A lookup:
@@ -17325,6 +17444,7 @@ do
         state.stacks = function() return settings.stacks end   -- passive id -> { passive ids stacked on it }
         state.own_off = function() return settings.own_off end -- passive id -> true: its own effects left out
         state.entity_demolition_enabled = function() return settings.changes end
+        state.preload_touch=function()state.writes=state.writes+1 end
         state.demolition_labels = function()
             local out = {}
             for _, w in ipairs(weapons) do
@@ -17345,6 +17465,16 @@ do
         end
     end
     function settings.tr(v)
+        if MOD.planet.labels[v]then return require('component_view').pick(settings.lang,MOD.planet.labels[v])end
+        local planet_name=MOD.planet.translate_name(v,settings.lang);if planet_name then return planet_name end
+        local spawn_name=require('spawn_components').translate_name(v,settings.lang);if spawn_name then return spawn_name end
+        if MOD.enemy.LABELS and MOD.enemy.LABELS[v]then return MOD.nav.text(MOD.enemy.LABELS[v])end
+        if MOD.preload.labels and MOD.preload.labels[v]then return require('component_view').pick(settings.lang,MOD.preload.labels[v])end
+        local package_name=MOD.preload.translate_name(v,settings.lang);if package_name then return package_name end
+        if v=='Helldiver / character subtitle'then return settings.lang=='zh-Hans'and'绝地潜兵／角色字幕'or settings.lang=='zh-Hant'and'絕地潛兵／角色字幕'or v end
+        if v=='CharacterNameFields'then return settings.lang=='zh-Hans'and'角色名称字段'or settings.lang=='zh-Hant'and'角色名稱欄位'or'Character names'end
+        if v=='FontStyleFields'then return settings.lang=='zh-Hans'and'字体样式字段'or settings.lang=='zh-Hant'and'字型樣式欄位'or'Font styles'end
+        if v=='IdentityRpcInfo'then return settings.lang=='zh-Hans'and'网络接口参考'or settings.lang=='zh-Hant'and'網路介面參考'or'Network reference'end
         if v=='HealthComponents'then return settings.lang=='zh-Hans'and'生命组件'or settings.lang=='zh-Hant'and'生命組件'or'Health components'end
         if v=='DrownComponents'then return settings.lang=='zh-Hans'and'淹没组件'or settings.lang=='zh-Hant'and'淹沒組件'or'Drownable components'end
         if v=='ShieldComponents'then return settings.lang=='zh-Hans'and'护盾组件'or settings.lang=='zh-Hant'and'護盾組件'or'Shield components'end
@@ -17411,6 +17541,29 @@ function settings.set_percent(name, value)
     settings[name] = math.max(r[1], math.min(r[2], v))
     return settings[name] ~= v
 end
+-- the window's size, the text's size and the render resolution, to the host (offline/host.lua: SHODAN_DISPLAY)
+settings.DISPLAY = { font_px = { 'Font size', '字体大小', '字型大小' }, render_height = { 'Resolution', '分辨率大小', '解析度大小' } }
+function settings.apply_display()
+    local d = rawget(_G, 'SHODAN_DISPLAY')
+    if not (MOD.offline and d and d.apply) then return end
+    pcall(d.apply, settings.font_px / 16, settings.render_height)
+end
+-- the resolution drawn at now: width, height (the window's own when render_height is 0)
+function settings.display_size()
+    local d = rawget(_G, 'SHODAN_DISPLAY')
+    local ok, info = pcall(function() return d and d.get and d.get() end)
+    if ok and type(info) == 'table' and info.w then return info.w, info.h end
+    return nil
+end
+-- a typed resolution: '1080', '1060x1080' (its height counts: the width is the panel's shape) or 0 / empty: the window's
+function settings.set_render(text)
+    local w, h = tostring(text or ''):match('^%s*(%d+)%s*[xX%*]%s*(%d+)%s*$')
+    h = tonumber(h or tostring(text or ''):match('^%s*(%d+)%s*$'))
+    if not h or h == 0 then settings.render_height = 0; return false end
+    local r = settings.RANGE.render_height
+    settings.render_height = math.max(r[1], math.min(r[2], math.floor(h)))
+    return settings.render_height ~= h
+end
 
 local function save_config()
     config_dirty_at = nil
@@ -17431,9 +17584,11 @@ local function save_config()
     end
     if MOD.offline then lines[#lines + 1] = 'lang ' .. settings.lang end
     if MOD.offline then
+        for _, k in ipairs({ 'font_px', 'render_height' }) do lines[#lines + 1] = k .. ' ' .. settings[k] end
         lines[#lines+1]='component_show_missing '..onoff(settings.component_show_missing)
         lines[#lines+1]='component_category '..settings.component_category
         lines[#lines+1]='weapon_category '..settings.weapon_category
+        lines[#lines+1]='enemy_category '..settings.enemy_category
     end
     if MOD.offline then
         lines[#lines + 1] = 'updates ' .. settings.updates
@@ -17502,6 +17657,7 @@ local function load_config()
         if name=='component_show_missing'then settings.component_show_missing=value~='off';known=true end
         if name=='component_category'and value:match('^[%w_-]+$')then settings.component_category=value;known=true end
         if name=='weapon_category'and value:match('^[%w_-]+$')then settings.weapon_category=value;known=true end
+        if name=='enemy_category'and value:match('^[%w_-]+$')then settings.enemy_category=value;known=true end
         local target, sources = line:match('^%s*passive_stack%s+(%d+)%s+([%d,]+)%s*$')
         if target and MOD.offline then
             local list, seen = {}, { [tonumber(target)] = true }
@@ -17532,6 +17688,14 @@ local function load_config()
             known = true
         elseif (name == 'panel_size' or name == 'panel_opacity') and MOD.parse_number(value) then
             settings.set_percent(name:sub(7), MOD.parse_number(value))
+            known = true
+        elseif name == 'font_px' and MOD.parse_number(value) then
+            settings.set_percent(name, MOD.parse_number(value))
+            known = true
+        elseif name == 'render_height' then
+            settings.set_render(value)
+            known = true
+        elseif name == 'window_size' or name == 'font_size' or name == 'render_scale' then   -- (a test build's percents)
             known = true
         elseif name == 'panel_side' and (value == 'left' or value == 'right') then
             settings.side = value
@@ -17644,7 +17808,7 @@ end
 -- saved values are applied and after every change (MOD.enemy.refresh_due).
 function MOD.enemy.faction_refresh()
     MOD.enemy.refresh_due = nil
-    local owned, by_all, covered = {}, {}, {}
+    local owned, by_all, covered, plan = {}, {}, {}, {}
     for _, o in ipairs(overrides) do
         local page = by_hash[o.hash]
         local p = page and not (page.enemy and page.enemy.faction) and page.by_id[o.id]
@@ -17657,7 +17821,8 @@ function MOD.enemy.faction_refresh()
                 local targets = {}
                 for _, r in ipairs(page.rows) do targets[r.id] = { list = {}, seen = {} } end
                 for _, other in ipairs(weapons) do
-                    if other.enemy and other.slot == page.slot and not other.enemy.faction then
+                    if other.enemy and not other.enemy.faction
+                       and (page.enemy.global and MOD.ENEMY_SLOTS[other.slot] or other.slot == page.slot) then
                         for _, r in ipairs(other.rows) do
                             for _, p in ipairs(r.parts) do
                                 for _, s in ipairs(MOD.enemy.FACTION_STATS) do
@@ -17673,23 +17838,31 @@ function MOD.enemy.faction_refresh()
                 end
                 page.enemy.targets = targets
             end
+            -- (each field's factor and offset, gathered over every page first: the whole-game page's and its
+            -- faction page's multiply, their armor steps add)
             for _, r in ipairs(page.rows) do
                 local v = read_field(r.parts[1].field) or (r.add and 0 or 1)
                 for _, f in ipairs(page.enemy.targets[r.id].list) do
-                    local d = default_of(f)
-                    local new = d and d * v
-                    if d and r.add then new = math.max(0, math.min(10, d + v)) end
-                    if new and f.storage == 'u32' then new = math.floor(new + 0.5) end
-                    if new and f.limit then new = math.min(new, f.limit) end
-                    local moved = new and math.abs(new - d) > 1e-4 * math.max(1, math.abs(d))
-                    if moved then covered[f.key] = true end
-                    if new and not owned[f.key] then
-                        local now = read_field(f)
-                        if now == nil or math.abs(now - new) > 1e-4 * math.max(1, math.abs(new)) then write_field(f, new) end
-                        if moved then by_all[f.key] = true end
-                    end
+                    local e = plan[f.key]
+                    if not e then e = { f = f, mult = 1, add = 0 }; plan[f.key] = e; plan[#plan + 1] = e end
+                    if r.add then e.add, e.is_add = e.add + v, true else e.mult = e.mult * v end
                 end
             end
+        end
+    end
+    for _, e in ipairs(plan) do
+        local f = e.f
+        local d = default_of(f)
+        local new = d and d * e.mult
+        if d and e.is_add then new = math.max(0, math.min(10, d + e.add)) end
+        if new and f.storage == 'u32' then new = math.floor(new + 0.5) end
+        if new and f.limit then new = math.min(new, f.limit) end
+        local moved = new and math.abs(new - d) > 1e-4 * math.max(1, math.abs(d))
+        if moved then covered[f.key] = true end
+        if new and not owned[f.key] then
+            local now = read_field(f)
+            if now == nil or math.abs(now - new) > 1e-4 * math.max(1, math.abs(new)) then write_field(f, new) end
+            if moved then by_all[f.key] = true end
         end
     end
     -- the pages with a value only a faction-wide row changed (their name in the list: MOD.enemy.ALL_INK)
@@ -18172,6 +18345,24 @@ local function prepare(deadline)
             state.component_entity_count=#MOD.component_catalog.records
             MOD.attach_weapon_components()
             MOD.attach_eagle_components()
+            MOD.identity.build({tables=tables,font_list=KINDS[MOD.identity.FONT].list,weapons=weapons,
+                by_hash=by_hash,field_at=field_at,read=read_field,add_row=add_row,default_of=default_of,
+                schemas=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas,
+                names=rawget(_G,'SHODAN_COMPONENT_NAMES'),lang=function()return settings.lang end,log=log,
+                bytes=function(kind)local t=tables[kind];return api.read(t.copies[1]+HEADER_BYTES,t.payload)end})
+            MOD.preload.build({tables=tables,kinds=KINDS,stratagem_groups=stratagem_groups,weapons=weapons,
+                query=function()return state.preload_query and state.preload_query()or''end,
+                by_hash=by_hash,field_at=field_at,read=read_field,add_row=add_row,default_of=default_of,
+                schemas=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas,
+                names=rawget(_G,'SHODAN_COMPONENT_NAMES'),lang=function()return settings.lang end,log=log,
+                bytes=function(kind)local t=tables[kind];return api.read(t.copies[1]+HEADER_BYTES,t.payload)end})
+            MOD.planet.build({tables=tables,kinds=KINDS,weapons=weapons,by_hash=by_hash,field_at=field_at,
+                read=read_field,add_row=add_row,default_of=default_of,
+                schemas=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas,
+                names=rawget(_G,'SHODAN_COMPONENT_NAMES'),lang=function()return settings.lang end,log=log,
+                bytes=function(kind)local t=tables[kind];return api.read(t.copies[1]+HEADER_BYTES,t.payload)end})
+            MOD.player_save_view.build({weapons=weapons,by_hash=by_hash,kit_names=MOD.kit_names or{},
+                tr=settings.tr,lang=function()return settings.lang end})
         end
         progress.resolved = true
     end
@@ -18272,7 +18463,7 @@ local function handle_table(address, kind, payload, blob)
     if spec.groups then
         -- each group is its own table; copies of one group have its size and first row
         local list = kind == T_STRATAGEM and stratagem_groups or spec.list
-        kind = spec.group_key and spec.group_key(blob)
+        kind = spec.group_key and spec.group_key(blob,address)
                or ((kind == T_STRATAGEM and 'stratagems' or spec.name) .. ' ' .. payload .. ' ' .. (u32(blob, 16 + (spec.id_at or 0)) or 0))
         if not tables[kind] then list[#list + 1] = kind end
     end
@@ -18350,6 +18541,9 @@ local function rescan()
     KINDS[TYPES.items].list = {}
     KINDS[TYPES.passive].list = {}
     KINDS[TYPES.kit].list = {}
+    KINDS[MOD.identity.FONT].list = {}
+    MOD.preload.clear(KINDS)
+    MOD.planet.clear(KINDS)
     KINDS[TYPES.destruction].found, KINDS[TYPES.destruction].told = {}, nil
     state.tables = 0
     state.offline_scan = nil
@@ -18493,7 +18687,7 @@ local sr = nil          -- the engine (stingray)
 -- page / fpage: the first row the weapon / full preset list shows (the lists scroll by rows)
 local ui = { open = false, measured = {}, measures = 0, tab = 'Primary', page = 1, row = 1, scroll = 1, weapon = nil, hover = nil,
              gui = nil, world = nil, signature = nil, regions = {}, version = 0, errors = 0,
-             wslot = 1, fslot = nil, fpage = 1, message = nil,   -- chosen weapon preset / full preset, status line
+             fslot = nil, fpage = 1, message = nil,   -- named preset selection and status
              editing = nil, confirm = nil,    -- a preset name being typed; an overwrite / delete to confirm
              search = { text = '', active = false },    -- the list's search (active: being typed)
              value = nil }   -- a value being typed: { n = row, weapon, text, fresh (the first key replaces it) }
@@ -18555,13 +18749,12 @@ MOD.nav.PAGES = {
         } },
     } },
     { id = 'enemies', name = { 'Enemies', '敌人设置', '敵人設置' }, enemy = true, subs = {
-        { name = { 'Enemy editor', '敌人编辑', '敵人編輯' }, tabs = { 'Terminids', 'Automatons', 'Illuminate', 'SEAF', 'Spawning' } },
-        { name = { 'AI settings', 'AI设置', 'AI設置' }, todo = {
-            { items = { { 'Block every AI\'s own targeting', '阻断所有AI主动锁敌', '阻斷所有AI主動鎖敵' }, { 'Block every AI\'s awareness', '阻断所有AI主动感知环境', '阻斷所有AI主動感知環境' }, { 'Remove the enemy limit', '去除敌人数量上限', '去除敵人數量上限' }, { 'Edit and spawn patrols', '巡逻队编辑与生成', '巡邏隊編輯與生成' } } },
-        } },
-        { name = { 'Flare editor', '拉烟编辑器', '拉煙編輯器' }, todo = {
-            { note = { 'Set every enemy that calls reinforcements to (pick or type one).', '设置所有拉烟的敌人为（可选择或输入）', '設置所有拉煙的敵人為（可選擇或輸入）' }, items = {} },
-        } },
+        { name = { 'Enemy editor', '敌人编辑', '敵人編輯' }, tabs = { 'Terminids', 'Automatons', 'Illuminate', 'SEAF', 'Spawning', 'EnemyData' },
+          enemy_browser = true },
+        -- AI设置: the enemies' AI and senses components, every field (offline/ai_components.lua)
+        { name = { 'AI settings', 'AI设置', 'AI設置' }, tabs = require('ai_components').SUBS.ai },
+        -- 刷怪编辑器 (was the 拉烟编辑器 placeholder): the components 敌人生成 scales, every field (offline/spawn_components.lua)
+        { name = { 'Spawn editor', '刷怪编辑器', '刷怪編輯器' }, tabs = require('spawn_components').SUBS.spawn },
         { name = { 'Enemy swapper', '敌人替换器', '敵人替換器' }, todo = {
             { note = { 'Watch for a chosen creature entity and swap it for another.', '监听并截取指定的生物实体为另一个', '監聽並截取指定的生物實體為另一個' }, items = { { 'Terminids', '虫族', '蟲族' }, { 'Automatons', '机器人', '機器人' }, { 'Illuminate', '光能者', '光能者' } } },
         } },
@@ -18577,27 +18770,22 @@ MOD.nav.PAGES = {
         { name = { 'Loadout swap', '装备替换', '裝備替換' }, todo = {
             { note = { 'Click a weapon first, then change the chosen one.', '请先点击武器，再修改选中', '請先點擊武器，再修改選中' }, items = { { 'Weapon swap', '武器替换', '武器替換' }, { 'Swap the chosen one', '修改选中', '修改選中' } } },
         } },
-        { name = { 'Current loadout', '当前装备栏编辑', '當前裝備欄編輯' }, todo = {
-            { items = { { 'Helmet', '当前头盔', '當前頭盔' }, { 'Armor', '当前护甲', '當前護甲' }, { 'Cape', '当前披风', '當前披風' }, { 'Primary', '当前主手', '當前主手' }, { 'Secondary', '当前副手', '當前副手' }, { 'Grenade', '当前手雷', '當前手雷' }, { 'Title', '当前称号', '當前稱號' }, { 'Background', '当前背景', '當前背景' }, { 'Body type', '当前体型', '當前體型' }, { 'Voice', '当前声音', '當前聲音' } } },
-        } },
+        { name = { 'Current loadout', '当前装备栏编辑', '當前裝備欄編輯' }, tabs = { 'CurrentLoadout' } },
     } },
     { id = 'planets', name = { 'Planets', '星球任务', '星球任務' }, subs = {
-        { name = { 'Planet settings', '星球设置', '星球設置' }, todo = {
-            { title = { 'Galaxy map', '银河地图编辑', '銀河地圖編輯' }, items = { { 'Planet', '行星', '行星' }, { 'Owner', '所有者', '所有者' }, { 'Health', '生命值', '生命值' }, { 'Regen per second', '每秒恢复', '每秒恢復' }, { 'X', '坐标X', '坐標X' }, { 'Y', '坐标Y', '坐標Y' }, { 'Locked', '锁定', '鎖定' }, { 'Sector', '区域', '區域' }, { 'Active effects', '几个生效效果', '幾個生效效果' }, { 'Effects 1-8', '效果1-8', '效果1-8' } } },
-            { title = { 'Planet edit', '星球修改', '星球修改' }, note = { 'Hover a planet and read it once to keep editing it.', '光标放在星球上，获取一次即可一直修改', '光標放在星球上，獲取一次即可一直修改' }, items = { { 'Planet data', '星球数据', '星球數據' }, { 'Change planet', '修改星球', '修改星球' } } },
-        } },
+        -- 星球设置: the local planet configuration files (offline/planet_components.lua). The galaxy map's owner, health,
+        -- regeneration, position and effects come from the server, so they are not here (the pages' note says so).
+        { name = { 'Planet settings', '星球设置', '星球設置' },
+            tabs = { 'PlanetData', 'PlanetModifiers', 'PlanetEnvironment', 'PlanetWeather', 'PlanetTypes', 'PlanetSpace', 'PlanetRegions', 'PlanetComponents' } },
+        { name = { 'Local environment entities', '本地环境实体', '本機環境實體' }, tabs = { 'PlanetModifierLists', 'GalacticModifierLists' } },
         { name = { 'Campaign editing', '战役编辑', '戰役編輯' }, todo = {
             { note = { 'Applies from the next map.', '需下一次地图', '需下一次地圖' }, items = { { 'Active', '活跃', '活躍' }, { 'Planet', '行星', '行星' }, { 'Event flag', '活动标识', '活動標識' }, { 'Count', '计数', '計數' }, { 'Type', '类型', '類型' }, { 'Faction', '种族', '種族' } } },
         } },
-        { name = { 'Operation editing', '行动编辑', '行動編輯' }, todo = {
-            { items = { { 'Operation type', '作战类型', '作戰類型' }, { 'Operation ID', '作战ID', '作戰ID' }, { 'Active modifiers', '修饰符生效数量', '修飾符生效數量' }, { 'Modifiers 1-12', '修饰符1-12', '修飾符1-12' } } },
-        } },
-        { name = { 'Mission editing', '任务编辑', '任務編輯' }, todo = {
-            { note = { 'Pick a mission, then edit it.', '选择任务以后即可编辑', '選擇任務以後即可編輯' }, items = { { 'Mission types 1-3', '任务类型1-3', '任務類型1-3' }, { 'Mission ID', '任务ID', '任務ID' }, { 'Mission seed', '任务种子', '任務種子' }, { 'Reinforce time', '强化时间', '強化時間' }, { 'Solo reinforce time', '单人强化时间', '單人強化時間' }, { 'Extra time per team death', '每个死亡团队的额外强化时间', '每個死亡團隊的額外強化時間' }, { 'Reinforce cooldown', '强化冷却时间', '強化冷卻時間' }, { 'Extra time per own death', '每个死亡自我额外强化时间', '每個死亡自我額外強化時間' }, { 'Extra time per death minute', '每死亡分钟额外强化时间', '每死亡分鐘額外強化時間' } } },
-        } },
-        { name = { 'S\'s mission tweaks', 'S的任务微调', 'S的任務微調' }, todo = {
-            { note = { 'After S\' super Mission Editor.', '参考 S\' super Mission Editor', '參考 S\' super Mission Editor' }, items = { { 'ID', 'ID', 'ID' }, { 'Faction', '种族', '種族' }, { 'Type', '类型', '類型' }, { 'Generate in operation (level range)', '行动内生成（等级范围）', '行動內生成（等級範圍）' }, { 'Name / description IDs', '名称/描述ID', '名稱/描述ID' }, { 'Objectives', '目标', '目標' }, { 'Generate count', '生成数量', '生成數量' } } },
-        } },
+        -- 行动编辑: the operation modifiers, the entity deltas the server applies to a mission's game mode (offline/modifier_components.lua)
+        { name = { 'Operation editing', '行动编辑', '行動編輯' }, tabs = { 'OperationModifiers' } },
+        -- 任务编辑: the mission game mode's components (offline/mission_components.lua): reinforcements, extraction, mode switches
+        -- (任务目标编辑: a placeholder tab, MOD.nav.TODO_TABS; the hive mind is 敌人设置 › 刷怪编辑器's)
+        { name = { 'Mission editing', '任务编辑', '任務編輯' }, tabs = { 'GameModeComponents', 'MissionObjectives', 'GameModeMissionComponents' } },
     } },
     { id = 'components', name = { 'Components', '实体组件', '實體組件' }, subs = {
         -- the weapon components (offline/weapon_components.lua): common, by kind of weapon, attachments
@@ -18608,18 +18796,15 @@ MOD.nav.PAGES = {
         { name = { 'Backpack', '背包', '背包' }, tabs = { 'InventoryComponents' } },
         { name = { 'Mounts', '挂载', '掛載' }, tabs = { 'MountComponents' } },
         { name = { 'Faction', '阵营', '陣營' }, tabs = { 'FactionComponents' } },
-        -- 地雷, two tabs: MinefieldComponentData, a mine itself (trigger, explosion), and MineSpawnerComponentData, how an
-        -- enemy minefield lays its mines out
-        { name = { 'Mines', '地雷', '地雷' }, tabs = { 'MinefieldComponents', 'MineSpawnerComponents' } },
-        -- 投掷物: ThrowableComponentData, the thing thrown (grenades, knives, mines' models); 投掷器: ThrowerComponentData,
-        -- what throws throwables (minefield pods, the G-11 Caltrops' spinner)
-        { name = { 'Throwables', '投掷物', '投擲物' }, tabs = { 'ThrowableComponents' } },
-        { name = { 'Throwers', '投掷器', '投擲器' }, tabs = { 'ThrowerComponents' } },
+        { name = { 'Mines and throwing', '地雷与投掷', '地雷與投擲' },
+            tabs = { 'MinefieldComponents', 'MineSpawnerComponents', 'ThrowableComponents', 'ThrowerComponents' } },
         { name = { 'Drowning', '淹没', '淹沒' }, tabs = { 'DrownComponents' } },
-        { name = { 'Health', '生命', '生命' }, tabs = { 'HealthComponents' } },
-        { name = { 'Demolition', '实体拆毁', '實體拆毀' }, tabs = { 'DemolitionComponents' } },
+        { name = { 'Health and demolition', '生命与拆毁', '生命與拆毀' }, tabs = { 'HealthComponents', 'DemolitionComponents' } },
         { name = { 'Shield', '护盾', '護盾' }, tabs = { 'ShieldComponents' } },
-        { name = { 'Eagle', '飞鹰', '飛鷹' }, tabs = { 'EagleComponents', 'EagleSpawnerComponents' } },
+        -- 地狱舱: the hellpods' components (offline/hellpod_components.lua); the descent's values are the 额外 page's
+        { name = { 'Hellpods', '地狱舱', '地獄艙' }, tabs = require('hellpod_components').SUBS.hellpod },
+        -- 接触伤害: OverlapDamageComponentData (the chargers' and vehicles' contact damage zones)
+        { name = { 'Contact damage', '接触伤害', '接觸傷害' }, tabs = require('ai_components').SUBS.overlap },
     } },
     { id = 'orbitals', name = { 'Orbital & Eagle', '轨道飞鹰', '軌道飛鷹' }, subs = {
         { name = { 'Orbital editing', '轨道编辑', '軌道編輯' }, tabs = { 'Orbital' } },
@@ -18639,19 +18824,18 @@ MOD.nav.PAGES = {
         { name = { 'Identity', '身份设置', '身份設置' }, todo = {
             { items = { { 'Your name (size, colour, custom text)', '设置自己的名字（可更改字号和颜色并自定义名称）', '設置自己的名字（可更改字號和顏色並自定義名稱）' }, { 'Invisible', '设置隐身', '設置隱身' }, { 'Chat text colour', '设置打字颜色', '設置打字顏色' } } },
         } },
-        { name = { 'Editor settings', '修改器设置', '修改器設置' }, todo = {
-            { note = { 'Language, updates and the other settings there are now: the Settings button at the bottom right.', '语言、更新等现有设置：右下角的“设置”按钮。', '語言、更新等現有設置：右下角的“設置”按鈕。' }, items = { { 'Apply every ini now', '立即应用所有ini', '立即應用所有ini' }, { 'Keep every setting and close the editor', '保留所有设置并关闭修改器', '保留所有設置並關閉修改器' }, { 'Force-quit the game', '强制退出游戏', '強制退出遊戲' }, { 'Window, font and resolution size', '调整窗口大小 字体大小 分辨率大小', '調整窗口大小 字體大小 分辨率大小' }, { 'Switch and save config groups', '切换与保存配置文件组', '切換與保存配置文件組' } } },
+        { name = { 'Named parameters', '已解析参数', '已解析參數' }, tabs = { 'CharacterNameFields', 'FontStyleFields', 'IdentityRpcInfo' } },
+        -- display: the text size and resolution controls above the placeholders (settings.DISPLAY)
+        { name = { 'Editor settings', '修改器设置', '修改器設置' }, display = true, todo = {
+            { note = { 'Language, updates and the other settings there are now: the Settings button at the bottom right.', '语言、更新等现有设置：右下角的“设置”按钮。', '語言、更新等現有設置：右下角的“設置”按鈕。' }, items = { { 'Apply every ini now', '立即应用所有ini', '立即應用所有ini' }, { 'Keep every setting and close the editor', '保留所有设置并关闭修改器', '保留所有設置並關閉修改器' }, { 'Force-quit the game', '强制退出游戏', '強制退出遊戲' }, { 'Switch and save config groups', '切换与保存配置文件组', '切換與保存配置文件組' } } },
         } },
-        { name = { 'Preload', '预载设置', '預載設置' }, todo = {
-            { note = { 'Pick the packages to preload.', '选择预载包', '選擇預載包' }, items = { { 'Terminids / Automatons / Illuminate', '虫族 机器人 光能者', '蟲族 機器人 光能者' }, { 'Enemies', '敌人', '敵人' }, { 'Every package', '所有包', '所有包' } } },
-        } },
+        { name = { 'Preload', '预载设置', '預載設置' }, tabs = { 'PreloadExtra', 'PreloadGlobal', 'PreloadLoadout', 'PreloadEnemy', 'PreloadWorld', 'PreloadCatalog', 'PreloadHotjoin' } },
         { name = { 'Finder', '寻找器', '尋找器' }, todo = {
             { items = { { 'Held item hash', '手中物品哈希', '手中物品哈希' }, { 'Marked item hash', '标记物品哈希', '標記物品哈希' }, { 'Damage id', '伤害id', '傷害id' }, { 'Projectile id', '射弹id', '射彈id' }, { 'Explosion id', '爆炸id', '爆炸id' }, { 'Arc id', '电弧id', '電弧id' }, { 'Laser id', '激光id', '激光id' } } },
         } },
     } },
-    { id = 'extra', name = { 'Extra', '额外', '額外' }, subs = {
-        { name = { 'Helldiver: not in the document', '绝地潜兵（文档未列出）', '絕地潛兵（文檔未列出）' }, tabs = { 'HelldiverOther' }, solo = true },
-    } },
+    -- (额外, the helldiver's stats the document does not list, removed: its water and hellpod values are
+    -- 实体组件 › 淹没 / 地狱舱's fields; its page is still made, unlisted, so values saved on it keep applying)
 }
 MOD.nav.T = {
     todo_note = { 'Not in the editor yet: a placeholder kept from the layout document.', '此功能尚未加入编辑器：按布局文档保留的占位。', '此功能尚未加入編輯器：按佈局文檔保留的佔位。' },
@@ -18702,7 +18886,15 @@ function MOD.nav.locate(tab)
     return nil
 end
 -- a tab's name: an original tab's own, a split one's its sub-page's
+-- a tab that is a placeholder (a feature of the layout document not in the editor yet): its name and what it is
+-- to hold, drawn as a placeholder sub-page
+MOD.nav.TODO_TABS = {
+    MissionObjectives = { name = { 'Mission objective editing', '任务目标编辑', '任務目標編輯' }, todo = {
+        { note = { 'After S\' super Mission Editor.', '参考 S\' super Mission Editor', '參考 S\' super Mission Editor' }, items = { { 'ID', 'ID', 'ID' }, { 'Faction', '种族', '種族' }, { 'Type', '类型', '類型' }, { 'Generate in operation (level range)', '行动内生成（等级范围）', '行動內生成（等級範圍）' }, { 'Name / description IDs', '名称/描述ID', '名稱/描述ID' }, { 'Objectives', '目标', '目標' }, { 'Generate count', '生成数量', '生成數量' } } },
+    } },
+}
 function MOD.nav.tab_label(tab)
+    if MOD.nav.TODO_TABS[tab] then return MOD.nav.text(MOD.nav.TODO_TABS[tab].name) end
     if MOD.nav.BASE[tab] then
         local page, k = MOD.nav.locate(tab)
         if page then return MOD.nav.text(page.subs[k].name) end
@@ -18747,6 +18939,24 @@ function MOD.weapon_categories()
         if not settings.hidden[slot] then out[#out + 1] = { id = slot, name = settings.tr(slot) } end
     end
     return out
+end
+-- 敌人编辑: the three factions in one tab ('Enemies' in the tab row), filtered by faction in the left list (as
+-- Weapon editing's slots). MOD.enemy_browser(): the setting and categories of the tab shown, if it is one.
+MOD.ENEMY_SLOTS = { Terminids = true, Automatons = true, Illuminate = true }
+MOD.enemy.LABELS = { EnemyData = { 'Enemy data', '敌人数据', '敵人數據' }, Enemies = { 'Enemies', '敌人', '敵人' },
+                     ['All enemies'] = { 'All enemies', '所有敌人', '所有敵人' },
+                     [MOD.enemy.GLOBAL_NOTE] = { MOD.enemy.GLOBAL_NOTE, '一次调整虫族、机器人、光能者的所有敌人，与各阵营页的倍率相乘。在各自页面修改过的敌人保留其数值。',
+                                                 '一次調整蟲族、機器人、光能者的所有敵人，與各陣營頁的倍率相乘。在各自頁面修改過的敵人保留其數值。' } }
+function MOD.enemy_browser()
+    if ui.settings or ui.tab == 'Presets' then return nil end
+    if MOD.ENEMY_SLOTS[ui.tab] then return 'enemy_category', { 'Terminids', 'Automatons', 'Illuminate' } end
+    return nil
+end
+function MOD.enemy_categories()
+    local key, list = MOD.enemy_browser()
+    local out = { { id = 'all', name = MOD.nav.text({ 'All factions', '全部阵营', '全部陣營' }) } }
+    for _, c in ipairs(list or {}) do out[#out + 1] = { id = c, name = settings.tr(c) } end
+    return out, key
 end
 function MOD.weapon_browser_active()
     return not ui.settings and ui.tab ~= 'Presets' and MOD.WEAPON_SLOTS[ui.tab] == true
@@ -18994,17 +19204,27 @@ function MOD.component_kind(tab)
         or tab=='EagleComponents'and'eagle'or tab=='EagleSpawnerComponents'and'eagle_spawner'
         or MOD.component_tab_kind[tab]or nil
 end
-function MOD.component_rows()return MOD.component_kind()and 24 or MOD.weapon_browser_active()and 26 or LIST_ROWS end
+function MOD.component_rows()return MOD.component_kind()and 24 or(MOD.weapon_browser_active()or MOD.enemy_browser())and 26 or LIST_ROWS end
 local W, H = 1000, 980       -- panel size in its own units
 
 -- The weapons (or stratagems) of a tab; tab '?search': those of every tab whose name holds every
 -- word of the search (any case). The Records tab: its records, and searching there searches them.
+state.preload_query=function()return ui.search.text end
+state.player_save_active=function()return not ui.settings and ui.tab=='CurrentLoadout'and ui.nav.page=='armory'end
 local function weapons_in(tab)
     local list, words = {}, nil
     if tab == '?search' then
         words = {}
         for word in ui.search.text:lower():gmatch('%S+') do words[#words + 1] = word end
     end
+    local named=MOD.identity.list(tab=='?search'and ui.tab or tab,words and ui.search.text or'',settings.tr)
+    if named then return named end
+    local packages=MOD.preload.list(tab=='?search'and ui.tab or tab,words and ui.search.text or'',settings.tr)
+    if packages then return packages end
+    local planets=MOD.planet.list(tab=='?search'and ui.tab or tab,words and ui.search.text or'',settings.tr)
+    if planets then return planets end
+    local saved=MOD.player_save_view.list(tab=='?search'and ui.tab or tab,words and ui.search.text or'')
+    if saved then return saved end
     local component_kind=MOD.component_kind(tab)or words and MOD.component_kind()
     if component_kind and MOD.component_catalog then
         return MOD.component_catalog:list(component_kind,settings.component_category,settings.component_show_missing,words and ui.search.text or'',settings.tr)
@@ -19023,8 +19243,12 @@ local function weapons_in(tab)
         return list
     end
     local weapon_all = MOD.WEAPON_SLOTS[tab] and settings.weapon_category == 'all'
+    local enemy_all = MOD.ENEMY_SLOTS[tab] and settings.enemy_category == 'all' and not words
+    local buckets = enemy_all and { Terminids = {}, Automatons = {}, Illuminate = {} }
     for _, weapon in ipairs(weapons) do
-        if #weapon.rows > 0 and not settings.hidden[weapon.slot] then
+        if buckets and MOD.ENEMY_SLOTS[weapon.slot] and #weapon.rows > 0 and not settings.hidden[weapon.slot] then
+            local b = buckets[weapon.slot]; b[#b + 1] = weapon
+        elseif #weapon.rows > 0 and not settings.hidden[weapon.slot] and not weapon.nav_hidden then
             if words then
                 local name, all = weapon.name:lower(), true
                 for _, word in ipairs(words) do
@@ -19036,12 +19260,16 @@ local function weapons_in(tab)
             end
         end
     end
+    for _, slot in ipairs(buckets and { 'Terminids', 'Automatons', 'Illuminate' } or {}) do
+        for _, w in ipairs(buckets[slot]) do list[#list + 1] = w end
+    end
     return list
 end
 
 -- (a value saved for a stat the weapon has no row for, e.g. one an update removed, stays saved, not shown)
 local function modified(weapon)
     if weapon.ensure_rows then weapon.ensure_rows() end
+    if weapon.custom_modified and weapon.custom_modified()then return true end
     if weapon.component_entry then
         for _,r in ipairs(weapon.rows)do for _,p in ipairs(r.parts)do
             if p.field.demolition and p.field.demolition:own(p.field)~=nil then return true end
@@ -19174,6 +19402,7 @@ end
 
 function MOD.stratagem.set_hash(weapon,row,text)
     if not settings.changes then return nil,'Changes are off.'end
+    if weapon.preload_parameters then text=MOD.preload.hash_input(text)end
     local lo,hi=MOD.stratagem.schema.parse_u64(text)
     if lo==nil then return nil,hi end
     local values={lo,hi};local before={}
@@ -19246,6 +19475,9 @@ local function select_weapon(weapon)
         if weapon.component_entry then ui.component_selected=weapon.entity_id end
         if MOD.WEAPON_SLOTS[weapon.slot] and settings.weapon_category ~= 'all' and settings.weapon_category ~= weapon.slot then
             settings.weapon_category = weapon.slot
+        end
+        if MOD.ENEMY_SLOTS[weapon.slot] and settings.enemy_category ~= 'all' and settings.enemy_category ~= weapon.slot then
+            settings.enemy_category = weapon.slot
         end
         ui.tab = MOD.nav.tab_of(weapon)
         ui.nav.weapon[ui.tab] = weapon.hash
@@ -19333,6 +19565,12 @@ function MOD.suppress(weapon, row, target)
 end
 
 local function change(row, delta_sign, big, exact)
+    if row.custom_change then
+        if not settings.changes then return end
+        local ok,why=row.custom_change(exact or math.max(row.min,math.min(row.max,row_value(row)+delta_sign)))
+        if not ok then ui.message={text=tostring(why),till=api.now()+6}end
+        ui.version=ui.version+1;return
+    end
     if row.collapsed_component or row.link_only then return end
     if row.hash64 then return end   -- exact decimal input; never increment a rounded double
     if row.button_slot then
@@ -19554,19 +19792,39 @@ end
 local function finish_value(keep)
     local edit = ui.value
     ui.value = nil
+    if edit and edit.setting == 'render_height' then
+        if keep then
+            local wrong = settings.set_render(edit.text)
+            local r = settings.RANGE.render_height
+            if wrong then ui.message = { text = string.format('Resolution: %d to %d pixels high; set to %d.', r[1], r[2], settings.render_height), till = api.now() + 4 } end
+            settings.apply_display()
+            mark_config_dirty()
+        end
+        ui.version = ui.version + 1
+        return
+    end
     if edit and edit.setting then
         local typed = keep and tonumber((edit.text:gsub(',', '.')))
         if not typed then return end
         local r = settings.RANGE[edit.setting]
         if settings.set_percent(edit.setting, typed) then
-            ui.message = { text = string.format('%s can be %d%% to %d%%: set to %d%%.', edit.setting == 'size' and 'Panel size'
-                                                or 'Background opacity', r[1], r[2], settings[edit.setting]), till = api.now() + 4 }
+            local label = settings.DISPLAY[edit.setting] and MOD.nav.text(settings.DISPLAY[edit.setting])
+                          or edit.setting == 'size' and 'Panel size' or 'Background opacity'
+            ui.message = { text = edit.setting == 'font_px' and string.format('%s can be %d to %d px: set to %d px.', label, r[1], r[2], settings.font_px)
+                                  or string.format('%s can be %d%% to %d%%: set to %d%%.', label, r[1], r[2], settings[edit.setting]), till = api.now() + 4 }
         end
+        if settings.DISPLAY[edit.setting] then settings.apply_display() end
         mark_config_dirty()
         ui.version = ui.version + 1
         return
     end
     local row = edit and keep and edit.weapon == ui.weapon and ui.weapon.rows[edit.n]
+    if row and row.custom_edit then
+        if not settings.changes then ui.value=edit;return end
+        local ok,why=row.custom_edit(edit.text)
+        if not ok then ui.value=edit;ui.message={text=tostring(why),till=api.now()+7}end
+        ui.version=ui.version+1;return
+    end
     if row and row.hash64 then
         local ok,why=MOD.stratagem.set_hash(edit.weapon,row,edit.text)
         if not ok then ui.value=edit;ui.message={text=why,till=api.now()+5}end
@@ -19591,9 +19849,9 @@ if MOD.offline then
         if not ui.value then return true end
         local edit = ui.value
         local exact_row=edit.weapon and edit.weapon.rows[edit.n]
-        if exact_row and exact_row.hash64 then
+        if exact_row and(exact_row.hash64 or exact_row.custom_edit)then
             finish_value(true)
-            return not ui.value or nil,ui.value and 'Enter an unsigned decimal integer within uint64 range.'or nil
+            return not ui.value or nil,ui.value and(ui.message and ui.message.text or'Enter a valid field value.')or nil
         end
         local value = tonumber((edit.text:gsub(',', '.')))
         if not value or not MOD.parse_number(value) then return nil, 'Enter a finite number before switching pages or installing.' end
@@ -19633,6 +19891,7 @@ function MOD.code.finish(keep)
 end
 
 local function reset_row(weapon, row)
+    if row.custom_reset then local ok,why=row.custom_reset();if not ok then ui.message={text=tostring(why),till=api.now()+6}end;ui.version=ui.version+1;return end
     if row.packed_flag then MOD.projectile.set_flag(weapon,row,row_value(row,true));return end
     local keep = MOD.times_of(row)
     for _, p in ipairs(row.parts) do
@@ -19650,7 +19909,8 @@ local function reset_row(weapon, row)
 end
 
 local function reset_weapon(weapon)
-    for _, row in ipairs(weapon.rows) do reset_row(weapon, row) end
+    if weapon.custom_reset then local ok,why=weapon.custom_reset();if not ok then ui.message={text=tostring(why),till=api.now()+6};return end end
+    for _, row in ipairs(weapon.rows) do if not(weapon.custom_reset and row.custom_value)then reset_row(weapon, row)end end
     for _, row in ipairs(weapon.hidden_rows or {}) do reset_row(weapon, row) end   -- (an orbital's stats not laid out)
     local t = weapon.passive and tables[weapon.passive]   -- an armor passive: its stacked passives go too
     if t and (settings.stacks[t.index.id] or settings.own_off[t.index.id]) then
@@ -19686,6 +19946,7 @@ function MOD.reset_side(enemy)
 end
 
 local function reset_all()
+    local preload=rawget(_G,'SHODAN_PRELOAD_MODEL');if preload then local ok,why=preload:reset('all');if not ok then ui.message={text=tostring(why),till=api.now()+6};return end end
     apply_at = 1
     MOD.clear_grenade_pending()
     for n = #pending, 1, -1 do
@@ -19735,435 +19996,107 @@ function settings.set_changes(on)
 end
 
 -- ---------------------------------------------------------------- presets
--- Weapon presets: up to 5 per weapon (or stratagem), each every value of it that differs from
--- the game's, in StatEditor/weapon_presets.txt (<hash> <preset> <stat> <value>; "<hash>
--- <preset> -" is a preset saved with no changes). Full presets: up to 50, each a name and the
--- whole set of changes, in StatEditor/preset_NN.txt ("name <name>", then the config.txt lines,
--- so they can be shared).
-local presets = { weapon_count = 5, full_count = 50, full = {}, enemy = {} }   -- see below
--- the Enemy Editor's presets (custom difficulties: enemy and spawning values only) are in enemy_preset_NN.txt;
--- the list in use follows the editor shown
-function presets.list() return MOD.enemy.on and presets.enemy or presets.full end
-do
-    local WEAPON_PRESETS, FULL_PRESETS = presets.weapon_count, presets.full_count
-    local HEX16 = string.rep('%x', 16)
-    local weapon_presets = {}   -- weapon hash -> preset -> list of { id, value }
-    -- number -> { name, values = list of { hash, id, value } }: the shown editor's (presets.list())
-    local full_presets = setmetatable({}, { __index = function(_, n) return presets.list()[n] end,
-                                            __newindex = function(_, n, v) presets.list()[n] = v end })
-    local NAME_BYTES = 40
-
-    local function say(text)
-        ui.message = { text = text, till = api.now() + 4 }
-        log(text)
-    end
-
-    local function preset_file(name)
-        local dir = data_dir('StatEditor')
-        return dir and dir .. '/' .. name
-    end
-
-    -- (no new locals here: the main chunk is at Lua's 200)
-    function presets.file_name(n, enemy)
-        if enemy == nil then enemy = MOD.enemy.on end
-        return string.format(enemy and 'enemy_preset_%02d.txt' or 'preset_%02d.txt', n)
-    end
-    local function full_preset_file(n, enemy) return preset_file(presets.file_name(n, enemy)) end
-
-    local function write_lines(path, lines)
-        local ok, why = MOD.write_text(path, table.concat(lines, '\r\n') .. '\r\n')
-        if not ok then log('could not write ' .. tostring(path) .. ': ' .. why) end
-        return ok
-    end
-
-    -- The file's lines without comments, or nil when there is no file.
-    local function read_lines(path)
-        local handle = path and io.open(path, 'rb')
-        if not handle then return nil end
-        local text = handle:read('*a') or ''
-        handle:close()
-        local out, numbers = {}, {}
-        for at, line in MOD.lines_of(text) do
-            line = line:gsub('#.*$', '')
-            if line:find('%S') then out[#out + 1] = line; numbers[#out] = at end
-        end
-        return out, numbers
-    end
-
-    local function named(hash)
-        local weapon = by_hash[hash]
-        return weapon and ('   # ' .. weapon.name) or ''
-    end
-
-    local function save_weapon_presets()
-        local path = preset_file('weapon_presets.txt')
-        if not path then return end
-        local lines = {
-            '# SHODAN Stat Editor weapon presets (up to 5 per weapon), saved from the in-game panel.',
-            '# Lines: <weapon hash> <preset 1-5> <stat> <value>; "-" marks a preset with no changes.',
-        }
-        local hashes = {}
-        for hash in pairs(weapon_presets) do hashes[#hashes + 1] = hash end
-        table.sort(hashes)
-        for _, hash in ipairs(hashes) do
-            for n = 1, WEAPON_PRESETS do
-                local values = weapon_presets[hash][n]
-                if values and #values == 0 then lines[#lines + 1] = hash .. ' ' .. n .. ' -' .. named(hash) end
-                for _, v in ipairs(values or {}) do
-                    lines[#lines + 1] = hash .. ' ' .. n .. ' ' .. v.id .. ' ' .. number_text(v.value) .. named(hash)
-                end
-            end
-        end
-        write_lines(path, lines)
-    end
-
-    local function save_full_preset(n)
-        local path = full_preset_file(n)
-        if not path then return end
-        if not full_presets[n] then
-            pcall(os.remove, path)
-            -- where files cannot be removed, an emptied file says the preset was cleared
-            if io.open(path, 'rb') then write_lines(path, { 'cleared' }) end
-            return
-        end
-        local lines = {
-            MOD.enemy.on and '# SHODAN Enemy Editor preset (a custom difficulty). Load it from the Enemy Editor\'s Presets.'
-                         or '# SHODAN Stat Editor preset. Load it from the Presets tab of the panel.',
-            '# Lines: name <name>, then <weapon hash> <stat> <value> as in config.txt.',
-            'name ' .. full_presets[n].name,
-        }
-        for _, o in ipairs(full_presets[n].values) do
-            lines[#lines + 1] = o.hash .. ' ' .. o.id .. ' ' .. number_text(o.value) .. named(o.hash)
-        end
-        write_lines(path, lines)
-    end
-
-    local function load_presets()
-        local count = 0
-        local weapon_lines, weapon_numbers = read_lines(preset_file('weapon_presets.txt'))
-        for i, line in ipairs(weapon_lines or {}) do
-            local hash, n, rest = line:match('^%s*(' .. HEX16 .. ')%s+(%d+)%s+(.-)%s*$')
-            n = tonumber(n)
-            if hash and n and n >= 1 and n <= WEAPON_PRESETS then
-                hash = hash:upper()
-                weapon_presets[hash] = weapon_presets[hash] or {}
-                local values = weapon_presets[hash][n]
-                if not values then values = {}; weapon_presets[hash][n] = values; count = count + 1 end
-                local id, amount = rest:match('^([%w_]+)%s+(%S+)$')
-                local parsed = id and MOD.parse_number(amount)
-                if parsed then
-                    values[#values + 1] = { id = id, value = parsed }
-                elseif rest ~= '-' then
-                    MOD.skipped('weapon_presets.txt', weapon_numbers[i], line)
-                end
-            else
-                MOD.skipped('weapon_presets.txt', weapon_numbers[i], line)
-            end
-        end
-        local full = 0
-        for _, enemy in ipairs({ false, true }) do
-        local into = enemy and presets.enemy or presets.full
-        for n = 1, FULL_PRESETS do
-            local lines, numbers = read_lines(full_preset_file(n, enemy))
-            local preset = lines and { name = 'Preset ' .. n, values = {} }
-            for i, line in ipairs(lines or {}) do
-                if line:match('^%s*cleared') then preset = nil; break end
-                local name = line:match('^%s*name%s+(.-)%s*$')
-                local hash, id, amount = line:match('^%s*(' .. HEX16 .. ')%s+([%w_]+)%s+(%S+)')
-                local parsed = hash and MOD.parse_number(amount)
-                if name and name ~= '' then
-                    preset.name = name:sub(1, NAME_BYTES)
-                elseif parsed then
-                    preset.values[#preset.values + 1] = { hash = hash:upper(), id = id, value = parsed }
-                else
-                    MOD.skipped(presets.file_name(n, enemy), numbers[i], line)
-                end
-            end
-            into[n] = preset
-            if preset then full = full + 1 end
-        end
-        end
-        log('presets: ' .. count .. ' weapon preset(s), ' .. full .. ' full preset(s)')
-        -- the example difficulties, added once (deleted ones stay deleted)
-        local marker = preset_file('enemy_examples.txt')
-        local had = marker and io.open(marker, 'rb')
-        if had then had:close() elseif marker then
-            local was = MOD.enemy.on
-            MOD.enemy.on = true
-            for _, ex in ipairs(MOD.enemy.EXAMPLES) do
-                local n = nil
-                for k = 1, FULL_PRESETS do if not presets.enemy[k] then n = k; break end end
-                if not n then break end
-                local values = {}
-                for _, v in ipairs(ex[2]) do
-                    for _, faction in ipairs(v[1] == 'all' and { 2, 8, 4 } or { v[1] }) do
-                        local hash = v[2] == 'page' and string.format('FFFFFFFB%08X', faction)
-                                     or v[2] == 'spawn' and string.format('FFFFFFFC%08X', faction) or 'FFFFFFFC000000FF'
-                        values[#values + 1] = { hash = hash, id = v[3], value = v[4] }
-                    end
-                end
-                presets.enemy[n] = { name = ex[1], values = values }
-                save_full_preset(n)
-            end
-            MOD.enemy.on = was
-            write_lines(marker, { '# The example difficulties were added to the Enemy Editor presets once.' })
-        end
-        -- the Default difficulty (no changes), first in the list: added once to lists made before it existed,
-        -- the others moved down a place
-        local marker2 = preset_file('enemy_default.txt')
-        local had2 = marker2 and io.open(marker2, 'rb')
-        if had2 then had2:close() elseif marker2 then
-            local free = nil
-            for k = 1, FULL_PRESETS do if not presets.enemy[k] then free = k; break end end
-            local first = presets.enemy[1]
-            if free and not (first and first.name == 'Default' and #first.values == 0) then
-                local was = MOD.enemy.on
-                MOD.enemy.on = true
-                for k = free, 2, -1 do presets.enemy[k] = presets.enemy[k - 1]; save_full_preset(k) end
-                presets.enemy[1] = { name = 'Default', values = {} }
-                save_full_preset(1)
-                MOD.enemy.on = was
-            end
-            write_lines(marker2, { '# The Default difficulty was added to the Enemy Editor presets once.' })
-        end
-    end
-
-    -- Every value of the weapon that differs from the game's, part by part: this mod's own value
-    -- for it, so a value another mod changed on top (an ammo type) is not saved into the preset.
-    local function weapon_changes(weapon)
-        local mine = {}
-        for _, o in ipairs(overrides) do
-            local w = by_hash[o.hash]
-            local p = w and w.by_id[o.id]
-            if p then mine[p.field.key] = o.value end
-        end
-        local out = {}
-        for _, row in ipairs(weapon.all_component_rows or weapon.rows) do
-            for _, p in ipairs(row.packed_flag and{}or row.parts) do
-                local v, d = p.field.pending_value or read_field(p.field), default_of(p.field)   -- a grenade still loading counts
-                local own = mine[p.field.key]
-                local pin = weapon.enemy and MOD.enemy.covered and MOD.enemy.covered[p.field.key]   -- (a faction-wide row's exception)
-                local pid = weapon.by_id[p.id] ~= p and p.health_owner and p.health_owner.weapon and p.health_owner.weapon.component_view and (p.health_owner.weapon.component_view .. '_' .. p.id) or p.id
-                if own and v and d and (p.field.demolition or pin or math.abs(v - d) > 1e-4) then out[#out + 1] = { id = pid, value = own } end
-            end
-        end
+-- One named library for game parameters, enemy parameters, saved equipment and preload plans.
+local presets = require('preset_controller').new({
+    ui=ui,by_hash=by_hash,lang=function()return settings.lang end,tr=function(v)return settings.tr(v)end,
+    folder=function()return assert(data_dir('StatEditor'),'Preset directory unavailable')end,
+    now=function()return api.now()end,log=log,parse_number=MOD.parse_number,
+    enabled=function()return settings.changes end,
+    values=function(enemy)
+        local out={}
+        for _,o in ipairs(overrides)do if MOD.is_enemy_value(o.hash)==enemy then
+            out[#out+1]={hash=o.hash,id=o.id,value=o.value}
+        end end
         return out
-    end
-
-    local function weapon_preset(weapon, n)
-        return weapon and weapon_presets[weapon.hash] and weapon_presets[weapon.hash][n]
-    end
-
-    local function save_weapon_preset(weapon, n)
-        local values = weapon_changes(weapon)
-        weapon_presets[weapon.hash] = weapon_presets[weapon.hash] or {}
-        weapon_presets[weapon.hash][n] = values
-        save_weapon_presets()
-        say('Saved ' .. weapon.name .. ' preset ' .. n .. ' (' .. #values .. ' changed value(s))')
-        ui.version = ui.version + 1
-    end
-
-    -- The weapon takes the preset's values; everything the preset does not name goes back to the game's.
-    local function load_weapon_preset(weapon, n)
-        if not settings.changes then say('Your changes are off: turn them on in Settings to load a preset'); return end
-        local values = weapon_preset(weapon, n)
-        if not values then say(weapon.name .. ' preset ' .. n .. ' is empty'); return end
-        local preset_rows = weapon.all_component_rows or weapon.rows
-        local want, aliases = {}, weapon.aliases or {}
-        for _, v in ipairs(values) do
-            local id = aliases[v.id] or v.id
-            local parts = MOD.parts_of(weapon, id)
-            for _, p in ipairs(parts and parts[1].id ~= id and parts or {}) do   -- an old id: each attachment's
-                if want[p.id] == nil then want[p.id] = v.value end
-            end
-            if not (parts and parts[1].id ~= id) and (want[id] == nil or id == v.id) then want[id] = v.value end
+    end,
+    preload_values=function()
+        local out={};for _,o in ipairs(overrides)do local w=by_hash[o.hash]
+            if w and w.preload_parameters then out[#out+1]={hash=o.hash,id=o.id,value=o.value}end
+        end;return out
+    end,
+    game_settings=function()
+        local stacks,own_off={},{}
+        for id,values in pairs(settings.stacks or{})do
+            local a={};for i,v in ipairs(values)do a[i]=v end;stacks[tostring(id)]=a
         end
-        for _, row in ipairs(preset_rows) do   -- a swap row: parts the preset does not name follow its first
-            local first = row.choice and want[row.parts[1].id]
-            for k = 2, first and #row.parts or 0 do
-                if want[row.parts[k].id] == nil then want[row.parts[k].id] = first end
+        for id,value in pairs(settings.own_off or{})do own_off[tostring(id)]=value end
+        return {stacks=stacks,own_off=own_off}
+    end,
+    apply=function(preset)
+        local stacks,own_off
+        if preset.scope=='game'and preset.data and preset.kind=='snapshot'then
+            assert(type(preset.data.stacks)=='table'and type(preset.data.own_off)=='table','Invalid armor configuration in preset')
+            stacks,own_off={},{}
+            for id,values in pairs(preset.data.stacks)do
+                local key=tonumber(id);assert(key and key%1==0 and key>=0 and type(values)=='table','Invalid passive stacking entry')
+                stacks[key]={};for i,v in ipairs(values)do assert(type(v)=='number'and v%1==0 and v>=0,'Invalid passive ID');stacks[key][i]=v end
+            end
+            for id,value in pairs(preset.data.own_off)do local key=tonumber(id)
+                assert(key and key%1==0 and key>=0 and type(value)=='boolean','Invalid passive switch');own_off[key]=value
             end
         end
-        local refused = 0
-        for _, row in ipairs(preset_rows) do
-            for _, p in ipairs(row.packed_flag and{}or row.parts) do
-                local pid = weapon.by_id[p.id] ~= p and p.health_owner and p.health_owner.weapon and p.health_owner.weapon.component_view and (p.health_owner.weapon.component_view .. '_' .. p.id) or p.id
-                local d = default_of(p.field)
-                local target = want[pid]
-                if target == nil and pid ~= p.id then target = want[p.id] end
-                local explicit = target ~= nil
-                if target == nil then target = d end
-                want[pid], want[p.id] = nil, nil
-                if p.field.demolition then
-                    local ok, why = p.field.demolition:write(p.field, explicit and target or nil)
-                    if not ok then refused = refused + 1; log('preset refused: ' .. weapon.name .. ' ' .. p.id .. ': ' .. tostring(why)) end
-                else
-                    local current = read_field(p.field)
-                    local accepted = true
-                    if target ~= nil and current ~= nil and math.abs(current - target) > 1e-6 then
-                        local ok, why = write_field(p.field, target)
-                        accepted = ok or (p.field.storage == 'grenade' and why == 'grenade assets loading')
-                        if not accepted then refused = refused + 1; log('preset refused: ' .. weapon.name .. ' ' .. p.id .. ': ' .. why) end
-                    end
-                    if target ~= nil and (accepted or p.field.storage ~= 'grenade') then
-                        set_override(weapon, p, unless_default(target, d))
-                    end
-                end
+        if preset.scope=='preload'and preset.kind~='patch'then
+            local kept={};for _,o in ipairs(overrides)do local w=by_hash[o.hash]
+                if w and w.preload_parameters then
+                    for _,part in ipairs(MOD.parts_of(w,o.id)or{})do local value=default_of(part.field);if value~=nil then write_field(part.field,value)end end
+                else kept[#kept+1]=o end
             end
-        end
-        for id in pairs(want) do refused = refused + 1; log('preset: ' .. weapon.name .. ' has no stat ' .. id) end
-        say('Loaded ' .. weapon.name .. ' preset ' .. n .. (refused > 0 and (' (' .. refused .. ' value(s) not applied)') or ''))
-        ui.version = ui.version + 1
-    end
-
-    local function clear_weapon_preset(weapon, n)
-        if not weapon_preset(weapon, n) then return end
-        weapon_presets[weapon.hash][n] = nil
-        if next(weapon_presets[weapon.hash]) == nil then weapon_presets[weapon.hash] = nil end
-        save_weapon_presets()
-        say('Cleared ' .. weapon.name .. ' preset ' .. n)
-        ui.version = ui.version + 1
-    end
-
-    -- the shown editor's changes only
-    local function current_values()
-        local values = {}
-        for _, o in ipairs(overrides) do
-            if MOD.is_enemy_value(o.hash) == MOD.enemy.on then values[#values + 1] = { hash = o.hash, id = o.id, value = o.value } end
-        end
-        return values
-    end
-    presets.current_count = function() return #current_values() end
-
-    -- Preset numbers in use, in order.
-    local function full_order()
-        local order = {}
-        for n = 1, FULL_PRESETS do if full_presets[n] then order[#order + 1] = n end end
-        return order
-    end
-
-    -- The chosen preset (the first one when the chosen one is gone), or nil when there are none.
-    local function chosen()
-        if not full_presets[ui.fslot or 0] then ui.fslot = full_order()[1] end
-        return ui.fslot
-    end
-
-    local function show(n)
-        ui.fslot = n
-        for k, m in ipairs(full_order()) do
-            if m == n and k < ui.fpage then ui.fpage = k
-            elseif m == n and k >= ui.fpage + LIST_ROWS then ui.fpage = k - LIST_ROWS + 1 end
-        end
-    end
-
-    local function start_rename(n)
-        if full_presets[n] then ui.editing = { n = n, text = full_presets[n].name, fresh = true } end
-        ui.version = ui.version + 1
-    end
-
-    -- Enter / OK keeps the typed name, Esc / Cancel drops it.
-    local function finish_rename(keep)
-        local e = ui.editing
-        ui.editing = nil
-        ui.version = ui.version + 1
-        if not (e and keep and full_presets[e.n]) then return end
-        local name = e.text:gsub('[%c#]', ''):gsub('^%s+', ''):gsub('%s+$', '')
-        if name == '' then say('Empty name: kept "' .. full_presets[e.n].name .. '"'); return end
-        full_presets[e.n].name = name
-        save_full_preset(e.n)
-        say('Named it "' .. name .. '"')
-    end
-
-    -- One typed character (UTF-8), or false for Backspace.
-    local function type_char(c)
-        local e = ui.editing
-        if not e then return end
-        if c == false then
-            e.text = e.fresh and '' or e.text:gsub('[%z\1-\127\194-\244][\128-\191]*$', '')
-        else
-            if e.fresh then e.text = '' end
-            if #e.text + #c <= NAME_BYTES then e.text = e.text .. c end
-        end
-        e.fresh = false
-        ui.version = ui.version + 1
-    end
-
-    -- A new preset holding the current changes; its name is typed next.
-    local function new_full_preset()
-        local n = nil
-        for k = 1, FULL_PRESETS do if not full_presets[k] then n = k; break end end
-        if not n then say('All ' .. FULL_PRESETS .. ' presets are in use: delete one first'); return end
-        full_presets[n] = { name = 'Preset ' .. n, values = current_values() }
-        save_full_preset(n)
-        show(n)
-        start_rename(n)
-        say('Saved ' .. #full_presets[n].values .. ' changed value(s) as a new preset. Type its name, Enter keeps it.')
-    end
-
-    local function save_full_preset_now(n)
-        if not full_presets[n] then return end
-        full_presets[n].values = current_values()
-        save_full_preset(n)
-        say('Saved ' .. #full_presets[n].values .. ' changed value(s) into "' .. full_presets[n].name .. '"')
-        ui.version = ui.version + 1
-    end
-
-    -- Every current change is undone, then the preset's values are applied.
-    local function load_full_preset(n)
-        local preset = full_presets[n]
-        if not preset then return end
-        if not settings.changes then say('Your changes are off: turn them on in Settings to load a preset'); return end
-        MOD.reset_side(MOD.enemy.on)
-        local refused = 0
-        for _, o in ipairs(preset.values) do
-            local weapon = by_hash[o.hash]
-            local parts = weapon and MOD.parts_of(weapon, o.id)
-            local ok, why = false, weapon and ('no stat ' .. o.id) or ('unknown weapon ' .. o.hash)
-            for _, p in ipairs(parts or {}) do
-                local d = default_of(p.field)
-                ok, why = write_field(p.field, o.value)
-                if p.field.storage == 'grenade' and why == 'grenade assets loading' then ok = true end   -- applied once loaded
-                -- (an enemy page's value at the game's own: kept, as a faction-wide row's exception)
-                if ok then set_override(weapon, p, (weapon.enemy and not weapon.enemy.faction) and o.value or unless_default(o.value, d)) end
-                if ok and #parts == 1 and p.row and p.row.mult and p.row.parts[1] == p then MOD.enemy.mult_fields(weapon, p.row, o.value) end
+            overrides=kept;mark_config_dirty()
+        elseif preset.kind~='patch'then MOD.reset_side(preset.scope=='enemy')end
+        if stacks then settings.stacks,settings.own_off=stacks,own_off;state.writes=state.writes+1;mark_config_dirty()end
+        local refused=0
+        for _,o in ipairs(preset.values)do
+            local weapon=by_hash[o.hash]
+            local parts=weapon and MOD.parts_of(weapon,o.id)
+            local ok,why=false,weapon and('no stat '..o.id)or('unknown entity '..o.hash)
+            for _,p in ipairs(parts or{})do
+                local default=default_of(p.field)
+                ok,why=write_field(p.field,o.value)
+                if p.field.storage=='grenade'and why=='grenade assets loading'then ok=true end
+                if ok then set_override(weapon,p,(weapon.enemy and not weapon.enemy.faction)and o.value or unless_default(o.value,default))end
+                if ok and #parts==1 and p.row and p.row.mult and p.row.parts[1]==p then MOD.enemy.mult_fields(weapon,p.row,o.value)end
             end
-            if not ok then refused = refused + 1; log('preset "' .. preset.name .. '": ' .. (weapon and weapon.name or o.hash) .. ' ' .. o.id .. ': ' .. tostring(why)) end
+            if not ok then refused=refused+1;log('preset '..preset.name..': '..o.hash..' '..o.id..': '..tostring(why))end
         end
-        say('Loaded "' .. preset.name .. '"' .. (refused > 0 and (' (' .. refused .. ' value(s) not applied)') or ''))
-        ui.version = ui.version + 1
-    end
+        ui.version=ui.version+1
+        return true,refused>0 and(tostring(refused)..' 个参数在当前版本不可用。')or nil
+    end,
+})
 
-    local function delete_full_preset(n)
-        local preset = full_presets[n]
-        if not preset then return end
-        full_presets[n] = nil
-        save_full_preset(n)
-        if ui.editing and ui.editing.n == n then ui.editing = nil end
-        say('Deleted "' .. preset.name .. '"')
-        ui.version = ui.version + 1
-    end
-
-    -- Overwriting and deleting take a second click (or key press) within 3 s.
-    local function confirm(kind, n)
-        local c = ui.confirm
-        if c and c.kind == kind and c.n == n and api.now() < c.till then
-            ui.confirm = nil
-            if kind == 'save' then save_full_preset_now(n) else delete_full_preset(n) end
-            return
+-- Workspaces preserve the complete editor selection while presets/settings are open.
+MOD.workspace={}
+function MOD.workspace.mode()return ui.settings and'settings'or ui.tab=='Presets'and'presets'or'editor'end
+function MOD.workspace.open(mode)
+    local current=MOD.workspace.mode()
+    if mode==current then mode='editor'end
+    if state.commit_value then local ok,why=state.commit_value();if not ok then
+        ui.message={text=tostring(why),till=api.now()+7};return nil,why
+    end end
+    if ui.editing then local ok,why=presets.finish_rename(true);if not ok then return nil,why end end
+    if mode=='editor'then
+        local saved=ui.workspace_return
+        if saved then
+            ui.tab,ui.weapon,ui.page,ui.row,ui.scroll,ui.search=saved.tab,saved.weapon,saved.page,saved.row,saved.scroll,saved.search
+            MOD.enemy.on=saved.enemy
         end
-        if not full_presets[n] then return end
-        ui.confirm = { kind = kind, n = n, till = api.now() + 3 }
-        say((kind == 'save' and 'Again to overwrite "' or 'Again to delete "') .. full_presets[n].name .. '"')
-        ui.version = ui.version + 1
+        ui.workspace_return=nil;ui.settings=false;ui.confirm=nil
+    else
+        if not ui.workspace_return then
+            ui.workspace_return={tab=ui.tab,weapon=ui.weapon,page=ui.page,row=ui.row,scroll=ui.scroll,
+                search={text=ui.search.text,active=false},enemy=MOD.enemy.on}
+        end
+        ui.stack_pick,ui.component_menu,ui.weapon_menu,ui.binding=nil,nil,nil,nil
+        if mode=='presets'then
+            if current=='editor'then
+                local scope=ui.tab=='CurrentLoadout'and'loadout'or ui.tab:match('^Preload')and'preload'or MOD.enemy.on and'enemy'or'game'
+                presets.select_scope(scope)
+            end
+            ui.tab='Presets';ui.settings=false
+        elseif mode=='settings'then ui.tab=ui.workspace_return.tab;ui.settings=true
+        else return nil,'Unknown workspace'end
+        ui.search={text='',active=false};ui.confirm=nil
     end
-    presets.load_presets = load_presets
-    presets.weapon_preset = weapon_preset
-    presets.save_weapon_preset = save_weapon_preset
-    presets.load_weapon_preset = load_weapon_preset
-    presets.clear_weapon_preset = clear_weapon_preset
-    presets.full_order, presets.chosen, presets.show = full_order, chosen, show
-    presets.new_full_preset, presets.load_full_preset, presets.confirm = new_full_preset, load_full_preset, confirm
-    presets.start_rename, presets.finish_rename, presets.type_char = start_rename, finish_rename, type_char
+    ui.version=ui.version+1;return true
 end
 
 -- Draws the whole panel into a fresh screen gui. Coordinates are 1080p units from the panel's
@@ -20172,7 +20105,11 @@ local function draw(width, height)
     if ui.weapon and ui.weapon.ensure_rows then ui.weapon.ensure_rows() end
     local Gui, Vector3, Vector2, Color = sr.Gui, sr.Vector3, sr.Vector2, sr.Color
     local s = height / 1080 * (MOD.offline and 100 or settings.size) / 100   -- panel units -> 1080p units (offline: the window is the panel's)
-    local ox, oy = settings.side == 'left' and 30 * s or width - (W + 30) * s, (height - H * s) / 2
+    -- sx / sy: panel units -> pixels across / down; s: the text's (the smaller). In game the panel keeps its shape;
+    -- offline it fills the window at any shape: its layout stretches, its text keeps its proportions.
+    local sx, sy = s, s
+    if MOD.offline then sx, sy = width / (W + 60), height / (H + 100); s = math.min(sx, sy) end
+    local ox, oy = settings.side == 'left' and 30 * sx or width - (W + 30) * sx, (height - H * sy) / 2
     local gui = ui.gui
     local regions = {}
     local shared_overlay = nil   -- set while the cursor is on a cut-short 'shared with' list
@@ -20188,13 +20125,13 @@ local function draw(width, height)
         end
         return nil
     end
-    local GOLD, WHITE, MUTED, DIM = MOD.enemy.on and color(255, 72, 60) or color(255, 213, 0), color(238, 242, 246), color(153, 171, 184), color(95, 108, 120)
+    local GOLD, WHITE, MUTED, DIM = MOD.enemy.on and ui.tab~='Presets'and not ui.settings and color(255, 72, 60) or color(255, 213, 0), color(238, 242, 246), color(153, 171, 184), color(95, 108, 120)
     MOD.enemy.ALL_INK = MOD.enemy.ALL_INK or color(120, 200, 255)   -- a value only an 'All <faction>' row changed
     local WARN, GOOD = color(255, 150, 60), color(120, 220, 140)
 
     local function rect(x, y, w, h, c, z)
         step('Gui.rect')
-        Gui.rect(gui, Vector3(ox + x * s, height - oy - (y + h) * s, z or 951), Vector2(w * s, h * s), c)
+        Gui.rect(gui, Vector3(ox + x * sx, height - oy - (y + h) * sy, z or 951), Vector2(w * sx, h * sy), c)
     end
     -- a text's width on screen at a (scaled) size; measured once per text, size and font (the panel redraws often)
     local function measure_text(value, size)
@@ -20221,15 +20158,18 @@ local function draw(width, height)
     local function text(value, x, y, size, c, limit, align_right, z)
         if value == nil or value == '' or not ink_font then return end
         value = settings.tr(value)
+        local design = size
         size = size * s
-        local px = ox + x * s
+        local px = ox + x * sx
         if limit or align_right then
             local measure = measure_text(value, size)
-            if limit and measure > limit * s then size = size * limit * s / measure; measure = limit * s end
+            if limit and measure > limit * sx then size = size * limit * sx / measure; measure = limit * sx end
             if align_right then px = px - measure end
         end
+        -- (its middle where the layout's is: the boxes around it stretch with sy, the text with s)
+        local top = (y + design / 2) * sy - design * s / 2
         step('Gui.text')
-        Gui.text(gui, value, ink_font, size, ink_material, Vector3(px, height - oy - y * s - size * 0.8, z or 953), c or WHITE)
+        Gui.text(gui, value, ink_font, size, ink_material, Vector3(px, height - oy - top - size * 0.8, z or 953), c or WHITE)
     end
     local function outline(x, y, w, h, c, z)
         z = z or 952
@@ -20237,13 +20177,13 @@ local function draw(width, height)
         rect(x, y, 2, h, c, z); rect(x + w - 2, y, 2, h, c, z)
     end
     local function region(key, x, y, w, h, enabled)
-        regions[#regions + 1] = { key = key, x = ox + x * s, y = height - oy - (y + h) * s, w = w * s, h = h * s,
+        regions[#regions + 1] = { key = key, x = ox + x * sx, y = height - oy - (y + h) * sy, w = w * sx, h = h * sy,
                                   enabled = enabled ~= false }
     end
     -- z: over an overlay (its buttons at z, z + 1, z + 2)
     local function button(key, label, x, y, w, h, enabled, active, ink, z)
         local hovered = ui.hover == key and enabled ~= false
-        local fill = active and (MOD.enemy.on and color(96, 20, 16) or color(90, 74, 8)) or hovered and color(52, 66, 80) or color(28, 34, 42)
+        local fill = active and (MOD.enemy.on and ui.tab~='Presets'and not ui.settings and color(96, 20, 16) or color(90, 74, 8)) or hovered and color(52, 66, 80) or color(28, 34, 42)
         rect(x, y, w, h, fill, z or 951)
         outline(x, y, w, h, enabled == false and DIM or (active or hovered) and GOLD or color(70, 82, 94), z and z + 1)
         text(label, x + 8, y + (h - 16) / 2, 16, enabled == false and DIM or ink or WHITE, w - 12, false, z and z + 2)
@@ -20254,11 +20194,20 @@ local function draw(width, height)
     rect(0, 0, W, H, color(8, 11, 15, math.floor(255 * settings.opacity / 100 + 0.5)), 950)
     outline(0, 0, W, H, GOLD)
     region('panel', 0, 0, W, H, false)
+    if state.phase=='ready'and ui.tab=='Presets'and not ui.settings then
+        ui.lbar=nil;ui.split_gx=ox+343*sx
+        require('preset_panel').draw({presets=presets,ui=ui,W=W,H=H,lang=function()return settings.lang end,
+            text=text,button=button,rect=rect,outline=outline,region=region,
+            GOLD=GOLD,WHITE=WHITE,MUTED=MUTED,selected=color(90,74,8),hover=color(40,52,64),
+            line=color(70,82,94),input=color(20,26,34),status=state.host_status})
+        return regions
+    end
     -- the page's name (the layout document's; before the stats are found, the editor's)
     local nav_page, nav_sub, nav_k
     if state.phase == 'ready' then MOD.nav.sync(); nav_page, nav_sub, nav_k = MOD.nav.current() end
-    local title = nav_page and MOD.nav.text(nav_page.name) or (MOD.enemy.on and 'SHODAN ENEMY EDITOR' or 'SHODAN STAT EDITOR')
+    local title = ui.settings and settings.tr('Settings') or nav_page and MOD.nav.text(nav_page.name) or (MOD.enemy.on and 'SHODAN ENEMY EDITOR' or 'SHODAN STAT EDITOR')
     text(title, 18, 12, 24, GOLD)
+    if ui.settings then button('workspace_back',MOD.nav.text({'Back to editor','返回编辑','返回編輯'}),W-156,10,140,32,true)end
     if not MOD.offline then   -- (offline the panel is the window)
         text(hotkey_name .. ' to open/close', W - 56, 16, 15, MUTED, nil, true)
         button('close', 'X', W - 16 - 30, 10, 30, 30, true)
@@ -20277,7 +20226,7 @@ local function draw(width, height)
     -- the page's sub-pages, each as wide as its (translated) name, the row shrunk to end before the reset button
     -- (offline the reset button sits up on the title's line: the sub-pages get the whole row); a placeholder's name
     -- dimmer, and one whose tabs Settings > Tabs shown all turned off left out
-    do
+    if not ui.settings then
         local shown, widths, total = {}, {}, 0
         for k, sub in ipairs(nav_page.subs) do
             local on = sub.tabs == nil
@@ -20297,9 +20246,12 @@ local function draw(width, height)
             tab_x = tab_x + w + 4
         end
         -- the sub-page's tabs when it has several (after the page's name; Weapon editing filters in the left list)
-        local cats = {}
+        local cats, merged = {}, false
         for _, t in ipairs(not nav_sub.weapon_browser and nav_sub.tabs or {}) do
-            if not settings.hidden[MOD.nav.base(t)] then cats[#cats + 1] = t end
+            if settings.hidden[MOD.nav.base(t)] then
+            elseif nav_sub.enemy_browser and MOD.ENEMY_SLOTS[t] then   -- (敌人编辑: the factions in one tab)
+                if not merged then merged = true; cats[#cats + 1] = 'Enemies' end
+            else cats[#cats + 1] = t end
         end
         if #cats > 1 then
             local cx = 18 + width(title, 24) + 24
@@ -20312,20 +20264,20 @@ local function draw(width, height)
             local cfit = math.min(1, (right - cx - 4 * (#cats - 1)) / ctotal)
             for i, t in ipairs(cats) do
                 local w = math.floor(cw[i] * cfit + 0.5)
-                button('cat:' .. t, MOD.nav.tab_label(t), cx, 10, w, 30, true, ui.tab == t)
+                button('cat:' .. t, MOD.nav.tab_label(t), cx, 10, w, 30, true, ui.tab == t or t == 'Enemies' and MOD.ENEMY_SLOTS[ui.tab] == true)
                 cx = cx + w + 4
             end
         end
     end
-    button('reset_weapon', ui.weapon and (ui.weapon.component_entry and MOD.nav.text({ 'Reset component', '重置组件', '重置組件' }) or ui.weapon.passive and 'Reset passive' or ui.weapon.booster and 'Reset booster' or ui.weapon.enemy and (ui.weapon.slot == 'Spawning' and 'Reset spawning' or 'Reset enemy') or ui.weapon.player and 'Reset helldiver' or ui.weapon.record and 'Reset record') or (MOD.enemy.on and 'Reset enemy' or 'Reset weapon'), W - 16 - 124, MOD.offline and 10 or 52, 124, MOD.offline and 30 or 32, ui.weapon ~= nil and modified(ui.weapon))
+    if not ui.settings then button('reset_weapon', ui.weapon and (ui.weapon.component_entry and MOD.nav.text({ 'Reset component', '重置组件', '重置組件' }) or ui.weapon.passive and 'Reset passive' or ui.weapon.booster and 'Reset booster' or ui.weapon.enemy and (ui.weapon.slot == 'Spawning' and 'Reset spawning' or 'Reset enemy') or ui.weapon.player and 'Reset helldiver' or ui.weapon.record and 'Reset record') or (MOD.enemy.on and 'Reset enemy' or 'Reset weapon'), W - 16 - 124, MOD.offline and 10 or 52, 124, MOD.offline and 30 or 32, ui.weapon ~= nil and modified(ui.weapon))end
 
     -- a list's scroll bar (the weapon list, or the full presets): a thin track between the list and the
     -- line that parts the panel's halves, shown when the list is longer than LIST_ROWS
-    ui.lbar, ui.split_gx = nil, ox + 343 * s
+    ui.lbar, ui.split_gx = nil, ox + 343 * sx
     local function list_bar(id, total)
         local count=id=='page'and MOD.component_rows()or LIST_ROWS
         if total <= count then return end
-        local top, len, span = id=='page'and(MOD.component_kind()and 154 or MOD.weapon_browser_active()and 126)or 96, count * 26 - 1, total - count
+        local top, len, span = id=='page'and(MOD.component_kind()and 154 or(MOD.weapon_browser_active()or MOD.enemy_browser())and 126)or 96, count * 26 - 1, total - count
         local th = math.max(24, len * count / total)
         local ty = top + (len - th) * math.min(1, (ui[id] - 1) / span)
         rect(336, top, 5, len, color(28, 34, 42), 951)
@@ -20333,104 +20285,25 @@ local function draw(width, height)
         rect(336, ty, 5, th, hot and GOLD or color(110, 124, 138), 952)
         region('lbar:track', 335, top, 8, len)
         region('lbar:thumb', 335, ty, 8, th)
-        ui.lbar = { id = id, top = height - oy - top * s, bottom = height - oy - (top + len) * s,
-                    thumb_top = height - oy - ty * s, thumb = th * s, span = span, page = count }
+        ui.lbar = { id = id, top = height - oy - top * sy, bottom = height - oy - (top + len) * sy,
+                    thumb_top = height - oy - ty * sy, thumb = th * sy, span = span, page = count }
     end
 
     local presets_tab = ui.tab == 'Presets'
     -- a placeholder sub-page: what it is to hold, over the whole panel (a search shows the list as ever)
-    local todo_view = not presets_tab and not ui.settings and nav_sub and nav_sub.todo and ui.search.text == ''
+    local todo_view = not presets_tab and not ui.settings and nav_sub and (nav_sub.todo or MOD.nav.TODO_TABS[ui.tab]) and ui.search.text == ''
                       and not ui.search.active
     -- a sub-page of one page (人物数据): no list beside it, its stats across the panel (the wheel scrolls them anywhere)
     local solo_view = not presets_tab and not ui.settings and nav_sub and nav_sub.solo
     if solo_view then ui.split_gx = ox end
-    if presets_tab then
-        -- full presets: the list holds them by name, the right side the chosen one
-        local order, chosen = presets.full_order(), presets.chosen()
-        local last_top = math.max(1, #order - LIST_ROWS + 1)
-        ui.fpage = math.max(1, math.min(ui.fpage, last_top))
-        for k = 1, LIST_ROWS do
-            local n = order[ui.fpage + k - 1]
-            if not n then break end
-            local y, key, preset = 96 + (k - 1) * 26, 'fslot:' .. n, presets.list()[n]
-            if n == chosen then rect(16, y, 318, 25, (MOD.enemy.on and color(96, 20, 16) or color(90, 74, 8)), 951)
-            elseif ui.hover == key then rect(16, y, 318, 25, color(40, 52, 64), 951) end
-            text(preset.name, 24, y + 4, 16, n == chosen and GOLD or WHITE, 214)
-            text(#preset.values .. ' value(s)', 326, y + 5, 14, MUTED, 86, true)
-            region(key, 16, y, 318, 25)
-        end
-        if #order == 0 then text('No presets yet.', 24, 100, 16, MUTED) end
-        local py = 96 + LIST_ROWS * 26 + 8
-        button('fpage:prev', '<', 16, py, 40, 30, ui.fpage > 1)
-        text((#order > LIST_ROWS and (ui.fpage .. '-' .. math.min(#order, ui.fpage + LIST_ROWS - 1) .. ' of ') or '') ..
-             #order .. ' (max ' .. presets.full_count .. ')', 70, py + 7, 16, MUTED, 214)
-        button('fpage:next', '>', 294, py, 40, 30, ui.fpage < last_top)
-        list_bar('fpage', #order)
-        button('fpreset:new', '+ New preset from current changes', 16, py + 40, 318, 30, #order < presets.full_count)
-        rect(343, 96, 2, H - 96 - 70, color(70, 82, 94), 951)
-
-        local x0, preset = 356, chosen and presets.list()[chosen]
-        if ui.settings then
-            -- the Settings page, drawn below
-        elseif not preset then
-            text(MOD.enemy.on and 'Custom difficulties' or 'Presets', x0, 94, 22, GOLD)
-            text(MOD.enemy.on and 'A preset keeps every enemy and spawning change as one custom difficulty, under a name you choose. Your weapon changes are kept apart.'
-                 or 'A preset keeps every change you have made as one set, under a name you choose.', x0, 136, 16, WHITE, W - x0 - 20)
-            text('"+ New preset" (or Insert) saves your current changes as one; you name it next.', x0, 162, 16, MUTED, W - x0 - 20)
-        else
-            local e = ui.editing
-            if e and e.n == chosen then
-                rect(x0 - 4, 88, 420, 34, color(20, 26, 34), 951)
-                outline(x0 - 4, 88, 420, 34, GOLD)
-                text(e.text .. '_', x0 + 4, 94, 20, e.fresh and MUTED or WHITE, 404)
-                button('name:ok', 'OK', x0 + 426, 88, 70, 34, true)
-                button('name:cancel', 'Cancel', x0 + 502, 88, 100, 34, true)
-            else
-                text(preset.name, x0, 94, 22, GOLD, W - x0 - 20)
-            end
-            local sure = ui.confirm and ui.confirm.n == chosen and ui.confirm.kind
-            button('fpreset:load', 'Load', x0, 136, 100, 32, true)
-            button('fpreset:save', sure == 'save' and 'Click again to overwrite' or 'Save current changes here',
-                   x0 + 110, 136, 250, 32, true, sure == 'save')
-            button('fpreset:rename', 'Rename', x0 + 370, 136, 110, 32, true)
-            button('fpreset:delete', sure == 'delete' and 'Sure?' or 'Delete', x0 + 490, 136, 110, 32, true, sure == 'delete')
-            text('Now changed: ' .. presets.current_count() .. ' value(s). Loading a preset replaces every current change' ..
-                 (MOD.enemy.on and ' to enemies and spawning with it.' or ' with it.'),
-                 x0, 182, 15, MUTED, W - x0 - 20)
-            -- what it holds: weapon (or stratagem) and how many of its values
-            local y, names, counts = 212, {}, {}
-            for _, o in ipairs(preset.values) do
-                if not counts[o.hash] then counts[o.hash] = 0; names[#names + 1] = o.hash end
-                counts[o.hash] = counts[o.hash] + 1
-            end
-            if #preset.values == 0 then
-                text('No changes: loading it puts every value back to the game\'s.', x0, y, 16, MUTED, W - x0 - 20)
-            else
-                text(#preset.values .. ' value(s) for ' .. #names .. (MOD.enemy.on and ' page(s):' or ' weapon(s) / stratagem(s):'), x0, y, 16, WHITE)
-            end
-            y = y + 28
-            local room = math.floor((H - 110 - y) / 22)
-            for k, hash in ipairs(names) do
-                if k == room and #names > room then
-                    text('+ ' .. (#names - room + 1) .. ' more', x0, y, 15, MUTED)
-                    break
-                end
-                local weapon = by_hash[hash]
-                text(weapon and weapon.name or ('unknown ' .. hash), x0, y, 15, weapon and WHITE or WARN, 480)
-                text(counts[hash] .. ' value(s)', W - 24, y, 15, MUTED, 120, true)
-                y = y + 22
-            end
-            text('Saved as StatEditor\\' .. presets.file_name(chosen) .. ' (copy it to share the set).',
-                 x0, H - 100, 14, DIM, W - x0 - 20)
-        end
-    end
-
     -- weapon list
     local component_kind=MOD.component_kind()
     local component_browser=component_kind and MOD.component_catalog and not ui.settings
     local weapon_browser=MOD.weapon_browser_active()
-    local list_rows=component_browser and 24 or weapon_browser and 26 or LIST_ROWS
-    local list_top=component_browser and 154 or weapon_browser and 126 or 96
+    local enemy_categories,enemy_key=nil,nil
+    if not component_browser and not weapon_browser and MOD.enemy_browser()then enemy_categories,enemy_key=MOD.enemy_categories()end
+    local list_rows=component_browser and 24 or(weapon_browser or enemy_key)and 26 or LIST_ROWS
+    local list_top=component_browser and 154 or(weapon_browser or enemy_key)and 126 or 96
     if component_browser then
         local catalog=MOD.component_catalog
         local categories=catalog:categories();local selected=1
@@ -20452,9 +20325,16 @@ local function draw(width, height)
         button('weapon_cat:prev','<',16,94,32,28,true)
         button('weapon_cat:menu',categories[selected].name,52,94,246,28,true,ui.weapon_menu)
         button('weapon_cat:next','>',302,94,32,28,true)
+    elseif enemy_key then
+        local selected=1
+        for i,category in ipairs(enemy_categories)do if category.id==settings[enemy_key]then selected=i end end
+        if selected==1 then settings[enemy_key]='all'end
+        button('enemy_cat:prev','<',16,94,32,28,true)
+        button('enemy_cat:menu',enemy_categories[selected].name,52,94,246,28,true,ui.enemy_menu)
+        button('enemy_cat:next','>',302,94,32,28,true)
     end
     local searching = ui.search.text ~= '' or ui.search.active
-    local list = (presets_tab or todo_view or solo_view) and {} or weapons_in(ui.search.text ~= '' and '?search' or ui.tab)
+    local list = (presets_tab or ui.settings or todo_view or solo_view) and {} or weapons_in(ui.search.text ~= '' and '?search' or ui.tab)
     local last_top = math.max(1, #list - list_rows + 1)
     ui.page = math.max(1, math.min(ui.page, last_top))
     for k = 1, list_rows do
@@ -20490,8 +20370,9 @@ local function draw(width, height)
             text((changed and '* ' or '') .. rest .. id, 44, y + 5, 14, ink, searching and 206 or 282)
         else
             local category=component_browser and settings.component_category=='all'and('['..weapon.catalog_record.category_name..'] ')
-                or weapon_browser and settings.weapon_category=='all'and('['..settings.tr(weapon.slot)..'] ')or''
-            text((changed and '* ' or '') .. category .. settings.tr(weapon.name) .. id, 24, y + 4, 16, ink, (component_browser or weapon_browser) and 302 or searching and 226 or 302)
+                or weapon_browser and settings.weapon_category=='all'and('['..settings.tr(weapon.slot)..'] ')
+                or enemy_key and not searching and settings[enemy_key]=='all'and('['..settings.tr(weapon.slot)..'] ')or''
+            text((changed and '* ' or '') .. category .. settings.tr(weapon.name) .. id, 24, y + 4, 16, ink, (component_browser or weapon_browser or enemy_key) and 302 or searching and 226 or 302)
         end
         region(key, 16, y, 318, 25)
     end
@@ -20510,7 +20391,7 @@ local function draw(width, height)
         text(line, 24, y, 14, MUTED)
     end
     local py = list_top + list_rows * 26 + 8
-    if not presets_tab and not todo_view and not solo_view then
+    if not presets_tab and not ui.settings and not todo_view and not solo_view then
         if ui.search.text ~= '' and #list == 0 then text('Nothing matches.', 24, 100, 16, MUTED) end
         button('page:prev', '<', 16, py, 40, 30, ui.page > 1)
         list_bar('page', #list)
@@ -20535,10 +20416,9 @@ local function draw(width, height)
 
     -- stats of the selected weapon
     local weapon = ui.weapon
-    local x0 = solo_view and 24 or 356
+    local x0 = (solo_view or ui.settings) and 24 or 356
     if ui.settings then
-        text('Settings', x0, 94, 22, GOLD)
-        local y = 132
+        local y = 96
         local function choice(label, key, options, current)
             text(label, x0, y + 6, 16, WHITE, 270)
             for k, o in ipairs(options) do
@@ -20680,11 +20560,51 @@ local function draw(width, height)
     elseif todo_view then
         -- a placeholder: a feature of the layout document not in the editor yet, and what it is to hold
         local x, y, right = 24, 100, W - 24
-        text(MOD.nav.text(nav_sub.name), x, y, 24, GOLD, right - x)
+        text(MOD.nav.text((MOD.nav.TODO_TABS[ui.tab] or nav_sub).name), x, y, 24, GOLD, right - x)
         y = y + 36
+        if not MOD.nav.TODO_TABS[ui.tab] and nav_sub.display and MOD.offline then
+            -- the text's size and the resolution drawn at (the window itself is dragged to any size): applied at once,
+            -- saved in config.txt
+            rect(x, y + 11, 4, 4, GOLD, 951)
+            text(MOD.nav.text({ 'Display (drag the window\'s edges or maximize it: the panel fills it)', '显示（拖动窗口边缘或最大化，界面随窗口拉伸填满）', '顯示（拖動視窗邊緣或最大化，介面隨視窗拉伸填滿）' }), x + 12, y, 18, WHITE, right - x - 12)
+            y = y + 32
+            local HELP = {
+                font_px = { 'The body text\'s size in panel pixels (16 as designed); every other text follows. Buttons keep their size, so very large text may be cut short.',
+                            '正文字号（面板像素，默认 16），其余文字按比例变化；按钮大小不变，字号过大时文字可能显示不全。',
+                            '正文字號（面板像素，預設 16），其餘文字按比例變化；按鈕大小不變，字號過大時文字可能顯示不全。' },
+                render_height = { 'The resolution the panel is drawn at, stretched to the window: type a height (1080) or width x height (1060x1080); Auto: the window\'s own pixels.',
+                                  '面板实际绘制的分辨率，再缩放到窗口：可输入高度（1080）或 宽x高（1060x1080）；自动＝与窗口像素一致。',
+                                  '面板實際繪製的解析度，再縮放到視窗：可輸入高度（1080）或 寬x高（1060x1080）；自動＝與視窗像素一致。' },
+            }
+            local function field(key, shown, reset_id, reset_label, reset_on, range)
+                local r = settings.RANGE[key]
+                text(MOD.nav.text(settings.DISPLAY[key]), x + 12, y + 6, 16, WHITE, 200)
+                button('set:' .. key .. ':down', '<', 230, y, 36, 28, true)
+                local typing = ui.value and ui.value.setting == key
+                rect(270, y, 150, 28, typing and color(20, 26, 34) or ui.hover == 'value:' .. key and color(40, 52, 64) or color(20, 26, 34), 951)
+                outline(270, y, 150, 28, (typing or ui.hover == 'value:' .. key) and GOLD or color(56, 66, 78))
+                text(typing and (ui.value.text .. '_') or shown, 412, y + 6, 17, WHITE, 136, true)
+                region('value:' .. key, 270, y, 150, 28)
+                button('set:' .. key .. ':up', '>', 424, y, 36, 28, true)
+                button('set:' .. key .. ':' .. reset_id, MOD.nav.text(reset_label), 468, y, 84, 28, reset_on)
+                text(range, 562, y + 6, 14, MUTED, 200)
+                y = y + 30
+                text(MOD.nav.text(HELP[key]), x + 24, y, 14, MUTED, right - x - 24)
+                y = y + 40
+            end
+            local fr = settings.RANGE.font_px
+            field('font_px', settings.font_px .. ' px', 'reset', { 'Reset', '重置', '重置' }, settings.font_px ~= 16,
+                  string.format('%d-%d px', fr[1], fr[2]))
+            local w, h = settings.display_size()
+            local now = w and (w .. ' × ' .. h) or '-'
+            local rr = settings.RANGE.render_height
+            field('render_height', settings.render_height > 0 and now or (MOD.nav.text({ 'Auto', '自动', '自動' }) .. '  ' .. now),
+                  'auto', { 'Auto', '自动', '自動' }, settings.render_height > 0, string.format('%d-%d', rr[1], rr[2]))
+            y = y + 12
+        end
         text(MOD.nav.text(MOD.nav.T.todo_note), x, y, 15, WARN, right - x)
         y = y + 34
-        for _, group in ipairs(nav_sub.todo) do
+        for _, group in ipairs((MOD.nav.TODO_TABS[ui.tab] or nav_sub).todo) do
             if y > H - 130 then break end
             if group.title then
                 rect(x, y + 11, 4, 4, GOLD, 951)
@@ -20740,18 +20660,7 @@ local function draw(width, height)
             if row.component and(n==1 or row.component~=weapon.rows[n-1].component)then section_space=section_space+(row.collapsed_component and 18 or 42)end
             below = below + (row.after_h or 0)
         end
-        -- this weapon's presets, under its stats
-        local sy = H - 70 - 34
-        text('PRESETS', x0, sy + 8, 15, MUTED)
-        for n = 1, presets.weapon_count do
-            local saved = presets.weapon_preset(weapon, n)
-            button('wslot:' .. n, tostring(n), x0 + 76 + (n - 1) * 46, sy, 40, 30, true, n == ui.wslot, saved and GOLD)
-        end
-        local chosen = presets.weapon_preset(weapon, ui.wslot)
-        button('wpreset:save', 'Save', x0 + 316, sy, 90, 30, true)
-        button('wpreset:load', 'Load', x0 + 412, sy, 90, 30, chosen ~= nil)
-        button('wpreset:clear', 'Clear', x0 + 508, sy, 90, 30, chosen ~= nil)
-        local bottom = H - 70 - 40
+        local bottom = H - 78
         -- an armor passive (offline): the passives stacked on it, under its rows
         local stack_id = MOD.offline and weapon.passive and tables[weapon.passive] and tables[weapon.passive].index.id
         local stack_list = stack_id and (settings.stacks[stack_id] or {})
@@ -20834,7 +20743,7 @@ local function draw(width, height)
                             shown = k
                             note = 'shared with ' .. table.concat(others, ', ', 1, k) ..
                                    (#others > k and (' +' .. (#others - k)) or '')
-                            if k == 1 or not ink_font or width(note, 14 * s) <= room * s then break end
+                            if k == 1 or not ink_font or width(note, 14 * s) <= room * sx then break end
                         end
                     end
                     -- a section's name: gold in a band with a bar at its left, unlike the rows under it
@@ -20889,7 +20798,16 @@ local function draw(width, height)
                         tip_overlay = { lines = tip, x = x0, y = y + bh + 2 }
                     end
                 end
-                if row.readonly_text then
+                if row.custom_action then
+                    button('preload_action:'..n,row.custom_text and row.custom_text()or'Run',790,y,164,bh,true)
+                    region('row:'..n,x0-6,y-1,430,pitch-1)
+                elseif row.custom_edit then
+                    local typing=ui.value and ui.value.weapon==weapon and ui.value.n==n
+                    if typing or ui.hover=='value:'..n then rect(636,y,318,bh,color(20,26,34),951);outline(636,y,318,bh,GOLD)end
+                    text(typing and(ui.value.text..'_')or row.custom_text(),weapon.save_loadout and 930 or 950,y+bh/2-8,17,ink,weapon.save_loadout and 290 or 310,true)
+                    button('reset:'..n,'R',958,y,26,bh,row.custom_reset~=nil)
+                    region('row:'..n,x0-6,y-1,430,pitch-1);region('value:'..n,636,y,318,bh,true)
+                elseif row.readonly_text then
                     local value=type(row.readonly_text)=='function'and row.readonly_text()or row.readonly_text
                     text(value, 954, y + bh / 2 - 8, 17, WHITE, 330, true)
                     region('row:' .. n, x0 - 6, y - 1, W - x0 - 10, pitch - 1)
@@ -20985,8 +20903,8 @@ local function draw(width, height)
             rect(989, ty, 5, th, hot and GOLD or color(110, 124, 138), 952)
             region('sbar:track', 986, top, 12, len)
             region('sbar:thumb', 986, ty, 12, th)
-            ui.sbar = { id = 'scroll', top = height - oy - top * s, bottom = height - oy - (top + len) * s,
-                        thumb_top = height - oy - ty * s, thumb = th * s, span = span }
+            ui.sbar = { id = 'scroll', top = height - oy - top * sy, bottom = height - oy - (top + len) * sy,
+                        thumb_top = height - oy - ty * sy, thumb = th * sy, span = span }
             text(string.format('rows %d-%d of %d', ui.scroll, ui.last_visible, #weapon.rows), x0, bottom + 12, 15, MUTED)
             button('scroll:up', 'Up', 790, bottom + 6, 80, 26, ui.scroll > 1)
             button('scroll:down', 'Down', 874, bottom + 6, 80, 26, ui.last_visible < #weapon.rows)
@@ -21016,51 +20934,53 @@ local function draw(width, height)
         end
     end
 
-    -- footer, and the Settings button at the bottom right
-    rect(16, H - 64, W - 32, 1, color(70, 82, 94), 951)
-    button('presets', 'Presets', W - 16 - 104 - 8 - 104, H - 54, 104, 34, true, ui.tab == 'Presets' and not ui.settings)
-    -- ('Back' alone is also a body part's name: the button's own text, 'Back (button)', in the translations)
-    local back = settings.tr('Back (button)')
-    button('settings', ui.settings and (back == 'Back (button)' and 'Back' or back) or 'Settings', W - 16 - 104, H - 54, 104, 34, true, ui.settings)
+    -- Footer text only. The desktop host owns Presets / Settings beside Write / Restore.
+    rect(16,H-64,W-32,1,color(70,82,94),951)
+    if not MOD.offline then
+        button('presets','Presets',W-232,H-54,104,34,true,ui.tab=='Presets')
+        button('settings','Settings',W-120,H-54,104,34,true,ui.settings)
+    end
     if ui.binding then
         text('Press the key that should open and close the panel: F1-F12, Insert, Home, End, Pause or Scroll Lock. Esc cancels.',
-             18, H - 56, 14, MUTED, W - 260)
+             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
     elseif ui.code then
         text('Enter the new code with the arrow keys or WASD, 9 arrows at most. Enter or Done keeps it, Backspace takes ' ..
-             'one back, Esc cancels.', 18, H - 56, 14, MUTED, W - 260)
+             'one back, Esc cancels.', 18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
     elseif ui.settings then
-        text('Settings are saved at once, in config.txt with your changes.', 18, H - 56, 14, MUTED, W - 260)
+        text('Settings are saved at once, in config.txt with your changes.', 18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
     elseif ui.editing then
         text('Type the name: Enter keeps it, Esc cancels. The game sees these keys too, so name presets from a menu.',
-             18, H - 56, 14, MUTED, W - 260)
+             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
     elseif ui.value and ui.value.setting then
         local r = settings.RANGE[ui.value.setting]
-        text(string.format('Type the percent (%d-%d): Enter sets it, Esc cancels.', r[1], r[2]), 18, H - 56, 14, MUTED, W - 260)
+        text(string.format('Type the percent (%d-%d): Enter sets it, Esc cancels.', r[1], r[2]), 18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
     elseif ui.value then
         text('Type the value: Enter sets it, Esc cancels. Values out of range are set to the nearest allowed one.',
-             18, H - 56, 14, MUTED, W - 260)
+             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
     elseif ui.search.active and not presets_tab then
         text('Type to search: Enter keeps the results, Esc clears the search. The game sees these keys too.',
-             18, H - 56, 14, MUTED, W - 260)
+             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
     elseif presets_tab then
         text('Up/Down choose, Enter loads, Insert makes a new one, Shift+Insert saves into it, F2 renames, Del deletes.',
-             18, H - 56, 14, MUTED, W - 260)
+             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
     elseif todo_view then
-        text(MOD.nav.text(MOD.nav.T.todo_help), 18, H - 56, 14, MUTED, W - 260)
+        text(MOD.nav.text(MOD.nav.T.todo_help), 18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
     else
         text('Up/Down choose a stat, Left/Right change it (Shift: bigger steps), click a value or press Enter to type it,',
-             18, H - 56, 14, MUTED, W - 260)
+             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
     end
     if ui.message then
-        text(ui.message.text, 18, H - 34, 14, GOOD, W - 260)
+        text(ui.message.text, 18, H - 34, 14, GOOD, MOD.offline and W-36 or W-260)
+    elseif MOD.offline and state.host_status then
+        text(state.host_status(),18,H-34,14,MUTED,W-36)
     elseif presets_tab then
         text('Overwriting and deleting ask twice. Changes apply at once and are saved; ' .. #overrides ..
-             ' value(s) changed.', 18, H - 34, 14, MUTED, W - 260)
+             ' value(s) changed.', 18, H - 34, 14, MUTED, MOD.offline and W-36 or W-260)
     elseif todo_view then
-        text(MOD.nav.text(MOD.nav.T.todo_help2), 18, H - 34, 14, MUTED, W - 260)
+        text(MOD.nav.text(MOD.nav.T.todo_help2), 18, H - 34, 14, MUTED, MOD.offline and W-36 or W-260)
     else
-        text('PgUp/PgDn change weapon, Del resets, Ctrl+1-5 loads a weapon preset, Ctrl+Shift+1-5 saves one; ' .. #overrides ..
-             ' value(s) changed.', 18, H - 34, 14, MUTED, W - 260)
+        text(MOD.nav.text({'PgUp/PgDn change selection, Del resets; ','PgUp/PgDn 切换项目，Del 重置；','PgUp/PgDn 切換項目，Del 重設；'}) .. #overrides ..
+             ' value(s) changed.', 18, H - 34, 14, MUTED, MOD.offline and W-36 or W-260)
     end
     -- the passives to stack on the chosen one: over its page, until one is chosen (Cancel / Esc: none)
     if ui.stack_pick and ui.stack_pick == weapon and not ui.settings then
@@ -21135,6 +21055,10 @@ local function draw(width, height)
         local categories=MOD.weapon_categories();local h=#categories*28+8
         rect(16,124,318,h,color(12,17,23),970)
         for i,category in ipairs(categories)do button('weapon_cat:'..category.id,category.name,20,128+(i-1)*28,310,26,true,settings.weapon_category==category.id,nil,971)end
+    elseif enemy_key and ui.enemy_menu then
+        local h=#enemy_categories*28+8
+        rect(16,124,318,h,color(12,17,23),970)
+        for i,category in ipairs(enemy_categories)do button('enemy_cat:'..category.id,category.name,20,128+(i-1)*28,310,26,true,settings[enemy_key]==category.id,nil,971)end
     end
     return regions
 end
@@ -21208,6 +21132,24 @@ local function click(key)
             else settings.component_category=arg end
             ui.component_menu=nil;ui.page=1;MOD.component_reselect();mark_config_dirty()
         end
+    elseif kind=='enemy_cat'then
+        local categories,key=MOD.enemy_categories()
+        if not key then
+        elseif arg=='menu'then ui.enemy_menu=not ui.enemy_menu
+        else
+            if arg=='prev'or arg=='next'then
+                local at=1
+                for i,c in ipairs(categories)do if c.id==settings[key]then at=i end end
+                at=(at-1+(arg=='next'and 1 or-1))%#categories+1;settings[key]=categories[at].id
+            else settings[key]=arg end
+            ui.enemy_menu=nil;ui.page=1
+            if key=='enemy_category'and MOD.ENEMY_SLOTS[settings[key]]then ui.tab=settings[key]end
+            local list=weapons_in(ui.search.text~=''and'?search'or ui.tab)
+            local keep=false
+            for _,w in ipairs(list)do if w==ui.weapon then keep=true;break end end
+            select_weapon(keep and ui.weapon or list[1])
+            mark_config_dirty();ui.version=ui.version+1
+        end
     elseif kind=='weapon_cat'then
         if arg=='menu'then ui.weapon_menu=not ui.weapon_menu
         else
@@ -21235,6 +21177,7 @@ local function click(key)
             mark_config_dirty()
         end
     elseif kind == 'nav' or kind == 'cat' then
+        ui.workspace_return=nil;ui.editing=nil;ui.confirm=nil
         -- a page (the host's bar: 'nav:<page>'), a sub-page (the tab row: 'nav:<page>:<n>'), or a tab of the
         -- sub-page shown (the title's line: 'cat:<tab>')
         local nav, page, k, tab = ui.nav, nil, nil, nil
@@ -21268,6 +21211,10 @@ local function click(key)
                     for _, s in ipairs(shown) do if s == t then return true end end
                     return false
                 end
+                if tab == 'Enemies' then
+                    tab = MOD.ENEMY_SLOTS[settings.enemy_category] and settings.enemy_category
+                          or MOD.ENEMY_SLOTS[ui.tab] and ui.tab or MOD.ENEMY_SLOTS[nav.cat[key]] and nav.cat[key] or 'Terminids'
+                end
                 -- the tab clicked, else the one shown, else the one this sub-page was left on, else its first
                 if not (tab and has(tab)) then
                     tab = has(ui.tab) and ui.tab or has(nav.cat[key]) and nav.cat[key] or shown[1] or sub.tabs[1]
@@ -21283,6 +21230,10 @@ local function click(key)
                         nav.cat[key], ui.tab = tab, tab
                     end
                     local function ok(p) return p and #p.rows > 0 and (settings.weapon_category == 'all' and MOD.WEAPON_SLOTS[p.slot] or p.slot == tab) end
+                    if not ok(w) then w = nav.weapon[tab] and by_hash[nav.weapon[tab]] end
+                    if not ok(w) then w = weapons_in(tab)[1] end
+                elseif sub.enemy_browser and MOD.ENEMY_SLOTS[tab] then
+                    local function ok(p) return p and #p.rows > 0 and (settings.enemy_category == 'all' and MOD.ENEMY_SLOTS[p.slot] or p.slot == tab) end
                     if not ok(w) then w = nav.weapon[tab] and by_hash[nav.weapon[tab]] end
                     if not ok(w) then w = weapons_in(tab)[1] end
                 elseif not (w and MOD.nav.tab_of(w) == tab) then
@@ -21308,13 +21259,15 @@ local function click(key)
         MOD.restore_last()
         mark_config_dirty()
     elseif kind == 'close' then ui.close_request = true   -- closed by tick, once this frame is done
-    elseif kind == 'settings' then ui.settings = not ui.settings
-    elseif kind == 'presets' then   -- Presets, or back to the tab before them
-        if ui.tab == 'Presets' and not ui.settings then ui.tab = ui.before_presets or settings.shown_tabs()[1] or 'Primary'
-        elseif ui.tab ~= 'Presets' then ui.before_presets, ui.tab = ui.tab, 'Presets' end
-        ui.page, ui.search, ui.settings = 1, { text = '', active = false }, false
-    elseif kind == 'value' and (arg == 'size' or arg == 'opacity') then
-        if not ui.value then ui.value = { n = arg, setting = arg, text = tostring(settings[arg]), fresh = true } end
+    elseif kind=='settings'or kind=='presets'then return MOD.workspace.open(kind)
+    elseif kind=='workspace_back'then return MOD.workspace.open('editor')
+    elseif kind=='preset_scope'then return presets.select_scope(arg)
+    elseif kind == 'value' and (arg == 'size' or arg == 'opacity' or settings.DISPLAY[arg]) then
+        if not ui.value then
+            local text = tostring(settings[arg])
+            if arg == 'render_height' then local w, h = settings.display_size(); text = w and (w .. 'x' .. h) or '' end
+            ui.value = { n = arg, setting = arg, text = text, fresh = true }
+        end
     elseif kind == 'set' then
         local name, value = arg:match('^([%w_]+):?(.*)$')
         if name == 'bind' then ui.binding = not ui.binding or nil
@@ -21335,6 +21288,19 @@ local function click(key)
             local v = settings[name]
             settings.set_percent(name, value == 'up' and math.floor(v / 5) * 5 + 5 or math.ceil(v / 5) * 5 - 5)
         elseif name == 'size' or name == 'opacity' then settings.set_percent(name, tonumber(value) or settings[name])
+        elseif name == 'font_px' then
+            local v = settings.font_px
+            if value == 'up' then settings.set_percent(name, v + 1)
+            elseif value == 'down' then settings.set_percent(name, v - 1)
+            elseif value == 'reset' then settings.set_percent(name, 16) end
+            settings.apply_display()
+        elseif name == 'render_height' then
+            local _, now = settings.display_size()
+            local v = settings.render_height > 0 and settings.render_height or now or 1080
+            if value == 'up' then settings.set_render(math.floor(v / 60) * 60 + 60)
+            elseif value == 'down' then settings.set_render(math.max(360, math.ceil(v / 60) * 60 - 60))
+            elseif value == 'auto' then settings.set_render(0) end
+            settings.apply_display()
         elseif name == 'side' then settings.side = value
         elseif name == 'tab' then
             local on = 0
@@ -21373,13 +21339,8 @@ local function click(key)
             reset_all()
         end
     elseif kind == 'reset_weapon' and weapon then reset_weapon(weapon)
-    elseif kind == 'wslot' then ui.wslot = tonumber(arg) or 1
-    elseif kind == 'wpreset' and weapon then
-        if arg == 'save' then presets.save_weapon_preset(weapon, ui.wslot)
-        elseif arg == 'load' then presets.load_weapon_preset(weapon, ui.wslot)
-        elseif arg == 'clear' then presets.clear_weapon_preset(weapon, ui.wslot) end
     elseif kind == 'fslot' then ui.fslot = tonumber(arg)
-    elseif kind == 'fpage' then ui.fpage = math.max(1, ui.fpage + (arg == 'next' and LIST_ROWS or -LIST_ROWS))
+    elseif kind == 'fpage' then ui.fpage = math.max(1,ui.fpage+(arg=='next'and(ui.preset_rows or LIST_ROWS)or-(ui.preset_rows or LIST_ROWS)))
     elseif kind == 'name' then presets.finish_rename(arg == 'ok')
     elseif kind == 'fpreset' then
         local n = presets.chosen()
@@ -21428,6 +21389,8 @@ local function click(key)
             ui.expanded_components[k] = not ui.expanded_components[k] or nil
             weapon.sync_rows(row.component)
             ui.version = ui.version + 1
+        elseif kind=='preload_action'and row.custom_action then
+            if settings.changes then local ok,why=row.custom_action();if not ok then ui.message={text=tostring(why),till=api.now()+8}end;ui.version=ui.version+1 end
         elseif kind == 'dec' then change(row, -1, false)
         elseif kind == 'dec_big' then change(row, -1, true)
         elseif kind == 'inc' then change(row, 1, false)
@@ -21437,10 +21400,13 @@ local function click(key)
             if ui.code then MOD.code.finish(true) else MOD.code.start(tonumber(arg)) end
         elseif kind == 'value' and row.code then MOD.code.start(tonumber(arg))
         elseif kind == 'value' and not row.link_only and not ui.value and row_value(row) ~= nil then
-            ui.value = { n = tonumber(arg), weapon = weapon, text = row.hash64 and MOD.stratagem.hash_text(row)or fmt(row_value(row), row.storage), fresh = true }
+            ui.value = { n = tonumber(arg), weapon = weapon, text = row.input_text and row.input_text()or row.hash64 and MOD.stratagem.hash_text(row)or fmt(row_value(row), row.storage), fresh = true }
         end
     end
 end
+
+state.workspace_mode=MOD.workspace.mode
+state.open_workspace=MOD.workspace.open
 
 -- the window's pages (offline/host.lua's bar at the top): their names, the one shown, and a click on one
 state.nav_pages = function()
@@ -21576,7 +21542,7 @@ local function keyboard(now)
             edit.fresh = false
         end
         local function add(c)
-            if c:find('^[%d%.,%-]$') then
+            if c:find('^[%d%.,%-]$') or (edit.setting == 'render_height' and c:find('^[xX%*]$')) then
                 if edit.fresh then edit.text, edit.fresh = '', false end
                 if #edit.text < 16 then edit.text = edit.text .. c end
             end
@@ -21620,18 +21586,36 @@ local function keyboard(now)
         return
     end
     if ui.settings then
-        if pressed('Escape', now) then ui.settings = false end
+        if pressed('Escape',now)then MOD.workspace.open('editor')end
         return
     end
     if ui.stack_pick then   -- the passive picker is open: Esc closes it
         if pressed('Escape', now) then ui.stack_pick = nil end
         return
     end
+    if ui.tab == 'Presets' then
+        if pressed('Escape',now)then MOD.workspace.open('editor');return end
+        local order, n = presets.full_order(), presets.chosen()
+        local at = 0
+        for k, m in ipairs(order) do if m == n then at = k end end
+        if #order > 0 then
+            if pressed('Down', now) then presets.show(order[at % #order + 1]) end
+            if pressed('Up', now) then presets.show(order[(at - 2) % #order + 1]) end
+        end
+        n = presets.chosen()
+        if pressed('Insert', now) then
+            if key_down(VK.Shift) then if n then presets.confirm('save', n) end else presets.new_full_preset() end
+        end
+        if n and pressed('Enter', now) then presets.load_full_preset(n) end
+        if n and pressed('F2', now) then presets.start_rename(n) end
+        if n and pressed('Delete', now) then presets.confirm('delete', n) end
+        return
+    end
     if pressed('PageDown', now) or pressed('PageUp', now) then
         -- every page of the sub-page shown (each of its tabs), in turn
         local all = {}
         local _, sub = MOD.nav.current()
-        if sub and sub.weapon_browser then
+        if sub and (sub.weapon_browser or sub.enemy_browser and MOD.ENEMY_SLOTS[ui.tab] and settings.enemy_category == 'all') then
             all = weapons_in(ui.tab)
         else
             for _, tab in ipairs(sub and sub.tabs or {}) do
@@ -21649,33 +21633,9 @@ local function keyboard(now)
         select_weapon(all[at])
         return
     end
-    if ui.tab == 'Presets' then
-        local order, n = presets.full_order(), presets.chosen()
-        local at = 0
-        for k, m in ipairs(order) do if m == n then at = k end end
-        if #order > 0 then
-            if pressed('Down', now) then presets.show(order[at % #order + 1]) end
-            if pressed('Up', now) then presets.show(order[(at - 2) % #order + 1]) end
-        end
-        n = presets.chosen()
-        if pressed('Insert', now) then
-            if key_down(VK.Shift) then if n then presets.confirm('save', n) end else presets.new_full_preset() end
-        end
-        if n and pressed('Enter', now) then presets.load_full_preset(n) end
-        if n and pressed('F2', now) then presets.start_rename(n) end
-        if n and pressed('Delete', now) then presets.confirm('delete', n) end
-        return
-    end
     if not weapon or #weapon.rows == 0 then return end
-    if key_down(VK.Ctrl) then
-        for n = 1, presets.weapon_count do
-            if pressed('Key' .. n, now) then
-                ui.wslot = n
-                if key_down(VK.Shift) then presets.save_weapon_preset(weapon, n) else presets.load_weapon_preset(weapon, n) end
-            end
-        end
-    end
     local enter = pressed('Enter', now)
+    if enter and weapon.rows[ui.row]and weapon.rows[ui.row].custom_action then click('preload_action:'..ui.row);return end
     if enter and weapon.rows[ui.row] and weapon.rows[ui.row].collapsed_component then
         click('comp_toggle:' .. weapon.rows[ui.row].component)
         return
@@ -21684,7 +21644,7 @@ local function keyboard(now)
     if enter and weapon.rows[ui.row] and weapon.rows[ui.row].link_only then MOD.references.open(weapon.rows[ui.row]); return end
     if enter and weapon.rows[ui.row] and row_value(weapon.rows[ui.row]) ~= nil then
         local row=weapon.rows[ui.row]
-        ui.value = { n = ui.row, weapon = weapon, text = row.hash64 and MOD.stratagem.hash_text(row)or fmt(row_value(row),row.storage), fresh = true }
+        ui.value = { n = ui.row, weapon = weapon, text = row.input_text and row.input_text()or row.hash64 and MOD.stratagem.hash_text(row)or fmt(row_value(row),row.storage), fresh = true }
         return
     end
     local moved = false
@@ -21733,6 +21693,11 @@ function ui.scroll_drag(gy)
 end
 
 function ui.wheel_scroll(notches)
+    if ui.tab=='Presets'and not ui.settings then
+        ui.fpage=math.max(1,math.min(math.max(1,#presets.full_order()-(ui.preset_rows or LIST_ROWS)+1),ui.fpage-notches*3))
+        ui.version=ui.version+1;return
+    end
+    if ui.settings then return end
     local left = ui.cursor_gx and ui.split_gx and ui.cursor_gx < ui.split_gx
     local b = left and ui.lbar or (not left and ui.weapon and ui.sbar)
     if b then ui[b.id] = math.max(1, math.min(b.span + 1, ui[b.id] - notches * 3)) end
@@ -21749,8 +21714,16 @@ local function mouse(window)
     local x, y = point[0], point[1]
     if cw <= 0 or ch <= 0 or x < 0 or y < 0 or x >= cw or y >= ch then return end
     local width, height = sr.Gui.resolution()
-    local gy = (ch - y) * height / ch
-    ui.cursor_gx = x * width / cw
+    local gy
+    local display = MOD.offline and rawget(_G, 'SHODAN_DISPLAY')
+    if display and display.to_canvas then   -- offline: the panel sits in the window at its own shape and resolution
+        local px, py = display.to_canvas(x, y)
+        if not px then return end
+        gy, ui.cursor_gx = height - py, px
+    else
+        gy = (ch - y) * height / ch
+        ui.cursor_gx = x * width / cw
+    end
     ui.cursor_gy = gy
     ui.hover = hit(ui.cursor_gx, gy, true)
     local down
@@ -22136,14 +22109,15 @@ local function panel_frame(now)
                                      ui.nav.sub[ui.nav.page] or 0, ui.page, ui.row, ui.scroll,
                                      tostring(ui.hover), tostring(ui.drag ~= nil), ui.weapon and ui.weapon.hash or '-', ui.version,
                                      tostring(ui.settings), tostring(ui.binding), hotkey_name,
-                                     #overrides, ui.wslot, tostring(ui.fslot), ui.fpage,
+                                     #overrides, presets.scope, tostring(ui.fslot), ui.fpage,
                                      state.demolition_revision or 0,
                                      MOD.component_catalog and MOD.component_catalog.revision or 0,
                                      tostring(settings.component_show_missing),settings.component_category,tostring(ui.component_menu),
                                      settings.weapon_category,tostring(ui.weapon_menu),
                                      ui.message and ui.message.text or '', ui.editing and ui.editing.text or '-',
                                      ui.search.text, tostring(ui.search.active),
-                                     ui.value and (ui.value.n .. '=' .. ui.value.text) or '-' }, '|')
+                                     ui.value and (ui.value.n .. '=' .. ui.value.text) or '-',
+                                     state.host_status and state.host_status()or'' }, '|')
     if signature ~= ui.signature then
         -- a fresh gui each time: nothing drawn before can linger
         if ui.gui then
@@ -23324,6 +23298,7 @@ local ok, failure = pcall(function()
     sr = rawget(_G, 'stingray')
     assert(type(sr) == 'table', 'the engine (stingray) is unavailable')
     load_config()
+    settings.apply_display()
     presets.load_presets()
 end)
 

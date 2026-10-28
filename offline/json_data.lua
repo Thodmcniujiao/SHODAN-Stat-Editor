@@ -7,8 +7,8 @@ local function utf8(n)
  if n<65536 then return string.char(224+math.floor(n/4096),128+math.floor(n/64)%64,128+n%64)end
  return string.char(240+math.floor(n/262144),128+math.floor(n/4096)%64,128+math.floor(n/64)%64,128+n%64)
 end
-function M.decode(s)
- assert(type(s)=='string'and #s<=16*1024*1024,'JSON must be a string no larger than 16 MiB')
+function M.decode(s,max_bytes)
+ assert(type(s)=='string'and #s<=(max_bytes or 16*1024*1024),'JSON exceeds its input size limit')
  s=s:gsub('^\239\187\191','');local i,n=1,#s
  local function fail(reason)error('JSON byte '..i..': '..reason,0)end
  local function space()local _,e=s:find('^[ \r\n\t]*',i);i=(e or i-1)+1 end
