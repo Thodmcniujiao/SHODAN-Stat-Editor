@@ -86,12 +86,12 @@ E.change(raw,0,false,65535)
 E.change(find(w,'project_decal'),0,false,0);E.change(find(w,'can_pass_through_shield'),0,false,0)
 local expected_flags=65535-64-1024
 assert(E.row_value(raw)==expected_flags)
-E.presets.save_weapon_preset(w,2)
-local preset=E.presets.weapon_preset(w,2);local count=0
+TEST_PRESETS_HELPER.save(E,w,2)
+local preset=TEST_PRESETS_HELPER.values(E,w,2);local count=0
 for _,v in ipairs(preset)do if v.id=='projectile_flags_1'then count=count+1;assert(v.value==expected_flags)end end
 assert(count==1,'packed bit views duplicated the canonical preset value')
 E.reset_weapon(w);assert(bytes()==original)
-E.presets.load_weapon_preset(w,2);assert(E.row_value(raw)==expected_flags)
+TEST_PRESETS_HELPER.load(E,w,2);assert(E.row_value(raw)==expected_flags)
 assert(E.row_value(find(w,'project_decal'))==0 and E.row_value(find(w,'can_pass_through_shield'))==0)
 E.reset_weapon(w);assert(bytes()==original)
 -- Exact decimal hashes, including the maximum and bit patterns resembling floats.
@@ -119,10 +119,10 @@ for _,h in ipairs(G.headers(plain,n))do if h.type==E.T_PROJECTILE then
  assert(h.size>16+count*C.SIZE and not E.parse_rows(blob,C.SIZE,{}),'fixture did not exercise a grown table')
 end end
 assert(verified);G.free(plain)
-E.presets.save_weapon_preset(w,1);assert(E.save_config())
+TEST_PRESETS_HELPER.save(E,w,1);assert(E.save_config())
 assert(read(I.home..'/config.txt'):find('hud_icon_lo ',1,true))
 E.reset_weapon(w);assert(bytes()==original)
-E.presets.load_weapon_preset(w,1);assert(bytes()==expected_bytes);E.reset_weapon(w);assert(bytes()==original)
+TEST_PRESETS_HELPER.load(E,w,1);assert(bytes()==expected_bytes);E.reset_weapon(w);assert(bytes()==original)
 -- Editing and jumping use the same typed damage/explosion references, with no inline records.
 local function double(row)
  E.select_weapon(w);local index;for i,r in ipairs(w.rows)do if r==row then index=i end end

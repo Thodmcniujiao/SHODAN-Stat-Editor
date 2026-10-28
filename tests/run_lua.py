@@ -35,7 +35,8 @@ def main():
         state=dll.luaL_newstate()
         try:
             dll.luaL_openlibs(state)
-            source='package.path='+quote(root/'offline/?.lua')+'..";"..package.path\n'
+            source='package.path='+quote(root/'offline/?.lua')+'..";"..'+quote(root/'tests/?.lua')+'..";"..package.path\n'
+            source+='TEST_PRESETS_HELPER=require("named_preset_helpers")\n'
             source+='TEST_ROOT='+quote(root)+'\n'
             if args.fixtures:source+='TEST_FIXTURES='+quote(args.fixtures)+'\n'
             if args.game:source+='TEST_GAME='+quote(args.game)+'\n'

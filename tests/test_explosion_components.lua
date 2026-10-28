@@ -92,8 +92,8 @@ assert(E.MOD.stratagem.set_hash(w,asset,'4593671620989558785'))
 E.change(find(w,'audio_event'),0,false,1069547521)
 E.change(find(w,'explosion_flags'),0,false,255);E.change(find(w,'do_knockback'),0,false,0)
 local expected=ffi.string(file.p,file.n)
-E.presets.save_weapon_preset(w,1);assert(E.save_config())
-local preset=E.presets.weapon_preset(w,1);local flags=0
+TEST_PRESETS_HELPER.save(E,w,1);assert(E.save_config())
+local preset=TEST_PRESETS_HELPER.values(E,w,1);local flags=0
 for _,v in ipairs(preset)do if v.id=='explosion_flags'then flags=flags+1;assert(v.value==254)end end
 assert(flags==1,'packed views duplicated the preset')
 local staged=H.diff();assert(#staged==1 and #staged[1].floats==0,'uint64/ID bits used as float correction salt')
@@ -105,7 +105,7 @@ for _,h in ipairs(G.headers(plain,n))do if h.type==E.T_EXPLOSION then
 end end
 G.free(plain)
 E.reset_weapon(w);assert(ffi.string(file.p,file.n)==file_before)
-E.presets.load_weapon_preset(w,1);assert(ffi.string(file.p,file.n)==expected)
+TEST_PRESETS_HELPER.load(E,w,1);assert(ffi.string(file.p,file.n)==expected)
 E.reset_weapon(w);assert(ffi.string(file.p,file.n)==file_before)
 local function double(page,row)
  E.select_weapon(page);local index;for i,r in ipairs(page.rows)do if r==row then index=i end end

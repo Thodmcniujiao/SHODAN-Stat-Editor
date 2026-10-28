@@ -165,6 +165,24 @@ local function changes(f)
     -- A uint64 hash can have a low/high half that happens to look like f32. Never use those bits
     -- as a variable hash-correction salt. Known resource-bearing records only offer actual float members.
     local stratagem_floats
+    local nonfloats={}
+    if f.name=='generated_entities.dl_bin'then
+        -- CharacterName is exclusively enums, localization IDs and a one-byte flag.
+        -- Integer IDs may have float-looking bits; never change them as a checksum salt.
+        local PC=require('preload_components')
+        for _,h in ipairs(G.headers(f.p,f.n))do if h.type==0x7655097B or PC.ENTITY_TYPES[h.type]then
+            local first,last=h.at+24,h.at+24+h.size-1
+            for off=first-first%4,last-last%4,4 do nonfloats[off]=true end
+        end end
+    end
+    -- Package hash halves are integers even when their bits resemble a float.
+    local PC=require('preload_components')
+    for _,h in ipairs(G.headers(f.p,f.n))do if PC.data.schemas[h.type]then
+        local P=h.at+24
+        for off in pairs(PC.protected_offsets(h.type,ffi.string(f.p+P,h.size),tonumber(ffi.cast('uintptr_t',f.p+P))))do
+            for byte=P+off,P+off+3 do nonfloats[byte-byte%4]=true end
+        end
+    end end
     if f.name=='generated_stratagem_settings.dl_bin'then
         stratagem_floats={}
         for _,h in ipairs(G.headers(f.p,f.n))do if h.type==0x30EB6399 then
@@ -172,6 +190,13 @@ local function changes(f)
             if 16+count*400<=h.size then for i=0,count-1 do
                 for _,off in ipairs({84,88,92,96,100,104,108})do stratagem_floats[P+16+i*400+off]=true end
             end end
+        end end
+    elseif f.name=='generated_font_settings.dl_bin'then
+        stratagem_floats={}
+        local C=require('identity_components')
+        for _,h in ipairs(G.headers(f.p,f.n))do if h.type==C.FONT then
+            local index=C.font_parse(ffi.string(f.p+h.at+24,h.size))
+            if index then for _,off in ipairs(index.floats)do stratagem_floats[h.at+24+off]=true end end
         end end
     elseif f.name=='generated_projectile_settings.dl_bin'or f.name=='generated_explosion_settings.dl_bin'or f.name=='generated_arc_settings.dl_bin'or f.name=='generated_beam_settings.dl_bin'or f.name=='generated_status_effect_settings.dl_bin'then
         stratagem_floats={}
@@ -195,7 +220,7 @@ local function changes(f)
     for o in pairs(words) do
         local v = ffi.cast('float *', orig + o)[0]
         local i = u32(orig, o)
-        if (not stratagem_floats or stratagem_floats[o])and v == v and math.abs(v) >= 1e-4 and math.abs(v) < 1e7 and i >= 0x38D1B717 then floats[#floats + 1] = o end
+        if not nonfloats[o]and(not stratagem_floats or stratagem_floats[o])and v == v and math.abs(v) >= 1e-4 and math.abs(v) < 1e7 and i >= 0x38D1B717 then floats[#floats + 1] = o end
     end
     table.sort(floats)
     return orig, n, changed, floats
@@ -210,6 +235,14 @@ function M.diff()
     end
     table.sort(out, function(x, y) return x.name < y.name end)
     return out
+end
+-- A semantic editor may append an array even when no existing scalar bytes changed.
+function M.snapshot(name)
+    local f=assert(M.files[name],'game table not loaded: '..name)
+    local plain,n,count,floats=changes(f)
+    if not plain then plain,n=open_base(f.cipher);count,floats=0,{}end
+    assert(plain,'could not read base table: '..name)
+    return{name=name,plain=plain,n=n,bytes=count,floats=floats,hash=f.hash}
 end
 
 -- ---------------------------------------------------------------- passive stacking

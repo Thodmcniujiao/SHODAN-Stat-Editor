@@ -225,10 +225,15 @@ function M.correct(p, n, target, edited_floats, log)
     end
     if M.murmur64(p, n) == target then return true end
     local final, whole = before_final(target, p, n)
-    -- correction header: the last aligned one if any (one unmix per salt), else the last header
+    -- The native unaligned solver supports headers at offset 4 mod 8 only.
+    -- String-bearing tables can place later LDLD blocks at any byte offset.
+    -- Prefer a supported earlier header over passing an arbitrary last header to that solver.
     local X, aligned = nil, false
     for i = #hs, 1, -1 do if hs[i].at % 8 == 0 and hs[i].at > 0 then X, aligned = hs[i].at, true; break end end
-    if not X then X = hs[#hs].at end
+    if not X then
+        for i=#hs,1,-1 do if hs[i].at%8==4 then X=hs[i].at;break end end
+    end
+    if not X then return nil,'no correction header at a supported alignment'end
     local words_end = aligned and X + 24 or X + 28   -- the words the solver writes end here
     local slots = salt_slots(p, n, hs, X, edited_floats)
     if #slots == 0 then return nil, 'nothing to vary for the hash (edit a value with decimals in this file)' end

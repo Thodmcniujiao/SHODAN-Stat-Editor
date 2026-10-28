@@ -72,10 +72,10 @@ for _,h in ipairs(G.headers(plain,n))do if h.type==E.TYPES.arc then
  assert(h.size>16+count*C.SIZE and not E.parse_rows(ffi.string(P,h.size),C.SIZE,{}),'grown-table parser not exercised')
 end end
 assert(verified);G.free(plain)
-E.presets.save_weapon_preset(w,1);assert(E.save_config())
+TEST_PRESETS_HELPER.save(E,w,1);assert(E.save_config())
 assert(read(I.home..'/config.txt'):find('explosion_effect_path_lo ',1,true))
 E.reset_weapon(w);assert(bytes()==original)
-E.presets.load_weapon_preset(w,1);assert(bytes()==expected);E.reset_weapon(w);assert(bytes()==original)
+TEST_PRESETS_HELPER.load(E,w,1);assert(bytes()==expected);E.reset_weapon(w);assert(bytes()==original)
 assert(E.MOD.references.type_of(find(w,'type'))=='arc_id')
 assert(not E.MOD.references.type_of(find(w,'explosion_effect_path')))
 assert(not E.MOD.references.type_of(find(w,'hit_effect_damage_type')))

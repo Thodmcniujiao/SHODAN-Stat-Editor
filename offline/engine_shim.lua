@@ -53,6 +53,11 @@ for _, declaration in ipairs({
     'int DeleteObject(void *object);',
     'int DeleteDC(void *dc);',
     'int BitBlt(void *dc, int x, int y, int w, int h, void *src, int sx, int sy, uint32_t op);',
+    'int StretchBlt(void *dc, int x, int y, int w, int h, void *src, int sx, int sy, int sw, int sh, uint32_t op);',
+    'int SetStretchBltMode(void *dc, int mode);',
+    'int SetBrushOrgEx(void *dc, int x, int y, void *old);',
+    'int PatBlt(void *dc, int x, int y, int w, int h, uint32_t op);',
+    'int IsZoomed(void *window);',
     'void *CreateFontW(int h, int w, int esc, int orient, int weight, uint32_t italic, uint32_t underline,'
         .. ' uint32_t strike, uint32_t charset, uint32_t out, uint32_t clip, uint32_t quality, uint32_t pitch, const uint16_t *face);',
     'int SetBkMode(void *dc, int mode);',
@@ -72,7 +77,12 @@ for _, declaration in ipairs({
 
 local user, gdi, kernel = ffi.load('user32'), ffi.load('gdi32'), ffi.C
 
-local M = { window = nil, w = 0, h = 0, title = 'SHODAN Stat Editor Offline' }
+local M = { window = nil, w = 0, h = 0, title = 'SHODAN Stat Editor Offline Reorganized by Thodmc' }
+local function window_title(text)
+    text = tostring(text or M.title)
+    local suffix = 'Reorganized by Thodmc'
+    return text:sub(-#suffix) == suffix and text or text .. ' ' .. suffix
+end
 
 -- UTF-8 -> zero-ended UTF-16, and its length without the zero
 local function wide(text)
@@ -138,10 +148,14 @@ function M.take_typed()
 end
 
 local PANEL_W, PANEL_H = 1060, 1080   -- the panel (1000 wide) and its margins, in 1080p units
-local STYLE = 0x00CA0000   -- WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX (no resizing)
+local STYLE = 0x00CF0000   -- WS_OVERLAPPEDWINDOW: a caption, a frame to drag to any size, minimize and maximize
 
--- the client for a work area (left, top, right, bottom) and a frame `extra_h` tall: as tall as it allows (at most
--- 1350 px), panel-shaped
+-- the first client for a work area (left, top, right, bottom) and a frame `extra_h` tall: as tall as it allows (at
+-- most 1350 px), panel-shaped. The window can then be dragged to any size or maximized: the panel fills it (its
+-- layout stretches to the window's shape, its text keeps its proportions).
+-- M.display (杂项与设置 › 修改器设置, applied by M.set_display): font, the text's size (1 = as drawn); height, the
+-- resolution drawn at (the back buffer's height in pixels, its width the panel's shape; 0 = the window's own).
+M.display = { font = 1, height = 0 }
 local function client_for(work, extra_h)
     local ch = math.floor(math.min(work[3] - work[1] - extra_h, 1.25 * 1080) * 0.95)
     return math.floor(ch * PANEL_W / PANEL_H + 0.5), ch
@@ -168,28 +182,46 @@ local function back_buffer(cw, ch)
     return true
 end
 
--- Sizes the window for the work area of the screen it is on (its frame as that screen's scale draws it), inside
--- that work area, and its back buffer with it (the panel follows Gui.resolution).
+-- The panel's place in the client (M.vx, M.vy, M.vw, M.vh: all of it) and the back buffer it is drawn into (M.w x
+-- M.h: the client's size, or the height chosen at the client's shape, stretched to it).
 local window_rect, client_rect = ffi.new('int32_t[4]'), ffi.new('int32_t[4]')
 local function fit()
     local screen = user.MonitorFromWindow(M.window, 2)   -- MONITOR_DEFAULTTONEAREST
     M.monitor = handle(screen)
-    if not screen_work(screen) then return end
-    local work = monitor_info + 5
-    user.GetWindowRect(M.window, window_rect)
     user.GetClientRect(M.window, client_rect)
-    local extra_w = window_rect[2] - window_rect[0] - client_rect[2]
-    local extra_h = window_rect[3] - window_rect[1] - client_rect[3]
-    local cw, ch = client_for(work, extra_h)
-    local w, h = cw + extra_w, ch + extra_h
-    local x = math.max(work[0], math.min(window_rect[0], work[2] - w))
-    local y = math.max(work[1], math.min(window_rect[1], work[3] - h))
-    user.SetWindowPos(M.window, nil, x, y, w, h, 0x14)   -- SWP_NOZORDER | SWP_NOACTIVATE
-    if cw ~= M.w or ch ~= M.h or not M.dib then back_buffer(cw, ch) end
+    local cw, ch = math.max(1, client_rect[2]), math.max(1, client_rect[3])
+    M.cw, M.ch, M.vw, M.vh, M.vx, M.vy = cw, ch, cw, ch, 0, 0   -- (the panel fills the client)
+    local bh = M.display.height > 0 and M.display.height or ch
+    local bw = M.display.height > 0 and math.floor(bh * cw / ch + 0.5) or cw   -- (a chosen height: the window's shape)
+    bw, bh = math.max(160, bw), math.max(160, bh)
+    if bw ~= M.w or bh ~= M.h or not M.dib then back_buffer(bw, bh) end
+    M.version = (M.version or 0) + 1   -- everything is painted again
+end
+
+-- Text size (a factor of the size drawn) and resolution (the back buffer's height in pixels; 0: the window's), each
+-- nil: unchanged. The back buffer follows at once.
+function M.set_display(font, height)
+    local d = M.display
+    local f = tonumber(font) or d.font
+    local h = tonumber(height) or d.height
+    if f ~= f then f = d.font end
+    f = math.max(0.5, math.min(2, f))
+    h = h ~= h and d.height or h
+    h = h <= 0 and 0 or math.max(360, math.min(4320, math.floor(h + 0.5)))
+    if f == d.font and h == d.height then return false end
+    d.font, d.height = f, h
+    if M.window ~= nil then fit() end
+    return true
+end
+
+-- a client point -> the back buffer's pixel (nil: beside the panel)
+function M.to_canvas(x, y)
+    if not M.vw or x < M.vx or y < M.vy or x >= M.vx + M.vw or y >= M.vy + M.vh then return nil end
+    return math.floor((x - M.vx) * M.w / M.vw), math.floor((y - M.vy) * M.h / M.vh)
 end
 
 function M.open(title, place)
-    M.title = title or M.title
+    M.title = window_title(title)
     if not pcall(function() return user.SetProcessDpiAwarenessContext(ffi.cast('void *', -4)) end) then
         pcall(function() return user.SetProcessDPIAware() end)
     end
@@ -220,9 +252,14 @@ function M.open(title, place)
     user.AdjustWindowRectEx(frame, STYLE, 0, 0)
     local extra_w, extra_h = frame[2] - frame[0] - 100, frame[3] - frame[1] - 100
     local cw, ch = client_for(work, extra_h)
-    local x = place and place[1] or work[0] + math.floor((work[2] - work[0] - cw - extra_w) / 2)
-    local y = place and place[2] or work[1] + math.floor((work[3] - work[1] - ch - extra_h) / 2)
-    M.window = user.CreateWindowExW(0, name, (wide(M.title)), STYLE, x, y, cw + extra_w, ch + extra_h, nil, nil, instance, nil)
+    local ww, wh = cw + extra_w, ch + extra_h
+    if place and place[3] and place[4] then   -- the size it had when it last closed, inside the work area
+        ww = math.max(400, math.min(place[3], work[2] - work[0]))
+        wh = math.max(300, math.min(place[4], work[3] - work[1]))
+    end
+    local x = place and place[1] or work[0] + math.floor((work[2] - work[0] - ww) / 2)
+    local y = place and place[2] or work[1] + math.floor((work[3] - work[1] - wh) / 2)
+    M.window = user.CreateWindowExW(0, name, (wide(M.title)), STYLE, x, y, ww, wh, nil, nil, instance, nil)
     assert(M.window ~= nil, 'could not open the window')
     M.name = name
     local dc = user.GetDC(M.window)
@@ -238,9 +275,9 @@ function M.open(title, place)
 end
 
 local msg = ffi.new('host_msg')
--- Handles the window's messages; false once the window is closed. A window moved onto another screen is sized
--- for that one (moving it is Windows' own loop inside DispatchMessageW: this runs once it is let go).
--- M.place: the window's top left, while it is not minimized.
+-- Handles the window's messages; false once the window is closed. A window dragged to another size gets a back
+-- buffer for it (dragging is Windows' own loop inside DispatchMessageW: this runs once it is let go).
+-- M.place: the window's top left and size, while it is neither minimized nor maximized.
 function M.pump()
     while user.PeekMessageW(msg, nil, 0, 0, 1) ~= 0 do
         if msg.message == 0x0102 then   -- WM_CHAR: a character for the panel, an input method's own included
@@ -252,24 +289,28 @@ function M.pump()
     end
     if M.window == nil or user.IsWindow(M.window) == 0 then return false end
     if user.IsIconic(M.window) == 0 then
-        if handle(user.MonitorFromWindow(M.window, 2)) ~= M.monitor then fit() end
-        user.GetWindowRect(M.window, window_rect)
-        M.place = { window_rect[0], window_rect[1] }
+        user.GetClientRect(M.window, client_rect)
+        if client_rect[2] ~= M.cw or client_rect[3] ~= M.ch then fit() end
+        if user.IsZoomed(M.window) == 0 then
+            user.GetWindowRect(M.window, window_rect)
+            M.place = { window_rect[0], window_rect[1], window_rect[2] - window_rect[0], window_rect[3] - window_rect[1] }
+        end
     end
     return true
 end
 
 function M.sleep(ms) kernel.Sleep(ms) end
-function M.set_title(text) user.SetWindowTextW(M.window, (wide(text))) end
+function M.set_title(text)
+    M.title = window_title(text)
+    user.SetWindowTextW(M.window, (wide(M.title)))
+end
 function M.focused() return M.window ~= nil and user.GetForegroundWindow() == M.window end
 
 -- the cursor in the client, pixels from the top left (nil outside)
 local point = ffi.new('int32_t[2]')
 function M.cursor()
     if user.GetCursorPos(point) == 0 or user.ScreenToClient(M.window, point) == 0 then return nil end
-    local x, y = point[0], point[1]
-    if x < 0 or y < 0 or x >= M.w or y >= M.h then return nil end
-    return x, y
+    return M.to_canvas(point[0], point[1])
 end
 function M.key_down(vk) return user.GetAsyncKeyState(vk) < 0 end
 
@@ -279,7 +320,7 @@ local fonts = {}
 local FACES = { ['zh-Hans'] = 'Microsoft YaHei UI', ['zh-Hant'] = 'Microsoft JhengHei UI' }
 M.lang = function() return 'en' end
 local function font_of(size, bold)
-    local h = math.max(6, math.floor(size + 0.5))
+    local h = math.max(6, math.floor(size * M.display.font + 0.5))
     local face = FACES[M.lang()] or 'Segoe UI'
     local key = face .. h .. (bold and 'b' or '')
     if not fonts[key] then
@@ -369,7 +410,17 @@ function M.present()
     gdi.GdiFlush()
     if user.IsIconic(M.window) ~= 0 then return end
     local dc = user.GetDC(M.window)
-    gdi.BitBlt(dc, 0, 0, M.w, M.h, M.dc, 0, 0, 0x00CC0020)   -- SRCCOPY
+    local cw, ch, vx, vy, vw, vh = M.cw, M.ch, M.vx, M.vy, M.vw, M.vh
+    -- the bars beside the panel: black (BLACKNESS)
+    if vx > 0 then gdi.PatBlt(dc, 0, 0, vx, ch, 0x42); gdi.PatBlt(dc, vx + vw, 0, cw - vx - vw, ch, 0x42) end
+    if vy > 0 then gdi.PatBlt(dc, 0, 0, cw, vy, 0x42); gdi.PatBlt(dc, 0, vy + vh, cw, ch - vy - vh, 0x42) end
+    if vw == M.w and vh == M.h then
+        gdi.BitBlt(dc, vx, vy, M.w, M.h, M.dc, 0, 0, 0x00CC0020)   -- SRCCOPY
+    else   -- another resolution: stretched to the panel's place (HALFTONE: smoothed)
+        gdi.SetStretchBltMode(dc, 4)
+        gdi.SetBrushOrgEx(dc, 0, 0, nil)
+        gdi.StretchBlt(dc, vx, vy, vw, vh, M.dc, 0, 0, M.w, M.h, 0x00CC0020)
+    end
     user.ReleaseDC(M.window, dc)
 end
 
@@ -429,7 +480,7 @@ function M.engine()
                            c = color or { 255, 255, 255, 255 } })
             end,
             text_extents = function(gui, text, font, size)
-                return Vector3(0, -size * 0.2, 0), Vector3(M.text_width(tostring(text), size), size * 0.8, 0)
+                return Vector3(0, -size * 0.2, 0), Vector3(M.text_width(tostring(text), size), size * 0.8 * M.display.font, 0)
             end,
             material = function() return 'material' end,
         },

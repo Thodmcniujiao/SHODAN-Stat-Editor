@@ -108,10 +108,10 @@ for _,h in ipairs(G.headers(plain,n))do if h.type==E.T_STATUS then local P=h.at+
  assert(ffi.string(plain+P,file.n-P)==expected:sub(P+1),'builder changed status data, strings or array elements')
 end end
 G.free(plain)
-E.presets.save_weapon_preset(w,1);assert(E.save_config())
-local n=0;for _,v in ipairs(E.presets.weapon_preset(w,1))do if v.id=='status_flags'then n=n+1;assert(v.value==247)end end;assert(n==1)
+TEST_PRESETS_HELPER.save(E,w,1);assert(E.save_config())
+local n=0;for _,v in ipairs(TEST_PRESETS_HELPER.values(E,w,1))do if v.id=='status_flags'then n=n+1;assert(v.value==247)end end;assert(n==1)
 E.reset_weapon(w);assert(ffi.string(file.p,file.n)==initial)
-E.presets.load_weapon_preset(w,1);assert(ffi.string(file.p,file.n)==expected);E.reset_weapon(w);assert(ffi.string(file.p,file.n)==initial)
+TEST_PRESETS_HELPER.load(E,w,1);assert(ffi.string(file.p,file.n)==expected);E.reset_weapon(w);assert(ffi.string(file.p,file.n)==initial)
 local reference=find(w,'damage_info_type');local id=E.MOD.records.ids(E.T_DAMAGE)[1]
 E.ui.weapon=w;E.change(reference,0,false,id);E.change(reference,0,false,4294967295);assert(E.row_value(reference)==id)
 E.select_weapon(w);local i;for n,r in ipairs(w.rows)do if r==reference then i=n end end

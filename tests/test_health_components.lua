@@ -41,20 +41,15 @@ E.ui.weapon=unknown;local p=unknown.by_id.health;local original_value=E.row_valu
 E.change(p.row,0,false,original_value+10);assert(E.row_value(p.row)==original_value+10)
 assert(E.save_config());assert(read(I.home..'/config.txt'):find(unknown.hash..' health ',1,true))
 E.reset_row(unknown,p.row)
-state.nav_open('components',12);assert(E.ui.tab=='HealthComponents'and not state.component_view())
+local function open(tab)
+ local parent,k=assert(E.MOD.nav.locate(tab));state.nav_open(parent.id,k);E.click('cat:'..tab)
+ assert(E.ui.tab==tab)
+end
+open('HealthComponents');assert(not state.component_view())
 E.ui.search.text='F79CD8BB654397DF';local results=E.weapons_in('?search');assert(#results==1 and results[1]==page)
-state.nav_open('components',13);assert(state.component_view()=='demolition')
-local tabs=state.component_tabs();assert(tabs[9].label=='Health'and tabs[10].label=='Demolition'and tabs[10].selected)
-panel.options.component_tabs=state.component_tabs
-panel.options.open_component_sub=function(n)state.nav_open('components',n)end
-local capture={};local shim={h=1080,w=1060,fill=function()end,flush=function()end,text_height=function(n)return n*1.2 end,
- text_width=function(s,n)return #s*n*.5 end,text_top=function(s)capture[#capture+1]=s end}
-panel:draw(shim)
-local health_hit;for _,hit in ipairs(panel.hits)do if hit.action=='component_sub'and hit.value==9 then health_hit=hit end end
-assert(health_hit,'Health sibling tab missing from demolition')
-local down=false;shim.focused=function()return true end;shim.key_down=function(k)return k==1 and down end
-shim.cursor=function()return health_hit.x+2,health_hit.y+2 end;shim.take_typed=function()return''end
-panel:update(shim);down=true;panel:update(shim)
+open('DemolitionComponents');assert(state.component_view()=='demolition')
+local tabs=state.component_tabs();assert(#tabs==11 and tabs[10].label=='Health and demolition'and tabs[10].selected)
+E.click('cat:HealthComponents')
 assert(E.ui.tab=='HealthComponents'and not state.component_view(),'demolition -> Health navigation failed')
 state.nav_open('enemies',1)
 assert(enemy.by_id.health and enemy.by_id.zone0_health,'original enemy settings were removed')
@@ -76,10 +71,10 @@ local info=ffi.new('host_bitmapinfo');info.size=ffi.sizeof(info);info.width,info
 local bits=ffi.new('void *[1]');local dib=gdi.CreateDIBSection(S.dc,info,0,bits,nil,0);assert(dib~=nil)
 gdi.SelectObject(S.dc,dib);S.bits=ffi.cast('uint32_t *',bits[0]);gdi.SetBkMode(S.dc,1);gdi.SetTextAlign(S.dc,24)
 E.settings.lang='zh-Hans';S.lang=function()return E.settings.lang end
-state.nav_open('components',12);E.ui.search.text='Alpha Commander';E.select_weapon(page);E.tick();S.sleep(1700);E.tick()
+open('HealthComponents');E.ui.search.text='Alpha Commander';E.select_weapon(page);E.tick();S.sleep(1700);E.tick()
 assert(state.ui_errors==0,'Health view failed to render')
 S.paint_guis({255,12,15,19});S.save_bmp(TEST_WORK..'/health-zh-Hans.bmp')
-state.nav_open('components',13);panel.options.lang=S.lang;panel.hover=nil;panel:draw(S)
+open('DemolitionComponents');E.tick();assert(state.ui_errors==0);S.paint_guis({255,12,15,19})
 S.save_bmp(TEST_WORK..'/components-demolition-zh-Hans.bmp')
 gdi.DeleteObject(dib)
 gdi.DeleteDC(S.dc)

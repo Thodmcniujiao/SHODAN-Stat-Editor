@@ -1,7 +1,19 @@
 local f=assert(io.open(TEST_ROOT..'/tests/test_editor_demolition_sync.lua','rb'));local source=f:read('*a');f:close()
 local start=assert(source:match('^(.-)local weapon=assert'))
+start=start:gsub('SHODAN_DEMOLITION_BRIDGE=bridge','SHODAN_DEMOLITION_BRIDGE=bridge;SHODAN_COMPONENT_CATALOG_SOURCE=model',1)
 local checks=[==[
 local J=require('json_data');local catalog=assert(state.component_catalog())
+local function open(tab)
+ local parent,k=assert(E.MOD.nav.locate(tab));assert(parent.id=='components')
+ state.nav_open(parent.id,k);E.click('cat:'..tab);assert(E.ui.tab==tab)
+end
+local nav=E.MOD.nav.page('components');assert(#nav.subs==14)
+local mines=nav.subs[8];assert(mines.name[2]=='地雷与投掷'and #mines.tabs==4)
+assert(table.concat(mines.tabs,',')=='MinefieldComponents,MineSpawnerComponents,ThrowableComponents,ThrowerComponents')
+local life=nav.subs[10];assert(life.name[2]=='生命与拆毁'and #life.tabs==2)
+assert(life.tabs[1]=='HealthComponents'and life.tabs[2]=='DemolitionComponents')
+assert(E.MOD.nav.locate('EagleComponents')and E.MOD.nav.locate('EagleSpawnerComponents'))
+local orbitals=E.MOD.nav.page('orbitals');assert(orbitals.subs[2].tabs[1]=='Eagle')
 assert(state.native_component_browser,'both pages must use the original GUI renderer')
 local total=#catalog.records
 assert(total>#model.targets,'directory must include entities without Unit/destruction mappings')
@@ -14,19 +26,19 @@ for _,r in ipairs(catalog.records)do
  if dp.has_component then demolition_count=demolition_count+1 else assert(#dp.rows==0)end
 end
 assert(health_count==506 and demolition_count>1700 and missing)
-state.nav_open('components',12);state.component_filter('all',true);E.ui.search.text=''
+open('HealthComponents');state.component_filter('all',true);E.ui.search.text=''
 assert(#E.weapons_in('HealthComponents')==total)
 E.click('component_missing');assert(not E.settings.component_show_missing)
 assert(#E.weapons_in('HealthComponents')==health_count)
 E.click('component_missing');assert(E.settings.component_show_missing)
 local alpha=catalog.by_entity.health.EF79CD8BB654397DF
 assert(alpha and alpha.has_component)
-E.select_weapon(alpha);E.ui.search.text='F79CD8BB654397DF';state.nav_open('components',13)
+E.select_weapon(alpha);E.ui.search.text='F79CD8BB654397DF';open('DemolitionComponents')
 assert(E.ui.tab=='DemolitionComponents'and E.ui.weapon.entity_id==alpha.entity_id)
 assert(E.ui.search.text=='F79CD8BB654397DF','switching component must preserve search')
-state.nav_open('components',12);assert(E.ui.weapon==alpha)
+open('HealthComponents');assert(E.ui.weapon==alpha)
 -- The native demolition controls use exactly the existing canonical backend.
-E.ui.search.text='';state.nav_open('components',13)
+E.ui.search.text='';open('DemolitionComponents')
 local gun=assert(catalog.by_entity.demolition.EEF85D6CF58E31D70)
 E.select_weapon(gun);local normal=assert(gun.by_id['0:normal'])
 E.change(normal.row,0,false,91)
@@ -46,7 +58,7 @@ assert(catalog.by_entity.demolition.EF79CD8BB654397DF.name=='Renamed Alpha')
 assert(catalog.by_entity.health.EF79CD8BB654397DF.category=='other','explicit entity entry must beat rules')
 assert(catalog.by_entity.health.EEF85D6CF58E31D70.category=='custom','component rule did not match')
 assert(E.by_hash.F79CD8BB654397DF.name=='Alpha Commander','JSON metadata must not rename the original enemy editor')
-state.nav_open('components',12);state.component_filter('other',true);E.ui.search.text='Renamed Alpha'
+open('HealthComponents');state.component_filter('other',true);E.ui.search.text='Renamed Alpha'
 assert(#E.weapons_in('?search')==1)
 write(catalog.path,'{"version":');state.component_reload()
 assert(catalog.config_error and alpha.name=='Renamed Alpha','invalid JSON must preserve last valid metadata')
@@ -62,19 +74,28 @@ local info=ffi.new('host_bitmapinfo');info.size=ffi.sizeof(info);info.width,info
 local bits=ffi.new('void *[1]');local dib=gdi.CreateDIBSection(S.dc,info,0,bits,nil,0);assert(dib~=nil)
 gdi.SelectObject(S.dc,dib);S.bits=ffi.cast('uint32_t *',bits[0]);gdi.SetBkMode(S.dc,1);gdi.SetTextAlign(S.dc,24)
 E.settings.lang='zh-Hans';S.lang=function()return E.settings.lang end
-state.nav_open('components',12);E.ui.search.text='EF85D6CF58E31D70';E.select_weapon(catalog.by_entity.health.EEF85D6CF58E31D70)
+open('HealthComponents');E.ui.search.text='EF85D6CF58E31D70';E.select_weapon(catalog.by_entity.health.EEF85D6CF58E31D70)
 E.tick();S.sleep(1700);E.tick();assert(state.ui_errors==0)
 local positions={}
 for _,r in ipairs(E.ui.regions)do if r.key=='component_missing'or r.key=='component_reload'or r.key=='search'then positions[r.key]={r.x,r.y,r.w,r.h}end end
 S.paint_guis({255,12,15,19});S.save_bmp(TEST_WORK..'/browser-health.bmp')
-state.nav_open('components',13);E.tick();assert(state.ui_errors==0)
+open('DemolitionComponents');E.tick();assert(state.ui_errors==0)
 for _,r in ipairs(E.ui.regions)do local p=positions[r.key];if p then
  assert(p[1]==r.x and p[2]==r.y and p[3]==r.w and p[4]==r.h,'component UI controls moved on tab switch')
 end end
 S.paint_guis({255,12,15,19});S.save_bmp(TEST_WORK..'/browser-demolition.bmp')
-state.nav_open('components',12);E.ui.search.text=missing.entity_hash;E.select_weapon(missing);E.tick()
+open('HealthComponents');E.ui.search.text=missing.entity_hash;E.select_weapon(missing);E.tick()
 assert(state.ui_errors==0 and E.ui.weapon.component_unavailable)
 S.paint_guis({255,12,15,19});S.save_bmp(TEST_WORK..'/browser-missing.bmp')
+-- The merged group exposes all four component buttons in the title row.
+E.ui.search.text='';state.component_filter('all',false)
+for _,tab in ipairs(mines.tabs)do
+ open(tab);E.tick();assert(state.ui_errors==0)
+ local buttons={};for _,r in ipairs(E.ui.regions)do buttons[r.key]=r end
+ for _,expected in ipairs(mines.tabs)do assert(buttons['cat:'..expected],expected..' title button missing')end
+ S.paint_guis({255,12,15,19});S.save_bmp(TEST_WORK..'/merged-'..tab..'.bmp')
+end
+assert(#H.diff()==0)
 gdi.DeleteDC(S.dc)
 print('PASS: '..total..' complete catalog entries, '..health_count..' Health / '..demolition_count..' destruction mappings; identical native UI, missing-component filter, preserved selection/search, JSON rules/overrides/reload/recovery, export index and canonical writes; no game writes')
 ]==]

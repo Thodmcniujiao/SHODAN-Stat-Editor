@@ -1,0 +1,26 @@
+# Words of the hellpod components' field names (added to zh.py's Z): 简体, 繁體
+Z.update({
+'hellpod':('地狱舱','地獄艙'),'variant':('变体','變體'),'spawn':('生成','生成'),'height':('高度','高度'),'initial':('初始','初始'),
+'velocity':('速度','速度'),'breaking':('制动','制動'),'target':('目标','目標'),'audio':('音效','音效'),'thrusters':('推进器','推進器'),
+'thruster':('推进器','推進器'),'ignite':('点火','點火'),'loop':('循环','循環'),'end':('结束','結束'),'ignition':('点火','點火'),
+'entry':('再入','再入'),'woosh':('呼啸','呼嘯'),'chassi':('舱体','艙體'),'shake':('震动','震動'),'supersonic':('超音速','超音速'),
+'boom':('音爆','音爆'),'impact':('撞击','撞擊'),'bolt':('螺栓','螺栓'),'blowing':('爆开','爆開'),'lid':('舱盖','艙蓋'),
+'start':('开始','開始'),'pre':('前','前'),'riser':('渐强','漸強'),'music':('音乐','音樂'),'ground':('地面','地面'),
+'approach':('接近','接近'),'land':('着陆','著陸'),'occupied':('占用','佔用'),'light':('灯','燈'),'off':('关闭','關閉'),
+'timer':('计时','計時'),'remove':('移除','移除'),'life':('存续','存續'),'retract':('收回','收回'),'ability':('能力','能力'),
+'map':('地图','地圖'),'icon':('图标','圖示'),'name':('名称','名稱'),'payloads':('载荷','載荷'),'payload':('载荷','載荷'),
+'last':('最后','最後'),'delay':('延迟','延遲'),'disable':('禁用','停用'),'rack':('挂架','掛架'),'deploy':('部署','部署'),
+'door':('舱门','艙門'),'random':('随机','隨機'),'size':('数量','數量'),'interaction':('互动','互動'),
+})
+W.update({
+'spawn_height':('生成高度（米）','生成高度（米）'),'initial_velocity':('初始速度（米/秒）','初始速度（米/秒）'),
+'breaking_height':('制动高度（米）','制動高度（米）'),'breaking_velocity':('制动速度（米/秒）','制動速度（米/秒）'),
+'breaking_velocity_target_time':('制动时间（秒）','制動時間（秒）'),'life_time':('存续时间（秒）','存續時間（秒）'),
+'remove_time':('移除时间（秒）','移除時間（秒）'),'hellpod_variant':('地狱舱变体','地獄艙變體'),
+'occupied_light_off_timer':('占用灯熄灭计时（秒）','佔用燈熄滅計時（秒）'),'random_payload_size':('随机载荷数量','隨機載荷數量'),
+'spawn_payload_size':('生成载荷数量','生成載荷數量'),'disable_initial_interaction':('禁用初始互动','停用初始互動'),
+'last_retract_delay':('最后收回延迟（秒）','最後收回延遲（秒）'),'disable_retract':('禁用收回','停用收回'),
+})
+Z.update({'item':('物品','物品'),'apply':('应用','套用'),'deltas':('差异','差異'),'side':('侧','側'),'node':('节点','節點'),
+'rotation':('旋转','旋轉'),'offset':('偏移','偏移'),'animation':('动画','動畫'),'event':('事件','事件'),'on':('触发','觸發')})
+W.update({'apply_deltas':('应用差异','套用差異'),'rack_side':('挂架侧','掛架側'),'on_retract_ability':('收回时能力','收回時能力')})

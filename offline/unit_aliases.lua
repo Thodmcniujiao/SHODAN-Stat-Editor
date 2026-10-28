@@ -116,13 +116,15 @@ function M.plan(requests,extracted,choose_name)
             if s then
                 resources[#resources+1]={name=key,type=PTYPE,main=s}
                 changed_packages=changed_packages+1
-                local count=u32(s,8)
-                for i=0,count-1 do
-                    local at=16+i*16
-                    if s:sub(at+1,at+8)==UTYPE then
-                        local alias=s:sub(at+9,at+16)
-                        if wanted_alias[alias]then loaded_alias[alias]=true end
-                    end
+            end
+            -- A pre-existing mod can already contain the desired dependency.
+            -- It still satisfies dependency accounting when no package bytes need changing.
+            local actual=s or r.main;local count=u32(actual,8)
+            for i=0,count-1 do
+                local at=16+i*16
+                if actual:sub(at+1,at+8)==UTYPE then
+                    local alias=actual:sub(at+9,at+16)
+                    if wanted_alias[alias]then loaded_alias[alias]=true end
                 end
             end
         end
@@ -273,7 +275,8 @@ end
 function M.cache_dir(home,game,owned)
     local folder=game:gsub('\\','/'):gsub('/+$','')
     local data_root=folder:gsub('/game$','')
-    local parts={'game.dll '..stamp(folder..'/game.dll')}
+    local parts={'game.dll '..stamp(folder..'/game.dll'),'bundles.nxa '..stamp(data_root..'/bundles.nxa'),
+        'bundles.region_hints '..stamp(data_root..'/bundles.region_hints')}
     for _,name in ipairs(I.list_files(data_root,'*.patch_*'))do
         if not(owned and owned[name])then parts[#parts+1]=name..' '..stamp(data_root..'/'..name)end
     end
@@ -387,4 +390,6 @@ function M.prepare(requests,context)
     return M.plan(requests,extracted,choose)
 end
 
+M.run_jobs=run_all
+M.walk=walk
 return M

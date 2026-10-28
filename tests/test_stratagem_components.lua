@@ -105,10 +105,10 @@ E.ui.value.text='18446744073709551615';assert(state.commit_value())
 assert(C.hash_text(hash)=='18446744073709551615')
 assert(C.hash_text(row(raw,'Icon'))=='18446744073709551615')
 local now=record_bytes();assert(now:sub(1,176)==before:sub(1,176)and now:sub(185)==before:sub(185))
-E.presets.save_weapon_preset(orbital,1);assert(E.save_config())
+TEST_PRESETS_HELPER.save(E,orbital,1);assert(E.save_config())
 local cfg=read(I.home..'/config.txt');assert(cfg:find('strat_Icon_lo 4294967295',1,true)and cfg:find('strat_Icon_hi 4294967295',1,true))
 E.reset_row(orbital,hash);assert(C.hash_text(hash)==original_hash)
-E.presets.load_weapon_preset(orbital,1);assert(C.hash_text(hash)=='18446744073709551615')
+TEST_PRESETS_HELPER.load(E,orbital,1);assert(C.hash_text(hash)=='18446744073709551615')
 E.reset_weapon(orbital);assert(record_bytes()==before)
 -- Hash words that resemble floats must remain exact through authenticated build/seal/read-back.
 assert(C.set_hash(orbital,hash,'4593671620989558785')) -- low/high words resemble finite floats
