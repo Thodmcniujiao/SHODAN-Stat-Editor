@@ -81,7 +81,7 @@ SHODAN Stat Editor Offline/
 ├─ libsodium.dll                    libsodium
 ├─ shodan_hash.dll                  哈希、下载与安装辅助
 ├─ app/
-│  ├─ stat_editor.lua               面板（与 src 逐字节一致）
+│  ├─ stat_editor.lua               面板（打包时校验与 src 逐字节一致）
 │  ├─ *.lua                         运行时模块（60 个）
 │  ├─ entity_names.tsv              实体名称索引
 │  ├─ entity_catalog.default.json   实体分类模板
@@ -100,12 +100,12 @@ SHODAN Stat Editor Offline/
 | 1 | 游戏功能 | 玩家主体 · 玩家移动 · 玩家武器 · 任务设置 · 兴趣点设置 · 终端设置 · 战备设置 | ○ 占位 |
 | 2 | 人物数据 | 人物数据 · 快速编辑 | ● 可用 |
 | 3 | 材料货币 | 抓包发蓝币 · 古法刷资源 | ○ 占位 |
-| 4 | 敌人设置 | 敌人编辑 · AI 设置 · 刷怪编辑器 · 敌人替换器 | ● 3 个可用 / ○ 1 个占位 |
+| 4 | 敌人设置 | 敌人编辑 · AI设置 · 刷怪编辑器 · 敌人替换器 | ● 3 个可用 / ○ 1 个占位 |
 | 5 | 军械库 | 解锁 · 武器编辑 · 武器配件自定义 · 护甲编辑 · 强化资源 · 装备替换 · 当前装备栏编辑 | ● 5 个可用 / ○ 2 个占位 |
 | 6 | 星球任务 | 星球设置 · 本地环境实体 · 战役编辑 · 行动编辑 · 任务编辑 | ● 3 个可用 / ◐ 1 个部分 / ○ 1 个占位 |
 | 7 | 实体组件 | 武器组件 · 武器类型 · 武器配件 · 炮塔与制导 · 背包 · 挂载 · 阵营 · 地雷与投掷 · 淹没 · 生命与拆毁 · 护盾 · 地狱舱 · 接触伤害 · 飞鹰 | ● 全部可用 |
 | 8 | 轨道飞鹰 | 轨道编辑 · 飞鹰编辑 · 轨道武器编辑 | ● 全部可用 |
-| 9 | 游戏数据 | 伤害 id · 射弹 id · 爆炸 id · 电弧 id · 激光 id · 状态效果 id · 战备 id | ● 全部可用 |
+| 9 | 游戏数据 | 伤害id修改 · 射弹id修改 · 爆炸id修改 · 电弧id修改 · 激光id修改 · 状态效果id · 战备id | ● 全部可用 |
 | 10 | 杂项与设置 | 身份设置 · 已解析参数 · 修改器设置 · 预载设置 · 寻找器 | ● 2 个可用 / ◐ 1 个部分 / ○ 2 个占位 |
 
 图例：● 可用　◐ 部分可用（有占位标签）　○ 占位（只列出计划，不修改游戏）
@@ -116,9 +116,10 @@ SHODAN Stat Editor Offline/
 |---|---|
 | 武器、投掷物的数值 | 军械库 › 武器编辑 |
 | 武器配件、护甲被动、强化资源 | 军械库 › 武器配件自定义 / 护甲编辑 / 强化资源 |
-| 战备冷却、次数、指令、飞鹰、轨道、哨戒炮 | 游戏数据 › 战备 id › 战略配备 |
-| 机甲、FRV、坦克 | 游戏数据 › 战备 id › 载具 |
+| 战备冷却、次数、指令、飞鹰、轨道、哨戒炮 | 游戏数据 › 战备id › 战略配备 |
+| 机甲、FRV、坦克 | 游戏数据 › 战备id › 载具 |
 | 轨道武器、轰炸参数 | 轨道飞鹰 |
+| 飞鹰组件（接近、投弹、扫射、音效） | 实体组件 › 飞鹰 |
 | 敌人、AI、刷怪 | 敌人设置 |
 | 星球生成、环境、天气、行动、任务 | 星球任务 |
 | 某个实体的生命、护盾、武器组件等 | 实体组件 |
@@ -199,6 +200,7 @@ SHODAN Stat Editor Offline/
 | 护盾 | `ShieldComponentData`（344 字节、83 项）：容量、充能、形状、颜色、充能事件、音效、动画 |
 | 地狱舱 | 下落（26 字段 / 8 实体）、载荷（3 / 117）、挂架（124 / 72）、舰上（1 / 2） |
 | 接触伤害 | `OverlapDamageComponentData`（385 字段 / 64 实体）：每个实体 8 个伤害区域 |
+| 飞鹰 | 飞鹰组件（336 字节、82 字段、11 实体）：接近、投弹/开火、扫射、规避、音效与特效 + 飞鹰生成器（24 字节、6 字段、3 实体）：持续时间、生成冷却、风暴半径、生成的战略配备 |
 
 - **完整实体目录：** 约 3,400 个 ECS 实体和场景 Unit 合并成一份目录，生命、拆毁、淹没、护盾等页面共用。默认显示“没有本组件”的实体（灰色），可关闭。
 - **分类与命名：** 通过 `entity_catalog.json` 自定义分类、规则和实体名称；`entity_catalog.index.json` 是供外部工具查询的完整索引。JSON 只影响显示，不改游戏资源或哈希。详见 [ENTITY_CATALOG_API.md](offline/ENTITY_CATALOG_API.md)。
@@ -208,8 +210,10 @@ SHODAN Stat Editor Offline/
 #### 8. 轨道飞鹰
 
 - **轨道编辑：** StratagemType 类型（400 字节、67 个类型库成员；全表当前 153 条记录）+ 轰炸组件（192 字节、28 个字段）：每轮炮弹数、间隔、齐射轮数、散布、行进轰炸速度、8 个射弹槽等。
-- **飞鹰编辑：** EagleComponentData（重新武装、投放、运行长度等）+ StratagemType 参数组。
+- **飞鹰编辑：** EagleComponentData（336 字节、82 个字段；重新武装、投放、运行长度等）+ EagleSpawnerComponentData（24 字节、6 个字段）+ StratagemType 参数组。
 - **轨道武器编辑：** OrbitalAbilityComponentData（568 字节、140 个字段、2 条记录：轨道激光炮和轨道炮攻击），包括持续时间、追踪、伤害区域、射弹生成、特效、阵营过滤、移动轨迹和 56 个二维控制点（112 个坐标）。
+
+飞鹰组件也可以在 **实体组件 › 飞鹰** 中按实体浏览；两处使用同一组字段。
 
 三个入口共用同一套 StratagemType 字段；伤害、射弹、爆炸等引用可以双击跳转。详见 [STRATAGEM_COMPONENTS.md](offline/STRATAGEM_COMPONENTS.md)、[BOMBARDMENT_COMPONENTS.md](offline/BOMBARDMENT_COMPONENTS.md) 和 [ORBITAL_WEAPON_COMPONENTS.md](offline/ORBITAL_WEAPON_COMPONENTS.md)。
 
@@ -217,17 +221,17 @@ SHODAN Stat Editor Offline/
 
 | 子页 | 记录 | 规模 |
 |---|---|---|
-| 伤害 id | `DamageInfo` | 76 字节 / 19 个参数 |
-| 射弹 id | `ProjectileInfo` | 272 字节 / 73 项（355 条记录） |
-| 爆炸 id | `ExplosionInfo` | 152 字节 / 40 个成员（424 条记录，44 个固定项 + 震屏数组） |
-| 电弧 id | `ArcInfo` | 104 字节 / 21 个参数（16 条记录） |
-| 激光 id | `BeamInfo` | 112 字节 / 25 个成员（30 条记录） |
-| 状态效果 id | `StatusEffectInfo` | 160 字节，按标识、强度/持续时间、伤害引用、特效、音效、标志、倍率等分组 |
-| 战备 id | `StratagemInfo` | 400 字节 / 67 个成员（153 条记录）；同一子页还有 **战略配备** 和 **载具** 两个分类 |
+| 伤害id修改 | `DamageInfo` | 76 字节 / 19 个参数 |
+| 射弹id修改 | `ProjectileInfo` | 272 字节 / 73 项（355 条记录） |
+| 爆炸id修改 | `ExplosionInfo` | 152 字节 / 40 个成员（424 条记录，44 个固定项 + 震屏数组） |
+| 电弧id修改 | `ArcInfo` | 104 字节 / 21 个参数（16 条记录） |
+| 激光id修改 | `BeamInfo` | 112 字节 / 25 个成员（30 条记录） |
+| 状态效果id | `StatusEffectInfo` | 160 字节，按标识、强度/持续时间、伤害引用、特效、脚本/动画、音效、地形、标志、倍率、未知字段等分组 |
+| 战备id | `StratagemInfo` | 400 字节 / 67 个成员（153 条记录）；同一子页还有 **战略配备** 和 **载具** 两个分类 |
 
 - 引用其他记录的数值旁会标 `projectile_id`、`explosion_id`、`damage_id`、`status_effect_id`、`arc_id`、`beam_id`、`stratagem_id` 等类型。单击可编辑，**双击跳转**到对应记录；0 表示无引用，不存在的 ID 会被拒绝。
 - 跳转可以连续进行：**射弹 → 命中爆炸 → 伤害 → 状态效果**。
-- 战备 id 的“战略配备”分类就是原来的 Stratagems 页（冷却、次数、指令、飞鹰、轨道、哨戒炮、背包等），“载具”分类就是原来的 Mechas 页（机甲、FRV、坦克及其武器）。
+- 战备id 的“战略配备”分类就是原来的 Stratagems 页（冷却、次数、指令、飞鹰、轨道、哨戒炮、背包等），“载具”分类就是原来的 Mechas 页（机甲、FRV、坦克及其武器）。
 
 详见 [REFERENCE_NAVIGATION.md](offline/REFERENCE_NAVIGATION.md)、[DAMAGE_COMPONENTS.md](offline/DAMAGE_COMPONENTS.md)、[PROJECTILE_COMPONENTS.md](offline/PROJECTILE_COMPONENTS.md)、[EXPLOSION_COMPONENTS.md](offline/EXPLOSION_COMPONENTS.md)、[ARC_COMPONENTS.md](offline/ARC_COMPONENTS.md)、[BEAM_COMPONENTS.md](offline/BEAM_COMPONENTS.md)。
 
@@ -299,7 +303,7 @@ SHODAN Stat Editor Offline/
 |---|---|
 | 语言 | English / 简体中文 / 繁體中文 / Русский |
 | 应用我的修改 | 关闭后，写入游戏的是游戏原值；你的改动仍保存，重新开启后再应用 |
-| 字号 / 渲染分辨率 | 面板文字大小与绘制分辨率，可拖窗口边缘或最大化 |
+| 字体大小 / 分辨率大小 | 面板文字大小与绘制分辨率，可拖窗口边缘或最大化 |
 | 同类载具数量 | 默认关；开启后一套配装可带多台机甲、FRV 或坦克 |
 | 改进战略配备弹跳 | 默认关；战备球更容易粘在表面上 |
 | 穿透植被 | 默认关；火箭、发射器弹药和战备弹药穿过树冠/灌木 |
@@ -343,7 +347,7 @@ SHODAN Stat Editor Offline/
 | `filediver path.txt` | Filediver CLI 路径 |
 | `demolition-migration-backups\` | 旧拆毁配置迁移备份 |
 
-这些文件按需创建；删除配置目录会丢失预设和修改记录（游戏原件仍可由“恢复游戏原始文件”放回）。
+这些文件按需创建；删除配置目录会同时丢失预设、修改记录和 `originals` 游戏原件备份——删除前先点“恢复游戏原始文件”。
 
 ### 构建、打包与测试
 
@@ -375,7 +379,7 @@ python tests\run_lua.py tests\check_syntax.lua
 python tests\run_lua.py tests\test_preset_library.lua --isolated-profile --work .test-work\check
 ```
 
-部分测试需要本机游戏数据或测试夹具，按脚本参数传入 `--fixtures`、`--game` 或 `--work`。测试使用隔离配置目录，不会写入真实游戏或存档。
+部分测试需要本机游戏数据或测试夹具，按脚本参数传入 `--fixtures`、`--game` 或 `--work`。需要写入的测试使用隔离配置目录，不会写入真实游戏或存档。
 
 **CI：** `.github/workflows/dev-build.yml` 会在推送到 `main` 时构建 Development build 预发布；本 fork 关闭了客户端自动更新，CI 产物不会自动替换本地版本。
 
@@ -500,9 +504,9 @@ UI languages: **English, Simplified Chinese, Traditional Chinese, Russian**. The
 | Helldiver | On the Armors tab | Its own "Character" page: full Avatar component + quick edit |
 | Player save | No | Armory › Current loadout: local `.sav` read/write, backup, restore |
 | Planets / operations / missions | No | Planet settings, local environment entities, operation modifiers, mission components |
-| Entity components | Entity first, components second | 25 weapon component types, plus health, shield, mines, throwing, faction, mounts, backpack, turrets, hellpods, contact damage |
+| Entity components | Entity first, components second | 25 weapon component types, plus health, shield, mines, throwing, faction, mounts, backpack, turrets, hellpods, contact damage, Eagles |
 | Game data | Projectile / explosion / status records | Damage, projectile, explosion, arc, laser, status effect, stratagem; double-click to jump between ids |
-| Orbital / Eagle | Some values | Full StratagemType + bombardment component + OrbitalAbility (140 fields, 56 2-D control points) |
+| Orbital / Eagle | Some values | Full StratagemType + bombardment component + OrbitalAbility (140 fields, 56 2-D control points) + EagleComponentData (82 fields) + EagleSpawnerComponentData (6 fields) |
 | AI / spawning | Behavior and spawn rows inside the enemy pages | AI settings (5 components) + Spawn editor (HiveMind, 277 fields) |
 | Preload / packages | No | Preload: manifest merge, environment package arrays, manifest editing |
 | Presets | 5 per weapon + up to 50 full presets | Named preset library (4 scopes); old presets imported; quick slots removed |
@@ -539,7 +543,7 @@ SHODAN Stat Editor Offline/
 ├─ libsodium.dll                    libsodium
 ├─ shodan_hash.dll                  hashing, download and install helper
 ├─ app/
-│  ├─ stat_editor.lua               panel (byte-identical to src)
+│  ├─ stat_editor.lua               panel (packaging checks it against src)
 │  ├─ *.lua                         runtime modules (60)
 │  ├─ entity_names.tsv              entity name index
 │  ├─ entity_catalog.default.json   default entity categories
@@ -561,7 +565,7 @@ The window's top bar holds **pages**; under a page title are its **sub-pages**. 
 | 4 | Enemies | Enemy editor · AI settings · Spawn editor · Enemy swapper | ● 3 working / ○ 1 placeholder |
 | 5 | Armory | Unlock · Weapon editing · Weapon attachments · Armor editing · Boosters · Loadout swap · Current loadout | ● 5 working / ○ 2 placeholders |
 | 6 | Planets | Planet settings · Local environment entities · Campaign editing · Operation editing · Mission editing | ● 3 working / ◐ 1 partial / ○ 1 placeholder |
-| 7 | Components | Weapon components · Weapon kinds · Weapon attachments · Turrets and guidance · Backpack · Mounts · Faction · Mines and throwing · Drowning · Health and demolition · Shield · Hellpods · Contact damage | ● all working |
+| 7 | Components | Weapon components · Weapon kinds · Weapon attachments · Turrets and guidance · Backpack · Mounts · Faction · Mines and throwing · Drowning · Health and demolition · Shield · Hellpods · Contact damage · Eagle | ● all working |
 | 8 | Orbital & Eagle | Orbital editing · Eagle editing · Orbital weapon editing | ● all working |
 | 9 | Game data | Damage ids · Projectile ids · Explosion ids · Arc ids · Laser ids · Status effect ids · Stratagem ids | ● all working |
 | 10 | Misc & settings | Identity · Named parameters · Editor settings · Preload · Finder | ● 2 working / ◐ 1 partial / ○ 2 placeholders |
@@ -577,6 +581,7 @@ Legend: ● working　◐ partial (some placeholder tabs)　○ placeholder (lis
 | Stratagem cooldowns, uses, call-in codes, Eagles, orbitals, sentries | Game data › Stratagem ids › Stratagems |
 | Exosuits, FRVs, tanks | Game data › Stratagem ids › Vehicles |
 | Orbital weapons and barrage values | Orbital & Eagle |
+| Eagle strike components (approach, payload, audio) | Components › Eagle |
 | Enemies, AI, spawning | Enemies |
 | Planet generation, environment, weather, operations, missions | Planets |
 | One entity's health, shield, weapon components, ... | Components |
@@ -616,7 +621,7 @@ See [PLAYER_DATA.md](offline/PLAYER_DATA.md).
 - **Spawn editor:** the enemy director (HiveMind, 1084 bytes, 277 fields, 19 records) and SEAF objectives (96 bytes, 24 fields, 1 record). The Spawning page's multiplier rows share these fields.
 - **Enemy swapper:** placeholder.
 
-Opening the Enemies page turns the interface red; leaving it restores the normal colour. The old **SHODAN Enemy Editor** toggle at the top left is gone: the page replaces it, and one Install applies both editors' changes. See [ENEMY_DATA.md](offline/ENEMY_DATA.md) and [SPAWN_EDITOR.md](offline/SPAWN_EDITOR.md).
+Opening the Enemies page turns the interface red; leaving it restores the normal color. The old **SHODAN Enemy Editor** toggle at the top left is gone: the page replaces it, and one Install applies both editors' changes. See [ENEMY_DATA.md](offline/ENEMY_DATA.md) and [SPAWN_EDITOR.md](offline/SPAWN_EDITOR.md).
 
 #### 5. Armory
 
@@ -654,9 +659,10 @@ See [PLANET_SETTINGS.md](offline/PLANET_SETTINGS.md) and [MODIFIER_ATTACHMENTS.m
 | Mines and throwing | Minefield (11 fields / 13 entities), mine spawner (7 / 8), throwable (78 / 46), thrower (186 / 5) |
 | Drowning | Every field of `DrownableComponentData` (64 bytes); the helldiver shares the old "Extra" page fields |
 | Health and demolition | Health (22,096-byte records; whole body and parts) + entity demolition (thresholds 0–4,294,967,295, private templates, Unit alias isolation) |
-| Shield | `ShieldComponentData` (344 bytes, 83 items): capacity, recharge, shape, colour, charge events, audio, animation |
+| Shield | `ShieldComponentData` (344 bytes, 83 items): capacity, recharge, shape, color, charge events, audio, animation |
 | Hellpods | Descent (26 fields / 8 entities), payload (3 / 117), rack (124 / 72), ship hellpod (1 / 2) |
 | Contact damage | `OverlapDamageComponentData` (385 fields / 64 entities): 8 damage zones per entity |
+| Eagle | Eagle component (336 bytes, 82 fields, 11 entities): approach, drop/fire, strafe, evade, audio and effects + eagle spawner (24 bytes, 6 fields, 3 entities): lifetime, spawn cooldown, storm radius, spawned stratagem |
 
 - **Full entity catalog:** about 3,400 ECS entities and scene Units in one catalog, shared by the health, demolition, drowning and shield pages. Entities without the current component are shown greyed out by default and can be hidden.
 - **Categories and names:** `entity_catalog.json` customizes categories, rules and entity names; `entity_catalog.index.json` is a full index for external tools. The JSON changes display only, never game resources or hashes. See [ENTITY_CATALOG_API.md](offline/ENTITY_CATALOG_API.md).
@@ -666,8 +672,10 @@ See [PLANET_SETTINGS.md](offline/PLANET_SETTINGS.md) and [MODIFIER_ATTACHMENTS.m
 #### 8. Orbital & Eagle
 
 - **Orbital editing:** StratagemType values (400 bytes, 67 type-library members; the table currently has 153 records) + the bombardment component (192 bytes, 28 fields): bombs per salvo, intervals, salvos, spread, walking-barrage speed, 8 projectile slots and so on.
-- **Eagle editing:** EagleComponentData (rearm, payload, run length, ...) + the StratagemType parameters.
+- **Eagle editing:** EagleComponentData (336 bytes, 82 fields: rearm, payload, run length, ...) + EagleSpawnerComponentData (24 bytes, 6 fields) + the StratagemType parameters.
 - **Orbital weapon editing:** OrbitalAbilityComponentData (568 bytes, 140 fields, 2 records: the orbital laser and the orbital railcannon strike), including duration, tracking, damage area, projectile spawn, effects, faction filters, movement path and 56 2-D control points (112 coordinates).
+
+The Eagle components are also listed by entity under **Components › Eagle**; both entries use the same fields.
 
 All three use the same StratagemType fields; damage, projectile and explosion references can be double-clicked to jump. See [STRATAGEM_COMPONENTS.md](offline/STRATAGEM_COMPONENTS.md), [BOMBARDMENT_COMPONENTS.md](offline/BOMBARDMENT_COMPONENTS.md) and [ORBITAL_WEAPON_COMPONENTS.md](offline/ORBITAL_WEAPON_COMPONENTS.md).
 
@@ -680,7 +688,7 @@ All three use the same StratagemType fields; damage, projectile and explosion re
 | Explosion ids | `ExplosionInfo` | 152 bytes / 40 members (424 records; 44 fixed items + camera-shake array) |
 | Arc ids | `ArcInfo` | 104 bytes / 21 parameters (16 records) |
 | Laser ids | `BeamInfo` | 112 bytes / 25 members (30 records) |
-| Status effect ids | `StatusEffectInfo` | 160 bytes, grouped into identity, strength/duration, damage reference, effects, audio, flags, multipliers and unknown fields |
+| Status effect ids | `StatusEffectInfo` | 160 bytes, grouped by identity, strength/duration, damage reference, effects, scripts/animation, audio, terrain, flags, multipliers and unknown fields |
 | Stratagem ids | `StratagemInfo` | 400 bytes / 67 members (153 records); the same sub-page also has **Stratagems** and **Vehicles** categories |
 
 - Values that reference other records are labelled `projectile_id`, `explosion_id`, `damage_id`, `status_effect_id`, `arc_id`, `beam_id`, `stratagem_id` and so on. Click to edit, **double-click to jump** to the record; 0 means no reference, and an id that does not exist is rejected.
@@ -757,7 +765,7 @@ See [PRESETS.md](offline/PRESETS.md).
 |---|---|
 | Language | English / Simplified Chinese / Traditional Chinese / Russian |
 | Apply my changes | Off: Install writes the game's own values; your changes stay saved and come back when it is on again |
-| Font size / render resolution | Panel text size and drawing resolution. Drag the window edges or maximize it to resize the panel. |
+| Font size / resolution | Panel text size and drawing resolution. Drag the window edges or maximize it to resize the panel. |
 | Several vehicles of a kind | Off by default; on, a loadout can take more than one exosuit, FRV or tank |
 | Better stratagem bounce | Off by default; stratagem balls stick on more surfaces |
 | Foliage pass-through | Off by default; rockets, launcher rounds and stratagem ordnance fly through canopies and bushes |
@@ -801,7 +809,7 @@ All user data is in `%LOCALAPPDATA%\SHODAN\StatEditor`:
 | `filediver path.txt` | Filediver CLI path |
 | `demolition-migration-backups\` | Backups from the old demolition config migration |
 
-These are created as needed; deleting the config folder loses presets and edits (the game's originals can still be put back with Restore).
+These are created as needed; deleting the config folder also loses presets, edits and the `originals` backups of the game's files. Press Restore before deleting it.
 
 ### Building, packaging and tests
 
@@ -833,7 +841,7 @@ python tests\run_lua.py tests\check_syntax.lua
 python tests\run_lua.py tests\test_preset_library.lua --isolated-profile --work .test-work\check
 ```
 
-Some tests need the local game data or test fixtures; pass `--fixtures`, `--game` or `--work`. Tests use isolated config folders and do not write the real game or saves.
+Some tests need the local game data or test fixtures; pass `--fixtures`, `--game` or `--work`. Tests that write use an isolated config folder and do not write the real game or saves.
 
 **CI:** `.github/workflows/dev-build.yml` builds a Development build pre-release on pushes to `main`; this fork disables the client's auto-update, so a CI build never replaces the local version by itself.
 
@@ -914,7 +922,7 @@ Some tests need the local game data or test fixtures; pass `--fixtures`, `--game
 
 - **SHODAN**: the upstream SHODAN Stat Editor / SSEO.
 - **CowboyBingus**: Bingus Shared Loader, which runs the in-game version.
-- **[LuaJIT](https://luajit.org)** (MIT) and **[libsodium](https://libsodium.org)** (ISC): the bundled runtimes; their licences are in `THIRD-PARTY-NOTICES.txt`.
+- **[LuaJIT](https://luajit.org)** (MIT) and **[libsodium](https://libsodium.org)** (ISC): the bundled runtimes; their licenses are in `THIRD-PARTY-NOTICES.txt`.
 - **Skyeshade (HD2Runtime)**: weapon, stratagem and enemy catalogs and entity/Unit layout research.
 - **SweetSwallow (Gameplay Reforged: Recovery Edition)** and **Nappleon (Little Enemy Kontrol)**: references for locating enemy and spawn values.
 - **[Filediver](https://github.com/xypwn/filediver)**, **[shalzuth/HelldiversData](https://github.com/shalzuth/HelldiversData)** and **[Darctor/Helldivers2_RawData](https://github.com/Darctor/Helldivers2_RawData)**: game data layouts, field names and value comparison.
@@ -922,7 +930,7 @@ Some tests need the local game data or test fixtures; pass `--fixtures`, `--game
 - **[helldivers.io](https://helldivers.io/)** and the **[Helldivers 2 wiki](https://helldivers.wiki.gg/)**: data dumps and armor passive descriptions.
 - **DiverKit** and **HD2 HUD Plus**: references for the game's UI font.
 
-### Licence
+### License
 
 [GNU General Public License v3.0](LICENSE). You can use, change and share it, but anything you distribute that is based on it must also be released under GPL v3 with its source.
 
