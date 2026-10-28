@@ -21,8 +21,8 @@ function In-Root([string]$rel) { Join-Path $root $rel }
 Say ('项目：' + $root) 'Cyan'
 
 # ------------------------------------------------------------------ 1. 来源文件（发布路径 -> 源文件）
-$modules = 'host', 'engine_shim', 'install', 'gamedata', 'hostdata', 'update',
-           'demolition', 'demolition_panel', 'demolition_bridge', 'unit_aliases', 'entity_assets'
+# 与 package.py 一样包含 offline/ 下的全部运行时模块，避免新增组件漏打包。
+$modules = Get-ChildItem -LiteralPath (In-Root 'offline') -Filter '*.lua' -File | Sort-Object Name | Select-Object -ExpandProperty BaseName
 $files = [ordered]@{}
 $files[$exeName]             = In-Root ('offline\launcher\' + $exeName)
 $files['lua51.dll']          = In-Root 'offline\runtime\lua51.dll'
@@ -31,7 +31,20 @@ $files['shodan_hash.dll']    = In-Root 'offline\launcher\shodan_hash.dll'
 $files['app\stat_editor.lua'] = In-Root 'src\stat_editor_offline.lua'
 foreach ($m in $modules) { $files['app\' + $m + '.lua'] = In-Root ('offline\' + $m + '.lua') }
 $files['app\entity_names.tsv']  = In-Root 'offline\entity_names.tsv'
+$files['app\entity_catalog.default.json'] = In-Root 'offline\entity_catalog.default.json'
 $files['ENTITY_DEMOLITION.md']  = In-Root 'offline\ENTITY_DEMOLITION.md'
+$files['ENTITY_COMPONENTS.md']  = In-Root 'offline\ENTITY_COMPONENTS.md'
+$files['BOMBARDMENT_COMPONENTS.md'] = In-Root 'offline\BOMBARDMENT_COMPONENTS.md'
+$files['ORBITAL_WEAPON_COMPONENTS.md'] = In-Root 'offline\ORBITAL_WEAPON_COMPONENTS.md'
+$files['REFERENCE_NAVIGATION.md'] = In-Root 'offline\REFERENCE_NAVIGATION.md'
+$files['STRATAGEM_COMPONENTS.md'] = In-Root 'offline\STRATAGEM_COMPONENTS.md'
+$files['DAMAGE_COMPONENTS.md'] = In-Root 'offline\DAMAGE_COMPONENTS.md'
+$files['PROJECTILE_COMPONENTS.md'] = In-Root 'offline\PROJECTILE_COMPONENTS.md'
+$files['EXPLOSION_COMPONENTS.md'] = In-Root 'offline\EXPLOSION_COMPONENTS.md'
+$files['ARC_COMPONENTS.md'] = In-Root 'offline\ARC_COMPONENTS.md'
+$files['BEAM_COMPONENTS.md'] = In-Root 'offline\BEAM_COMPONENTS.md'
+$files['ENTITY_CATALOG_API.md'] = In-Root 'offline\ENTITY_CATALOG_API.md'
+$files['ENTITY_CATALOG_SCHEMA.json'] = In-Root 'offline\entity_catalog.schema.json'
 
 $missing = @()
 foreach ($k in $files.Keys) {
@@ -76,8 +89,10 @@ $buildTxt = "version=$version`ncommit=$commit`nchannel=local`nbuilt=$stamp`n"
 [IO.File]::WriteAllText((Join-Path $out 'app\build.txt'), $buildTxt, $utf8)
 
 # 说明与第三方许可
-$readme = In-Root ('offline\release\portable\' + $top + '\README.txt')
-if (Test-Path -LiteralPath $readme) { Copy-Item -LiteralPath $readme -Destination (Join-Path $out 'README.txt') -Force }
+$readme = In-Root 'offline\RELEASE_README.txt'
+if (Test-Path -LiteralPath $readme) {
+    [IO.File]::WriteAllText((Join-Path $out 'README.txt'), [IO.File]::ReadAllText($readme, $utf8).Replace('{version}', $version), $utf8)
+}
 $licenses = @('LuaJIT.txt', 'libsodium.txt') | ForEach-Object { In-Root ('offline\licenses\' + $_) } | Where-Object { Test-Path -LiteralPath $_ }
 if ($licenses.Count -gt 0) {
     $parts = $licenses | ForEach-Object { ([IO.File]::ReadAllText($_, $utf8)).Trim() }

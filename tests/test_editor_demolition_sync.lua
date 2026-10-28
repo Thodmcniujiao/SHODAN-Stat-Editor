@@ -41,7 +41,7 @@ source=source..[[
 TEST_EDITOR={weapons=weapons,by_hash=by_hash,row_value=row_value,change=change,
 reset_row=reset_row,reset_weapon=reset_weapon,reset_all=reset_all,settings=settings,
 ui=ui,save_config=save_config,presets=presets,modified=modified,MOD=MOD,
-overrides=function()return overrides end,handle_table=handle_table,after_pass=after_pass,tick=tick}
+overrides=function()return overrides end,handle_table=handle_table,after_pass=after_pass,tick=tick,weapons_in=weapons_in,select_weapon=select_weapon,click=click}
 ]]
 assert(loadstring(source,'@'..TEST_ROOT..'/src/stat_editor_offline.lua'))()
 state=assert(ShodanStatEditor)

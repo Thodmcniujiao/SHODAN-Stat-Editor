@@ -70,6 +70,7 @@ local function saved_place()
 end
 
 local function main()
+    local startup_started = clock()
     shim.open('SHODAN Stat Editor Offline', saved_place())
     shim.pump()
     local migrated = I.migrate()
@@ -91,10 +92,23 @@ local function main()
     -- The new authoring model retains serialized snapshots. The process-wide table
     -- scanner must never mistake those immutable Lua strings for writable host tables.
     local live_headers = {}
-    for _,file in pairs(D.files) do
-        local base=tonumber(ffi.cast('uintptr_t',file.p))
-        for _,header in ipairs(G.headers(file.p,file.n)) do live_headers[base+header.at]=true end
-    end
+    -- The host already owns the decrypted buffers. Hand their headers straight to
+    -- the editor, in the same address order as a scan, and refresh them on rescan.
+    rawset(_G,'SHODAN_OFFLINE_TABLES',function()
+        local blocks, permitted = {}, {}
+        for _,file in pairs(D.files) do
+            local base=tonumber(ffi.cast('uintptr_t',file.p))
+            for _,header in ipairs(G.headers(file.p,file.n)) do
+                assert(header.at>=0 and header.at+24+header.size<=file.n,'Game table extends beyond its file: '..file.name)
+                local address=base+header.at
+                blocks[#blocks+1]={address=address,kind=header.type,payload=header.size}
+                permitted[address]=true
+            end
+        end
+        table.sort(blocks,function(a,b)return a.address<b.address end)
+        live_headers=permitted
+        return blocks
+    end)
     rawset(_G,'SHODAN_OFFLINE_TABLE_ADDRESS',function(address)return live_headers[address]==true end)
     for _, p in ipairs(problems) do log('problem: ' .. p) end
     local loaded = 0
@@ -130,7 +144,7 @@ local function main()
     local state = rawget(_G, 'ShodanStatEditor')
     if type(state) ~= 'table' then fatal('Stat Editor did not start (no state).') end
     local build = U.build(here)   -- app/build.txt: version, commit, channel
-    shim.set_title('SHODAN Stat Editor Offline v' .. tostring(state.version) .. ' | Entity Demolition Unified'
+    shim.set_title('SHODAN Stat Editor Offline v' .. tostring(state.version) .. ' | Entity Components'
                    .. (build.channel == 'dev' and build.commit and ' (dev ' .. build.commit:sub(1, 7) .. ')' or '')
                    .. (build.built and ' | build ' .. build.built or ''))   -- (build_release.bat: when it was packed)
     -- the host's own text in the panel's language, drawn with its font
@@ -149,8 +163,13 @@ local function main()
         demolition_model = Demo.new(source_plain(D.files['generated_entities.dl_bin'] and D.files['generated_entities.dl_bin'].cipher),
             source_plain(D.files['generated_destruction_settings.dl_bin'] and D.files['generated_destruction_settings.dl_bin'].cipher),
             source_plain(I.read(game .. '/dl_library.dl_typelib')),Demo.read_names(here .. 'entity_names.tsv'))
+        rawset(_G,'SHODAN_COMPONENT_NAMES',demolition_model.names)
         I.mkdirs(I.home)
+        rawset(_G,'SHODAN_COMPONENT_CATALOG_SOURCE',{entities=demolition_model.entities,schemas=demolition_model.schemas,
+            names=demolition_model.names,config_path=I.home..'/entity_catalog.json',default_path=here..'entity_catalog.default.json'})
         demolition = DemoPanel.new(demolition_model,{path=I.home .. '/entity_demolition.txt',lang=shim.lang,tr=tr,
+            component_tabs=function()return type(state.component_tabs)=='function'and state.component_tabs()or{}end,
+            open_component_sub=function(sub)state.nav_open('components',sub)end,
             enabled=function()return type(state.entity_demolition_enabled)~='function'or state.entity_demolition_enabled()end,
             changed=function()
                 state.writes=state.writes+1
@@ -195,8 +214,10 @@ local function main()
                 items[2] = { key = 'title_enemy', label = 'SHODAN Enemy Editor', color = RED }
             end
         end
-        items[#items + 1] = { key = 'title_demolition', color = { 255, 103, 210, 220 },
-                              label = demolition and demolition:tr('title') or 'Entity Demolition' }
+        if #pages==0 then
+            items[#items + 1] = { key = 'title_demolition', color = { 255, 103, 210, 220 },
+                                  label = demolition and demolition:tr('title') or 'Entity Demolition' }
+        end
         local size, pad, gap = 17 * s, 10 * s, 6 * s
         local room = shim.w - 60 * s - (bar.release and 182 * s or 0)
         local function total()
@@ -220,6 +241,7 @@ local function main()
     local function status()
         if bar.busy then return bar.busy, WARN end
         if bar.message then return bar.message, bar.tone end
+        if state.phase == 'gave_up' then return 'Startup error: ' .. tostring(state.status or ''), RED end
         if state.phase ~= 'ready' then return 'Finding the stats...', MUTED end
         local n = installed_count()
         local dirty = bar.base and state.writes ~= bar.base
@@ -237,7 +259,7 @@ local function main()
         -- (brighter under the mouse); a click swaps
         local enemy = type(state.enemy_on) == 'function' and state.enemy_on()
         local page = type(state.nav_page) == 'function' and state.nav_page()
-        local active_title = demolition_on and 'title_demolition' or page and ('page:' .. page)
+        local active_title = page and ('page:' .. page) or demolition_on and 'title_demolition'
                              or enemy and 'title_enemy' or 'title_stat'
         local function toward_back(c, k)
             return { 255, math.floor(BACK[2] + (c[2] - BACK[2]) * k), math.floor(BACK[3] + (c[3] - BACK[3]) * k),
@@ -296,6 +318,14 @@ local function main()
             screen({'Entity demolition unavailable',demolition_error or 'Required game data is missing'})
         elseif state.phase == 'ready' then
             shim.paint_guis(BACK)
+        elseif state.phase == 'gave_up' then
+            shim.fill(0, 0, shim.w, shim.h, BACK)
+            local lang = shim.lang()
+            local chinese = lang == 'zh-Hans' or lang == 'zh-Hant'
+            centred(chinese and '编辑器已停止加载' or 'Editor loading stopped', shim.h * 0.42, 30 * bar.s, RED)
+            centred(chinese and '请查看日志中的错误，修复后重新启动编辑器。' or
+                'Check the error in the logs, then fix it and restart the editor.', shim.h * 0.42 + 42 * bar.s, 18 * bar.s, MUTED)
+            centred('SHODANStatEditor.log', shim.h * 0.42 + 76 * bar.s, 18 * bar.s, MUTED)
         else
             shim.fill(0, 0, shim.w, shim.h, BACK)
             centred(tr('Finding the stats...'), shim.h * 0.45, 30 * bar.s, GOLD)
@@ -325,6 +355,14 @@ local function main()
         if not commit_active()then return end
         if I.game_running() then say('Helldivers 2 is running: close it, then Install.', WARN); return end
         busy('Installing: finding what changed...')
+        -- each step's time in the log ('install timing: ...')
+        local t0 = clock()
+        local lap = t0
+        local function timing(what)
+            local now = clock()
+            log(string.format('install timing: %s %.2f s (%.2f s in all)', what, now - lap, now - t0))
+            lap = now
+        end
         local changes = D.diff()
         local stacked, why_not = D.stack(changes, state.stacks and state.stacks(), log, state.own_off and state.own_off())
         if not stacked then
@@ -343,6 +381,7 @@ local function main()
             say('Not installed: the stratagem codes could not be set (' .. tostring(why_not) .. '). Nothing was changed.', WARN)
             return
         end
+        timing('changes, passives, codes')
         local writes, made, back = {}, 0, 0
         local asset_writes, asset_report = {}, {}
         if demolition then
@@ -353,7 +392,7 @@ local function main()
                 if result then log(string.format('entity demolition: %d isolated targets, %d private templates',#result.report,
                     result.template_count-result.original_template_count)) end
                 asset_writes,asset_report = UnitAliases.prepare(aliases,{game=game,
-                    cache=I.home..'/entity-resource-cache/'..tostring(math.floor(clock()*1000)),
+                    cache=UnitAliases.cache_dir(I.home,game,EntityAssets.owned()),   -- (kept per game build)
                     filediver=UnitAliases.find_filediver(here),owned=EntityAssets.owned(),
                     log=function(text)log(text);busy(text)end,pump=function()return shim.pump()end})
             end)
@@ -363,7 +402,9 @@ local function main()
                 say('Not installed: '..tostring(why),WARN);return
             end
         end
+        if demolition then timing('entity demolition') end
         for k, c in ipairs(changes) do
+            if c.name=='generated_entities.dl_bin'and demolition_model then c.demolition_schemas=demolition_model.schemas end
             busy(string.format('Installing: preparing %s (%d of %d)...', c.name, k, #changes))
             local sealed, why = D.build(c, function(text) log(c.name .. ': ' .. text); shim.pump() end)
             if not sealed then
@@ -374,6 +415,7 @@ local function main()
                 return
             end
             writes[c.name], made = sealed, made + 1
+            timing('prepared ' .. c.name)
         end
         for name, mine in pairs(ours) do
             if mine and not writes[name] then writes[name], back = originals[name], back + 1 end
@@ -389,6 +431,7 @@ local function main()
         local assets_ok,assets_why=asset_transaction:activate()
         if not assets_ok then bar.busy=nil;say('Not installed: '..tostring(assets_why),WARN);return end
         local done, why = I.write_files(game, writes, originals)
+        timing('written')
         bar.busy = nil
         if not done then
             local rolled,rollback_why=asset_transaction:rollback()
@@ -474,11 +517,26 @@ local function main()
 
     -- ------------------------------------------------------------ the frame loop
     local painted, was_down, armed, said_ready = nil, false, nil, false
+    local function sync_component_page()
+        if type(state.component_view)~='function'then return end
+        local on=not state.native_component_browser and state.component_view()=='demolition'
+        if on and not demolition_on then
+            if type(state.release_input)=='function'then state.release_input()end
+            if demolition then demolition:activate(shim)end
+        end
+        demolition_on=on
+    end
     local last = clock()
     while shim.pump() do
         local now = clock()
+        sync_component_page()
         if demolition_on and demolition then demolition:update(shim)
         else update(math.min(0.1, now - last)) end
+        if state.failure and bar.failure ~= state.failure then
+            bar.failure = state.failure
+            log('editor stopped: ' .. state.failure)
+        end
+        sync_component_page()
         last = now
         -- moved onto another screen: sized for that one; another language: the pages' names again
         if bar.h ~= shim.h or bar.lang ~= shim.lang() then layout() end
@@ -493,6 +551,8 @@ local function main()
             bar.base = installed_count() > 0 and state.writes or nil
             log(string.format('ready: %s weapons, %s values applied, %s refused', tostring(state.weapons),
                 tostring(state.applied), tostring(state.refused)))
+            log(string.format('startup timing: %.3f s to ready; table discovery: %s',clock()-startup_started,
+                state.offline_direct and 'host headers' or 'memory scan'))
             local stacks = state.stacks and state.stacks() or {}
             local own_off = state.own_off and state.own_off() or {}
             if installed_count() == 0 and ((state.applied or 0) > 0 or next(stacks) or next(own_off)) then bar.base = -1 end
@@ -551,7 +611,7 @@ local function main()
             elseif hover == 'title_stat' or hover == 'title_enemy' then
                 if commit_active()then demolition_on=false;state.switch_editor(hover == 'title_enemy')end
             elseif hover and hover:sub(1, 5) == 'page:' then   -- one of the editor's pages
-                if commit_active() then demolition_on = false; state.nav_open(hover:sub(6)) end
+                if commit_active() then state.nav_open(hover:sub(6)) end
             end
             armed = nil
         end
@@ -565,7 +625,9 @@ local function main()
             painted = signature
             paint()
         end
-        shim.sleep(state.phase == 'ready' and 10 or 1)
+        -- During startup each update processes a bounded batch, then this loop
+        -- pumps window messages again. Sleep(1) can delay every batch by ~15 ms.
+        shim.sleep((state.phase == 'ready' or state.phase == 'gave_up') and 10 or 0)
     end
     if shim.place then
         I.mkdirs(I.home)

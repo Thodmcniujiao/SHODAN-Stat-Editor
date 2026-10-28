@@ -1,7 +1,7 @@
 local D=require('demolition')
 local P={};P.__index=P
 local WORDS={
- en={title='Entity Demolition',search='Search name, path or hash',all='All targets',editable='Editable',changed='Changed',
+ en={title='Entity Demolition',components='Entity Components',search='Search name, path or hash',all='All targets',editable='Editable',changed='Changed',
   entity='ECS entity',unit='Scene Unit',normal='Normal',hit='Direct hits',stage='Entry',base='Baseline',value='Threshold',
   entries='Entry 1/2/3 = slots 0/1/2; not health phases. Unused slots hidden.',
   reset='Reset row',reset_entity='Reset target',reset_all='Reset all demolition edits',prev='Previous',next='Next',
@@ -13,7 +13,7 @@ local WORDS={
   keys='Enter: edit   Delete: reset row   PgUp/PgDn: targets   Ctrl+F: search',
   loading='Destruction data is unavailable',shared='entities use the original Unit',
   default='Default',override='Override',stale='saved entries are unavailable in this build'},
- ['zh-Hans']={title='实体拆毁',search='搜索名称 路径或哈希',all='全部目标',editable='可编辑',changed='已修改',
+ ['zh-Hans']={title='实体拆毁',components='实体组件',search='搜索名称 路径或哈希',all='全部目标',editable='可编辑',changed='已修改',
   entity='ECS 实体',unit='场景 Unit',normal='普通命中',hit='直击覆盖',stage='破坏记录',base='读取基线',value='拆毁阈值',
   entries='记录 1/2/3 对应配置槽位 0/1/2；隐藏未使用项，不代表三段血条。',
   reset='恢复此项',reset_entity='恢复此实体',reset_all='清除全部拆毁修改',prev='上一页',next='下一页',
@@ -134,7 +134,10 @@ function P:update(shim)
   for _,hit in ipairs(self.hits)do
    if x>=hit.x and x<hit.x+hit.w and y>=hit.y and y<hit.y+hit.h then
     if hit.action~='edit'and self.focus=='number'and not self:commit()then break end
-    if hit.action=='search'then self.focus='search';self.version=self.version+1
+    if hit.action=='component_sub'then
+     self.focus=nil;self.version=self.version+1
+     if self.options.open_component_sub then self.options.open_component_sub(hit.value)end
+    elseif hit.action=='search'then self.focus='search';self.version=self.version+1
     elseif hit.action=='mode'then self.mode=hit.value;self.selected=1;self.scroll=0;self:refilter()
     elseif hit.action=='select'then self.selected=hit.value;self.row=1;self.focus=nil;self.version=self.version+1
     elseif hit.action=='edit'then self:edit(hit.value)
@@ -200,17 +203,27 @@ function P:draw(shim)
   while #v>0 and shim.text_width(v..'...',size*s)>width*s do v=backspace(v)end
   return v..'...'
  end
- local function button(label,x,y,w,action,value,on)
+ local function button(label,x,y,w,action,value,on,font_size)
+  font_size=font_size or 15
   local over=self.hover==action..':'..tostring(value)
   box(x,y,w,30,on and C.cyan or(over and C.cyan or C.border),over and C.hover or(on and C.active or C.panel))
-  label=fit(label,w-12,15)
-  local width=shim.text_width(label,15*s)/s;local height=shim.text_height(15*s)/s
-  text(label,x+(w-width)/2,y+(30-height)/2,15,on and C.cyan or C.text)
+  label=fit(label,w-12,font_size)
+  local width=shim.text_width(label,font_size*s)/s;local height=shim.text_height(font_size*s)/s
+  text(label,x+(w-width)/2,y+(30-height)/2,font_size,on and C.cyan or C.text)
   self.hits[#self.hits+1]={x=x,y=y,w=w,h=30,action=action,value=value}
  end
  fill(0,46,1060,986,C.back)
- text(self:tr('title'),30,58,25,C.cyan,true)
- text(self:tr('isolated'),30,94,15,C.muted)
+ local tabs=self.options.component_tabs and self.options.component_tabs()or{}
+ text(self:tr(#tabs>0 and'components'or'title'),30,58,25,C.cyan,true)
+ if #tabs>0 then
+  local widths,total={},0
+  for i,t in ipairs(tabs)do widths[i]=shim.text_width(t.label,14*s)/s+18;total=total+widths[i]end
+  local scale=math.min(1,(1000-4*(#tabs-1))/total);local x=30
+  for i,t in ipairs(tabs)do
+   local width=widths[i]*scale
+   button(t.label,x,94,width,'component_sub',t.id,t.selected,14*scale);x=x+width+4
+  end
+ else text(self:tr('isolated'),30,94,15,C.muted)end
  box(30,128,1000,36,self.focus=='search'and C.cyan or C.border,C.panel)
  local search=fit(self.filter~=''and self.filter or self:tr('search'),970,17)
  text(search,40,128+(36-shim.text_height(17*s)/s)/2,17,self.filter~=''and C.text or C.muted)

@@ -15,63 +15,30 @@ files = {
     'shodan_hash.dll': os.path.join(HERE, 'launcher', 'shodan_hash.dll'),
     'app/stat_editor.lua': PANEL,
 }
-for m in ('host', 'engine_shim', 'install', 'gamedata', 'hostdata', 'update',
-          'demolition', 'demolition_panel', 'demolition_bridge', 'unit_aliases', 'entity_assets'):
-    files['app/%s.lua' % m] = os.path.join(HERE, m + '.lua')
+# Runtime modules live directly in offline/. Discover them so adding a component
+# cannot leave either release format with a stale hand-maintained module list.
+for name in sorted(os.listdir(HERE)):
+    if name.endswith('.lua') and os.path.isfile(os.path.join(HERE, name)):
+        files['app/' + name] = os.path.join(HERE, name)
 files['app/entity_names.tsv'] = os.path.join(HERE, 'entity_names.tsv')
+files['app/entity_catalog.default.json'] = os.path.join(HERE, 'entity_catalog.default.json')
+files['LICENSE'] = os.path.join(HERE, '..', 'LICENSE')
 files['ENTITY_DEMOLITION.md'] = os.path.join(HERE, 'ENTITY_DEMOLITION.md')
+files['ENTITY_COMPONENTS.md'] = os.path.join(HERE, 'ENTITY_COMPONENTS.md')
+files['BOMBARDMENT_COMPONENTS.md'] = os.path.join(HERE, 'BOMBARDMENT_COMPONENTS.md')
+files['ORBITAL_WEAPON_COMPONENTS.md'] = os.path.join(HERE, 'ORBITAL_WEAPON_COMPONENTS.md')
+files['REFERENCE_NAVIGATION.md'] = os.path.join(HERE, 'REFERENCE_NAVIGATION.md')
+files['STRATAGEM_COMPONENTS.md'] = os.path.join(HERE, 'STRATAGEM_COMPONENTS.md')
+files['DAMAGE_COMPONENTS.md'] = os.path.join(HERE, 'DAMAGE_COMPONENTS.md')
+files['PROJECTILE_COMPONENTS.md'] = os.path.join(HERE, 'PROJECTILE_COMPONENTS.md')
+files['EXPLOSION_COMPONENTS.md'] = os.path.join(HERE, 'EXPLOSION_COMPONENTS.md')
+files['ARC_COMPONENTS.md'] = os.path.join(HERE, 'ARC_COMPONENTS.md')
+files['BEAM_COMPONENTS.md'] = os.path.join(HERE, 'BEAM_COMPONENTS.md')
+files['ENTITY_CATALOG_API.md'] = os.path.join(HERE, 'ENTITY_CATALOG_API.md')
+files['ENTITY_CATALOG_SCHEMA.json'] = os.path.join(HERE, 'entity_catalog.schema.json')
 DEV = re.compile(r'[ \t]*--\[\[DEV\]\].*?--\[\[/DEV\]\][^\n]*\n', re.S)   # test hooks: not in the package
 VERSION = re.search(r"version = '([\d.]+)'", open(PANEL, encoding='utf-8').read()).group(1)
-readme = r"""SHODAN Stat Editor Offline v{version}  (SSEO)
-by SHODAN - https://github.com/SHODAN-HORAI/SHODAN-Stat-Editor
-
-Change the stats of weapons, throwables, stratagems, vehicles, boosters, attachments and armor passives in
-Helldivers 2's own data files. The Enemy Editor (click "SHODAN Enemy Editor" at the top left) changes every
-enemy, your SEAF allies and how they spawn, and keeps custom difficulties as presets. No mod loader, and the
-game does not need to run: the changes apply when the game starts.
-
-HOW TO USE
-1. Close Helldivers 2.
-2. Start "SHODAN Stat Editor Offline.exe" (keep it in this folder, next to "app" and the .dll files).
-   It finds the game through Steam. If it cannot, write the path of your Helldivers 2 folder into
-   %LOCALAPPDATA%\SHODAN\StatEditor\game folder.txt and start it again.
-3. Change values in the panel. Settings > Language: English, Simplified Chinese, Traditional Chinese, Russian.
-4. Press "Install into the game", then start the game.
-
-"Restore the game's files" puts the game's own files back. The originals are kept in
-%LOCALAPPDATA%\SHODAN\StatEditor\originals, with your values, presets and logs.
-After a game update, or Steam's "Verify integrity of game files", the game's own files are back:
-start SSEO and press Install again.
-
-OTHER MODS
-SSEO should work alongside mods that change the same game files (other stat or stratagem tools) without
-conflict, as long as they go in first: SSEO keeps their changes and adds yours on top. This is not
-thoroughly tested yet.
-1. Install or apply the other mod.
-2. Start SSEO and press Install.
-3. To change or remove the other mod later, press Restore in SSEO first, change the other mod, then
-   press Install in SSEO again.
-Where both change the same stat, SSEO's value wins.
-
-UPDATES
-At start SSEO asks GitHub for its latest release. When there is a newer one, "Update to v..." appears at the
-top right: it downloads the release, swaps the new files in next to the program and restarts it. Your values,
-presets and the game's originals stay as they are. Settings > Updates: Ask (the button) or Automatic (updates
-at start without asking). Settings > Update channel: Releases (tested versions) or Every commit (the development
-build of every change, before testing: it may break).
-
-NOT AVAILABLE OFFLINE
-Grenade swaps, speedloader / clip sizes and unlocking unused items need the running game.
-Projectile swaps work, but a swapped projectile has its trail only if someone in the mission carries
-the weapon it comes from. Arc chain length / split also apply with other players.
-
-GOOD TO KNOW
-- Windows SmartScreen or an antivirus may warn about the program the first time (it is not signed).
-- SSEO changes the game's data files. The changed files keep the checksum the game expects, but use it at
-  your own risk, and keep to private games with friends if in doubt.
-- Licences: SSEO is GPL-3.0 (see the GitHub page). It ships LuaJIT (MIT) and libsodium (ISC):
-  see THIRD-PARTY-NOTICES.txt.
-"""
+readme = open(os.path.join(HERE, 'RELEASE_README.txt'), encoding='utf-8').read()
 # app/build.txt: which build this is, for the updater (a development build is new when its commit differs).
 # The commit: SSEO_COMMIT (the CI's), else the GitHub repository's HEAD (package after committing a release).
 REPO = os.path.join(HERE, '..') if not os.path.isdir(ADDON) else os.path.join(HERE, '..', '..', 'github', 'SHODAN-Stat-Editor')
@@ -83,6 +50,8 @@ if not COMMIT and os.path.isdir(os.path.join(REPO, '.git')):
     if git('status', '--porcelain', '--untracked-files=no'):
         print('note: the repository has uncommitted changes; build.txt names its HEAD', COMMIT[:7])
 build_txt = 'version=%s\ncommit=%s\nchannel=%s\n' % (VERSION, COMMIT, CHANNEL)
+if os.environ.get('SSEO_BUILT'):
+    build_txt += 'built=' + os.environ['SSEO_BUILT'] + '\n'
 os.makedirs(RELEASE, exist_ok=True)
 name = sys.argv[1] if len(sys.argv) > 1 else 'SHODAN-Stat-Editor-Offline-v' + VERSION
 out = os.path.join(RELEASE, name + '.zip')

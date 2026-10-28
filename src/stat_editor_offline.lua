@@ -11042,8 +11042,8 @@ end
 -- step), and the hub logs its most expensive frame.
 local HUB_NAME, HUB_VERSION = 'SHODAN_EDITOR_HUB', 1
 local HUB_LOG = 'SHODANStatEditorScan.log'
-local START_FRAME = 120
-local FRAME_BUDGET = 0.0007   -- plus at most one step past it: about 1 ms in the worst frame
+local START_FRAME = MOD.offline and 1 or 120
+local FRAME_BUDGET = MOD.offline and 0.004 or 0.0007   -- offline batches yield to the host's message pump
 local PASS_DELAY = 0.5
 local FALLBACK_SECONDS = 180
 local SWEEP_CHUNK = 65536
@@ -11441,14 +11441,14 @@ local TYPES = { arc_weapon = 0xB87BA9ED, arc = 0xAFDF0267, health = 0xB3915DE3, 
                 vehicle = 0xEAEB2B0D, mount = 0x3845B1E0, shield = 0x5154DB66,
                 rack = 0xA98BB156, charge = 0xEAC335A1, jumppack = 0x54270608, recharge = 0x1F42878E,
                 warp = 0xA7813546, deposit = 0xC435BA85, package = 0x7A858691, reload = 0x991D454E,
-                thrower = 0xA29A84D8, minefield = 0x74FEF89A, mine_spawner = 0x0697FED6, bombard = 0xCDBC43D8, eagle = 0x556FF68B,
+                thrower = 0xA29A84D8, minefield = 0x74FEF89A, mine_spawner = 0x0697FED6, bombard = 0xCDBC43D8, eagle = 0x556FF68B, eagle_spawner = 0x86B6558B,
                 seeking = 0xBF3A6789, windup = 0x84CE7EEE, laser = 0x32528174, avatar = 0x40EF204C }
 local KINDS = {
     [T_WEAPON] = { name = 'weapon', stride = 1232, keyed = true, layouts = { { stride = 1240 } } },
     [T_MAGAZINE] = { name = 'magazine', stride = 160, keyed = true },
     [T_ROUNDS] = { name = 'rounds', stride = 136, keyed = true },
     [T_FIRE] = { name = 'fire mode', stride = 616, keyed = true },
-    [T_PROJECTILE] = { name = 'projectile', stride = 272 },
+    [T_PROJECTILE] = { name = 'projectile', stride = 272, tail = true }, -- authenticated edits may append correction bytes
     [T_DAMAGE] = { name = 'damage', stride = 76, rows = {   -- id, label, offset, max, small / big step
         { 'damage', 'Damage', 4, 100000, 1, 10 }, { 'durable', 'Durable damage', 8, 100000, 1, 10 },
         { 'ap_direct', 'Armor pen. (direct)', 12, 10, 1, 1 }, { 'ap_slight', 'Armor pen. (slight angle)', 16, 10, 1, 1 },
@@ -11456,7 +11456,7 @@ local KINDS = {
         { 'demolition', 'Demolition force', 28, 10000, 1, 10 }, { 'stagger', 'Stagger force', 32, 10000, 1, 10 },
         { 'push', 'Push force', 36, 10000, 1, 10 } } },
     [T_BEAM_WEAPON] = { name = 'beam weapon', stride = 120, keyed = true },
-    [T_BEAM] = { name = 'beam', stride = 112 },
+    [T_BEAM] = { name = 'beam', stride = 112, tail = true }, -- authenticated edits can append correction bytes
     [T_EXPLOSION] = { name = 'explosion', stride = 152, tail = true },
     [T_ORBITAL] = { name = 'orbital beam', stride = 552, keyed = true, layouts = { { stride = 568 } } },
     [T_HEAT] = { name = 'weapon heat', stride = 592, keyed = true },
@@ -11471,7 +11471,7 @@ local KINDS = {
                    -- stuns deal no damage (no damage row of their own); the Illuminate one (42) no weapon applies
                    stuns = { [38] = 'Stun (small)', [39] = 'Stun (medium)', [40] = 'Stun (large)', [41] = 'Stun (massive)' } },
     [TYPES.arc_weapon] = { name = 'arc weapon', stride = 80, keyed = true },
-    [TYPES.arc] = { name = 'arc', stride = 104 },
+    [TYPES.arc] = { name = 'arc', stride = 104, tail = true }, -- fixed rows may be followed by hash-correction bytes
     [TYPES.health] = { name = 'health', stride = 22096, keyed = true,
         -- stratagem id -> sentry gun, for sentries whose stratagem drops a body the panel does not list
         -- (Laser Cannon Sentry, Tesla Tower, Defense Wall Grenade Launcher = the Grenadier Battlement)
@@ -11544,6 +11544,7 @@ KINDS[TYPES.bombard] = { name = 'bombardment', stride = 192, keyed = true }
 -- longest distance the jet starts its approach from (m), +76 its speed until it has fired (m/s), +108 run length (m)
 KINDS[TYPES.eagle] = { name = 'eagle', stride = 152, keyed = true,
                        layouts = { { stride = 336, offsets = { [40] = 52, [44] = 56, [52] = 64, [56] = 68, [76] = 92, [108] = 124 } } } }
+KINDS[TYPES.eagle_spawner] = { name = 'eagle spawner', stride = 24, keyed = true }
 -- Seeking missiles (SeekingMissileComponentData; the MS-11 Solo Silo's missile): +12 guidance on after (s),
 -- +28 guidance lost past this angle (deg), +56 / +60 movement / warhead on after (s; the silo's -1: by
 -- its script, not offered), +64 max lifetime (s),
@@ -11561,6 +11562,20 @@ TYPES.drown, TYPES.hellpod, TYPES.payload = 0x726A4F6B, 0x7EF5CC55, 0xDDB5C03F
 KINDS[TYPES.drown] = { name = 'drownable', stride = 64, keyed = true }
 KINDS[TYPES.hellpod] = { name = 'hellpod', stride = 104, keyed = true }
 KINDS[TYPES.payload] = { name = 'hellpod payload', stride = 12, keyed = true }
+-- FactionComponentData (152 bytes): an entity's factions, how it is targeted, its spawn influence (实体组件 › 阵营)
+TYPES.faction = 0x5653EA91
+KINDS[TYPES.faction] = { name = 'faction', stride = 152, keyed = true }
+-- the weapon components (offline/weapon_components.lua, generated from the game's type library and the RawData dump),
+-- every one read in full (实体组件 › 武器组件 / 武器类型 / 武器配件): the tables the editor did not read yet are added
+MOD.weapon_components = require('weapon_components')
+MOD.component_tab_kind, MOD.component_tab_label = {}, {}
+MOD.weapon_components.register = function()   -- (a function: the main chunk is at LuaJIT's local limit)
+    for _, spec in ipairs(MOD.weapon_components.SPECS) do
+        if not KINDS[spec.HASH] then KINDS[spec.HASH] = { name = spec.KEY, stride = spec.SIZE, keyed = true } end
+        MOD.component_tab_kind[spec.SLOT], MOD.component_tab_label[spec.SLOT] = spec.KEY, spec.TAB
+    end
+end
+MOD.weapon_components.register()
 -- EquipmentComponentData (232 bytes): +196 one-handed (bool byte). HelldiverCustomizationKit (one block per
 -- armor, helmet or cape): +16 name (text id), +40 kit type (0 armor), +48 body types (pointer, count; 24 bytes:
 -- +8 pieces, pointer, count; 112 bytes: +8 slot (2 torso), +12 piece type, +16 weight 0 light / 1 medium / 2 heavy)
@@ -11884,10 +11899,11 @@ local fields = {}       -- key -> field
 local defaults = {}     -- key -> value before this mod first wrote it
 
 local function field_at(kind, offset, storage, limit)
-    local key = kind .. ':' .. offset
+    local mask = type(storage) == 'string' and storage:match('^bit([0-7])$')
+    local key = kind .. ':' .. offset .. (mask and (':' .. storage) or '')
     local f = fields[key]
     if not f then
-        f = { key = key, kind = kind, offset = offset, storage = storage, limit = limit, users = {} }
+        f = { key = key, kind = kind, offset = offset, storage = mask and 'flag' or storage, mask = mask and 2^tonumber(mask), limit = limit, users = {} }
         fields[key] = f
     end
     return f
@@ -11927,12 +11943,22 @@ local function read_field(f)
     if f.storage == 'flag' then   -- a bool byte
         local b = api.read(entry.copies[1] + HEADER_BYTES + f.offset, 1)
         b = b and b:byte()
+        if b and f.mask then return math.floor(b / f.mask) % 2 end
         return b and b <= 1 and b or nil
+    end
+    if f.storage == 'u8' or f.storage == 'i8' or f.storage == 'u16' then
+        local b = api.read(entry.copies[1] + HEADER_BYTES + f.offset, f.storage == 'u16' and 2 or 1)
+        if f.storage=='i8' then
+            local v=b and b:byte(1)
+            return v and(v>=128 and v-256 or v)or nil
+        end
+        return b and b:byte(1) + (#b == 2 and b:byte(2) * 256 or 0) or nil
     end
     local bits = peek4(entry.copies[1] + HEADER_BYTES + f.offset)
     if not bits then return nil end
     local value = bits
     if f.storage == 'f32' then value = bits_to_f32(bits) end
+    if f.storage == 'i32' and value >= 2147483648 then value = value - 4294967296 end
     if value ~= value or value < (f.signed and -f.limit or 0) or value > f.limit then return nil end   -- implausible: layout moved
     return value
 end
@@ -11941,8 +11967,20 @@ local function encode(f, value)
     if f.storage == 'grenade' then return KINDS[TYPES.throwable].entity_bytes(value) end
     if f.storage == 'gun' then local g = MOD.enemy.gun_choices().by_id[value]; return g and g.key end
     if f.storage == 'f32' then return f32_bytes(value) end
-    if f.storage == 'flag' then return value >= 0.5 and string.char(1) or string.char(0) end
-    return u32_bytes(math.floor(value + 0.5))
+    if f.storage == 'flag' then
+        local n = value >= .5 and 1 or 0
+        if f.mask then
+            local t = tables[f.kind]
+            local b = t and api.read(t.copies[1] + HEADER_BYTES + f.offset, 1)
+            if not b then return nil end
+            b = b:byte();n = b - (math.floor(b / f.mask) % 2) * f.mask + n * f.mask
+        end
+        return string.char(n)
+    end
+    if f.storage == 'u8' then return string.char(math.floor(value + .5)) end
+    if f.storage == 'i8' then return string.char(math.floor(value+.5)%256) end
+    if f.storage == 'u16' then local v=math.floor(value+.5);return string.char(v%256,math.floor(v/256)) end
+    return u32_bytes(math.floor(value + 0.5) % 4294967296)
 end
 
 local function default_of(f)
@@ -12489,7 +12527,7 @@ KINDS[TYPES.avatar].PODS = { { 'E58163E71928D3E2', 'Initial drop' }, { 'EF9EB729
 -- 滑铲 +152..+172), so a field takes the stat at its place; QUICK: its 快速编辑 (Player = the helldiver entity).
 KINDS[TYPES.avatar].DOC = {
     { name = { 'Speed', '速度', '速度' }, fields = {
-        { name = { 'Stance time', '姿势时间', '姿勢時間' } },
+        { name = { 'Stance time', '姿势时间', '姿勢時間' }, off = 0, max = 10, small = 0.05, big = 0.25 },
         { name = { 'Twist', '扭转', '扭轉' }, id = 'reversing' },
         { name = { 'Aim', '瞄准', '瞄準' }, id = 'aim' },
         { name = { 'Walk', '步行', '步行' }, id = 'walk' },
@@ -12501,17 +12539,17 @@ KINDS[TYPES.avatar].DOC = {
         { name = { 'Crouched jog', '蹲跑', '蹲跑' }, id = 'crouch_jog' },
         { name = { 'Crouched sprint', '蹲冲', '蹲衝' }, id = 'crouch_sprint' },
         { name = { 'Prone', '卧倒', '臥倒' }, id = 'prone' },
-        { name = { 'Swim', '游泳', '遊泳' }, id = 'swim' },
+        { name = { 'Swim', '游泳', '游泳' }, id = 'swim' },
     } },
     { name = { 'Climbing', '攀爬', '攀爬' }, fields = {
-        { name = { 'Fall height', '坠落高度', '墜落高度' } },
-        { name = { 'Climb height X', '攀爬高度X', '攀爬高度X' } },
-        { name = { 'Climb height Y', '攀爬高度Y', '攀爬高度Y' } },
-        { name = { 'Climb forward X', '攀爬前进X', '攀爬前進X' } },
-        { name = { 'Climb forward Y', '攀爬前进Y', '攀爬前進Y' } },
-        { name = { 'Vault height', '跨越高度', '跨越高度' }, id = 'climb_height' },
-        { name = { 'Vault cooldown', '跨越冷却', '跨越冷卻' } },
-        { name = { 'Climb speed', '攀爬速度', '攀爬速度' } },
+        { name = { 'Fall height', '坠落高度', '墜落高度' }, off = 256, max = 10, small = 0.05, big = 0.25, guess = true },
+        { name = { 'Climb height X', '攀爬高度X', '攀爬高度X' }, id = 'climb_height' },
+        { name = { 'Climb height Y', '攀爬高度Y', '攀爬高度Y' }, off = 264, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Climb forward X', '攀爬前进X', '攀爬前進X' }, off = 268, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Climb forward Y', '攀爬前进Y', '攀爬前進Y' }, off = 272, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Vault height', '跨越高度', '跨越高度' }, off = 276, max = 10, small = 0.05, big = 0.25, guess = true },
+        { name = { 'Vault cooldown', '跨越冷却', '跨越冷卻' }, off = 280, max = 10, small = 0.05, big = 0.25, guess = true },
+        { name = { 'Climb speed', '攀爬速度', '攀爬速度' }, off = 284, max = 50, small = 0.1, big = 0.5, guess = true },
     } },
     { name = { 'Stamina', '耐力', '耐力' }, fields = {
         { name = { 'Sprint drain', '冲消耗', '衝消耗' }, id = 'sprint_drain' },
@@ -12522,15 +12560,15 @@ KINDS[TYPES.avatar].DOC = {
         { name = { 'Refill delay', '恢复延迟', '恢復延遲' }, id = 'recover_delay' },
         { name = { 'Jump cost', '跳消耗', '跳消耗' }, id = 'cost_jump' },
         { name = { 'Dive cost', '闪消耗', '閃消耗' }, id = 'cost_dive' },
-        { name = { 'Slide cost', '滑消', '滑消' } },
+        { name = { 'Slide cost', '滑消', '滑消' }, off = 84, max = 1, small = 0.05, big = 0.1 },
     } },
     { name = { 'Turn speed', '转向速度', '轉向速度' }, fields = {
-        { name = { 'Crouched turn', '蹲伏转向', '蹲伏轉向' } },
-        { name = { 'Jog turn', '慢跑转向', '慢跑轉向' } },
-        { name = { 'Jump turn', '跳跃转向', '跳躍轉向' } },
-        { name = { 'Sprint turn', '冲刺转向', '衝刺轉向' } },
-        { name = { 'Downed turn', '倒地转向', '倒地轉向' } },
-        { name = { 'Swim turn', '游泳转向', '遊泳轉向' } },
+        { name = { 'Crouched turn', '蹲伏转向', '蹲伏轉向' }, off = 96, max = 10, small = 0.05, big = 0.25, guess = true },
+        { name = { 'Jog turn', '慢跑转向', '慢跑轉向' }, off = 100, max = 10, small = 0.05, big = 0.25, guess = true },
+        { name = { 'Jump turn', '跳跃转向', '跳躍轉向' }, off = 104, max = 10, small = 0.05, big = 0.25, guess = true },
+        { name = { 'Sprint turn', '冲刺转向', '衝刺轉向' }, off = 108, max = 10, small = 0.05, big = 0.25, guess = true },
+        { name = { 'Downed turn', '倒地转向', '倒地轉向' }, off = 112, max = 10, small = 0.05, big = 0.25, guess = true },
+        { name = { 'Swim turn', '游泳转向', '游泳轉向' }, off = 116, max = 10, small = 0.05, big = 0.25, guess = true },
     } },
     { name = { 'Detection / stealth', '侦查/潜行', '偵查/潛行' }, fields = {
         { name = { 'Noise range', '噪音范围', '噪音範圍' } },
@@ -12544,14 +12582,14 @@ KINDS[TYPES.avatar].DOC = {
         { name = { 'Prone', '卧倒', '臥倒' } },
     } },
     { name = { 'Throwing / slowdown', '投掷/减速修正', '投擲/減速修正' }, fields = {
-        { name = { 'Short throw angle', '短距角度', '短距角度' } },
-        { name = { 'Short throw force', '短距力度', '短距力度' } },
-        { name = { 'Long throw angle', '长距角度', '長距角度' } },
-        { name = { 'Long throw force', '长距力度', '長距力度' } },
+        { name = { 'Short throw angle', '短距角度', '短距角度' }, off = 292, max = 89, small = 1, big = 5 },
+        { name = { 'Short throw force', '短距力度', '短距力度' }, off = 296, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Long throw angle', '长距角度', '長距角度' }, off = 300, max = 89, small = 1, big = 5 },
+        { name = { 'Long throw force', '长距力度', '長距力度' }, off = 304, max = 10, small = 0.05, big = 0.25 },
         { name = { 'Trigger requirement', '触发要求', '觸發要求' } },
-        { name = { 'Standing', '站立', '站立' } },
-        { name = { 'Crouched', '蹲伏', '蹲伏' } },
-        { name = { 'Prone', '卧倒', '臥倒' } },
+        { name = { 'Standing', '站立', '站立' }, off = 308, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Crouched', '蹲伏', '蹲伏' }, off = 312, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Prone', '卧倒', '臥倒' }, off = 316, max = 10, small = 0.05, big = 0.25 },
         { name = { 'Sliding', '滑铲', '滑鏟' } },
     } },
     { name = { 'Self-healing', '自我治疗', '自我治療' }, fields = {
@@ -12562,25 +12600,25 @@ KINDS[TYPES.avatar].DOC = {
     } },
     { name = { 'Sliding', '滑铲', '滑鏟' }, fields = {
         { name = { 'Slide angle', '滑铲角度', '滑鏟角度' }, id = 'slide_enter' },
-        { name = { 'Enter time', '进入时间', '進入時間' } },
-        { name = { 'Slide speed', '滑铲速度', '滑鏟速度' } },
-        { name = { 'Slide gravity', '滑铲重力', '滑鏟重力' } },
-        { name = { 'Duration', '持续时间', '持續時間' } },
+        { name = { 'Enter time', '进入时间', '進入時間' }, off = 156, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Slide speed', '滑铲速度', '滑鏟速度' }, off = 160, max = 50, small = 0.1, big = 0.5 },
+        { name = { 'Slide gravity', '滑铲重力', '滑鏟重力' }, off = 164, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Duration', '持续时间', '持續時間' }, off = 168, max = 10, small = 0.05, big = 0.25 },
         { name = { 'Exit angle', '退出角度', '退出角度' }, id = 'slide_exit' },
-        { name = { 'Exit time', '退出时间', '退出時間' } },
-        { name = { 'Uphill slowdown (small)', '上坡减速（小）', '上坡減速（小）' } },
-        { name = { 'Uphill slowdown (large)', '上坡减速（大）', '上坡減速（大）' } },
-        { name = { 'Uphill speed', '上坡速度', '上坡速度' } },
-        { name = { 'Downhill slowdown (small)', '下坡减速（小）', '下坡減速（小）' } },
-        { name = { 'Downhill slowdown (large)', '下坡减速（大）', '下坡減速（大）' } },
-        { name = { 'Downhill speed', '下坡速度', '下坡速度' } },
-        { name = { 'Slope check', '坡度检测', '坡度檢測' } },
-        { name = { 'Flat time', '平地时间', '平地時間' } },
-        { name = { 'Flat speed', '平地速度', '平地速度' } },
-        { name = { 'Uphill time', '上坡时间', '上坡時間' } },
-        { name = { 'Uphill speed', '上坡速度', '上坡速度' } },
-        { name = { 'Downhill time', '下坡时间', '下坡時間' } },
-        { name = { 'Downhill speed', '下坡速度', '下坡速度' } },
+        { name = { 'Exit time', '退出时间', '退出時間' }, off = 176, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Uphill slowdown (small)', '上坡减速（小）', '上坡減速（小）' }, off = 180, max = 89, small = 1, big = 5 },
+        { name = { 'Uphill slowdown (large)', '上坡减速（大）', '上坡減速（大）' }, off = 184, max = 89, small = 1, big = 5 },
+        { name = { 'Uphill speed', '上坡速度', '上坡速度' }, off = 188, max = 1, small = 0.005, big = 0.05 },
+        { name = { 'Downhill slowdown (small)', '下坡减速（小）', '下坡減速（小）' }, off = 192, max = 89, small = 1, big = 5 },
+        { name = { 'Downhill slowdown (large)', '下坡减速（大）', '下坡減速（大）' }, off = 196, max = 89, small = 1, big = 5 },
+        { name = { 'Downhill speed', '下坡速度', '下坡速度' }, off = 200, max = 1, small = 0.005, big = 0.05 },
+        { name = { 'Slope check', '坡度检测', '坡度檢測' }, off = 204, max = 1, small = 0.0001, big = 0.001 },
+        { name = { 'Flat time', '平地时间', '平地時間' }, off = 208, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Flat speed', '平地速度', '平地速度' }, off = 212, max = 50, small = 0.1, big = 0.5 },
+        { name = { 'Uphill time', '上坡时间', '上坡時間' }, off = 216, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Uphill speed', '上坡速度', '上坡速度' }, off = 220, max = 50, small = 0.1, big = 0.5 },
+        { name = { 'Downhill time', '下坡时间', '下坡時間' }, off = 224, max = 10, small = 0.05, big = 0.25 },
+        { name = { 'Downhill speed', '下坡速度', '下坡速度' }, off = 228, max = 50, small = 0.1, big = 0.5 },
     } },
     { name = { 'Ragdoll / misc', '布娃娃/杂项', '佈娃娃/雜項' }, fields = {
         { name = { 'Damage speed, lowest', '伤害速度下限', '傷害速度下限' } },
@@ -12603,24 +12641,13 @@ KINDS[TYPES.avatar].DOC = {
         { name = { 'Recoil, unscoped', '关镜后坐', '關鏡後坐' } },
         { name = { 'Sway', '晃动', '晃動' } },
     } },
-    { name = { 'Manual edit', '手动修改', '手動修改' }, fields = {
-        { name = { 'Weapon ID', '武器ID', '武器ID' } },
-        { name = { 'Weapon damage', '武器伤害', '武器傷害' } },
-        { name = { 'Armor damage', '护甲伤害', '護甲傷害' } },
-        { name = { 'Penetration [1]', '穿透【1】', '穿透【1】' } },
-        { name = { 'Penetration [2]', '穿透【2】', '穿透【2】' } },
-        { name = { 'Penetration [3]', '穿透【3】', '穿透【3】' } },
-        { name = { 'Demolition damage', '爆破伤害', '爆破傷害' } },
-        { name = { 'Stagger', '摇晃', '搖晃' } },
-        { name = { 'Demolition [1]', '拆除【1】', '拆除【1】' } },
-        { name = { 'Demolition [2]', '拆除【2】', '拆除【2】' } },
-    } },
 }
 KINDS[TYPES.avatar].QUICK = {
     { name = { 'health component', 'health 组件', 'health 組件' }, kind = 'health' },
     { name = { 'faction component', 'faction 组件', 'faction 組件' } },
 }
 KINDS[TYPES.avatar].NONE = { '(no parameter in the editor yet)', '（修改器暂无此参数）', '（修改器暫無此參數）' }
+KINDS[TYPES.avatar].GUESS = { 'Placed by the layout document\'s order (not certain): avatar data +%d', '按布局文档顺序推断（不确定）：avatar 数据 +%d', '按佈局文檔顺序推斷（不確定）：avatar 數據 +%d' }
 KINDS[TYPES.avatar].NAMES = {
     ['Helldiver: health and faction'] = { '绝地潜兵：health / faction 组件', '絕地潛兵：health / faction 組件' },
     ['Helldiver: water and hellpods'] = { '绝地潜兵：水下与空降舱', '絕地潛兵：水下與空降艙' },
@@ -12722,6 +12749,14 @@ KINDS[TYPES.avatar].resolve = function(entry)
             for _, f in ipairs(box.fields) do
                 local r = f.id and made[f.id]
                 if r then put(r, box.name[1], named(box.name))
+                elseif f.off and m then   -- a field of the avatar data parsed here (f.off), under the document's name
+                    local id = 'avatar_' .. f.off
+                    local row = add_row(entry, box.name[1], id, f.name[1], 'f32',
+                                        { part(id, TYPES.avatar, m + f.off, 'f32', 100000) }, 0, f.max, f.small, f.big)
+                    row.section_of, row.label_of = named(box.name), named(f.name)
+                    if f.guess then   -- placed by the document's order alone: said in its tip
+                        row.tip_of = function() return { string.format(MOD.nav.text(A.GUESS), f.off) } end
+                    end
                 else empty(box.name[1], named(box.name), f.name) end
             end
         end
@@ -12786,7 +12821,72 @@ end
 
 -- Adds a damage row's stats (the first `count`, default all) to `entry`, ids `prefix` .. stat id.
 -- `what` names the damage / durable rows ('Explosion' -> 'Explosion damage'); `strike`: steps of 10 / 100 for those.
+MOD.damage={schema=require('damage_components')}
+function MOD.damage.enabled(entry)
+    return not entry.enemy and MOD.damage.schema.check_layout((rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas)
+end
+function MOD.damage.rows(entry,section,prefix,drow,strike)
+    local C=MOD.damage.schema
+    local component='DamageType:'..prefix..':'..drow
+    local function decorate(row,field,off,status)
+        row.component=component
+        row.damage_origin=section
+        row.component_of=function()
+            local title=MOD.nav.text({'DamageType','伤害类型（DamageType）','傷害類型（DamageType）'})
+            return section=='Damage'and title or(title..' · '..(state.tr and state.tr(section)or section))
+        end
+        row.section=component..(status and ':status' or ':damage')
+        row.section_of=function()return MOD.nav.text(status and{'Status effects','状态效果','狀態效果'}or{'Damage','伤害','傷害'})end
+        row.label_of=function()return MOD.nav.text(C.names(field))end
+        row.tip_of=function()
+            local names=C.names(field)
+            return{field,MOD.nav.text(names)..' / '..names[1],'DamageInfo +'..off..' · '..((off==4 or off==8)and 'int32' or status and field:find('Factor')and 'float32' or 'uint32')}
+        end
+        return row
+    end
+    local identity=entry.record and entry.kind~=T_DAMAGE and prefix..'damage_ref'or prefix..'damage_id'
+    local first=decorate(MOD.references.row(entry,section,identity,'Damage ID',T_DAMAGE,drow,'damage_id'),'DamageTypeID',0)
+    for _,s in ipairs(C.FIELDS)do
+        local id=prefix..s[1]
+        local p=part(id,T_DAMAGE,drow+s[3],s[4],1000000)
+        if s[5]<0 then p.field.signed=true;p.field.storage='i32' end
+        local value=read_field(p.field)or 0
+        local row=decorate(add_row(entry,section,id,C.names(s[2])[1],s[4],{p},math.min(s[5],value),math.max(s[6],value),
+            strike and s[3]<=8 and 10 or s[7],strike and s[3]<=8 and 100 or s[8]),s[2],s[3])
+        if s[2]=='ElementType'then
+            row.element_type=true
+            row.label_of=function()
+                local n=read_field(p.field)or 0
+                return MOD.nav.text(C.names('ElementType'))..': '..MOD.nav.text(C.ELEMENTS[n+1]or{tostring(n),tostring(n),tostring(n)})
+            end
+        end
+    end
+    for i=0,3 do
+        local id=prefix..'slot'..(i+1)
+        local row=decorate(add_row(entry,section,id,'Status effect '..(i+1)..' ID','u32',
+            {part(id,T_DAMAGE,drow+44+i*8,'u32',100000)},0,100000,1,1),'StatusEffectType'..(i+1),44+i*8,true)
+        row.choice,row.drow,row.slot,row.status_all='status',drow,i,true
+        row.label_of=function()return MOD.nav.text(C.names('StatusEffectType'..(i+1)))..': '..(state.tr and state.tr(MOD.status.name(read_field(row.parts[1].field)or 0))or'')end
+        if i==0 then row.note='what each hit applies; the slots go in order' end
+        row.strength=decorate(add_row(entry,section,id..'_strength','Status effect '..(i+1)..' strength per hit','f32',
+            {part(id..'_strength',T_DAMAGE,drow+48+i*8,'f32',100000)},0,100000,.1,1),'StatusEffectFactor'..(i+1),48+i*8,true)
+        -- Old named strengths and the slot strength address the same field, including saved presets.
+        local kind=read_field(row.parts[1].field)
+        if kind and kind~=0 then
+            local alias=prefix..'status'..kind..'_strength'
+            entry.by_id[alias]=row.strength.parts[1]
+            entry.aliases=entry.aliases or{};entry.aliases[alias]=id..'_strength'
+        end
+    end
+    return first
+end
 local function damage_rows(entry, section, prefix, drow, what, count, strike)
+    if MOD.damage.enabled(entry)then return MOD.damage.rows(entry,section,prefix,drow,strike)end
+    -- The record identity is navigable; damage amounts remain ordinary numbers.
+    if not entry.record then
+        local id = prefix .. 'damage_id'
+        MOD.references.row(entry, section, id, 'Damage ID', T_DAMAGE, drow, 'damage_id')
+    end
     local first
     for k = 1, count or 9 do
         local r = KINDS[T_DAMAGE].rows[k]
@@ -12825,7 +12925,8 @@ end
 for n, c in ipairs(MOD.status.choices) do MOD.status.by[c[1]] = { n = n, type = c[1], name = c[2], strength = c[3] } end
 function MOD.status.name(kind)
     if kind == 0 then return 'none' end
-    return MOD.status.by[kind] and MOD.status.by[kind].name or KINDS[T_STATUS].stuns[kind] or ('status ' .. kind)
+    return MOD.status.by[kind] and MOD.status.by[kind].name or KINDS[T_STATUS].stuns[kind]
+        or (MOD.status_component and MOD.status_component.name(kind))or ('status ' .. kind)
 end
 -- the next / previous choice (n steps; 0: none, before the first)
 function MOD.status.step(current, n)
@@ -12835,7 +12936,7 @@ function MOD.status.step(current, n)
 end
 -- why slot `row.slot` of `row.drow` can't take `target` (a gap in the slots, a status not offered), or nil
 function MOD.status.refused(row, target)
-    if target ~= 0 and not MOD.status.by[target] and target ~= default_of(row.parts[1].field) then
+    if target ~= 0 and not row.status_all and not MOD.status.by[target] and target ~= default_of(row.parts[1].field) then
         return 'Status effect ' .. tostring(target) .. ' is not one of the choices.'
     end
     if target ~= 0 and not (tables[T_STATUS] and tables[T_STATUS].index[target]) then
@@ -12861,8 +12962,9 @@ local function status_rows(entry, section, prefix, drow, per)
         local stun = srow and not qrow and KINDS[T_STATUS].stuns[kind]
         if qrow or stun then
             local name, key = stun or KINDS[T_STATUS].names[kind] or ('Status ' .. kind), prefix .. 'status' .. kind
-            strength_of[i] = add_row(entry, section, key .. '_strength', name .. ' applied per ' .. per, 'f32',
+            if not MOD.damage.enabled(entry)then strength_of[i] = add_row(entry, section, key .. '_strength', name .. ' applied per ' .. per, 'f32',
                                      { part(key .. '_strength', T_DAMAGE, drow + 48 + i * 8, 'f32', 100000) }, 0, 1000, 0.1, 1)
+            end
             local first = qrow and damage_rows(entry, name, key .. '_', qrow, name, 6)   -- no forces: a status has none
             local duration = add_row(entry, name, key .. '_duration', name .. ' duration (s)', 'f32',
                                      { part(key .. '_duration', T_STATUS, srow + 40, 'f32', 100000) }, 0, 600, 0.5, 5)
@@ -12870,6 +12972,7 @@ local function status_rows(entry, section, prefix, drow, per)
             ;(first or duration).note = 'every ' .. name:lower() .. ' source shares ' .. (qrow and 'these ' or 'this ') .. by
         end
     end
+    if MOD.damage.enabled(entry)then return end -- all four slots are already part of the DamageType view
     -- which status each of the four slots applies (SHODAN Offline Integration: all four shown, filled in order)
     local own = section == 'Damage' and 'Status effects' or ('Status effects (' .. section .. ')')
     for i = 0, 3 do
@@ -12974,6 +13077,7 @@ local function resolve_gun(weapon, key)
     -- beam weapons: beam component (+0 beam type) -> beam row (+12) -> damage row
     local beam = not drow and record(T_BEAM_WEAPON)
     if beam then
+        MOD.references.row(weapon, 'Damage', 'beam_id', 'Beam ID', T_BEAM_WEAPON, beam, 'beam_id')
         local kind = read_field(field_at(T_BEAM_WEAPON, beam, 'u32', 100000))
         local brow = kind and tables[T_BEAM] and tables[T_BEAM].index[kind]
         local id = brow and read_field(field_at(T_BEAM, brow + 12, 'u32', 100000))
@@ -12982,6 +13086,7 @@ local function resolve_gun(weapon, key)
     -- flame and gas weapons: spray component (+200 damage row), damage per flame / gas hit
     local spray = not drow and record(T_SPRAY)
     if spray then
+        MOD.references.row(weapon, 'Damage', 'spray_projectile_id', 'Projectile ID', T_SPRAY, spray + 196, 'projectile_id')
         local id = read_field(field_at(T_SPRAY, spray + 200, 'u32', 100000))
         drow = id and tables[T_DAMAGE] and tables[T_DAMAGE].index[id]
         -- none of its own (the enemies' bile and acid sprays): its projectile's (+196 projectile type, that +60)
@@ -13001,6 +13106,7 @@ local function resolve_gun(weapon, key)
     local arc = not drow and record(TYPES.arc_weapon)
     local arow = nil
     if arc then
+        MOD.references.row(weapon, 'Arc', 'arc_id', 'Arc ID', TYPES.arc_weapon, arc, 'arc_id')
         local kind = read_field(field_at(TYPES.arc_weapon, arc, 'u32', 100000))
         arow = kind and tables[TYPES.arc] and tables[TYPES.arc].index[kind]
         local id = arow and read_field(field_at(TYPES.arc, arow + 36, 'u32', 100000))
@@ -13251,7 +13357,7 @@ local function resolve_gun(weapon, key)
             local own, shared = {}, {}
             for k = from, #weapon.rows do
                 local r = weapon.rows[k]
-                if r.section == shot.name then own[#own + 1] = r else shared[#shared + 1] = r end
+                if r.section == shot.name or r.damage_origin == shot.name then own[#own + 1] = r else shared[#shared + 1] = r end
                 weapon.rows[k] = nil
             end
             for _, r in ipairs(own) do weapon.rows[#weapon.rows + 1] = r end
@@ -13490,13 +13596,19 @@ local function resolve_gun(weapon, key)
                 local sid = srow and read_field(field_at(T_STATUS, srow + 44, 'u32', 100000))
                 local hurt = sid and sid > 0 and tables[T_DAMAGE] and tables[T_DAMAGE].index[sid]
                 if hurt then
-                    add_row(weapon, section, id .. 'self', 'Damage to you', 'u32',
+                    local legacy=add_row(weapon, section, id .. 'self', 'Damage to you', 'u32',
                             { part(id .. 'self', T_DAMAGE, hurt + 4, 'u32', 1000000),
                               part(id .. 'self_durable', T_DAMAGE, hurt + 8, 'u32', 1000000) }, 0, 100000, 1, 10)
+                    if MOD.damage.enabled(weapon)then
+                        table.remove(weapon.rows) -- retain the old aggregate's config/preset keys
+                        damage_rows(weapon,section..' self damage',id..'self_',hurt)
+                        legacy.hidden=true
+                    end
                     for i = 0, 3 do
                         if read_field(field_at(T_DAMAGE, hurt + 44 + i * 8, 'u32', 100000)) == 5 then
                             add_row(weapon, section, id .. 'self_burn', 'Burning applied to you', 'f32',
                                     { part(id .. 'self_burn', T_DAMAGE, hurt + 48 + i * 8, 'f32', 100000) }, 0, 1000, 0.1, 1)
+                            if MOD.damage.enabled(weapon)then table.remove(weapon.rows)end
                         end
                     end
                 end
@@ -13626,6 +13738,7 @@ end
 -- 'BACKPACK. GUARD DOG (Drone)' -> 'backpack', 'Guard Dog (Drone)'
 local function pretty(debug_name)
     local family, rest = debug_name:match('^%s*([^%.]+)%.%s*(.+)$')
+    if not family and debug_name:match('^%s*EAGLE%s+') then family, rest = 'EAGLE', debug_name:match('^%s*(.+)$') end
     rest = (rest or debug_name):gsub('%a+', function(word)
         if #word <= 2 or word ~= word:upper() or not word:find('[AEIOUY]') then return word end
         return word:sub(1, 1) .. word:sub(2):lower()
@@ -13751,7 +13864,7 @@ end
 
 local function build_stratagems()
     for k = #weapons, 1, -1 do
-        if weapons[k].stratagem or weapons[k].mounted then by_hash[weapons[k].hash] = nil; table.remove(weapons, k) end
+        if weapons[k].stratagem or weapons[k].mounted or weapons[k].orbital_beam then by_hash[weapons[k].hash] = nil; table.remove(weapons, k) end
     end
     -- A Guard Dog, from its stratagem's payloads: its hellpod rack carries the backpack (first slot, +0),
     -- whose charges (DepositComponentData) name the drone (+24); the drone's first mount (+0) is its gun.
@@ -13905,6 +14018,7 @@ local function build_stratagems()
     log(string.format('stratagems: %d group table(s), %d definitions, %d listed (%d from the catalog, %d named in game)',
         #stratagem_groups, total, #list, #STRATAGEMS, named))
     for _, entry in ipairs(list) do entry.stratagem.rearm = defs[EAGLE_REARM] end
+    MOD.orbital.beam_build(list)
 end
 
 -- A sentry's or emplacement's body (issue #44), by its entity (`key`): health +0 (with each zone that has a
@@ -14368,6 +14482,21 @@ function MOD.extra.choices()
             list[#list + 1] = by_type[t]
         end
     end
+    -- Include definitions without a legacy weapon page (Eagle Rearm, mission and unlisted types).
+    if MOD.stratagem and MOD.stratagem.schema.check_layout((rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas)then
+        for _,kind in ipairs(stratagem_groups)do
+            local t=tables[kind]
+            for _,off in pairs(t and t.index or{})do
+                local def={kind=kind,off=off,at=t.copies[1]+HEADER_BYTES+off}
+                local id=peek4(def.at)
+                if id and id>0 and not by_type[id]then
+                    local family,name=pretty(MOD.stratagem.string(def,16))
+                    by_type[id]={type=id,name=name~=''and name or('StratagemType '..id),def=def,family=family}
+                    list[#list+1]=by_type[id]
+                end
+            end
+        end
+    end
     table.sort(list, function(a, b) return a.name:lower() < b.name:lower() end)
     for n, c in ipairs(list) do c.n = n end
     MOD.extra.list, MOD.extra.by_type = list, by_type
@@ -14552,17 +14681,7 @@ local function resolve_stratagem(entry)
     for _, key in ipairs(s.payloads) do
         local bomb = tables[TYPES.bombard] and tables[TYPES.bombard].index[key]
         if bomb then
-            local function b(id, label, offset, storage, min, max, small, big)
-                add_row(entry, 'Barrage', id, label, storage, { part(id, TYPES.bombard, bomb + offset, storage, 100000) }, min, max, small, big)
-            end
-            b('barrage_salvos', 'Salvos', 24, 'u32', 1, 100, 1, 5)
-            b('barrage_shells', 'Shells per salvo', 4, 'u32', 1, 500, 1, 5)
-            b('barrage_shell_gap', 'Time between shells (s)', 8, 'f32', 0, 60, 0.05, 0.25)
-            b('barrage_salvo_gap', 'Time between salvos (s)', 28, 'f32', 0, 120, 0.5, 2)
-            b('barrage_area', 'Spread area (m)', 36, 'f32', 0, 500, 1, 5)
-            if (read_field(field_at(TYPES.bombard, bomb + 96, 'f32', 100000)) or 0) > 0 then
-                b('barrage_speed', 'Walking speed (m/s)', 96, 'f32', 0, 100, 0.5, 2)
-            end
+            MOD.orbital.bomb_rows(entry, bomb)
             break
         end
         local eagle = tables[TYPES.eagle] and tables[TYPES.eagle].index[key]
@@ -14657,6 +14776,482 @@ local function resolve_stratagem(entry)
     end
 end
 
+MOD.stratagem = { schema = require('stratagem_components'), pages = {}, list = nil }
+function MOD.stratagem.array(def, off, stride)
+    local t = tables[def.kind]
+    local lo, hi, count = peek4(def.at + off), peek4(def.at + off + 4), peek4(def.at + off + 8)
+    if not (t and lo and hi and count) or count > 4096 then return nil end
+    if count == 0 then return 0, 0 end
+    local at = lo + hi * 4294967296
+    if at >= t.payload then at = at - t.copies[1] - HEADER_BYTES end
+    if at < 0 or at + count * stride > t.payload then return nil end
+    return at, count
+end
+function MOD.stratagem.string(def, off)
+    local t = tables[def.kind]
+    local lo, hi = peek4(def.at + off), peek4(def.at + off + 4)
+    if not (t and lo and hi) then return '(unavailable)' end
+    if lo == 0 and hi == 0 then return '' end
+    local at = lo + hi * 4294967296
+    if at >= t.payload then at = at - t.copies[1] - HEADER_BYTES end
+    if at < 0 or at >= t.payload then return '(invalid string pointer)' end
+    local b = api.read(t.copies[1] + HEADER_BYTES + at, math.min(512, t.payload - at))
+    return b and b:match('^([^%z]*)%z') or '(unavailable)'
+end
+function MOD.stratagem.hash_text(row, original)
+    local get = original and default_of or read_field
+    local lo, hi = get(row.parts[1].field), get(row.parts[2].field)
+    return lo and hi and MOD.stratagem.schema.u64_text(lo, hi) or '?'
+end
+function MOD.stratagem.rows(entry, def)
+    local S = MOD.stratagem
+    local full, why = S.schema.check_layout((rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE') or {}).schemas)
+    if not full then return nil, why end
+    local rows = {}
+    local function emit(row, field, off, typ)
+        row.section = 'StratagemType'
+        row.section_level = 'component'
+        row.section_of = function() return MOD.nav.text({'StratagemType','战备类型（StratagemType）','戰備類型（StratagemType）'}) end
+        row.label_of=function()return MOD.nav.text(S.schema.names(field))end
+        row.tip_of = function()
+            local names=S.schema.names(field)
+            local lines={ field, MOD.nav.text({names[2],names[2],names[3]})..' / '..names[1],
+                'StratagemInfo +' .. tostring(off) .. ' · ' .. typ }
+            if field:match('^Button%d+$')then lines[#lines+1]=MOD.nav.text({
+                '0 ends the code; 1 up, 2 right, 3 down, 4 left. R restores the full original code.',
+                '0 为结束；1 上、2 右、3 下、4 左。R 恢复整条原始指令。',
+                '0 為結束；1 上、2 右、3 下、4 左。R 還原整條原始指令。'})end
+            return lines
+        end
+        rows[#rows+1] = row
+        return row
+    end
+    local function readonly(name, off, typ, value)
+        local row=emit({id='strat_'..name,label=name,storage='u32',parts={},empty=true,readonly_text=value,
+            min=0,max=0,small=1,big=1},name,off,typ)
+        local own=row.tip_of
+        row.tip_of=function()local lines=own();lines[#lines+1]=type(value)=='function'and value()or value;return lines end
+        return row
+    end
+    local function number(p)
+        local name,off,storage=p[1],p[2],p[3]
+        local id=p[8] or ('strat_'..name)
+        local natural=storage=='u8'and 255 or storage:match('^bit')and 1 or storage=='f32'and 100000 or 4294967295
+        local lo,hi=p[4] or 0,p[5] or natural
+        local f=field_at(def.kind,def.off+off,storage,math.max(math.abs(lo),hi,100000))
+        -- Existing Uses was unsigned with a 999 limit. The game's -1 sentinel needs a signed view.
+        if storage=='i32' then f.storage='i32';f.signed=true;f.limit=2147483648
+        else f.limit=math.max(f.limit or 0,math.abs(lo),hi,100000) end
+        if lo<0 then f.signed=true end
+        local row
+        if id=='extra' then
+            if not entry.by_id.extra then MOD.extra.row(entry,def) end
+            row=entry.by_id.extra.row
+            row.after,row.after_h=nil,nil
+        elseif id=='callin' and entry.by_id.callin then row=entry.by_id.callin.row
+        else
+            local label = id=='cooldown' and 'Cooldown (s)' or id=='uses' and 'Uses' or name
+            row=add_row(entry,'StratagemType',id,label,f.storage,{{id=id,field=f}},lo,hi,p[6]or 1,p[7]or 10)
+        end
+        row.storage,row.min,row.max=f.storage,lo,hi
+        row.small,row.big=p[6]or 1,p[7]or 10
+        if name=='DependsOnStratagemID'or name=='SharedStratagemUpgradesType' then row.reference_type='stratagem_id' end
+        return emit(row,name,off,storage)
+    end
+    local function hash(name, at, label)
+        if not at then return readonly(name,'array','uint64',function()return '0 (' .. MOD.nav.text({'no slot','无此槽位','無此槽位'}) .. ')'end) end
+        local id='strat_'..name
+        local p={part(id..'_lo',def.kind,at,'u32',4294967295),part(id..'_hi',def.kind,at+4,'u32',4294967295)}
+        for _,v in ipairs(p)do v.field.limit=4294967295 end
+        local row=add_row(entry,'StratagemType',id,label or name,'u64',p,0,4294967295,1,1)
+        row.hash64,row.lead=true,true
+        return emit(row,name,at-def.off,'uint64 (exact decimal)')
+    end
+    readonly('StratagemTypeID',0,'StratagemType / uint32',function()return tostring(peek4(def.at))end)
+    readonly('Name',16,'debug_name / string (read-only)',function()return S.string(def,16)end)
+    if not entry.by_id.code then
+        MOD.code.row(entry,def)
+        if not entry.by_id.code then
+            local f=field_at(def.kind,'code'..def.off,'virtual',1e7);f.default,f.def=0,def
+            local row=add_row(entry,'StratagemType','code','Call-in code','u32',{{id='code',field=f}},1,1953124,1,1)
+            row.code=true
+        end
+    end
+    local code=entry.by_id.code
+    emit(code.row,'button_combination',64,'array<StratagemButtonDirection>')
+    for i=1,9 do
+        local row={id='strat_Button'..i,label='Button'..i,storage='u32',parts={code},button_slot=i,def=def,
+            min=0,max=4,small=1,big=1}
+        emit(row,'Button'..i,64,'1 up / 2 right / 3 down / 4 left; 0 ends the code')
+    end
+    for i=1,13 do number(S.schema.FIELDS[i])end
+    -- Legacy menu alias: across 100 name-matched INI/JSON records this is exactly payload.size,
+    -- not an enum for a spatial spawn position. Display the count; never resize an array by raw editing it.
+    local payload_count=readonly('PayloadSpawnPosition',160,'payload.size / array length (read-only)',function()
+        local _,count=S.array(def,152,8);return count and tostring(count)or'(invalid array)'
+    end)
+    payload_count.label='PayloadSpawnPosition ('..MOD.nav.text({'payload count','载荷数量','載荷數量'})..')'
+    local payload,count=S.array(def,152,8)
+    for i=1,math.max(2,count or 0)do hash('Payload'..i,payload and i<=(count or 0) and payload+(i-1)*8 or nil)end
+    for i=1,2 do local p=S.schema.HASHES[i];hash(p[1],def.off+p[2])end
+    for i=14,#S.schema.FIELDS do number(S.schema.FIELDS[i])end
+    -- Fields absent from the reference image are still visible, in a separate component section.
+    local extra_start=#rows+1
+    readonly('RecordID',4,'uint32 (stable record identity)',function()return tostring(peek4(def.at+4))end)
+    for _,p in ipairs(S.schema.EXTRA)do number(p)end
+    for i=3,#S.schema.HASHES do local p=S.schema.HASHES[i];hash(p[1],def.off+p[2])end
+    for i=2,#S.schema.STRINGS do local p=S.schema.STRINGS[i];readonly(p[1],p[2],'string (unresolved semantic name)',function()return S.string(def,p[2])end)end
+    for _,p in ipairs(S.schema.ARRAYS)do
+        local schema=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas
+        local member
+        for _,m in ipairs(schema[S.schema.TYPE].members)do if m.offset==p[2]then member=m;break end end
+        local stride=member.storage==8 and 4 or member.storage==6 and 4 or schema[member.type] and schema[member.type].size
+        readonly(p[1],p[2],'array (read-only)',function()
+            local at,n=S.array(def,p[2],stride or 1)
+            if not at then return '(invalid array)'end
+            if n==0 then return '[] (0)'end
+            if p[2]==304 or p[2]==320 or p[2]==336 or p[2]==352 then
+                local values={};local t=tables[def.kind]
+                for i=0,math.min(n,32)-1 do
+                    if p[2]==304 then
+                        local xyz={}
+                        for k=0,2 do xyz[#xyz+1]=string.format('%g',bits_to_f32(peek4(t.copies[1]+HEADER_BYTES+at+i*12+k*4)))end
+                        values[#values+1]='('..table.concat(xyz,',')..')'
+                    else
+                        local bits=peek4(t.copies[1]+HEADER_BYTES+at+i*4)
+                        values[#values+1]=p[2]==320 and string.format('%g',bits_to_f32(bits))or tostring(bits)
+                    end
+                end
+                return '['..table.concat(values,', ')..(n>32 and ', …'or'')..'] ('..n..')'
+            end
+            local t=tables[def.kind];local b=api.read(t.copies[1]+HEADER_BYTES+at,math.min(n*(stride or 1),64))or''
+            return '['..n..'] '..(b:gsub('.',function(c)return string.format('%02X',c:byte())end))..(n*(stride or 1)>64 and '…'or'')
+        end)
+    end
+    for i=extra_start,#rows do rows[i].section='StratagemType additional';rows[i].section_level='group';rows[i].section_of=function()return MOD.nav.text({
+        'StratagemType: additional fields','StratagemType：其他字段','StratagemType：其他欄位'})end end
+    rows[1].note=function()return 'StratagemTypeID '..tostring(peek4(def.at))end
+    return rows
+end
+function MOD.stratagem.apply(entry,def)
+    local previous={unpack(entry.rows)}
+    local rows,why=MOD.stratagem.rows(entry,def)
+    if not rows then return nil,why end
+    for _,r in ipairs(previous)do
+        if r.id=='rearm' then r.section='Eagle rearm';rows[#rows+1]=r
+        elseif r.section~='Stratagem'and r.section~='Extra stratagem'and r.section~='Stratagem id'
+           and r.section~='StratagemType'and r.section~='StratagemType additional' then rows[#rows+1]=r end
+    end
+    entry.rows=rows
+    return true
+end
+function MOD.stratagem.page(id)
+    local S=MOD.stratagem
+    if not S.schema.check_layout((rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas)then return nil end
+    local def
+    for _,kind in ipairs(stratagem_groups)do
+        local t=tables[kind]
+        for _,off in pairs(t and t.index or{})do
+            local at=t.copies[1]+HEADER_BYTES+off
+            if peek4(at)==id then def={kind=kind,off=off,at=at};break end
+        end
+        if def then break end
+    end
+    if not def then return nil end
+    local hash=string.format('F7%014X',id)
+    local page=S.pages[hash]
+    if page and not page.stale and page.def.at==def.at then return page end
+    page=page or{slot='Records',hash=hash,kind=T_STRATAGEM,id=id,record=true,stratagem_type=true}
+    page.def,page.rows,page.by_id=def,{},{}
+    page.stale=nil
+    page.rows=assert(S.rows(page,def))
+    local text=S.string(def,16);local _,name=pretty(text)
+    page.name=(name~=''and name or 'StratagemType')..' ('..id..')'
+    page.note='StratagemInfo · RecordID '..tostring(peek4(def.at+4))
+    S.pages[hash]=page
+    return page
+end
+function MOD.stratagem.all()
+    local S=MOD.stratagem
+    if S.list then return S.list end
+    local seen,list={},{}
+    for _,kind in ipairs(stratagem_groups)do
+        local t=tables[kind]
+        for _,off in pairs(t and t.index or{})do
+            local id=peek4(t.copies[1]+HEADER_BYTES+off)
+            if id and not seen[id]then
+                seen[id]=true;local page=S.page(id);if page then list[#list+1]=page end
+            end
+        end
+    end
+    table.sort(list,function(a,b)return a.id<b.id end)
+    S.list=list
+    return list
+end
+
+-- 轨道编辑: an orbital's page laid out by the two components the editor edits, field by field in their
+-- own order (the game's StratagemInfo and Bombardment fields): 战备id (the stratagem, StratagemInfo) and
+-- 轰炸id (its payload's Bombardment). A field the editor has a stat for keeps the editor's own name (its
+-- field's name in its tip); unsupported stratagem fields are shown greyed. Bombardment fields are
+-- decoded against the current type library, including signed delays and the byte-sized ship flag. The stats the page used
+-- to list besides (the projectiles', explosions' and damage records', the Orbital Laser's beam) are not
+-- shown: they stay found by their id, so values and presets saved before still apply; the records are
+-- edited under 游戏数据 (射弹id / 爆炸id), the beam under 轨道武器编辑.
+MOD.orbital = {
+    -- id (stable for existing presets), field, offset, storage, min, max, small, big, label, Chinese label.
+    -- Current 192-byte BombardmentComponent: StartDelay is +128, after two effect hashes and
+    -- the newer +120/+124 fields; the old layout's +112 must not be used here.
+    PARAMS = {
+        { 'barrage_initial_delay', 'InitialDelay', 0, 'f32', -3600, 3600, .1, 1, 'InitialDelay', '首发延迟（秒）' },
+        { 'barrage_shells', 'NumberOfBombs', 4, 'u32', 0, 500, 1, 5, 'Shells per salvo' },
+        { 'barrage_shell_gap', 'BombInterval', 8, 'f32', 0, 60, .05, .25, 'Time between shells (s)' },
+        { 'barrage_shell_random', 'BombIntervalRandomOffset', 12, 'f32', 0, 60, .05, .25, 'BombIntervalRandomOffset', '炮弹间隔随机偏移（秒）' },
+        { 'barrage_wander_min', 'WanderOffsetRadiusMin', 16, 'f32', 0, 10000, 1, 5, 'WanderOffsetRadiusMin', '相邻弹落点最小游走距离（米）' },
+        { 'barrage_wander_max', 'WanderOffsetRadiusMax', 20, 'f32', 0, 10000, 1, 5, 'WanderOffsetRadiusMax', '相邻弹落点最大游走距离（米）' },
+        { 'barrage_salvos', 'NumberOfSalvos', 24, 'u32', 0, 100, 1, 5, 'Salvos' },
+        { 'barrage_salvo_gap', 'SalvoInterval', 28, 'f32', 0, 120, .5, 2, 'Time between salvos (s)' },
+        { 'barrage_salvo_random', 'SalvoIntervalRandomOffset', 32, 'f32', 0, 120, .1, 1, 'SalvoIntervalRandomOffset', '齐射间隔随机偏移（秒）' },
+        { 'barrage_area', 'AreaSize', 36, 'f32', 0, 500, 1, 5, 'Spread area (m)' },
+        { 'barrage_wander_start', 'WanderStartAreaRadius', 40, 'f32', 0, 10000, 1, 5, 'WanderStartAreaRadius', '初始游走范围半径（米）' },
+        { 'barrage_height', 'FireFromHeight', 44, 'f32', 0, 100000, 10, 100, 'FireFromHeight', '发射高度（米）' },
+        { 'barrage_from_ship', 'FireFromShip', 60, 'flag', 0, 1, 1, 1, 'FireFromShip', '从舰船位置发射' },
+        { 'barrage_angle_x', 'FiringAngleOffsetX', 48, 'f32', -360, 360, .1, 1, 'FiringAngleOffsetX', '发射方向偏移 X' },
+        { 'barrage_angle_y', 'FiringAngleOffsetY', 52, 'f32', -360, 360, .1, 1, 'FiringAngleOffsetY', '发射方向偏移 Y' },
+        { 'barrage_angle_z', 'FiringAngleOffsetZ', 56, 'f32', -360, 360, .1, 1, 'FiringAngleOffsetZ', '发射方向偏移 Z' },
+        { 'barrage_projectile1', 'ProjectileID1', 64, 'u32', 0, 100000, 1, 10, 'ProjectileID1', '射弹 ID 1' },
+        { 'barrage_projectile2', 'ProjectileID2', 68, 'u32', 0, 100000, 1, 10, 'ProjectileID2', '射弹 ID 2' },
+        { 'barrage_projectile3', 'ProjectileID3', 72, 'u32', 0, 100000, 1, 10, 'ProjectileID3', '射弹 ID 3' },
+        { 'barrage_projectile4', 'ProjectileID4', 76, 'u32', 0, 100000, 1, 10, 'ProjectileID4', '射弹 ID 4' },
+        { 'barrage_projectile5', 'ProjectileID5', 80, 'u32', 0, 100000, 1, 10, 'ProjectileID5', '射弹 ID 5' },
+        { 'barrage_projectile6', 'ProjectileID6', 84, 'u32', 0, 100000, 1, 10, 'ProjectileID6', '射弹 ID 6' },
+        { 'barrage_projectile7', 'ProjectileID7', 88, 'u32', 0, 100000, 1, 10, 'ProjectileID7', '射弹 ID 7' },
+        { 'barrage_projectile8', 'ProjectileID8', 92, 'u32', 0, 100000, 1, 10, 'ProjectileID8', '射弹 ID 8' },
+        { 'barrage_speed', 'WalkSpeed', 96, 'f32', 0, 100, .5, 2, 'Walking speed (m/s)' },
+        { 'barrage_start_delay', 'StartDelay', 128, 'f32', -3600, 3600, .1, 1, 'StartDelay', '轰炸启动延迟（秒）' },
+        { 'barrage_walk_angle', 'WalkAngleDegree', 132, 'f32', -360, 360, 1, 10, 'WalkAngleDegree', '行进角度（度）' },
+        { 'barrage_walk_fraction', 'WalkOffsetFraction', 136, 'f32', 0, 1, .05, .1, 'WalkOffsetFraction', '目标后方行进占比（0–1）' },
+    },
+    STRATAGEM = { 'StratagemTypeID', 'Name', { 'Button1', 'code' }, 'Button2', 'Button3', 'Button4', 'Button5', 'Button6',
+                  'Button7', 'Button8', 'Button9', 'Category', { 'Uses', 'uses' }, { 'SpawnTime', 'callin' }, 'SpawnRadius',
+                  'BeaconingTime', 'ExtraTravelTime', { 'Cooldown', 'cooldown' }, 'CooldownIfFail', 'OriginType',
+                  'CallInType', 'ObjectiveRequirement', 'StratagemFlags', 'CooldownType', 'PayloadSpawnPosition',
+                  'Payload1', 'Payload2', 'Package', 'Icon', 'HUDType', 'Cost', 'IsEnabled', 'DependsOnStratagemID',
+                  { 'AdditionalStratagemID', 'extra' }, 'MaxInLoadout', 'BeaconColor', 'ShipLaserPointer', 'AltCooldown',
+                  'ExtraHellpods' },
+    BOMBARDMENT = { 'EntityHash' },
+    NAMES = { stratagem = { 'Stratagem id', '战备id', '戰備id' }, bombardment = { 'BombardmentType', '轰炸类型（BombardmentType）', '轟炸類型（BombardmentType）' } },
+    TEXTS = { type = { 'StratagemTypeID %s', 'StratagemTypeID %s', 'StratagemTypeID %s' },
+              hash = { 'EntityHash %s', 'EntityHash %s', 'EntityHash %s' },
+              shared = { '; shared with %s', '；与以下共用：%s', '；與以下共用：%s' },
+              none = { 'no Bombardment component', '此战略配备没有轰炸组件', '此戰略配備沒有轟炸組件' },
+              field = { 'Field: %s', '对应字段：%s', '對應欄位：%s' },
+              grey = { 'Not in the editor yet: %s', '修改器暂无此参数：%s', '修改器暫無此參數：%s' } },
+}
+-- Verify the containing fields too: vector3 at +48 and the eight 4-byte enums at +64.
+function MOD.orbital.check_layout(schemas)
+    local t = schemas and schemas[TYPES.bombard]
+    local row = t and t.members and t.members[2] and schemas[t.members[2].type]
+    if not row or row.size ~= 192 then return false end
+    local expected = { {0,4,8}, {4,4,6}, {8,4,8}, {12,4,8}, {16,4,8}, {20,4,8}, {24,4,6},
+        {28,4,8}, {32,4,8}, {36,4,8}, {40,4,8}, {44,4,8}, {48,12,20}, {60,1,4},
+        {64,32,16}, {96,4,8}, {128,4,8}, {132,4,8}, {136,4,8} }
+    local at = {}
+    for _, m in ipairs(row.members) do at[m.offset] = m end
+    for _, e in ipairs(expected) do
+        local m = at[e[1]]
+        if not m or m.size ~= e[2] or m.storage ~= e[3] then return false end
+    end
+    return at[64].count == 8 and at[64].atom == 2
+end
+function MOD.orbital.bomb_rows(entry, bomb)
+    local O = MOD.orbital
+    local full = O.check_layout((rawget(_G, 'SHODAN_COMPONENT_CATALOG_SOURCE') or {}).schemas)
+    local known = { barrage_shells=true, barrage_shell_gap=true, barrage_salvos=true,
+                    barrage_salvo_gap=true, barrage_area=true, barrage_speed=true }
+    for _, p in ipairs(O.PARAMS) do
+        if full or known[p[1]] then
+            local f = part(p[1], TYPES.bombard, bomb + p[3], p[4], 100000)
+            if p[5] < 0 then f.field.signed = true end
+            local row = add_row(entry, 'Barrage', p[1], p[9], p[4], { f }, p[5], p[6], p[7], p[8])
+            if p[10] then row.label_of = function()
+                return MOD.nav.text({ p[9], p[10], p[10] })
+            end end
+            if p[2]:match('^ProjectileID') then row.choice = 'shrapnel' end
+        end
+    end
+end
+-- All fields in the screenshot's order; retain the original stat ids for old configs and presets.
+for _, p in ipairs(MOD.orbital.PARAMS) do
+    MOD.orbital.BOMBARDMENT[#MOD.orbital.BOMBARDMENT + 1] = { p[2], p[1] }
+end
+-- an 8-byte key as the unsigned decimal the game's tables print (EntityHash=8480614394778878677)
+function MOD.orbital.decimal(key)
+    local digits = { 0 }   -- little-endian base 10
+    local function times_plus(m, a)
+        local carry = a
+        for k = 1, #digits do
+            local v = digits[k] * m + carry
+            digits[k], carry = v % 10, math.floor(v / 10)
+        end
+        while carry > 0 do digits[#digits + 1], carry = carry % 10, math.floor(carry / 10) end
+    end
+    for k = 8, 1, -1 do times_plus(256, key:byte(k)) end
+    local out = {}
+    for k = #digits, 1, -1 do out[#out + 1] = tostring(digits[k]) end
+    return table.concat(out)
+end
+function MOD.orbital.layout(entry)
+    local s, O = entry.stratagem, MOD.orbital
+    local function tx(n) return MOD.nav.text(n) end
+    local made = {}
+    for _, row in ipairs(entry.rows) do made[row.id] = made[row.id] or row end
+    local bomb_key
+    for _, key in ipairs(s.payloads) do
+        if tables[TYPES.bombard] and tables[TYPES.bombard].index[key] then bomb_key = key; break end
+    end
+    local rows = {}
+    local function section(fields, name, note)
+        local first = true
+        for _, f in ipairs(fields) do
+            local field, id = type(f) == 'table' and f[1] or f, type(f) == 'table' and f[2] or nil
+            local r = id and made[id]
+            local row
+            if r then
+                row = r
+                local own = r.tip
+                row.tip, row.tip_of = nil, function()
+                    local lines = { string.format(tx(O.TEXTS.field), field == 'Button1' and 'Button1-Button9' or field) }
+                    for _, line in ipairs(own or {}) do lines[#lines + 1] = line end
+                    return lines
+                end
+            elseif not (field:match('^Button[2-9]$') and made.code) then
+                row = { id = 'empty_' .. name[1]:sub(1, 1) .. field, label = field, storage = 'f32', parts = {}, min = 0, max = 0,
+                        small = 1, big = 1, empty = true }
+                row.tip_of = function() return { string.format(tx(O.TEXTS.grey), field) } end
+                if field == 'EntityHash' and bomb_key then
+                    row.readonly_text = O.decimal(bomb_key)
+                    row.tip_of = function() return { 'EntityHash: ' .. O.decimal(bomb_key) } end
+                end
+            end
+            if row then
+                row.section, row.section_of = name[1], function() return tx(name) end
+                if name == O.NAMES.bombardment then row.section_level = 'component' end
+                if first then row.note = note end
+                first = false
+                rows[#rows + 1] = row
+            end
+        end
+    end
+    local def = s.def
+    local t = def and peek4(def.at)
+    section(O.STRATAGEM, O.NAMES.stratagem, function() return t and string.format(tx(O.TEXTS.type), t) or '' end)
+    section(O.BOMBARDMENT, O.NAMES.bombardment, function(others)
+        if not bomb_key then return tx(O.TEXTS.none) end
+        local note = string.format(tx(O.TEXTS.hash), O.decimal(bomb_key))
+        if others and #others > 0 then
+            note = note .. string.format(tx(O.TEXTS.shared), table.concat(others, ', ', 1, math.min(3, #others)) ..
+                                                              (#others > 3 and (' +' .. (#others - 3)) or ''))
+        end
+        return note
+    end)
+    -- the extra stratagem's 'also in your loadout...' note: in its tip now (a section's note is its component id)
+    if made.extra and type(made.extra.note) == 'string' then
+        local own, extra = made.extra.note, made.extra
+        local tip_of = extra.tip_of
+        extra.note = nil
+        extra.tip_of = function()
+            local lines = tip_of()
+            lines[#lines + 1] = own
+            return lines
+        end
+    end
+    -- the stats not laid out: no longer rows of this page, still found by their id (by_id is kept as it was);
+    -- Reset still takes them back to the game's values
+    local placed, hidden = {}, {}
+    for _, row in ipairs(rows) do placed[row] = true end
+    for _, row in ipairs(entry.rows) do if not placed[row] then hidden[#hidden + 1] = row end end
+    entry.rows, entry.hidden_rows = rows, hidden
+end
+-- 轨道武器编辑: the orbital beam component (the Orbital Laser's), one page per entity that has it, listed by the
+-- orbital stratagem that calls it in. The page's hash is the entity's (component first); the stratagem's page
+-- no longer shows these rows, but still finds its values saved before by their id (a change here replaces them).
+MOD.orbital.BEAM = { name = { 'Orbital beam', '轨道光束', '軌道光束' },
+                     note = { 'Orbital beam component of the %s.', '%s 的轨道光束组件。', '%s 的軌道光束組件。' } }
+function MOD.orbital.beam_build(list)
+    local bt = tables[T_ORBITAL]
+    if not bt then return end
+    local callers = {}
+    for _, entry in ipairs(list) do
+        for _, key in ipairs(entry.stratagem.family == 'orbital' and entry.stratagem.payloads or {}) do
+            callers[key] = callers[key] or entry
+        end
+    end
+    -- Enumerate the component itself, including records without a listed stratagem.
+    local names = require('orbital_components').SPECS[1].NAMES
+    local keys = {}; for key in pairs(bt.index) do keys[#keys + 1] = key end
+    table.sort(keys, function(a,b) return MOD.orbital.decimal(a) < MOD.orbital.decimal(b) end)
+    for _, key in ipairs(keys) do
+        local hash = string.format('%08X%08X', u32(key, 4), u32(key, 0))
+        if not by_hash[hash] then
+            local entry = callers[key]
+            local page = { name = entry and entry.name or names[hash] or hash, slot = 'Stratagems', hash = hash,
+                key = key, rows = {}, by_id = {}, orbital_beam = { key = key, stratagem = entry }, note = 'Orbital weapon' }
+            weapons[#weapons + 1] = page; by_hash[hash] = page
+        end
+    end
+end
+function MOD.orbital.beam_resolve(page)
+    local at = tables[T_ORBITAL] and tables[T_ORBITAL].index[page.key]
+    if not at then return end
+    local V, spec = require('component_view'), require('orbital_components').SPECS[1]
+    local schemas = (rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE') or {}).schemas
+    local full, why = V.check_layout(spec, schemas, T_ORBITAL)
+    if full then
+        local view = V.build(spec, {table={index={[page.key]=at}},kind=T_ORBITAL,weapons=weapons,
+            by_hash=by_hash,page_for=function()return page end,field_at=field_at,read=read_field,
+            add_row=add_row,default_of=default_of,schemas=schemas,log=log,
+            names=rawget(_G,'SHODAN_COMPONENT_NAMES'),lang=function()return state.lang and state.lang() or 'en' end,
+            reference=function(row,ref,f,value)
+                row.reference_type=ref;row.choice='reference'
+                local target=tables[MOD.references.KINDS[ref]]
+                if target then
+                    f.allowed=f.allowed or setmetatable({[0]=true,[value]=true,why='No matching record in this game build.'},
+                        {__index=function(_,id)return target.index[id]~=nil end})
+                end
+            end})
+        page.orbital_full = view.full
+        table.insert(page.rows,1,{id='orbital_entity_hash',label='EntityHash',storage='u64',parts={},empty=true,
+            readonly_text=MOD.orbital.decimal(page.key),section='orbital:identity',
+            component=spec.TYPE,component_of=function()return MOD.nav.text(spec.COMPONENT)end,
+            section_of=function()return MOD.nav.text({'Identity','实体标识','實體識別'})end})
+        return
+    end
+    log('orbital: expanded fields refused: '..tostring(why))
+    page.note_of=function()return MOD.nav.text({'Orbital layout differs; only four legacy fields are available.',
+        '轨道组件布局未匹配，仅开放原有四项参数。','軌道組件佈局未匹配，僅開放原有四項參數。'})end
+    local first = true
+    local function b(id, label, offset, min, max, small, big)
+        local row = add_row(page, 'Orbital beam', id, label, 'f32', { part(id, T_ORBITAL, at + offset, 'f32', 100000) }, min, max, small, big)
+        row.section_of = function() return MOD.nav.text(MOD.orbital.BEAM.name) end
+        if first then
+            row.note = function() return string.format(MOD.nav.text(MOD.orbital.TEXTS.hash), MOD.orbital.decimal(page.key)) end
+        end
+        first = false
+    end
+    b('beam_duration', 'Duration (s)', 460, 0, 600, 1, 5)
+    b('beam_speed', 'Tracking speed', 468, 0, 200, 1, 5)
+    b('beam_radius', 'Search radius (m)', 472, 0, 500, 1, 10)
+    b('beam_tick', 'Damage tick (s)', 480, 0.01, 10, 0.01, 0.05)
+end
+do
+    local rows_of = resolve_stratagem
+    resolve_stratagem = function(entry)
+        rows_of(entry)
+        if entry.stratagem.family == 'orbital' then MOD.orbital.layout(entry) end
+        if entry.stratagem.def then MOD.stratagem.apply(entry,entry.stratagem.def) end
+    end
+end
+
 -- Throwables: throwable component (+100 starting, +104 max, +108 from supply, +16 max throw
 -- distance), explosive component (+0 mode: 0 timed, 3 timed then burning; +12 fuse; +36 explosion),
 -- sticky component (+44 damage row: the throwing knife's hit). The explosion: its damage set,
@@ -14689,6 +15284,7 @@ local function resolve_throwable(entry, placed)
     end
     local ex = record(TYPES.explosive)
     if not ex then return end
+    MOD.references.row(entry, 'Explosion', 'explosion_id', 'Explosion ID', TYPES.explosive, ex + 36, 'explosion_id')
     local function explosion(id, prefix, section, deep)
         local xrow = id and id > 0 and tables[T_EXPLOSION] and tables[T_EXPLOSION].index[id]
         if not xrow then return false end
@@ -15643,6 +16239,7 @@ local function resolve(weapon)
     if weapon.passive then KINDS[TYPES.passive].resolve(weapon); return end
     if weapon.kits then MOD.kits.resolve(weapon); return end
     if weapon.player then KINDS[TYPES.avatar].resolve(weapon); return end
+    if weapon.orbital_beam then MOD.orbital.beam_resolve(weapon); return end
     if weapon.stratagem then resolve_stratagem(weapon); return end
     if weapon.attachment then
         KINDS[TYPES.items].mod_rows(weapon, 'Attachment', '', weapon.attachment.mods)
@@ -15871,9 +16468,48 @@ end
 -- Records (CarbonAnime, PR #58): the projectile, explosion and status records themselves, by id. Their names: a
 -- projectile's the game's name of its round (MOD.round_names), else the first weapon that fires it; an explosion's
 -- the first weapon that sets it off, else the round that does; a status's its own (Burning, Gas, stuns).
-MOD.records = { pages = {}, list = nil, cache = nil, KINDS = { T_PROJECTILE, T_EXPLOSION, T_STATUS },
-                WORD = { [T_PROJECTILE] = 'Projectile', [T_EXPLOSION] = 'Explosion', [T_STATUS] = 'Status' },
-                PREFIX = { [T_PROJECTILE] = 'F1', [T_EXPLOSION] = 'F2', [T_STATUS] = 'F3' } }
+MOD.records = { pages = {}, list = nil, cache = nil, KINDS = { T_PROJECTILE, T_EXPLOSION, T_STATUS, T_DAMAGE, TYPES.arc, T_BEAM },
+                WORD = { [T_PROJECTILE] = 'Projectile', [T_EXPLOSION] = 'Explosion', [T_STATUS] = 'Status',
+                         [T_DAMAGE] = 'Damage', [TYPES.arc] = 'Arc', [T_BEAM] = 'Beam' },
+                PREFIX = { [T_PROJECTILE] = 'F1', [T_EXPLOSION] = 'F2', [T_STATUS] = 'F3',
+                           [T_DAMAGE] = 'F4', [TYPES.arc] = 'F5', [T_BEAM] = 'F6' } }
+-- Semantic reference types, independent of labels/translations and integer storage.
+MOD.references = {
+    KINDS = { projectile_id=T_PROJECTILE, explosion_id=T_EXPLOSION, damage_id=T_DAMAGE,
+              status_effect_id=T_STATUS, arc_id=TYPES.arc, beam_id=T_BEAM },
+    CHOICES = { shrapnel='projectile_id', explosion='explosion_id', status='status_effect_id', stratagem='stratagem_id' },
+}
+function MOD.references.type_of(row)
+    if row.reference_type then return row.reference_type end
+    if row.choice == true then return 'projectile_id' end
+    return MOD.references.CHOICES[row.choice]
+end
+-- Display-only references have no writable parts, so presets/resets cannot change a record identity
+-- or an internal link that this page only reads to show its existing stats.
+function MOD.references.row(entry, section, id, label, kind, offset, ref)
+    local f = field_at(kind, offset, 'u32', 100000)
+    local row = add_row(entry, section, id, label, 'u32', {}, 0, 100000, 1, 1)
+    row.reference_type, row.link_only = ref, true
+    row.reference_value = function() return read_field(f) end
+    row.label_of = function()
+        return MOD.nav.text(({ damage_id={'Damage ID','伤害 ID','傷害 ID'},
+            projectile_id={'Projectile ID','射弹 ID','射彈 ID'}, explosion_id={'Explosion ID','爆炸 ID','爆炸 ID'},
+            arc_id={'Arc ID','电弧 ID','電弧 ID'}, beam_id={'Beam ID','激光 ID','激光 ID'} })[ref] or label)
+    end
+    return row
+end
+function MOD.references.tip(row, own)
+    local ref = MOD.references.type_of(row)
+    if not ref then return own end
+    local lines = { row.label_of and row.label_of() or row.label }
+    for _, line in ipairs(own or {}) do lines[#lines + 1] = line end
+    lines[#lines + 1] = MOD.nav.text({ 'Type: ', '数值类型：', '數值類型：' }) .. ref
+    lines[#lines + 1] = MOD.nav.text({ 'Double-click the ID to open its record; single-click to edit.',
+        '双击 ID 跳转到对应记录；单击数值可输入。', '雙擊 ID 跳轉到對應記錄；單擊數值可輸入。' })
+    if row.link_only then lines[#lines] = MOD.nav.text({ 'Double-click the ID to open its record (read-only reference).',
+        '双击 ID 跳转到对应记录（只读引用）。', '雙擊 ID 跳轉到對應記錄（唯讀引用）。' }) end
+    return lines
+end
 -- the fuse rows' notes (PR #80 by CarbonAnime): a blast proximity works only with the blast angle (+136) at 360
 -- (tested in game: the crossbow at 80 and 6 m does not burst in flight, the GL-21 at 360 and 6 m does), and a radius
 -- smaller than one step of the round is stepped over
@@ -15951,8 +16587,10 @@ function MOD.records.name(kind, id)
     local u = MOD.records.users()
     if kind == T_PROJECTILE then return MOD.round_names and MOD.round_names[id] or (u.shots[id] or {})[1]
     elseif kind == T_EXPLOSION then return (u.blasts[id] or {})[1] or u.rounds[id] end
-    if state.lang and state.lang() == 'zh-Hans' and MOD.status.by[id] then return MOD.status.by[id].name end
-    return KINDS[T_STATUS].names[id] or KINDS[T_STATUS].stuns[id]
+    if kind == T_STATUS then
+        if state.lang and state.lang() == 'zh-Hans' and MOD.status.by[id] then return MOD.status.by[id].name end
+        return KINDS[T_STATUS].names[id] or KINDS[T_STATUS].stuns[id]or(MOD.status_component and MOD.status_component.name(id))
+    end
 end
 -- A choice's label in a note: '#12 · 10g Sabot' (the name in the panel's language), 'none (no explosion)'.
 function MOD.records.label(kind, id)
@@ -15994,9 +16632,348 @@ function MOD.records.shrapnel_rows(entry, section, pre, xrow)
             0, 500, 1, 5)
 end
 -- A record page's rows (page.kind, page.id).
+MOD.projectile={schema=require('projectile_components')}
+function MOD.projectile.rows(page,at)
+    local C=MOD.projectile.schema
+    if not C.check_layout((rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas)then return nil end
+    page.rows={} -- keep the old inline config bindings, without expanding referenced components
+    local function emit(row,s,typ)
+        local field,off,group=s[1],s[2],s[4]
+        row.component='ProjectileType'
+        row.component_of=function()return MOD.nav.text({'ProjectileType','射弹类型（ProjectileType）','射彈類型（ProjectileType）'})end
+        row.section='ProjectileType:'..group
+        row.section_of=function()return MOD.nav.text(C.GROUPS[group])end
+        row.label_of=function()return MOD.nav.text({field=='type'and'Projectile ID'or field:gsub('_',' '),s[5],s[6]})end
+        row.tip_of=function()
+            local lines={field,MOD.nav.text({s[5],s[5],s[6]})..' / '..field,'ProjectileInfo +'..off..' · '..typ}
+            if group=='unknown'then lines[#lines+1]=MOD.nav.text({'Meaning unknown; named by offset in the reference export.','含义尚未确认；按参考文件中的偏移命名。','含義尚未確認；按參考檔案中的偏移命名。'})end
+            if field=='status_effect_volume_template'or field=='effect_damage_type'then lines[#lines+1]=MOD.nav.text({
+                'Template/effect enum, not a status-effect or damage record ID.','这是模板/特效枚举，不是状态效果或伤害记录 ID。','這是範本/特效列舉，不是狀態效果或傷害記錄 ID。'})end
+            return lines
+        end
+        return row
+    end
+    for _,s in ipairs(C.FIELDS)do
+        local name,off,storage,id=s[1],s[2],s[3],s[7]or s[1]:gsub('%.','_')
+        local row
+        if storage=='id'then
+            row=MOD.references.row(page,'Projectile',id,'Projectile ID',T_PROJECTILE,at+off,'projectile_id')
+        elseif storage=='u64' then
+            local parts={part(id..'_lo',T_PROJECTILE,at+off,'u32',4294967295),part(id..'_hi',T_PROJECTILE,at+off+4,'u32',4294967295)}
+            for _,p in ipairs(parts)do p.field.limit=4294967295 end
+            row=add_row(page,'Projectile',id,name,'u64',parts,0,4294967295,1,1)
+            row.hash64,row.lead=true,true
+        else
+            local p=part(id,T_PROJECTILE,at+off,storage,storage=='f32'and 1e12 or storage:match('^bit')and 1 or 4294967295)
+            p.field.limit=storage=='f32'and 1e12 or storage:match('^bit')and 1 or 4294967295
+            local signed=storage=='f32'and(s[4]=='unknown'or s[4]=='attachment'or name=='gravity_multiplier')
+            if signed then p.field.signed=true end
+            local value=read_field(p.field)or 0
+            local max=storage=='u16'and 65535 or storage=='u8'and 255 or storage:match('^bit')and 1 or storage=='f32'and 1e9 or 4294967295
+            row=add_row(page,'Projectile',id,name,p.field.storage,{p},math.min(signed and -1e9 or 0,value),math.max(max,value),storage=='f32'and .1 or 1,storage=='f32'and 1 or 10)
+            if s[8]then
+                row.reference_type,row.choice=s[8],'reference'
+                local kind=MOD.references.KINDS[s[8]]
+                p.field.allowed=setmetatable({[0]=true,[value]=true,why='No matching record in this game build.'},{__index=function(_,target)
+                    return tables[kind]and tables[kind].index[target]~=nil
+                end})
+            end
+        end
+        emit(row,s,storage=='u64'and'uint64 (exact decimal)'or storage)
+        if name=='projectile_flags_1'or name=='projectile_flags_2'then
+            for _,b in ipairs(C.BITS)do if b[2]==off then
+                local flag=add_row(page,'Projectile',b[1],b[1],'flag',{},0,1,1,1)
+                flag.parts={{id=id,field=row.parts[1].field,row=flag}}
+                flag.packed_flag=2^b[3]
+                emit(flag,{b[1],b[2],nil,b[4],b[5],b[6]},'bit '..b[3]..' of '..storage)
+            end end
+        end
+    end
+    return true
+end
+MOD.explosion={schema=require('explosion_components')}
+function MOD.explosion.shakes(at)
+    local t=tables[T_EXPLOSION]
+    if not t then return nil,nil,'table unavailable'end
+    local base=t.copies[1]+HEADER_BYTES
+    local lo,hi,count,pad=peek4(base+at+40),peek4(base+at+44),peek4(base+at+48),peek4(base+at+52)
+    if not(lo and hi and count and pad)or count>4096 or pad~=0 then return nil,nil,'invalid array count'end
+    if count==0 then return 0,0 end
+    local target=lo+hi*4294967296
+    if target>=t.payload then target=target-base end
+    local records=peek4(base+8)
+    if not records or target<16+records*152 or target+count*8>t.payload then return nil,nil,'array outside table'end
+    return target,count
+end
+function MOD.explosion.rows(page,at)
+    local C=MOD.explosion.schema
+    if not C.check_layout((rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas)then return nil end
+    page.rows={}
+    local function emit(row,s,typ)
+        local field,off,group=s[1],s[2],s[4]
+        row.component='ExplosionType'
+        row.component_of=function()return MOD.nav.text({'ExplosionType','爆炸类型（ExplosionType）','爆炸類型（ExplosionType）'})end
+        row.section='ExplosionType:'..group
+        row.section_of=function()return MOD.nav.text(C.GROUPS[group])end
+        row.label_of=function()return MOD.nav.text({field=='type'and'Explosion ID'or field=='shake_assets'and'Camera shake asset count'or field:gsub('_',' '),s[5],s[6]})end
+        row.tip_of=function()
+            local lines={field,MOD.nav.text({s[5],s[5],s[6]})..' / '..field,'ExplosionInfo +'..off..' · '..typ}
+            if group=='unknown'or field:match('^unk_')then lines[#lines+1]=MOD.nav.text({'Meaning unknown; current type-library offset and storage verified.','含义尚未确认；已核对当前类型库的偏移和存储类型。','含義尚未確認；已核對目前型別庫的偏移與儲存型別。'})end
+            if field=='persistent_status_volume'or field=='hit_effect_damage_type'then lines[#lines+1]=MOD.nav.text({
+                'Template/effect enum, not a status-effect or damage record ID.','这是模板/特效枚举，不是状态效果或伤害记录 ID。','這是範本/特效列舉，不是狀態效果或傷害記錄 ID。'})end
+            return lines
+        end
+        return row
+    end
+    local function hash(s,offset,id,typ)
+        local parts={part(id..'_lo',T_EXPLOSION,offset,'u32',4294967295),part(id..'_hi',T_EXPLOSION,offset+4,'u32',4294967295)}
+        for _,p in ipairs(parts)do p.field.limit=4294967295 end
+        local row=add_row(page,'Explosion',id,s[1],'u64',parts,0,4294967295,1,1)
+        row.hash64,row.lead=true,true
+        return emit(row,s,typ or'uint64 (exact decimal)')
+    end
+    for _,s in ipairs(C.FIELDS)do
+        local name,off,storage,id=s[1],s[2],s[3],s[7]or s[1]
+        if storage=='array'then
+            local target,count,why=MOD.explosion.shakes(at)
+            local row=emit(add_row(page,'Explosion',id,name,'u32',{},0,0,1,1),s,'array<uint64>; count read-only')
+            row.empty=true;row.readonly_text=count and tostring(count)or('('..tostring(why)..')')
+            for i=1,count or 0 do
+                hash({'shake_assets['..i..']',40,'u64','shake','震屏资源 '..i..' 哈希','震屏資源 '..i..' 雜湊'},target+(i-1)*8,
+                    'shake_asset_'..i,'array<uint64> element; payload +'..(target+(i-1)*8)..' (exact decimal)')
+            end
+        elseif storage=='u64' then hash(s,at+off,id)
+        else
+            local row
+            if storage=='id'then row=MOD.references.row(page,'Explosion',id,'Explosion ID',T_EXPLOSION,at+off,'explosion_id')
+            else
+                local limit=storage=='f32'and 1e12 or storage=='i8'and 128 or storage:match('^bit')and 1 or 4294967295
+                local p=part(id,T_EXPLOSION,at+off,storage,limit);p.field.limit=limit
+                local signed=storage=='f32'or storage=='i8'
+                if signed then p.field.signed=true end
+                local value=read_field(p.field)or 0
+                local max=storage=='i8'and 127 or storage=='u8'and 255 or storage:match('^bit')and 1 or storage=='f32'and 1e9 or 4294967295
+                local min=storage=='i8'and -128 or storage=='f32'and s[4]=='unknown'and -1e9 or 0
+                row=add_row(page,'Explosion',id,name,p.field.storage,{p},math.min(min,value),math.max(max,value),storage=='f32'and .1 or 1,storage=='f32'and 1 or 10)
+                if s[8]then
+                    row.reference_type,row.choice=s[8],'reference'
+                    local kind=MOD.references.KINDS[s[8]]
+                    p.field.allowed=setmetatable({[0]=true,[value]=true,why='No matching record in this game build.'},{__index=function(_,target)
+                        return tables[kind]and tables[kind].index[target]~=nil
+                    end})
+                end
+            end
+            emit(row,s,storage)
+            for _,b in ipairs(C.BITS)do if b[2]==off then
+                local flag=add_row(page,'Explosion',b[1],b[1],'flag',{},0,1,1,1)
+                flag.parts={{id=id,field=row.parts[1].field,row=flag}};flag.packed_flag=2^b[3]
+                emit(flag,{b[1],b[2],nil,b[4],b[5],b[6]},'bit '..b[3]..' of uint8')
+            end end
+        end
+    end
+    return true
+end
+MOD.arc={schema=require('arc_components')}
+function MOD.arc.rows(page,at)
+    local C=MOD.arc.schema
+    if not C.check_layout((rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas)then return nil end
+    page.rows={} -- retain legacy inline config bindings, while displaying the current ArcInfo only
+    for _,s in ipairs(C.FIELDS)do
+        local name,off,storage,id=s[1],s[2],s[3],s[7]or s[1]
+        local row
+        if storage=='id'then row=MOD.references.row(page,'Arc',id,'Arc ID',TYPES.arc,at+off,'arc_id')
+        elseif storage=='u64'then
+            local parts={part(id..'_lo',TYPES.arc,at+off,'u32',4294967295),part(id..'_hi',TYPES.arc,at+off+4,'u32',4294967295)}
+            for _,p in ipairs(parts)do p.field.limit=4294967295 end
+            row=add_row(page,'Arc',id,name,'u64',parts,0,4294967295,1,1)
+            row.hash64,row.lead=true,true
+        else
+            local limit=storage=='f32'and 1e12 or storage:match('^bit')and 1 or 4294967295
+            local p=part(id,TYPES.arc,at+off,storage,limit);p.field.limit=limit
+            if storage=='f32'then p.field.signed=true end
+            local value=read_field(p.field)or 0
+            local max=storage:match('^bit')and 1 or storage=='f32'and 1e9 or 4294967295
+            row=add_row(page,'Arc',id,name,p.field.storage,{p},math.min(0,value),math.max(max,value),storage=='f32'and .1 or 1,storage=='f32'and 1 or 10)
+            if s[8]then
+                row.reference_type,row.choice=s[8],'reference'
+                local kind=MOD.references.KINDS[s[8]]
+                p.field.allowed=setmetatable({[0]=true,[value]=true,why='No matching record in this game build.'},{__index=function(_,target)
+                    return tables[kind]and tables[kind].index[target]~=nil
+                end})
+            end
+        end
+        row.component='ArcType'
+        row.component_of=function()return MOD.nav.text({'ArcType','电弧类型（ArcType）','電弧類型（ArcType）'})end
+        row.section='ArcType:'..s[4]
+        row.section_of=function()return MOD.nav.text(C.GROUPS[s[4]])end
+        row.label_of=function()return MOD.nav.text({name=='type'and'Arc ID'or name=='damage_info_type'and'Damage ID'or name:gsub('_',' '),s[5],s[6]})end
+        row.tip_of=function()
+            local lines={name,MOD.nav.text({s[5],s[5],s[6]})..' / '..name,'ArcInfo +'..off..' · '..(storage=='u64'and'uint64 (exact decimal)'or storage)}
+            if name:match('^unk_')then lines[#lines+1]=MOD.nav.text({'Meaning unknown; current type-library offset and storage verified.','含义尚未确认；已核对当前类型库的偏移和存储类型。','含義尚未確認；已核對目前型別庫的偏移與儲存型別。'})end
+            if name=='explosion_effect_path'then lines[#lines+1]=MOD.nav.text({'Particle resource hash, not an explosion record ID.','这是粒子特效资源哈希，不是爆炸记录 ID。','這是粒子特效資源雜湊，不是爆炸記錄 ID。'})end
+            if name=='hit_effect_damage_type'then lines[#lines+1]=MOD.nav.text({'Visual hit-effect enum, not a damage record ID.','这是命中特效枚举，不是伤害记录 ID。','這是命中特效列舉，不是傷害記錄 ID。'})end
+            return lines
+        end
+    end
+    return true
+end
+MOD.beam={schema=require('beam_components')}
+function MOD.beam.rows(page,at)
+    local C=MOD.beam.schema
+    if not C.check_layout((rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas)then return nil end
+    page.rows={} -- retain legacy inline config bindings, while displaying the current BeamInfo only
+    for _,s in ipairs(C.FIELDS)do
+        local name,off,storage,id=s[1],s[2],s[3],s[7]or s[1]
+        local row
+        if storage=='id'then row=MOD.references.row(page,'Beam',id,'Beam ID',T_BEAM,at+off,'beam_id')
+        elseif storage=='u64'then
+            local parts={part(id..'_lo',T_BEAM,at+off,'u32',4294967295),part(id..'_hi',T_BEAM,at+off+4,'u32',4294967295)}
+            for _,p in ipairs(parts)do p.field.limit=4294967295 end
+            row=add_row(page,'Beam',id,name,'u64',parts,0,4294967295,1,1)
+            row.hash64,row.lead=true,true
+        else
+            local limit=storage=='f32'and 1e12 or storage:match('^bit')and 1 or 4294967295
+            local p=part(id,T_BEAM,at+off,storage,limit);p.field.limit=limit
+            if storage=='f32'then p.field.signed=true end
+            local value=read_field(p.field)or 0
+            local max=storage:match('^bit')and 1 or storage=='f32'and 1e9 or 4294967295
+            row=add_row(page,'Beam',id,name,p.field.storage,{p},math.min(s[4]=='unknown'and -1e9 or 0,value),math.max(max,value),storage=='f32'and .1 or 1,storage=='f32'and 1 or 10)
+            if s[8]then
+                row.reference_type,row.choice=s[8],'reference'
+                local kind=MOD.references.KINDS[s[8]]
+                p.field.allowed=setmetatable({[0]=true,[value]=true,why='No matching record in this game build.'},{__index=function(_,target)
+                    return tables[kind]and tables[kind].index[target]~=nil
+                end})
+            end
+        end
+        row.component='BeamType'
+        row.component_of=function()return MOD.nav.text({'BeamType','激光类型（BeamType）','雷射類型（BeamType）'})end
+        row.section='BeamType:'..s[4]
+        row.section_of=function()return MOD.nav.text(C.GROUPS[s[4]])end
+        row.label_of=function()return MOD.nav.text({name=='type'and'Beam ID'or name=='damage_info_type'and'Damage ID'or name=='explosion_type'and'Explosion ID'or name:gsub('_',' '),s[5],s[6]})end
+        row.tip_of=function()
+            local lines={name,MOD.nav.text({s[5],s[5],s[6]})..' / '..name,'BeamInfo +'..off..' · '..(storage=='u64'and'uint64 (exact decimal)'or storage)}
+            if name:match('^unk_')then lines[#lines+1]=MOD.nav.text({'Meaning unknown; current type-library offset and storage verified.','含义尚未确认；已核对当前类型库的偏移和存储类型。','含義尚未確認；已核對目前型別庫的偏移與儲存型別。'})end
+            if C.ENUM_TYPES[name]then lines[#lines+1]=MOD.nav.text({'Label derived from enum type: ','界面名称依据枚举类型：','介面名稱依據列舉型別：'})..C.ENUM_TYPES[name]end
+            if name=='effect_damage_type'then lines[#lines+1]=MOD.nav.text({'Visual hit-effect enum, not a damage record ID.','这是命中特效枚举，不是伤害记录 ID。','這是命中特效列舉，不是傷害記錄 ID。'})end
+            if off>=16 and off<=36 then lines[#lines+1]=MOD.nav.text({'The old focal_shoulder_width has no unique mapping to these six current floats.','旧版 focal_shoulder_width 无法唯一映射到这六个新版浮点字段。','舊版 focal_shoulder_width 無法唯一映射到這六個新版浮點欄位。'})end
+            return lines
+        end
+    end
+    return true
+end
+MOD.status_component={schema=require('status_components')}
+function MOD.status_component.position(at,off,size)
+    local t=tables[T_STATUS];local base=t and t.copies[1]+HEADER_BYTES
+    if not base then return nil,'table unavailable'end
+    local lo,hi=peek4(base+at+off),peek4(base+at+off+4)
+    if not(lo and hi)then return nil,'pointer unavailable'end
+    if lo==0 and hi==0 then return nil,'empty pointer'end
+    local target=lo+hi*4294967296
+    if target>=t.payload then target=target-base end
+    local records=peek4(base+8)
+    if not records or target<16+records*160 or target+size>t.payload then return nil,'pointer outside table'end
+    return target
+end
+function MOD.status_component.debug_name(at)
+    local pos,why=MOD.status_component.position(at,8,1)
+    if not pos then return why=='empty pointer'and''or nil,why end
+    local t=tables[T_STATUS]
+    local text=api.read(t.copies[1]+HEADER_BYTES+pos,math.min(1024,t.payload-pos))
+    return text and text:match('^([^%z]*)%z')or nil,'unterminated string'
+end
+function MOD.status_component.name(id)
+    if not MOD.status_component.schema.check_layout((rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas)then return nil end
+    local t=tables[T_STATUS];local at=t and t.index[id]
+    local text=at and MOD.status_component.debug_name(at)
+    return text and text~=''and text or nil
+end
+function MOD.status_component.array(at,desc)
+    local t=tables[T_STATUS];local base=t and t.copies[1]+HEADER_BYTES
+    if not base then return nil,nil,'table unavailable'end
+    local n,pad=peek4(base+at+desc.offset+8),peek4(base+at+desc.offset+12)
+    if not n or n>4096 or pad~=0 then return nil,nil,'invalid array count'end
+    if n==0 then return 0,0 end
+    local pos,why=MOD.status_component.position(at,desc.offset,n*desc.stride)
+    if not pos then return nil,nil,why end
+    return pos,n
+end
+function MOD.status_component.rows(page,at)
+    local C=MOD.status_component.schema
+    if not C.check_layout((rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas)then return nil end
+    page.rows={}
+    local function emit(row,s,typ)
+        row.component='StatusEffectType'
+        row.component_of=function()return MOD.nav.text({'StatusEffectType','状态效果类型（StatusEffectType）','狀態效果類型（StatusEffectType）'})end
+        row.section='StatusEffectType:'..s[4]
+        row.section_of=function()return MOD.nav.text(C.GROUPS[s[4]])end
+        row.label_of=function()return MOD.nav.text({s[1]=='type'and'Status effect ID'or s[1]=='damage_info_type'and'Damage ID'or s[1]:gsub('_',' '),s[5],s[6]})end
+        row.tip_of=function()
+            local lines={s[1],MOD.nav.text({s[5],s[5],s[6]})..' / '..s[1],'StatusEffectInfo +'..s[2]..' · '..typ}
+            if s[4]=='unknown'then lines[#lines+1]=MOD.nav.text({'Meaning unknown; current record and nested layouts verified.','含义尚未确认；已核对当前记录及嵌套结构。','含義尚未確認；已核對目前記錄及巢狀結構。'})end
+            return lines
+        end
+        return row
+    end
+    local function scalar(s,offset,id,typ)
+        local storage=s[3];local row
+        if storage=='u64'then
+            local parts={part(id..'_lo',T_STATUS,offset,'u32',4294967295),part(id..'_hi',T_STATUS,offset+4,'u32',4294967295)}
+            for _,p in ipairs(parts)do p.field.limit=4294967295 end
+            row=add_row(page,'Status',id,s[1],'u64',parts,0,4294967295,1,1);row.hash64,row.lead=true,true
+        else
+            local limit=storage=='f32'and 1e12 or storage:match('^bit')and 1 or 4294967295
+            local p=part(id,T_STATUS,offset,storage,limit);p.field.limit=limit
+            if storage=='f32'then p.field.signed=true end
+            local value=read_field(p.field)or 0
+            local max=storage=='u8'and 255 or storage:match('^bit')and 1 or storage=='f32'and 1e9 or 4294967295
+            local min=storage=='f32'and(s[4]=='unknown'or s[4]=='modifiers')and -1e9 or 0
+            row=add_row(page,'Status',id,s[1],p.field.storage,{p},math.min(min,value),math.max(max,value),storage=='f32'and .1 or 1,storage=='f32'and 1 or 10)
+            if s[8]then
+                row.reference_type,row.choice=s[8],'reference';local kind=MOD.references.KINDS[s[8]]
+                p.field.allowed=setmetatable({[0]=true,[value]=true,why='No matching record in this game build.'},{__index=function(_,target)
+                    return tables[kind]and tables[kind].index[target]~=nil
+                end})
+            end
+        end
+        return emit(row,s,typ or(storage=='u64'and'uint64 (exact decimal)'or storage))
+    end
+    for _,s in ipairs(C.FIELDS)do
+        local name,off,storage,id=s[1],s[2],s[3],s[7]or s[1]
+        if storage=='id'then emit(MOD.references.row(page,'Status',id,'Status effect ID',T_STATUS,at,'status_effect_id'),s,'StatusEffectType (read-only)')
+        elseif storage=='string'then
+            local row=emit(add_row(page,'Status',id,name,'u32',{},0,0,1,1),s,'UTF-8 string; read-only')
+            row.empty=true;row.readonly_text=function()local text,why=MOD.status_component.debug_name(at);return text or'('..tostring(why)..')'end
+        elseif storage=='array'then
+            local desc;for _,a in ipairs(C.ARRAYS)do if a.offset==off then desc=a;break end end
+            local pos,n,why=MOD.status_component.array(at,desc)
+            local row=emit(add_row(page,'Status',id..'_count',name,'u32',{},0,0,1,1),s,'array; count read-only')
+            row.empty=true;row.readonly_text=n and tostring(n)or'('..tostring(why)..')'
+            for i=1,n or 0 do for _,child in ipairs(desc.fields)do
+                local field=name..'['..i..'].'..child[1]
+                local prefix=off==112 and{'属性倍率 '..i..'：','屬性倍率 '..i..'：'}or{'未知项 '..i..'：','未知項 '..i..'：'}
+                scalar({field,off,child[3],s[4],prefix[1]..child[4],prefix[2]..child[5]},pos+(i-1)*desc.stride+child[2],
+                    name..'_'..i..'_'..child[1],'array element +'..child[2]..'; '..child[3]..'; payload +'..(pos+(i-1)*desc.stride+child[2]))
+            end end
+        else
+            local row=scalar(s,at+off,id)
+            if off==104 then for _,b in ipairs(C.BITS)do
+                local flag=add_row(page,'Status',b[1],b[1],'flag',{},0,1,1,1)
+                flag.parts={{id=id,field=row.parts[1].field,row=flag}};flag.packed_flag=2^b[3]
+                emit(flag,{b[1],104,nil,b[4],b[5],b[6]},'bit '..b[3]..' of uint8')
+            end end
+        end
+    end
+    return true
+end
 function MOD.records.rows(page)
+    if page.stratagem_type then
+        page.rows,page.by_id={},{}
+        page.rows=MOD.stratagem.rows(page,page.def)or{}
+        return
+    end
     local kind, at = page.kind, tables[page.kind] and tables[page.kind].index[page.id]
-    page.rows, page.by_id = {}, {}
+    page.rows, page.by_id, page.hidden_rows = {}, {}, nil
     if not at then return end
     local function num(section, id, label, off, storage, max, small, big)
         return add_row(page, section, id, label, storage, { part(id, kind, at + off, storage, 100000) }, 0, max, small, big)
@@ -16004,6 +16981,7 @@ function MOD.records.rows(page)
     local function hurt(off, section, what, count)
         local d = read_field(field_at(kind, at + off, 'u32', 100000))
         local drow = d and d > 0 and tables[T_DAMAGE] and tables[T_DAMAGE].index[d]
+        if not drow or not MOD.damage.enabled(page)then MOD.references.row(page, section, 'damage_ref', 'Damage ID', kind, at + off, 'damage_id')end
         if not drow then return end
         damage_rows(page, section, '', drow, what, count)
         if count == nil then status_rows(page, section, '', drow, what == 'Explosion' and 'blast' or 'hit') end
@@ -16040,11 +17018,32 @@ function MOD.records.rows(page)
         num('Shape', 'cone', 'Cone angle (deg)', 28, 'f32', 360, 1, 10)
         num('Shape', 'shake', 'Camera shake radius (m)', 32, 'f32', 200, 0.1, 1)
         MOD.records.shrapnel_rows(page, 'Shrapnel', 'shrapnel', at)
-    else
+        MOD.references.row(page, 'Arc', 'arc_ref', 'Arc ID', kind, at + 120, 'arc_id')
+    elseif kind == T_DAMAGE then
+        damage_rows(page, 'Damage', '', at)
+        local own_rows = #page.rows
+        status_rows(page, 'Damage', '', at, 'hit')
+        if MOD.damage.enabled(page)then
+            -- Keep old config/preset bindings, while the ID page displays only its own component.
+            for i=#page.rows,own_rows+1,-1 do table.remove(page.rows)end
+        end
+    elseif kind == TYPES.arc then
+        hurt(36, 'Damage', 'Arc')
+        num('Arc', 'arc_range', 'Range (m)', 8, 'f32', 1000, 1, 5)
+        num('Arc', 'arc_chain', 'Chain length', 28, 'u32', 20, 1, 1)
+        num('Arc', 'arc_split', 'Chain split', 32, 'u32', 20, 1, 1)
+    elseif kind == T_BEAM then
+        hurt(12, 'Damage')
+    elseif kind == T_STATUS then
         local name = MOD.records.name(kind, page.id) or 'Status'
         hurt(44, name, name, 6)   -- no forces: a status has none
         num(name, 'duration', name .. ' duration (s)', 40, 'f32', 600, 0.5, 5)
     end
+    if kind==T_PROJECTILE then MOD.projectile.rows(page,at)end
+    if kind==T_EXPLOSION then MOD.explosion.rows(page,at)end
+    if kind==TYPES.arc then MOD.arc.rows(page,at)end
+    if kind==T_BEAM then MOD.beam.rows(page,at)end
+    if kind==T_STATUS then MOD.status_component.rows(page,at)end
 end
 -- An unnamed record still needs something readable beside its number. Use the loaded
 -- values as a description, without claiming to know which weapon or effect it belongs to.
@@ -16065,18 +17064,26 @@ function MOD.records.unnamed(page)
         if outer then return string.format('Unnamed: %gm blast', outer) end
         return 'Unnamed explosion'
     end
+    if page.kind ~= T_STATUS then return 'Unnamed ' .. MOD.records.WORD[page.kind]:lower() end
     local duration = value('duration')
     return duration and string.format('Unnamed: %gs effect', duration) or 'Unnamed status effect'
 end
 
 -- A record page's title and note: 'Projectile #12 · 10g Sabot', 'Fired by: ...'.
 function MOD.records.title(page)
+    if page.stratagem_type then return end
     local name = MOD.records.name(page.kind, page.id)
-    if not name and state.lang and state.lang() == 'zh-Hans' then name = MOD.records.unnamed(page) end
-    page.name = MOD.records.WORD[page.kind] .. ' #' .. page.id .. (name and (' · ' .. name) or '')
+    local old = page.kind == T_PROJECTILE or page.kind == T_EXPLOSION or page.kind == T_STATUS
+    if old and not name and state.lang and state.lang() == 'zh-Hans' then name = MOD.records.unnamed(page) end
+    local word = MOD.records.WORD[page.kind]
+    if not old then word = MOD.nav.text(({
+        [T_DAMAGE]={'Damage','伤害','傷害'}, [TYPES.arc]={'Arc','电弧','電弧'}, [T_BEAM]={'Beam','激光','激光'}
+    })[page.kind]) end
+    page.name = word .. ' #' .. page.id .. (name and (' · ' .. name) or '')
     local u = MOD.records.users()
     local users = page.kind == T_PROJECTILE and u.shots[page.id] or page.kind == T_EXPLOSION and u.blasts[page.id]
-    if page.kind == T_STATUS then page.note = ''
+    if not old then page.note = MOD.nav.text({ 'Record type: ', '记录类型：', '記錄類型：' }) .. word .. ' #' .. page.id
+    elseif page.kind == T_STATUS then page.note = ''
     elseif not users then page.note = 'Not used by any weapon or stratagem in this list.'
     else
         page.note = (page.kind == T_PROJECTILE and 'Fired by: ' or 'Set off by: ') .. table.concat(users, ', ', 1, math.min(3, #users)) ..
@@ -16097,7 +17104,8 @@ function MOD.records.page(kind, id)
 end
 function MOD.records.find(hash)
     if type(hash) ~= 'string' or #hash ~= 16 then return nil end
-    local mark, digits = hash:match('^(F[123])(%x+)$')
+    if hash:sub(1,2)=='F7'and hash:sub(3):match('^%x+$')then return MOD.stratagem.page(tonumber(hash:sub(3),16))end
+    local mark, digits = hash:match('^(F[123456])(%x+)$')
     if not mark then return nil end
     for kind, prefix in pairs(MOD.records.PREFIX) do
         if prefix == mark then return MOD.records.page(kind, tonumber(digits, 16)) end
@@ -16113,12 +17121,15 @@ function MOD.records.all()
             if page and #page.rows > 0 then list[#list + 1] = page end
         end
     end
+    for _,page in ipairs(MOD.stratagem.all())do list[#list+1]=page end
     MOD.records.list = list
     return list
 end
 -- After every resolve: who uses what again, and the pages built so far read again (a rescan moves the tables).
 function MOD.records.refresh()
     MOD.records.cache, MOD.records.list = nil, nil
+    MOD.stratagem.list=nil
+    for _,page in pairs(MOD.stratagem.pages)do page.stale=true;MOD.stratagem.page(page.id)end
     for _, page in pairs(MOD.records.pages) do
         MOD.records.rows(page)
         MOD.records.title(page)
@@ -16179,7 +17190,7 @@ local function resolve_some(progress, deadline)
     for _, weapon in ipairs(weapons) do
         if #weapon.rows > 0 then
             if weapon.stratagem and weapon.stratagem.vehicle then state.vehicles = state.vehicles + 1
-            elseif weapon.stratagem or weapon.mounted then strats = strats + (weapon.mounted and 0 or 1)
+            elseif weapon.stratagem or weapon.mounted or weapon.orbital_beam then strats = strats + ((weapon.mounted or weapon.orbital_beam) and 0 or 1)
             elseif weapon.attachment then state.attachments = (state.attachments or 0) + 1
             elseif weapon.slot == 'Throwables' then state.throwables = (state.throwables or 0) + 1
             elseif weapon.passive then state.passives = state.passives + 1
@@ -16192,10 +17203,14 @@ end
 
 -- Other weapons whose values change along with this row.
 local function shared_with(weapon, row)
+    if weapon.component_entry then return{}end
     local names, seen = {}, { [weapon] = true }
+    if weapon.health_component or weapon.drown_component or weapon.shield_component or weapon.component_view then
+        for _,p in ipairs(row.parts)do if p.health_owner then seen[p.health_owner.weapon]=true end end
+    end
     for _, p in ipairs(row.parts) do
         for _, other in ipairs(p.field.users) do
-            if not seen[other] and (weapon.record or not other.record) then seen[other] = true; names[#names + 1] = other.name end
+            if not seen[other] and not other.component_entry and not other.health_component and not other.drown_component and not other.shield_component and not other.component_view and (weapon.record or not other.record) then seen[other] = true; names[#names + 1] = other.name end
         end
     end
     return names
@@ -16210,7 +17225,16 @@ end
 -- A row's value (the mean of its parts); default = true: the game's own value instead.
 local function row_value(row, default)
     if row.empty then return nil end   -- (a document's field the editor has no stat for)
+    if row.button_slot then
+        local value=(default and default_of or read_field)(row.parts[1].field)
+        return (MOD.code.arrows(value)or{})[row.button_slot]or 0
+    end
+    if row.reference_value then return row.reference_value() end
     local get = default and default_of or read_field
+    if row.packed_flag then
+        local v=get(row.parts[1].field)
+        return v and math.floor(v/row.packed_flag)%2 or nil
+    end
     if row.choice == 'grenade' and not default and row.parts[1].field.pending_value ~= nil then
         return row.parts[1].field.pending_value
     end
@@ -16243,6 +17267,7 @@ local config_dirty_at = nil
 -- or the id of a translation: fixed by the build (a language's release, MOD.lang), not a choice; offline (every
 -- language built in) a choice, saved as 'lang'.
 local settings = { changes = true, block_input = true, size = 80, side = 'right', opacity = 90,
+                   component_show_missing = true, component_category = 'all', weapon_category = 'all',
                    arc_mp = true, updates = 'ask', update_channel = 'releases', stacks = {}, own_off = {}, hidden = {}, lang = MOD.lang or MOD.offline and rawget(_G, 'SHODAN_OFFLINE_LANG') or 'en',
                    last = { stat = {}, enemy = {} }, enemy_last = false,
                    GITHUB = 'https://github.com/SHODAN-HORAI/SHODAN-Stat-Editor',
@@ -16320,6 +17345,23 @@ do
         end
     end
     function settings.tr(v)
+        if v=='HealthComponents'then return settings.lang=='zh-Hans'and'生命组件'or settings.lang=='zh-Hant'and'生命組件'or'Health components'end
+        if v=='DrownComponents'then return settings.lang=='zh-Hans'and'淹没组件'or settings.lang=='zh-Hant'and'淹沒組件'or'Drownable components'end
+        if v=='ShieldComponents'then return settings.lang=='zh-Hans'and'护盾组件'or settings.lang=='zh-Hant'and'護盾組件'or'Shield components'end
+        if v=='ThrowableComponents'then return settings.lang=='zh-Hans'and'投掷物组件'or settings.lang=='zh-Hant'and'投擲物組件'or'Throwable'end
+        if v=='ThrowerComponents'then return settings.lang=='zh-Hans'and'投掷器组件'or settings.lang=='zh-Hant'and'投擲器組件'or'Thrower'end
+        if v=='MinefieldComponents'then return settings.lang=='zh-Hans'and'地雷组件'or settings.lang=='zh-Hant'and'地雷組件'or'Minefield'end
+        if v=='MineSpawnerComponents'then return settings.lang=='zh-Hans'and'地雷生成器组件'or settings.lang=='zh-Hant'and'地雷生成器組件'or'Mine spawner'end
+        if v=='FactionComponents'then return settings.lang=='zh-Hans'and'阵营组件'or settings.lang=='zh-Hant'and'陣營組件'or'Faction components'end
+        if v=='MountComponents'then return settings.lang=='zh-Hans'and'挂载组件'or settings.lang=='zh-Hant'and'掛載組件'or'Mount components'end
+        if v=='InventoryComponents'then return settings.lang=='zh-Hans'and'物品栏组件'or settings.lang=='zh-Hant'and'物品欄組件'or'Inventory components'end
+        if v=='SensorEyeComponents'then return settings.lang=='zh-Hans'and'视觉传感组件'or settings.lang=='zh-Hant'and'視覺感測組件'or'Sensor eyes'end
+        if v=='TurretComponents'then return settings.lang=='zh-Hans'and'炮塔组件'or settings.lang=='zh-Hant'and'砲塔組件'or'Turret components'end
+        if v=='EagleComponents'then return settings.lang=='zh-Hans'and'飞鹰组件'or settings.lang=='zh-Hant'and'飛鷹組件'or'Eagle components'end
+        if v=='EagleSpawnerComponents'then return settings.lang=='zh-Hans'and'飞鹰生成器组件'or settings.lang=='zh-Hant'and'飛鷹生成器組件'or'Eagle spawner'end
+        local tab_label=MOD.component_tab_label and MOD.component_tab_label[v]   -- (the weapon components' tabs)
+        if tab_label then return settings.lang=='zh-Hans'and tab_label[2]or settings.lang=='zh-Hant'and tab_label[3]or tab_label[1]end
+        if v=='DemolitionComponents'then return settings.lang=='zh-Hans'and'实体拆毁'or settings.lang=='zh-Hant'and'實體拆毀'or'Demolition'end
         if settings.lang == 'en' or not LANG[settings.lang] then return v end
         local cache = tr_cache[settings.lang]
         if not cache or tr_count > 5000 then cache, tr_count = {}, 0; tr_cache = { [settings.lang] = cache } end
@@ -16389,6 +17431,11 @@ local function save_config()
     end
     if MOD.offline then lines[#lines + 1] = 'lang ' .. settings.lang end
     if MOD.offline then
+        lines[#lines+1]='component_show_missing '..onoff(settings.component_show_missing)
+        lines[#lines+1]='component_category '..settings.component_category
+        lines[#lines+1]='weapon_category '..settings.weapon_category
+    end
+    if MOD.offline then
         lines[#lines + 1] = 'updates ' .. settings.updates
         lines[#lines + 1] = 'update_channel ' .. settings.update_channel
         -- passive_stack <passive id> <passive id>,<passive id>...: the passives stacked on it
@@ -16452,6 +17499,9 @@ local function load_config()
         local key = line:match('^%s*hotkey%s+(%S+)')
         if key then hotkey_name = key; known = true end
         local name, value = line:match('^%s*([%a_]+)%s+(%S+)%s*$')
+        if name=='component_show_missing'then settings.component_show_missing=value~='off';known=true end
+        if name=='component_category'and value:match('^[%w_-]+$')then settings.component_category=value;known=true end
+        if name=='weapon_category'and value:match('^[%w_-]+$')then settings.weapon_category=value;known=true end
         local target, sources = line:match('^%s*passive_stack%s+(%d+)%s+([%d,]+)%s*$')
         if target and MOD.offline then
             local list, seen = {}, { [tonumber(target)] = true }
@@ -16547,7 +17597,9 @@ function MOD.sync_demolition()
         local p = w and w.by_id[o.id]
         if not (p and p.field.demolition) then kept[#kept + 1] = o end
     end
-    for _, w in ipairs(weapons) do
+    local pages={};for _,w in ipairs(weapons)do pages[#pages+1]=w end
+    for _,w in ipairs(MOD.component_catalog and MOD.component_catalog.views.demolition or{})do pages[#pages+1]=w end
+    for _, w in ipairs(pages) do
         for _, row in ipairs(w.rows) do
             for _, p in ipairs(row.parts) do
                 local f = p.field
@@ -16566,6 +17618,7 @@ if MOD.offline then state.sync_demolition = MOD.sync_demolition end
 
 -- Drops every override that writes the same memory as (hash, id), then optionally adds one.
 local function set_override(weapon, p, value)
+    if p.health_owner then weapon,p = p.health_owner.weapon,p.health_owner.part end
     if p.field and p.field.demolition then
         -- write_field already committed the exact input, including an explicit baseline.
         -- Resets use the bridge explicitly; nil here only means the old cache needs no entry.
@@ -16689,6 +17742,7 @@ end
 -- The value to keep as a page's own change: its game value too where an 'All <faction>' row moves the field
 -- (set back to the game's value on purpose: kept, so the faction-wide row leaves it), else unless_default's.
 function MOD.enemy.keep_own(weapon, p, value, default)
+    if p.health_owner and p.health_owner.part ~= p then return MOD.enemy.keep_own(p.health_owner.weapon,p.health_owner.part,value,default) end
     if weapon.enemy and not weapon.enemy.faction and p.field and MOD.enemy.covered and MOD.enemy.covered[p.field.key] then
         return value
     end
@@ -16757,6 +17811,7 @@ end
 -- before the weapon's magazine attachments had rows of their own: 'capacity', once every magazine's)
 -- each of theirs. nil: none.
 function MOD.parts_of(weapon, id)
+    if weapon.ensure_rows then weapon.ensure_rows() end   -- (a component page whose rows are made when needed)
     local own = weapon.by_id[id]
     if own and own.row and own.row.choice and own.row.parts[1] == own then return own.row.parts end
     if own then return { own } end
@@ -17017,6 +18072,107 @@ end
 local function prepare(deadline)
     if not progress.resolved then
         if not resolve_some(progress, deadline) then return end
+        if MOD.offline then
+            for _,page in ipairs(MOD.component_catalog and MOD.component_catalog.all_views or{})do
+                if by_hash[page.hash]==page then by_hash[page.hash]=nil end
+            end
+            for _,page in ipairs(MOD.health_components and MOD.health_components.pages or {})do
+                if by_hash[page.hash]==page then by_hash[page.hash]=nil end
+            end
+            for _,page in ipairs(MOD.drown_components and MOD.drown_components.pages or {})do
+                if by_hash[page.hash]==page then by_hash[page.hash]=nil end
+            end
+            for _,page in ipairs(MOD.shield_components and MOD.shield_components.pages or {})do
+                if by_hash[page.hash]==page then by_hash[page.hash]=nil end
+            end
+            for _,views in ipairs({MOD.throwable_components or{},MOD.thrower_components or{},MOD.minefield_components or{},
+                    MOD.mine_spawner_components or{},MOD.faction_components or{},MOD.mount_components or{},
+                    MOD.inventory_components or{},MOD.sensor_eye_components or{},MOD.turret_components or{},
+                    MOD.eagle_components or{},MOD.eagle_spawner_components or{}})do
+                for _,page in ipairs(views.pages or {})do if by_hash[page.hash]==page then by_hash[page.hash]=nil end end
+            end
+            MOD.health_components=require('health_components').build({table=tables[TYPES.health],kind=TYPES.health,
+                weapons=weapons,by_hash=by_hash,field_at=field_at,read=read_field,add_row=add_row,
+                names=rawget(_G,'SHODAN_COMPONENT_NAMES'),zone_name=MOD.enemy.zone_name,lang=function()return settings.lang end,
+                zone_present=function(offset)
+                    local t=tables[TYPES.health]
+                    return t and (peek4(t.copies[1]+HEADER_BYTES+offset)or 0)~=0
+                end})
+            state.health_component_count=#MOD.health_components.pages
+            -- 淹没: DrownableComponentData, every entity that has it (the helldiver's water stats, generalised)
+            MOD.drown_components=require('drown_components').build({table=tables[TYPES.drown],kind=TYPES.drown,
+                weapons=weapons,by_hash=by_hash,field_at=field_at,read=read_field,add_row=add_row,log=log,
+                schemas=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas,
+                names=rawget(_G,'SHODAN_COMPONENT_NAMES'),lang=function()return settings.lang end})
+            state.drown_component_count=#MOD.drown_components.pages
+            -- 护盾: ShieldComponentData, every entity that has it, every field of its record
+            MOD.shield_components=require('shield_components').build({table=tables[TYPES.shield],kind=TYPES.shield,
+                weapons=weapons,by_hash=by_hash,field_at=field_at,read=read_field,add_row=add_row,log=log,
+                schemas=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas,
+                status_name=function(id)local ok,name=pcall(MOD.status_component.name,id);return ok and name or nil end,
+                names=rawget(_G,'SHODAN_COMPONENT_NAMES'),lang=function()return settings.lang end})
+            state.shield_component_count=#MOD.shield_components.pages
+            -- 投掷物: ThrowableComponentData and ThrowerComponentData, every field of their records
+            for _,views in pairs(MOD.weapon_component_views or{})do
+                for _,page in ipairs(views.pages or {})do if by_hash[page.hash]==page then by_hash[page.hash]=nil end end
+            end
+            local function view(spec,kind,lazy)
+                return require('component_view').build(type(spec)=='string'and require(spec)or spec,{table=tables[kind],kind=kind,lazy_rows=lazy,
+                    weapons=weapons,by_hash=by_hash,field_at=field_at,read=read_field,add_row=add_row,log=log,
+                    default_of=default_of,schemas=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas,
+                    -- an ID of another record (the mines' explosion): its badge, double-click to open it, only IDs
+                    -- this game build has
+                    reference=function(row,ref,f,value)
+                        row.reference_type=ref
+                        local t=tables[MOD.references.KINDS[ref]]
+                        if not t then return end
+                        row.choice='reference'
+                        f.allowed=f.allowed or setmetatable({[0]=true,[value]=true,why='No matching record in this game build.'},
+                            {__index=function(_,target)return t~=nil and t.index[target]~=nil end})
+                    end,
+                    -- a field an original page reads as a choice (the SEAF weapons): the choice's name
+                    choice_label=function(choice,value)
+                        if choice~='gun'then return nil end
+                        local g=MOD.enemy.gun_choices().by_id[value or 0]
+                        return g and g.label
+                    end,
+                    names=rawget(_G,'SHODAN_COMPONENT_NAMES'),lang=function()return settings.lang end})
+            end
+            MOD.throwable_components=view('throwable_components',TYPES.throwable)
+            MOD.thrower_components=view('thrower_components',TYPES.thrower)
+            -- 地雷: MinefieldComponentData (a mine) and MineSpawnerComponentData (how a minefield lays them out)
+            MOD.minefield_components=view('minefield_components',TYPES.minefield)
+            MOD.mine_spawner_components=view('mine_spawner_components',TYPES.mine_spawner)
+            -- 阵营: FactionComponentData
+            MOD.faction_components=view('faction_components',TYPES.faction)
+            -- 挂载: MountComponentData
+            MOD.mount_components=view('mount_components',TYPES.mount)
+            -- 背包: InventoryComponentData (default equipment, stims)
+            MOD.inventory_components=view('inventory_components',TYPES.inventory)
+            -- 炮塔与制导: SensorEyeComponentData and TurretComponentData
+            MOD.sensor_eye_components=view('sensor_eye_components',TYPES.sensor)
+            MOD.turret_components=view('turret_components',TYPES.turret)
+            -- 飞鹰: EagleComponentData and EagleSpawnerComponentData
+            MOD.eagle_components=view('eagle_components',TYPES.eagle)
+            MOD.eagle_spawner_components=view('eagle_spawner_components',TYPES.eagle_spawner)
+            -- 武器组件 / 武器类型 / 武器配件: every weapon component (rows made when a page is first shown)
+            MOD.weapon_component_views,MOD.weapon_component_kinds={},{}
+            for _,spec in ipairs(MOD.weapon_components.SPECS)do
+                MOD.weapon_component_views[spec.KEY]=view(spec,spec.HASH,true)
+                MOD.weapon_component_kinds[#MOD.weapon_component_kinds+1]={kind=spec.KEY,slot=spec.SLOT}
+            end
+            MOD.component_catalog=require('entity_catalog').build({health=MOD.health_components,drown=MOD.drown_components,
+                shield=MOD.shield_components,throwable=MOD.throwable_components,thrower=MOD.thrower_components,
+                minefield=MOD.minefield_components,mine_spawner=MOD.mine_spawner_components,faction=MOD.faction_components,
+                mount=MOD.mount_components,inventory=MOD.inventory_components,sensor_eye=MOD.sensor_eye_components,
+                turret=MOD.turret_components,eagle=MOD.eagle_components,eagle_spawner=MOD.eagle_spawner_components,
+                extra_views=MOD.weapon_component_views,extra_kinds=MOD.weapon_component_kinds,
+                metadata=rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE'),bridge=rawget(_G,'SHODAN_DEMOLITION_BRIDGE'),
+                weapons=weapons,by_hash=by_hash,add_row=add_row,lang=function()return settings.lang end})
+            state.component_entity_count=#MOD.component_catalog.records
+            MOD.attach_weapon_components()
+            MOD.attach_eagle_components()
+        end
         progress.resolved = true
     end
     if not progress.demolition_migrated then
@@ -17141,6 +18297,39 @@ local function after_pass(pass, final)
     if have_all_tables() or final then become_ready(final) end
 end
 
+-- Offline buffers are already known to the host. Parse those exact headers in
+-- bounded batches; no process-wide discovery or startup frame delay is needed.
+function state.read_offline_tables(deadline)
+    local scan = state.offline_scan
+    if not scan then
+        local provider = rawget(_G, 'SHODAN_OFFLINE_TABLES')
+        assert(type(provider) == 'function', 'Offline table source is unavailable')
+        local blocks = provider()
+        assert(type(blocks) == 'table' and #blocks > 0, 'No loaded game tables')
+        scan = { blocks = blocks, next = 1, started = api.now() }
+        state.offline_scan = scan
+    end
+    while scan.next <= #scan.blocks do
+        local block = scan.blocks[scan.next]
+        local address, kind, payload = block.address, block.kind, block.payload
+        assert(type(address) == 'number' and address > 65536 and type(kind) == 'number'
+            and type(payload) == 'number' and payload >= 0, 'Invalid offline table descriptor')
+        if payload >= 16 and payload <= MAX_PAYLOAD and wants(kind, address) then
+            local header = api.read(address, HEADER_BYTES)
+            assert(header and header:sub(1, 8) == NEEDLE and u32(header, 8) == kind
+                and u32(header, 12) == payload, 'Loaded game table header changed')
+            local blob = assert(api.read(address + HEADER_BYTES, payload), 'Could not read loaded game table')
+            handle_table(address, kind, payload, blob)
+        end
+        scan.next = scan.next + 1
+        if scan.next <= #scan.blocks and api.now() >= deadline then return end
+    end
+    state.offline_table_count = #scan.blocks
+    log(string.format('offline: %d registered tables processed in %.2f ms',#scan.blocks,(api.now()-scan.started)*1000))
+    state.offline_scan = nil
+    after_pass(1, true)
+end
+
 -- The tables are still where they were (checked when the panel opens); if not, scan again.
 local hub = nil
 local function tables_intact()
@@ -17163,6 +18352,7 @@ local function rescan()
     KINDS[TYPES.kit].list = {}
     KINDS[TYPES.destruction].found, KINDS[TYPES.destruction].told = {}, nil
     state.tables = 0
+    state.offline_scan = nil
     set_status('searching', 'a table moved; scanning again')
     if hub then hub.wake() end
 end
@@ -17190,6 +18380,7 @@ local function build_input()
         'typedef struct { uint16_t page; uint16_t usage; uint32_t flags; void *target; } shodan_raw_device;',
         'uint32_t GetRegisteredRawInputDevices(shodan_raw_device *devices, uint32_t *count, uint32_t size);',
         'int RegisterRawInputDevices(const shodan_raw_device *devices, uint32_t count, uint32_t size);',
+        'uint32_t GetDoubleClickTime(void);',
         'uint32_t GetCurrentThreadId(void);',
         'intptr_t GetWindowLongPtrW(void *window, int index);',
         'intptr_t SetWindowLongPtrW(void *window, int index, intptr_t value);',
@@ -17319,8 +18510,12 @@ local TABS = { 'Primary', 'Secondary', 'Support', 'Throwables', 'Stratagems', 'M
 -- Stratagems tab's orbital and Eagle strikes), RecProjectile / RecExplosion / RecStatus (the Records tab by kind),
 -- Helldiver (the Armors tab's helldiver). Settings > Tabs shown still turns off the original tabs (MOD.nav.base).
 MOD.nav = { BASE = { Orbital = 'Stratagems', Eagle = 'Stratagems', RecProjectile = 'Records', RecExplosion = 'Records',
-                     RecStatus = 'Records', Helldiver = 'Armors', HelldiverQuick = 'Armors', HelldiverOther = 'Armors' },
-            REC = { F1 = 'RecProjectile', F2 = 'RecExplosion', F3 = 'RecStatus' } }
+                     RecStratagem = 'Records',
+                     RecDamage = 'Records', RecArc = 'Records', RecBeam = 'Records',
+                     RecStatus = 'Records', Helldiver = 'Armors', HelldiverQuick = 'Armors', HelldiverOther = 'Armors',
+                     OrbitalBeam = 'Stratagems' },
+            REC = { F1 = 'RecProjectile', F2 = 'RecExplosion', F3 = 'RecStatus',
+                    F4 = 'RecDamage', F5 = 'RecArc', F6 = 'RecBeam', F7 = 'RecStratagem' } }
 -- the page shown, by page the sub-page shown, by sub-page ('<page>:<n>') its tab shown, by tab the page last chosen
 ui.nav = { page = 'armory', sub = {}, cat = {}, weapon = {} }
 MOD.nav.PAGES = {
@@ -17375,7 +18570,7 @@ MOD.nav.PAGES = {
         { name = { 'Unlock', '解锁', '解鎖' }, todo = {
             { items = { { 'Unlock every weapon', '解锁所有武器', '解鎖所有武器' }, { 'Unlock all equipment', '解锁所有装备', '解鎖所有裝備' }, { 'Unlock every stratagem', '解锁所有战备', '解鎖所有戰備' }, { 'Unlock the rest', '解锁其他', '解鎖其他' } } },
         } },
-        { name = { 'Weapon editing', '武器编辑', '武器編輯' }, tabs = { 'Primary', 'Secondary', 'Support', 'Throwables' } },
+        { name = { 'Weapon editing', '武器编辑', '武器編輯' }, tabs = { 'Primary', 'Secondary', 'Support', 'Throwables' }, weapon_browser = true },
         { name = { 'Weapon attachments', '武器配件自定义', '武器配件自定義' }, tabs = { 'Attachments' } },
         { name = { 'Armor editing', '护甲编辑', '護甲編輯' }, tabs = { 'Armors' } },
         { name = { 'Boosters', '强化资源', '強化資源' }, tabs = { 'Boosters' } },
@@ -17405,62 +18600,40 @@ MOD.nav.PAGES = {
         } },
     } },
     { id = 'components', name = { 'Components', '实体组件', '實體組件' }, subs = {
-        { name = { 'Weapon components', '武器组件', '武器組件' }, todo = {
-            { title = { 'common weapon', 'common weapon', 'common weapon' }, note = { 'Enter or pick any entity\'s hash and edit its weapon component.', '输入/选择任意实体的哈希，修改其 weapon 组件参数', '輸入/選擇任意實體的哈希，修改其 weapon 組件參數' }, items = { { 'weapondata', 'weapondata', 'weapondata' }, { 'weaponreload', 'weaponreload', 'weaponreload' }, { 'weaponmagazine', 'weaponmagazine', 'weaponmagazine' }, { 'weaponcharge', 'weaponcharge', 'weaponcharge' } } },
-            { title = { 'projectileweapon', 'projectileweapon', 'projectileweapon' }, note = { 'Enter or pick any entity\'s hash and edit its projectileweapon component.', '输入/选择任意实体的哈希，修改其 projectileweapon 组件参数', '輸入/選擇任意實體的哈希，修改其 projectileweapon 組件參數' }, items = {} },
-            { title = { 'sprayweapon', 'sprayweapon', 'sprayweapon' }, note = { 'Enter or pick any entity\'s hash and edit its sprayweapon component.', '输入/选择任意实体的哈希，修改其 sprayweapon 组件参数', '輸入/選擇任意實體的哈希，修改其 sprayweapon 組件參數' }, items = {} },
-            { title = { 'arcweapon', 'arcweapon', 'arcweapon' }, note = { 'Enter or pick any entity\'s hash and edit its arcweapon component.', '输入/选择任意实体的哈希，修改其 arcweapon 组件参数', '輸入/選擇任意實體的哈希，修改其 arcweapon 組件參數' }, items = {} },
-        } },
-        { name = { 'Turrets and guidance', '炮塔与制导', '炮塔與制導' }, todo = {
-            { title = { 'sensor eyes', 'sensor eyes', 'sensor eyes' }, note = { 'Enter or pick any entity\'s hash and edit its sensoreye component.', '输入/选择任意实体的哈希，修改其 sensoreye 组件参数', '輸入/選擇任意實體的哈希，修改其 sensoreye 組件參數' }, items = {} },
-            { title = { 'turret', 'turret', 'turret' }, note = { 'Enter or pick any entity\'s hash and edit its turret component.', '输入/选择任意实体的哈希，修改其 turret 组件参数', '輸入/選擇任意實體的哈希，修改其 turret 組件參數' }, items = {} },
-        } },
-        { name = { 'Backpack', '背包', '背包' }, todo = {
-            { title = { 'inventory', 'inventory', 'inventory' }, note = { 'Enter or pick any entity\'s hash and edit its inventory component.', '输入/选择任意实体的哈希，修改其 inventory 组件参数', '輸入/選擇任意實體的哈希，修改其 inventory 組件參數' }, items = {} },
-        } },
-        { name = { 'Mounts', '挂载', '掛載' }, todo = {
-            { title = { 'mount', 'mount', 'mount' }, note = { 'Enter or pick any entity\'s hash and edit its mount component.', '输入/选择任意实体的哈希，修改其 mount 组件参数', '輸入/選擇任意實體的哈希，修改其 mount 組件參數' }, items = {} },
-        } },
-        { name = { 'Faction', '阵营', '陣營' }, todo = {
-            { title = { 'faction', 'faction', 'faction' }, note = { 'Enter or pick any entity\'s hash and edit its faction component.', '输入/选择任意实体的哈希，修改其 faction 组件参数', '輸入/選擇任意實體的哈希，修改其 faction 組件參數' }, items = {} },
-        } },
-        { name = { 'Mines', '地雷', '地雷' }, todo = {
-            { title = { 'minefield / minespawner', 'minefield 和 minespawner', 'minefield 和 minespawner' }, note = { 'Enter or pick any entity\'s hash and edit its minefield / minespawner component.', '输入/选择任意实体的哈希，修改其 minefield / minespawner 组件参数', '輸入/選擇任意實體的哈希，修改其 minefield / minespawner 組件參數' }, items = {} },
-        } },
-        { name = { 'Throwers', '投掷物', '投擲物' }, todo = {
-            { title = { 'thrower', 'thrower', 'thrower' }, note = { 'Enter or pick any entity\'s hash and edit its thrower component.', '输入/选择任意实体的哈希，修改其 thrower 组件参数', '輸入/選擇任意實體的哈希，修改其 thrower 組件參數' }, items = {} },
-        } },
-        { name = { 'Drowning', '淹没', '淹沒' }, todo = {
-            { title = { 'drownable', 'drownable', 'drownable' }, note = { 'Enter or pick any entity\'s hash and edit its drownable component.', '输入/选择任意实体的哈希，修改其 drownable 组件参数', '輸入/選擇任意實體的哈希，修改其 drownable 組件參數' }, items = {} },
-        } },
-        { name = { 'Health', '生命', '生命' }, todo = {
-            { title = { 'health', 'health', 'health' }, note = { 'Enter or pick any entity\'s hash and edit its health component.', '输入/选择任意实体的哈希，修改其 health 组件参数', '輸入/選擇任意實體的哈希，修改其 health 組件參數' }, items = {} },
-        } },
-        { name = { 'Shield', '护盾', '護盾' }, todo = {
-            { title = { 'shield', 'shield', 'shield' }, note = { 'Enter or pick any entity\'s hash and edit its shield component.', '输入/选择任意实体的哈希，修改其 shield 组件参数', '輸入/選擇任意實體的哈希，修改其 shield 組件參數' }, items = {} },
-        } },
+        -- the weapon components (offline/weapon_components.lua): common, by kind of weapon, attachments
+        { name = { 'Weapon components', '武器组件', '武器組件' }, tabs = MOD.weapon_components.SUBS.weapon },
+        { name = { 'Weapon kinds', '武器类型', '武器類型' }, tabs = MOD.weapon_components.SUBS.type },
+        { name = { 'Weapon attachments', '武器配件', '武器配件' }, tabs = MOD.weapon_components.SUBS.attach },
+        { name = { 'Turrets and guidance', '炮塔与制导', '炮塔與制導' }, tabs = { 'SensorEyeComponents', 'TurretComponents' } },
+        { name = { 'Backpack', '背包', '背包' }, tabs = { 'InventoryComponents' } },
+        { name = { 'Mounts', '挂载', '掛載' }, tabs = { 'MountComponents' } },
+        { name = { 'Faction', '阵营', '陣營' }, tabs = { 'FactionComponents' } },
+        -- 地雷, two tabs: MinefieldComponentData, a mine itself (trigger, explosion), and MineSpawnerComponentData, how an
+        -- enemy minefield lays its mines out
+        { name = { 'Mines', '地雷', '地雷' }, tabs = { 'MinefieldComponents', 'MineSpawnerComponents' } },
+        -- 投掷物: ThrowableComponentData, the thing thrown (grenades, knives, mines' models); 投掷器: ThrowerComponentData,
+        -- what throws throwables (minefield pods, the G-11 Caltrops' spinner)
+        { name = { 'Throwables', '投掷物', '投擲物' }, tabs = { 'ThrowableComponents' } },
+        { name = { 'Throwers', '投掷器', '投擲器' }, tabs = { 'ThrowerComponents' } },
+        { name = { 'Drowning', '淹没', '淹沒' }, tabs = { 'DrownComponents' } },
+        { name = { 'Health', '生命', '生命' }, tabs = { 'HealthComponents' } },
+        { name = { 'Demolition', '实体拆毁', '實體拆毀' }, tabs = { 'DemolitionComponents' } },
+        { name = { 'Shield', '护盾', '護盾' }, tabs = { 'ShieldComponents' } },
+        { name = { 'Eagle', '飞鹰', '飛鷹' }, tabs = { 'EagleComponents', 'EagleSpawnerComponents' } },
     } },
     { id = 'orbitals', name = { 'Orbital & Eagle', '轨道飞鹰', '軌道飛鷹' }, subs = {
         { name = { 'Orbital editing', '轨道编辑', '軌道編輯' }, tabs = { 'Orbital' } },
         { name = { 'Eagle editing', '飞鹰编辑', '飛鷹編輯' }, tabs = { 'Eagle' } },
-        { name = { 'Orbital weapon editing', '轨道武器编辑', '軌道武器編輯' }, todo = {
-            { title = { 'orbitalweapon', 'orbitalweapon', 'orbitalweapon' }, note = { 'Enter or pick any entity\'s hash and edit its orbitalweapon component.', '输入/选择任意实体的哈希，修改其 orbitalweapon 组件参数', '輸入/選擇任意實體的哈希，修改其 orbitalweapon 組件參數' }, items = {} },
-        } },
+        { name = { 'Orbital weapon editing', '轨道武器编辑', '軌道武器編輯' }, tabs = { 'OrbitalBeam' } },
     } },
     { id = 'gamedata', name = { 'Game data', '游戏数据', '遊戲數據' }, subs = {
-        { name = { 'Damage ids', '伤害id修改', '傷害id修改' }, todo = {
-            { title = { 'Damage id swap', '伤害ID交换', '傷害ID交換' }, note = { 'Hook the game\'s calls to a chosen damage id and redirect them to another.', '汇编监听对指定伤害ID的调用，并篡改为另一个', '匯編監聽對指定傷害ID的調用，並篡改為另一個' }, items = {} },
-        } },
+        { name = { 'Damage ids', '伤害id修改', '傷害id修改' }, tabs = { 'RecDamage' } },
         { name = { 'Projectile ids', '射弹id修改', '射彈id修改' }, tabs = { 'RecProjectile' } },
         { name = { 'Explosion ids', '爆炸id修改', '爆炸id修改' }, tabs = { 'RecExplosion' } },
-        { name = { 'Arc ids', '电弧id修改', '電弧id修改' }, todo = {
-            { title = { 'Arc id swap', '电弧ID交换', '電弧ID交換' }, note = { 'Hook the game\'s calls to a chosen arc id and redirect them to another.', '汇编监听对指定电弧ID的调用，并篡改为另一个', '匯編監聽對指定電弧ID的調用，並篡改為另一個' }, items = {} },
-        } },
-        { name = { 'Laser ids', '激光id修改', '激光id修改' }, todo = {
-            { title = { 'Laser id swap', '激光ID交换', '激光ID交換' }, note = { 'Hook the game\'s calls to a chosen laser id and redirect them to another.', '汇编监听对指定激光ID的调用，并篡改为另一个', '匯編監聽對指定激光ID的調用，並篡改為另一個' }, items = {} },
-        } },
+        { name = { 'Arc ids', '电弧id修改', '電弧id修改' }, tabs = { 'RecArc' } },
+        { name = { 'Laser ids', '激光id修改', '激光id修改' }, tabs = { 'RecBeam' } },
         { name = { 'Status effect ids', '状态效果id', '狀態效果id' }, tabs = { 'RecStatus' } },
-        { name = { 'Stratagem ids', '战备id', '戰備id' }, tabs = { 'Stratagems', 'Mechas' } },
+        { name = { 'Stratagem ids', '战备id', '戰備id' }, tabs = { 'RecStratagem', 'Stratagems', 'Mechas' } },
     } },
     { id = 'misc', name = { 'Misc & settings', '杂项与设置', '雜項與設置' }, subs = {
         { name = { 'Identity', '身份设置', '身份設置' }, todo = {
@@ -17490,6 +18663,10 @@ function MOD.nav.text(n)
     if type(n) ~= 'table' then return settings.tr(n) end
     return settings.lang == 'zh-Hans' and n[2] or settings.lang == 'zh-Hant' and n[3] or n[1]
 end
+function MOD.nav.section_height(row)
+    if row.collapsed_component then return 0 end
+    return row.section_level=='component'and 42 or 24
+end
 function MOD.nav.base(tab) return MOD.nav.BASE[tab] or tab end
 -- the tab a weapon's (stratagem's, record's...) page is listed on
 function MOD.nav.tab_of(w)
@@ -17497,6 +18674,7 @@ function MOD.nav.tab_of(w)
     if w.player then
         return w.player_view == 'quick' and 'HelldiverQuick' or w.player_view == 'other' and 'HelldiverOther' or 'Helldiver'
     end
+    if w.orbital_beam then return 'OrbitalBeam' end
     local family = w.slot == 'Stratagems' and w.stratagem and w.stratagem.family
     return family == 'orbital' and 'Orbital' or family == 'eagle' and 'Eagle' or w.slot
 end
@@ -17556,6 +18734,267 @@ function settings.shown_tabs()
     return list
 end
 local LIST_ROWS = 27
+MOD.WEAPON_SLOTS = { Primary = true, Secondary = true, Support = true, Throwables = true }
+MOD.WEAPON_COMP_SUBS = {
+    weapon = { order = 1, name = { 'Weapon components', '武器组件', '武器組件' } },
+    type = { order = 2, name = { 'Weapon kinds', '武器类型', '武器類型' } },
+    attach = { order = 3, name = { 'Weapon attachments', '武器配件', '武器配件' } },
+}
+ui.expanded_components = ui.expanded_components or {}
+function MOD.weapon_categories()
+    local out = { { id = 'all', name = MOD.nav.text({ 'All categories', '全部分类', '全部分類' }) } }
+    for _, slot in ipairs({ 'Primary', 'Secondary', 'Support', 'Throwables' }) do
+        if not settings.hidden[slot] then out[#out + 1] = { id = slot, name = settings.tr(slot) } end
+    end
+    return out
+end
+function MOD.weapon_browser_active()
+    return not ui.settings and ui.tab ~= 'Presets' and MOD.WEAPON_SLOTS[ui.tab] == true
+end
+function MOD.attach_weapon_components()
+    local primary_specs, fallback_specs = {}, {}
+    for _, spec in ipairs(MOD.weapon_components.SPECS) do
+        primary_specs[#primary_specs + 1] = { spec = spec, view = MOD.weapon_component_views[spec.KEY], sub = spec.SUB or 'weapon' }
+    end
+    for _, item in ipairs({
+        { 'throwable_components', MOD.throwable_components, 'type' },
+        { 'thrower_components', MOD.thrower_components, 'type' },
+        { 'minefield_components', MOD.minefield_components, 'type' },
+        { 'mine_spawner_components', MOD.mine_spawner_components, 'type' },
+    }) do
+        primary_specs[#primary_specs + 1] = { spec = require(item[1]), view = item[2], sub = item[3] }
+    end
+    for _, item in ipairs({
+        { 'sensor_eye_components', MOD.sensor_eye_components, 'type' },
+        { 'turret_components', MOD.turret_components, 'type' },
+        { 'mount_components', MOD.mount_components, 'attach' },
+        { 'inventory_components', MOD.inventory_components, 'attach' },
+        { 'faction_components', MOD.faction_components, 'weapon' },
+    }) do
+        fallback_specs[#fallback_specs + 1] = { spec = require(item[1]), view = item[2], sub = item[3] }
+    end
+    local pick = require('component_view').pick
+    for _, weapon in ipairs(weapons) do
+        if MOD.WEAPON_SLOTS[weapon.slot] then
+            weapon.legacy_rows = weapon.legacy_rows or weapon.rows
+            local comp_groups, all_rows, matched = {}, {}, {}
+            weapon.field_keys = weapon.field_keys or {}
+            local function collect(list)
+                for _, entry in ipairs(list) do
+                    local comp_page = entry.view and entry.view.by_entity and entry.view.by_entity[weapon.hash]
+                    if comp_page then
+                        if comp_page.ensure_rows then comp_page.ensure_rows() end
+                        if #comp_page.rows > 0 then
+                            local sub_key = entry.sub or entry.spec.SUB or 'weapon'
+                            local wrapped = {}
+                            for _, row in ipairs(comp_page.rows) do
+                                all_rows[#all_rows + 1] = row
+                                wrapped[#wrapped + 1] = setmetatable({
+                                    component_sub = sub_key,
+                                    component_count = #comp_page.rows,
+                                    collapsible = true,
+                                }, { __index = row })
+                                for _, p in ipairs(row.parts) do
+                                    weapon.field_keys[p.field.key] = true
+                                    if not p.health_owner then
+                                        p.health_owner = { weapon = comp_page, part = p }
+                                    end
+                                    local seen = false
+                                    for _, u in ipairs(p.field.users) do
+                                        if u == weapon then seen = true; break end
+                                    end
+                                    if not seen then p.field.users[#p.field.users + 1] = weapon end
+                                    if not weapon.by_id[p.id] then weapon.by_id[p.id] = p end
+                                    local cid = (comp_page.component_view or entry.spec.KEY) .. '_' .. p.id
+                                    weapon.by_id[cid] = p
+                                end
+                            end
+                            comp_groups[#comp_groups + 1] = {
+                                spec = entry.spec,
+                                sub = sub_key,
+                                rows = wrapped,
+                                raw_rows = comp_page.rows,
+                            }
+                        end
+                    end
+                end
+            end
+            collect(primary_specs)
+            if #comp_groups == 0 then collect(fallback_specs) end
+            if #comp_groups > 0 then
+                table.sort(comp_groups, function(a, b)
+                    local oa = (MOD.WEAPON_COMP_SUBS[a.sub] or MOD.WEAPON_COMP_SUBS.weapon).order
+                    local ob = (MOD.WEAPON_COMP_SUBS[b.sub] or MOD.WEAPON_COMP_SUBS.weapon).order
+                    return oa < ob
+                end)
+                local sub_counts = {}
+                for _, cg in ipairs(comp_groups) do
+                    matched[#matched + 1] = cg.spec
+                    sub_counts[cg.sub] = (sub_counts[cg.sub] or 0) + 1
+                end
+                for _, cg in ipairs(comp_groups) do
+                    local sub_info = MOD.WEAPON_COMP_SUBS[cg.sub] or MOD.WEAPON_COMP_SUBS.weapon
+                    local sub_of = function()
+                        return MOD.nav.text(sub_info.name) .. ' (' .. (sub_counts[cg.sub] or 0) .. ')'
+                    end
+                    local raw_rows = cg.raw_rows
+                    local mod_fn = function()
+                        for _, r in ipairs(raw_rows) do
+                            local v, d = row_value(r), row_value(r, true)
+                            if v ~= nil and d ~= nil and math.abs(v - d) > 1e-4 then return true end
+                        end
+                        return false
+                    end
+                    for _, wr in ipairs(cg.rows) do
+                        wr.component_sub_of = sub_of
+                        wr.component_modified = mod_fn
+                    end
+                    cg.header_row = {
+                        id = 'collapsed_' .. cg.spec.KEY,
+                        label = cg.spec.TYPE,
+                        section = cg.spec.KEY .. ':collapsed',
+                        component = cg.spec.TYPE,
+                        component_of = function() return pick(settings.lang, cg.spec.COMPONENT) end,
+                        component_sub = cg.sub,
+                        component_sub_of = sub_of,
+                        component_count = #cg.rows,
+                        component_modified = mod_fn,
+                        collapsed_component = true,
+                        collapsible = true,
+                        parts = {},
+                    }
+                end
+                local hidden = {}
+                for _, r in ipairs(weapon.legacy_rows) do hidden[#hidden + 1] = r end
+                for _, r in ipairs(all_rows) do hidden[#hidden + 1] = r end
+                weapon.hidden_rows = hidden
+                weapon.all_component_rows = all_rows
+                weapon.component_groups = comp_groups
+                weapon.matched_components = matched
+                weapon.sync_rows = function(focus_comp)
+                    local visible, target_idx = {}, nil
+                    for _, cg in ipairs(comp_groups) do
+                        local exp = ui.expanded_components[weapon.hash .. ':' .. cg.spec.TYPE]
+                        if focus_comp == cg.spec.TYPE then target_idx = #visible + 1 end
+                        if exp then
+                            for _, wr in ipairs(cg.rows) do visible[#visible + 1] = wr end
+                        else
+                            visible[#visible + 1] = cg.header_row
+                        end
+                    end
+                    weapon.rows = visible
+                    if target_idx then
+                        ui.row = target_idx
+                        if target_idx < ui.scroll then ui.scroll = target_idx end
+                    end
+                    ui.row = math.max(1, math.min(ui.row or 1, #visible))
+                    ui.scroll = math.max(1, math.min(ui.scroll or 1, #visible))
+                end
+                weapon.sync_rows()
+                weapon.note = weapon.hash
+                weapon.note_of = function()
+                    local lang = settings.lang
+                    local zh = lang == 'zh-Hans' or lang == 'zh-Hant'
+                    local names = {}
+                    for _, s in ipairs(matched) do
+                        local label = pick(lang, s.COMPONENT)
+                        names[#names + 1] = zh and label:gsub('（.*$', '') or s.TYPE
+                    end
+                    if zh then
+                        local sep = lang == 'zh-Hant' and ' · 匹配組件（' or ' · 匹配组件（'
+                        return weapon.hash .. sep .. #matched .. '）：' .. table.concat(names, '、')
+                    end
+                    return weapon.hash .. ' · Matched components (' .. #matched .. '): ' .. table.concat(names, ', ')
+                end
+            end
+        end
+    end
+end
+function MOD.attach_eagle_components()
+    for _, weapon in ipairs(weapons) do
+        local s = weapon.stratagem
+        if s and s.family == 'eagle' then
+            local kept, hidden = {}, {}
+            for _, r in ipairs(weapon.hidden_rows or {}) do hidden[#hidden + 1] = r end
+            weapon.field_keys = weapon.field_keys or {}
+            for _, r in ipairs(weapon.rows) do
+                if r.section == 'StratagemType' or r.section == 'StratagemType additional' then
+                    kept[#kept + 1] = r
+                    for _, p in ipairs(r.parts) do
+                        if p.field and p.field.key then weapon.field_keys[p.field.key] = true end
+                    end
+                else
+                    hidden[#hidden + 1] = r
+                    for _, p in ipairs(r.parts) do
+                        local users = p.field and p.field.users
+                        if users then
+                            for i = #users, 1, -1 do
+                                if users[i] == weapon then table.remove(users, i) end
+                            end
+                        end
+                    end
+                end
+            end
+            local function attach_page(comp_page, prefix, keep_existing_id)
+                if not comp_page then return end
+                if comp_page.ensure_rows then comp_page.ensure_rows() end
+                for _, row in ipairs(comp_page.rows) do
+                    kept[#kept + 1] = row
+                    for _, p in ipairs(row.parts) do
+                        weapon.field_keys[p.field.key] = true
+                        p.health_owner = { weapon = weapon, part = { id = p.id, field = p.field } }
+                        local seen = false
+                        for _, u in ipairs(p.field.users) do
+                            if u == weapon then seen = true; break end
+                        end
+                        if not seen then p.field.users[#p.field.users + 1] = weapon end
+                        if not keep_existing_id or not weapon.by_id[p.id] then weapon.by_id[p.id] = p end
+                        weapon.by_id[prefix .. '_' .. p.id] = p
+                    end
+                end
+            end
+            local seen_pages = {}
+            local spawner_by_eagle = require('eagle_spawner_components').BY_EAGLE_ENTITY or {}
+            for _, key in ipairs(s.payloads or {}) do
+                local hex = string.format('%08X%08X', u32(key, 4), u32(key, 0))
+                local comp_page = MOD.eagle_components and MOD.eagle_components.by_entity and MOD.eagle_components.by_entity[hex]
+                if comp_page and not seen_pages[comp_page] then
+                    seen_pages[comp_page] = true
+                    attach_page(comp_page, 'eagle', false)
+                end
+                local spawner_hex = spawner_by_eagle[hex]
+                local spawner_page = spawner_hex and MOD.eagle_spawner_components and MOD.eagle_spawner_components.by_entity and MOD.eagle_spawner_components.by_entity[spawner_hex]
+                if spawner_page and not seen_pages[spawner_page] then
+                    seen_pages[spawner_page] = true
+                    attach_page(spawner_page, 'eagle_spawner', true)
+                end
+            end
+            local strat_id = s.def and peek4(s.def.at)
+            if strat_id and strat_id > 0 and MOD.eagle_spawner_components then
+                for _, spawner_page in ipairs(MOD.eagle_spawner_components.pages or {}) do
+                    local ep = spawner_page.by_id and spawner_page.by_id.eagle_type
+                    if ep and read_field(ep.field) == strat_id and not seen_pages[spawner_page] then
+                        seen_pages[spawner_page] = true
+                        attach_page(spawner_page, 'eagle_spawner', true)
+                    end
+                end
+            end
+            weapon.rows = kept
+            weapon.hidden_rows = hidden
+        end
+    end
+end
+function MOD.component_kind(tab)
+    tab=tab or ui.tab
+    return tab=='HealthComponents'and'health'or tab=='DemolitionComponents'and'demolition'or tab=='DrownComponents'and'drown'
+        or tab=='ShieldComponents'and'shield'or tab=='ThrowableComponents'and'throwable'or tab=='ThrowerComponents'and'thrower'
+        or tab=='MinefieldComponents'and'minefield'or tab=='MineSpawnerComponents'and'mine_spawner'
+        or tab=='FactionComponents'and'faction'or tab=='MountComponents'and'mount'or tab=='InventoryComponents'and'inventory'
+        or tab=='SensorEyeComponents'and'sensor_eye'or tab=='TurretComponents'and'turret'
+        or tab=='EagleComponents'and'eagle'or tab=='EagleSpawnerComponents'and'eagle_spawner'
+        or MOD.component_tab_kind[tab]or nil
+end
+function MOD.component_rows()return MOD.component_kind()and 24 or MOD.weapon_browser_active()and 26 or LIST_ROWS end
 local W, H = 1000, 980       -- panel size in its own units
 
 -- The weapons (or stratagems) of a tab; tab '?search': those of every tab whose name holds every
@@ -17565,6 +19004,10 @@ local function weapons_in(tab)
     if tab == '?search' then
         words = {}
         for word in ui.search.text:lower():gmatch('%S+') do words[#words + 1] = word end
+    end
+    local component_kind=MOD.component_kind(tab)or words and MOD.component_kind()
+    if component_kind and MOD.component_catalog then
+        return MOD.component_catalog:list(component_kind,settings.component_category,settings.component_show_missing,words and ui.search.text or'',settings.tr)
     end
     -- (a record tab: its kind of records; a search there: every record)
     local function records(t) return t == 'Records' or MOD.nav.BASE[t] == 'Records' end
@@ -17579,6 +19022,7 @@ local function weapons_in(tab)
         end
         return list
     end
+    local weapon_all = MOD.WEAPON_SLOTS[tab] and settings.weapon_category == 'all'
     for _, weapon in ipairs(weapons) do
         if #weapon.rows > 0 and not settings.hidden[weapon.slot] then
             if words then
@@ -17587,7 +19031,7 @@ local function weapons_in(tab)
                     if not name:find(word, 1, true) then all = false; break end
                 end
                 if all then list[#list + 1] = weapon end
-            elseif MOD.nav.tab_of(weapon) == tab then
+            elseif weapon_all and MOD.WEAPON_SLOTS[weapon.slot] or MOD.nav.tab_of(weapon) == tab then
                 list[#list + 1] = weapon
             end
         end
@@ -17597,8 +19041,18 @@ end
 
 -- (a value saved for a stat the weapon has no row for, e.g. one an update removed, stays saved, not shown)
 local function modified(weapon)
+    if weapon.ensure_rows then weapon.ensure_rows() end
+    if weapon.component_entry then
+        for _,r in ipairs(weapon.rows)do for _,p in ipairs(r.parts)do
+            if p.field.demolition and p.field.demolition:own(p.field)~=nil then return true end
+        end end
+    end
     for _, o in ipairs(overrides) do
         if o.hash == weapon.hash and MOD.parts_of(weapon, o.id) then return true end
+        if weapon.health_component or weapon.drown_component or weapon.shield_component or weapon.component_view or weapon.field_keys then
+            local owner=by_hash[o.hash];local p=owner and owner.by_id[o.id]
+            if p and weapon.field_keys[p.field.key] then return true end
+        end
     end
     -- an armor passive with passives stacked on it (offline)
     local t = weapon.passive and tables[weapon.passive]
@@ -17712,10 +19166,60 @@ local function fmt(v, storage)
         return g and ('#' .. g.n) or '?'
     end
     if storage == 'flag' then return v >= 0.5 and 'On' or 'Off' end
-    if storage == 'u32' then return tostring(math.floor(v + 0.5)) end
+    if storage == 'u32' or storage == 'i32' or storage == 'u16' or storage == 'u8' or storage=='i8' then return tostring(math.floor(v + 0.5)) end
     if math.abs(v - math.floor(v + 0.5)) < 1e-4 then return tostring(math.floor(v + 0.5)) end
     if math.abs(v) < 1 then return (string.format('%.3f', v):gsub('0+$', '')) end
     return (string.format('%.2f', v):gsub('0+$', ''):gsub('%.$', ''))
+end
+
+function MOD.stratagem.set_hash(weapon,row,text)
+    if not settings.changes then return nil,'Changes are off.'end
+    local lo,hi=MOD.stratagem.schema.parse_u64(text)
+    if lo==nil then return nil,hi end
+    local values={lo,hi};local before={}
+    for i,p in ipairs(row.parts)do before[i]=read_field(p.field);if before[i]==nil then return nil,'Hash field unavailable.'end;default_of(p.field)end
+    for i,p in ipairs(row.parts)do
+        if before[i]~=values[i]then
+            local ok,why=write_field(p.field,values[i])
+            if not ok then for j=1,i-1 do write_field(row.parts[j].field,before[j])end;return nil,why end
+        end
+    end
+    for i,p in ipairs(row.parts)do set_override(weapon,p,unless_default(values[i],default_of(p.field)))end
+    ui.version=ui.version+1
+    return true
+end
+function MOD.projectile.set_flag(weapon,row,value)
+    local p=row.parts[1];local current=read_field(p.field)
+    if current==nil or value==nil then return end
+    local mask=row.packed_flag
+    local target=current-(math.floor(current/mask)%2)*mask+(value>=.5 and mask or 0)
+    if target~=current then
+        local ok,why=write_field(p.field,target)
+        if not ok then ui.message={text=why,till=api.now()+5};return end
+        set_override(weapon,p,unless_default(target,default_of(p.field)))
+        ui.version=ui.version+1
+    end
+end
+function MOD.stratagem.set_button(weapon,row,value)
+    if not settings.changes then return nil,'Changes are off.'end
+    value=math.floor(value+.5)
+    if value<0 or value>4 then return nil,'Button must be 0, 1, 2, 3 or 4.'end
+    local arrows=MOD.code.arrows(read_field(row.parts[1].field))or{}
+    local slot=row.button_slot
+    if slot>#arrows+1 and value~=0 then return nil,'Fill the preceding button slots first.'end
+    if value==0 then for i=#arrows,slot,-1 do arrows[i]=nil end
+    else arrows[slot]=value end
+    if #arrows==0 then return nil,'A call-in code needs at least one arrow.'end
+    local ok,why=MOD.code.check(row.def,arrows)
+    if not ok then return nil,why end
+    local p=row.parts[1];local v=MOD.code.number(arrows)
+    if v==read_field(p.field)then return true end
+    local done,err=write_field(p.field,v)
+    if not done then return nil,err end
+    set_override(weapon,p,unless_default(v,default_of(p.field)))
+    ui.version=ui.version+1
+    if why then ui.message={text=why,till=api.now()+6}end
+    return true
 end
 
 local function step_of(row, value, big)
@@ -17728,6 +19232,9 @@ local function step_of(row, value, big)
 end
 
 local function select_weapon(weapon)
+    if weapon and weapon.ensure_rows then weapon.ensure_rows() end
+    if weapon and weapon.sync_rows then weapon.sync_rows() end
+    ui.reference_click = nil
     ui.weapon = weapon
     ui.row, ui.scroll, ui.settings, ui.binding, ui.stack_pick, ui.code = 1, 1, false, nil, nil, nil
     local last = settings.last[MOD.enemy.on and 'enemy' or 'stat']
@@ -17736,18 +19243,83 @@ local function select_weapon(weapon)
         mark_config_dirty()
     end
     if weapon then
+        if weapon.component_entry then ui.component_selected=weapon.entity_id end
+        if MOD.WEAPON_SLOTS[weapon.slot] and settings.weapon_category ~= 'all' and settings.weapon_category ~= weapon.slot then
+            settings.weapon_category = weapon.slot
+        end
         ui.tab = MOD.nav.tab_of(weapon)
         ui.nav.weapon[ui.tab] = weapon.hash
         local list = weapons_in(ui.search.text ~= '' and '?search' or ui.tab)
         for n, w in ipairs(list) do
             if w == weapon and n < ui.page then ui.page = n
-            elseif w == weapon and n >= ui.page + LIST_ROWS then ui.page = n - LIST_ROWS + 1 end
+            elseif w == weapon and n >= ui.page + MOD.component_rows() then ui.page = n - MOD.component_rows() + 1 end
         end
     end
 end
 
+function MOD.references.open(row)
+    local ref, id = MOD.references.type_of(row), row_value(row)
+    local function unavailable(reason)
+        ui.message = { text = reason, till = api.now() + 4 }
+        ui.version = ui.version + 1
+        return false
+    end
+    if not ref then return false end
+    if not id or id <= 0 then
+        return unavailable(MOD.nav.text({ 'No referenced record: ID is 0 or unavailable.',
+            '此引用为 0 或不可读取，没有可跳转的记录。', '此引用為 0 或不可讀取，沒有可跳轉的記錄。' }))
+    end
+    local target
+    if ref == 'stratagem_id' then
+        target=MOD.stratagem.page(id)
+        for _, w in ipairs(not target and weapons or{}) do
+            local def = w.stratagem and w.stratagem.def
+            if def and peek4(def.at) == id then target = w; break end
+        end
+    else
+        local kind = MOD.references.KINDS[ref]
+        if kind then target = MOD.records.page(kind, id) end
+    end
+    if not target then
+        return unavailable(MOD.nav.text({ 'Referenced record is not loaded: ', '未加载对应记录：', '未載入對應記錄：' }) .. ref .. ' ' .. id)
+    end
+    MOD.enemy.on, settings.enemy_last = false, false
+    ui.search, ui.page, ui.value = { text = '', active = false }, 1, nil
+    select_weapon(target)
+    MOD.nav.sync()
+    ui.message = nil
+    ui.version = ui.version + 1
+    return true
+end
+-- Pair clicks by source page AND row, within the OS double-click interval and a small movement.
+-- The first click keeps the editor's normal single-click behavior.
+function MOD.references.double_click(weapon, n, now, x, y)
+    local last = ui.reference_click
+    local seconds = .5
+    if user then
+        local ok, ms = pcall(function() return user.GetDoubleClickTime() end)
+        if ok then seconds = ms / 1000 end
+    end
+    if last and last.weapon == weapon and last.n == n and now >= last.time and now - last.time <= seconds
+       and (not x or not last.x or math.abs(x - last.x) <= 5)
+       and (not y or not last.y or math.abs(y - last.y) <= 5) then
+        ui.reference_click = nil
+        return true
+    end
+    ui.reference_click = { weapon = weapon, n = n, time = now, x = x, y = y }
+    return false
+end
+
 -- Suppressed on / off: the flag, and the noise template the game's suppressed guns use (10; a silent one, 0, stays 0);
 -- off on a gun the game suppresses: a loud template (7). Off on any other: its own again.
+function MOD.component_reselect()
+    if MOD.component_catalog and settings.component_category~='all'and not MOD.component_catalog.config.by_id[settings.component_category]then settings.component_category='all'end
+    local list=weapons_in(ui.search.text~=''and'?search'or ui.tab)
+    local wanted=ui.component_selected;local found
+    for _,page in ipairs(list)do if page.entity_id==wanted then found=page;break end end
+    select_weapon(found or list[1]);ui.version=ui.version+1
+end
+
 function MOD.suppress(weapon, row, target)
     local flag, noise = row.parts[1], row.parts[2]
     local f0, n0 = default_of(flag.field), default_of(noise.field)
@@ -17761,6 +19333,14 @@ function MOD.suppress(weapon, row, target)
 end
 
 local function change(row, delta_sign, big, exact)
+    if row.collapsed_component or row.link_only then return end
+    if row.hash64 then return end   -- exact decimal input; never increment a rounded double
+    if row.button_slot then
+        local target=exact or row_value(row)+delta_sign
+        local ok,why=MOD.stratagem.set_button(ui.weapon,row,math.max(0,math.min(4,target)))
+        if not ok then ui.message={text=why,till=api.now()+5}end
+        return
+    end
     local weapon = ui.weapon
     local current = row_value(row)
     if not weapon or current == nil then return end
@@ -17774,7 +19354,24 @@ local function change(row, delta_sign, big, exact)
         if target ~= current then MOD.suppress(weapon, row, target) end
         return
     end
+    if row.packed_flag then
+        MOD.projectile.set_flag(weapon,row,exact or math.max(0,math.min(1,current+delta_sign)))
+        return
+    end
     if row.choice then
+        if row.choice=='reference'then
+            local kind=MOD.references.KINDS[row.reference_type]
+            local target=exact and math.floor(exact+.5)or MOD.records.step(kind,current,delta_sign*(big and 10 or 1))
+            if target~=0 and not(tables[kind]and tables[kind].index[target])then
+                ui.message={text='No matching record in this game build: '..tostring(target),till=api.now()+5};return
+            end
+            if target==current then return end
+            local p=row.parts[1];local ok,why=write_field(p.field,target)
+            if ok then set_override(weapon,p,unless_default(target,default_of(p.field)))
+            else ui.message={text=why,till=api.now()+5}end
+            ui.version=ui.version+1
+            return
+        end
         if row.choice == 'grenade' then
             local spec = KINDS[TYPES.throwable]
             local target = exact and math.floor(exact + 0.5) or spec.step(current, delta_sign * (big and 10 or 1))
@@ -17859,7 +19456,7 @@ local function change(row, delta_sign, big, exact)
             return
         end
         if row.choice == 'status' then
-            local target = exact and math.floor(exact + 0.5) or MOD.status.step(current, delta_sign * (big and 10 or 1))
+            local target = exact and math.floor(exact + 0.5) or (row.status_all and MOD.records.step(T_STATUS,current,delta_sign*(big and 10 or 1))or MOD.status.step(current, delta_sign * (big and 10 or 1)))
             if target == current then return end
             local why = MOD.status.refused(row, target)
             if why then ui.message = { text = why, till = api.now() + 4 }; return end
@@ -17869,9 +19466,10 @@ local function change(row, delta_sign, big, exact)
                 set_override(weapon, p, unless_default(target, default_of(p.field)))
                 -- a status with no strength does nothing: it gets the usual one
                 local sp = row.strength and row.strength.parts[1]
-                if target ~= 0 and sp and (read_field(sp.field) or 0) == 0 and MOD.status.by[target] then
-                    if write_field(sp.field, MOD.status.by[target].strength) then
-                        set_override(weapon, sp, unless_default(MOD.status.by[target].strength, default_of(sp.field)))
+                if target ~= 0 and sp and (read_field(sp.field) or 0) == 0 and (MOD.status.by[target]or row.status_all) then
+                    local strength=MOD.status.by[target]and MOD.status.by[target].strength or 1
+                    if write_field(sp.field, strength) then
+                        set_override(weapon, sp, unless_default(strength, default_of(sp.field)))
                     end
                 end
             else ui.message = { text = err, till = api.now() + 4 } end
@@ -17914,7 +19512,7 @@ local function change(row, delta_sign, big, exact)
         return
     end
     local target = exact or current + delta_sign * step_of(row, current, big)
-    if row.storage == 'u32' then target = math.floor(target + 0.5)
+    if row.storage == 'u32' or row.storage=='i32' or row.storage=='u16' or row.storage=='u8' or row.storage=='i8' then target = math.floor(target + 0.5)
     else target = math.floor(target * 10000 + 0.5) / 10000 end
     if row.limit and delta_sign > 0 and current >= row.max then
         ui.message = { text = row.limit, till = api.now() + 4 }
@@ -17969,6 +19567,11 @@ local function finish_value(keep)
         return
     end
     local row = edit and keep and edit.weapon == ui.weapon and ui.weapon.rows[edit.n]
+    if row and row.hash64 then
+        local ok,why=MOD.stratagem.set_hash(edit.weapon,row,edit.text)
+        if not ok then ui.value=edit;ui.message={text=why,till=api.now()+5}end
+        return
+    end
     local typed = row and tonumber((edit.text:gsub(',', '.')))
     if not typed then return end
     local rounded = row.storage == 'u32' and math.floor(typed + 0.5) or typed
@@ -17987,11 +19590,16 @@ if MOD.offline then
     state.commit_value = function()
         if not ui.value then return true end
         local edit = ui.value
+        local exact_row=edit.weapon and edit.weapon.rows[edit.n]
+        if exact_row and exact_row.hash64 then
+            finish_value(true)
+            return not ui.value or nil,ui.value and 'Enter an unsigned decimal integer within uint64 range.'or nil
+        end
         local value = tonumber((edit.text:gsub(',', '.')))
         if not value or not MOD.parse_number(value) then return nil, 'Enter a finite number before switching pages or installing.' end
         local row = edit.weapon and edit.weapon.rows[edit.n]
         finish_value(true)
-        if row and row.parts[1].field.demolition then
+        if row and row.parts[1] and row.parts[1].field.demolition then
             local expected = math.max(row.min, math.min(row.max, math.floor(value + .5)))
             if row_value(row) ~= expected then return nil, 'Could not save the current demolition value.' end
         end
@@ -18025,6 +19633,7 @@ function MOD.code.finish(keep)
 end
 
 local function reset_row(weapon, row)
+    if row.packed_flag then MOD.projectile.set_flag(weapon,row,row_value(row,true));return end
     local keep = MOD.times_of(row)
     for _, p in ipairs(row.parts) do
         if p.field.demolition then
@@ -18042,6 +19651,7 @@ end
 
 local function reset_weapon(weapon)
     for _, row in ipairs(weapon.rows) do reset_row(weapon, row) end
+    for _, row in ipairs(weapon.hidden_rows or {}) do reset_row(weapon, row) end   -- (an orbital's stats not laid out)
     local t = weapon.passive and tables[weapon.passive]   -- an armor passive: its stacked passives go too
     if t and (settings.stacks[t.index.id] or settings.own_off[t.index.id]) then
         settings.stacks[t.index.id], settings.own_off[t.index.id] = nil, nil
@@ -18328,12 +19938,13 @@ do
             if p then mine[p.field.key] = o.value end
         end
         local out = {}
-        for _, row in ipairs(weapon.rows) do
-            for _, p in ipairs(row.parts) do
+        for _, row in ipairs(weapon.all_component_rows or weapon.rows) do
+            for _, p in ipairs(row.packed_flag and{}or row.parts) do
                 local v, d = p.field.pending_value or read_field(p.field), default_of(p.field)   -- a grenade still loading counts
                 local own = mine[p.field.key]
                 local pin = weapon.enemy and MOD.enemy.covered and MOD.enemy.covered[p.field.key]   -- (a faction-wide row's exception)
-                if own and v and d and (p.field.demolition or pin or math.abs(v - d) > 1e-4) then out[#out + 1] = { id = p.id, value = own } end
+                local pid = weapon.by_id[p.id] ~= p and p.health_owner and p.health_owner.weapon and p.health_owner.weapon.component_view and (p.health_owner.weapon.component_view .. '_' .. p.id) or p.id
+                if own and v and d and (p.field.demolition or pin or math.abs(v - d) > 1e-4) then out[#out + 1] = { id = pid, value = own } end
             end
         end
         return out
@@ -18357,6 +19968,7 @@ do
         if not settings.changes then say('Your changes are off: turn them on in Settings to load a preset'); return end
         local values = weapon_preset(weapon, n)
         if not values then say(weapon.name .. ' preset ' .. n .. ' is empty'); return end
+        local preset_rows = weapon.all_component_rows or weapon.rows
         local want, aliases = {}, weapon.aliases or {}
         for _, v in ipairs(values) do
             local id = aliases[v.id] or v.id
@@ -18366,20 +19978,22 @@ do
             end
             if not (parts and parts[1].id ~= id) and (want[id] == nil or id == v.id) then want[id] = v.value end
         end
-        for _, row in ipairs(weapon.rows) do   -- a swap row: parts the preset does not name follow its first
+        for _, row in ipairs(preset_rows) do   -- a swap row: parts the preset does not name follow its first
             local first = row.choice and want[row.parts[1].id]
             for k = 2, first and #row.parts or 0 do
                 if want[row.parts[k].id] == nil then want[row.parts[k].id] = first end
             end
         end
         local refused = 0
-        for _, row in ipairs(weapon.rows) do
-            for _, p in ipairs(row.parts) do
+        for _, row in ipairs(preset_rows) do
+            for _, p in ipairs(row.packed_flag and{}or row.parts) do
+                local pid = weapon.by_id[p.id] ~= p and p.health_owner and p.health_owner.weapon and p.health_owner.weapon.component_view and (p.health_owner.weapon.component_view .. '_' .. p.id) or p.id
                 local d = default_of(p.field)
-                local target = want[p.id]
+                local target = want[pid]
+                if target == nil and pid ~= p.id then target = want[p.id] end
                 local explicit = target ~= nil
                 if target == nil then target = d end
-                want[p.id] = nil
+                want[pid], want[p.id] = nil, nil
                 if p.field.demolition then
                     local ok, why = p.field.demolition:write(p.field, explicit and target or nil)
                     if not ok then refused = refused + 1; log('preset refused: ' .. weapon.name .. ' ' .. p.id .. ': ' .. tostring(why)) end
@@ -18555,6 +20169,7 @@ end
 -- Draws the whole panel into a fresh screen gui. Coordinates are 1080p units from the panel's
 -- top left; the gui itself counts pixels from the bottom left.
 local function draw(width, height)
+    if ui.weapon and ui.weapon.ensure_rows then ui.weapon.ensure_rows() end
     local Gui, Vector3, Vector2, Color = sr.Gui, sr.Vector3, sr.Vector2, sr.Color
     local s = height / 1080 * (MOD.offline and 100 or settings.size) / 100   -- panel units -> 1080p units (offline: the window is the panel's)
     local ox, oy = settings.side == 'left' and 30 * s or width - (W + 30) * s, (height - H * s) / 2
@@ -18681,9 +20296,9 @@ local function draw(width, height)
                    k == nav_k and ui.tab ~= 'Presets', sub.todo and k ~= nav_k and MUTED or nil)
             tab_x = tab_x + w + 4
         end
-        -- the sub-page's tabs when it has several (Weapon editing: primary ... throwables), after the page's name
+        -- the sub-page's tabs when it has several (after the page's name; Weapon editing filters in the left list)
         local cats = {}
-        for _, t in ipairs(nav_sub.tabs or {}) do
+        for _, t in ipairs(not nav_sub.weapon_browser and nav_sub.tabs or {}) do
             if not settings.hidden[MOD.nav.base(t)] then cats[#cats + 1] = t end
         end
         if #cats > 1 then
@@ -18702,15 +20317,16 @@ local function draw(width, height)
             end
         end
     end
-    button('reset_weapon', ui.weapon and (ui.weapon.passive and 'Reset passive' or ui.weapon.booster and 'Reset booster' or ui.weapon.enemy and (ui.weapon.slot == 'Spawning' and 'Reset spawning' or 'Reset enemy') or ui.weapon.player and 'Reset helldiver' or ui.weapon.record and 'Reset record') or (MOD.enemy.on and 'Reset enemy' or 'Reset weapon'), W - 16 - 124, MOD.offline and 10 or 52, 124, MOD.offline and 30 or 32, ui.weapon ~= nil and modified(ui.weapon))
+    button('reset_weapon', ui.weapon and (ui.weapon.component_entry and MOD.nav.text({ 'Reset component', '重置组件', '重置組件' }) or ui.weapon.passive and 'Reset passive' or ui.weapon.booster and 'Reset booster' or ui.weapon.enemy and (ui.weapon.slot == 'Spawning' and 'Reset spawning' or 'Reset enemy') or ui.weapon.player and 'Reset helldiver' or ui.weapon.record and 'Reset record') or (MOD.enemy.on and 'Reset enemy' or 'Reset weapon'), W - 16 - 124, MOD.offline and 10 or 52, 124, MOD.offline and 30 or 32, ui.weapon ~= nil and modified(ui.weapon))
 
     -- a list's scroll bar (the weapon list, or the full presets): a thin track between the list and the
     -- line that parts the panel's halves, shown when the list is longer than LIST_ROWS
     ui.lbar, ui.split_gx = nil, ox + 343 * s
     local function list_bar(id, total)
-        if total <= LIST_ROWS then return end
-        local top, len, span = 96, LIST_ROWS * 26 - 1, total - LIST_ROWS
-        local th = math.max(24, len * LIST_ROWS / total)
+        local count=id=='page'and MOD.component_rows()or LIST_ROWS
+        if total <= count then return end
+        local top, len, span = id=='page'and(MOD.component_kind()and 154 or MOD.weapon_browser_active()and 126)or 96, count * 26 - 1, total - count
+        local th = math.max(24, len * count / total)
         local ty = top + (len - th) * math.min(1, (ui[id] - 1) / span)
         rect(336, top, 5, len, color(28, 34, 42), 951)
         local hot = (ui.drag and ui.drag.bar == 'lbar') or ui.hover == 'lbar:thumb'
@@ -18718,7 +20334,7 @@ local function draw(width, height)
         region('lbar:track', 335, top, 8, len)
         region('lbar:thumb', 335, ty, 8, th)
         ui.lbar = { id = id, top = height - oy - top * s, bottom = height - oy - (top + len) * s,
-                    thumb_top = height - oy - ty * s, thumb = th * s, span = span, page = LIST_ROWS }
+                    thumb_top = height - oy - ty * s, thumb = th * s, span = span, page = count }
     end
 
     local presets_tab = ui.tab == 'Presets'
@@ -18810,21 +20426,49 @@ local function draw(width, height)
     end
 
     -- weapon list
+    local component_kind=MOD.component_kind()
+    local component_browser=component_kind and MOD.component_catalog and not ui.settings
+    local weapon_browser=MOD.weapon_browser_active()
+    local list_rows=component_browser and 24 or weapon_browser and 26 or LIST_ROWS
+    local list_top=component_browser and 154 or weapon_browser and 126 or 96
+    if component_browser then
+        local catalog=MOD.component_catalog
+        local categories=catalog:categories();local selected=1
+        for i,category in ipairs(categories)do if category.id==settings.component_category then selected=i end end
+        if settings.component_category~='all'and not catalog.config.by_id[settings.component_category]then settings.component_category='all' end
+        button('component_cat:prev','<',16,94,32,28,true)
+        button('component_cat:menu',categories[selected].name,52,94,246,28,true,ui.component_menu)
+        button('component_cat:next','>',302,94,32,28,true)
+        local checked=settings.component_show_missing
+        rect(18,132,16,16,color(20,26,34),951);outline(18,132,16,16,checked and GOLD or MUTED)
+        if checked then text('✓',19,129,17,GOLD)end
+        text(MOD.nav.text({'Show entities without this component','显示无本组件的实体','顯示無本組件的實體'}),42,131,14,WHITE,210)
+        region('component_missing',16,126,246,26)
+        button('component_reload',MOD.nav.text({'Reload JSON','重载JSON','重載JSON'}),264,126,70,26,true)
+    elseif weapon_browser then
+        local categories=MOD.weapon_categories();local selected=1
+        for i,category in ipairs(categories)do if category.id==settings.weapon_category then selected=i end end
+        if selected==1 then settings.weapon_category='all'end
+        button('weapon_cat:prev','<',16,94,32,28,true)
+        button('weapon_cat:menu',categories[selected].name,52,94,246,28,true,ui.weapon_menu)
+        button('weapon_cat:next','>',302,94,32,28,true)
+    end
     local searching = ui.search.text ~= '' or ui.search.active
     local list = (presets_tab or todo_view or solo_view) and {} or weapons_in(ui.search.text ~= '' and '?search' or ui.tab)
-    local last_top = math.max(1, #list - LIST_ROWS + 1)
+    local last_top = math.max(1, #list - list_rows + 1)
     ui.page = math.max(1, math.min(ui.page, last_top))
-    for k = 1, LIST_ROWS do
+    for k = 1, list_rows do
         local weapon = list[ui.page + k - 1]
         if not weapon then break end
-        local y = 96 + (k - 1) * 26
+        local y = list_top + (k - 1) * 26
         local key = 'weapon:' .. weapon.hash
-        if searching then text(MOD.nav.tab_label(MOD.nav.tab_of(weapon)), 326, y + 5, 13, DIM, 80, true) end
+        if searching and not component_browser then text(MOD.nav.tab_label(MOD.nav.tab_of(weapon)), 326, y + 5, 13, DIM, 80, true) end
         local selected = weapon == ui.weapon
         if selected then rect(16, y, 318, 25, (MOD.enemy.on and color(96, 20, 16) or color(90, 74, 8)), 951)
         elseif ui.hover == key then rect(16, y, 318, 25, color(40, 52, 64), 951) end
         local changed = modified(weapon)
         local ink = changed and GOLD or WHITE
+        if weapon.component_entry and not weapon.has_component then ink=DIM end
         if not changed and MOD.enemy.by_all_pages and MOD.enemy.by_all_pages[weapon.hash] then changed, ink = true, MOD.enemy.ALL_INK end
         -- a stratagem: its number as an extra stratagem after its name
         if (weapon.stratagem or weapon.sentry_defs) and not MOD.extra.list then MOD.extra.choices() end
@@ -18845,7 +20489,9 @@ local function draw(width, height)
                        :gsub('^\209([\128-\143])', function(c) return '\208' .. string.char(c:byte() + 32) end)   -- р-я
             text((changed and '* ' or '') .. rest .. id, 44, y + 5, 14, ink, searching and 206 or 282)
         else
-            text((changed and '* ' or '') .. settings.tr(weapon.name) .. id, 24, y + 4, 16, ink, searching and 226 or 302)
+            local category=component_browser and settings.component_category=='all'and('['..weapon.catalog_record.category_name..'] ')
+                or weapon_browser and settings.weapon_category=='all'and('['..settings.tr(weapon.slot)..'] ')or''
+            text((changed and '* ' or '') .. category .. settings.tr(weapon.name) .. id, 24, y + 4, 16, ink, (component_browser or weapon_browser) and 302 or searching and 226 or 302)
         end
         region(key, 16, y, 318, 25)
     end
@@ -18863,12 +20509,12 @@ local function draw(width, height)
         end
         text(line, 24, y, 14, MUTED)
     end
-    local py = 96 + LIST_ROWS * 26 + 8
+    local py = list_top + list_rows * 26 + 8
     if not presets_tab and not todo_view and not solo_view then
         if ui.search.text ~= '' and #list == 0 then text('Nothing matches.', 24, 100, 16, MUTED) end
         button('page:prev', '<', 16, py, 40, 30, ui.page > 1)
         list_bar('page', #list)
-        text((#list > LIST_ROWS and (ui.page .. '-' .. math.min(#list, ui.page + LIST_ROWS - 1) .. ' of ') or '') ..
+        text((#list > list_rows and (ui.page .. '-' .. math.min(#list, ui.page + list_rows - 1) .. ' of ') or '') ..
              #list .. (ui.search.text ~= '' and ' found' or ' listed'),
              70, py + 7, 16, MUTED, 214)
         button('page:next', '>', 294, py, 40, 30, ui.page < last_top)
@@ -18877,12 +20523,13 @@ local function draw(width, height)
         rect(16, sy, 274, 30, active and color(20, 26, 34) or color(28, 34, 42), 951)
         outline(16, sy, 274, 30, active and GOLD or (ui.hover == 'search' and GOLD or color(70, 82, 94)))
         if ui.search.text == '' and not active then
-            text(MOD.enemy.on and 'Search enemies' or 'Search weapons and stratagems', 24, sy + 7, 15, DIM, 258)
+            text(component_browser and MOD.nav.text({'Search entity name or hash','搜索实体名称或哈希','搜尋實體名稱或雜湊'})or MOD.enemy.on and 'Search enemies' or 'Search weapons and stratagems', 24, sy + 7, 15, DIM, 258)
         else
             text(ui.search.text .. (active and '_' or ''), 24, sy + 6, 16, WHITE, 258)
         end
         region('search', 16, sy, 274, 30)
         button('search:clear', 'X', 296, sy, 38, 30, ui.search.text ~= '')
+        if component_browser then button('component_config',MOD.nav.text({'Classification JSON','打开分类JSON','開啟分類JSON'}),16,sy+36,318,26,true)end
         rect(343, 96, 2, H - 96 - 70, color(70, 82, 94), 951)
     end
 
@@ -19061,19 +20708,36 @@ local function draw(width, height)
             y = y + (any and 50 or 14)
         end
     elseif not weapon then
-        text('Choose a weapon on the left.', x0, 100, 18, MUTED)
+        text(component_browser and MOD.nav.text({'Choose an entity on the left.','在左侧选择一个实体。','在左側選擇一個實體。'})or'Choose a weapon on the left.', x0, 100, 18, MUTED)
+    elseif weapon.component_entry and weapon.component_unavailable then
+        text(weapon.name,x0,94,22,weapon.has_component and GOLD or DIM,W-x0-20)
+        text(weapon.note_of(),x0,132,15,MUTED,W-x0-20)
+        text(weapon.entity_id,x0,164,15,MUTED,W-x0-20)
+        text(weapon.path or'',x0,194,13,MUTED,W-x0-20)
+        if weapon.has_component then text(MOD.nav.text({'The component exists, but has no safely editable fields.','组件或配置存在，但没有可安全编辑的字段。','組件或配置存在，但沒有可安全編輯的欄位。'}),x0,230,16,WARN,W-x0-20)end
     else
         text(weapon.name, x0, 94, 22, GOLD, W - x0 - 20)
-        local y, section = 126, nil
+        local y, section, parent, sub_parent = 126, nil, nil, nil
         if weapon.note ~= '' then
-            text(weapon.note, x0, 122, 14, WARN, W - x0 - 20)
+            text(weapon.note_of and weapon.note_of()or weapon.note, x0, 122, 14, WARN, W - x0 - 20)
             y = 144
+        end
+        -- A component containing several existing parameter groups keeps its own parent heading.
+        if weapon.component_heading then
+            local head=weapon.component_heading()
+            rect(x0-6,y+2,W-x0-10,36,color(25,27,28),951)
+            outline(x0-6,y+2,W-x0-10,36,color(118,106,30))
+            rect(x0-6,y+2,5,36,GOLD,952)
+            text(head,x0+8,y+8,22,GOLD,W-x0-30)
+            y=y+42
         end
         -- rows get closer together when there are too many to fit at full spacing; past 22 units
         -- apart the list scrolls (Up/Down follow the chosen row; buttons below page through it)
-        local sections, below = 0, 0
+        local section_space, below = 0, 0
         for n, row in ipairs(weapon.rows) do
-            if n == 1 or row.section ~= weapon.rows[n - 1].section then sections = sections + 1 end
+            if row.component_sub and (n == 1 or row.component_sub ~= weapon.rows[n - 1].component_sub) then section_space = section_space + 30 end
+            if not row.collapsed_component and (n == 1 or row.section ~= weapon.rows[n - 1].section) then section_space = section_space + MOD.nav.section_height(row) end
+            if row.component and(n==1 or row.component~=weapon.rows[n-1].component)then section_space=section_space+(row.collapsed_component and 18 or 42)end
             below = below + (row.after_h or 0)
         end
         -- this weapon's presets, under its stats
@@ -19092,7 +20756,7 @@ local function draw(width, height)
         local stack_id = MOD.offline and weapon.passive and tables[weapon.passive] and tables[weapon.passive].index.id
         local stack_list = stack_id and (settings.stacks[stack_id] or {})
         if stack_list then bottom = bottom - (36 + 34 * (#stack_list + 2)) end
-        local pitch = math.floor((bottom - y - sections * 24 - below) / math.max(1, #weapon.rows))
+        local pitch = math.floor((bottom - y - section_space - below) / math.max(1, #weapon.rows))
         local scrolling = pitch < 22
         if scrolling then
             pitch, bottom = 24, bottom - 36
@@ -19104,16 +20768,65 @@ local function draw(width, height)
         local top = y
         for n, row in ipairs(weapon.rows) do
             if n >= ui.scroll then
-                if y + pitch + (row.section ~= section and 24 or 0) + (row.after_h or 0) > bottom then
+                local sub_height=row.component_sub and row.component_sub~=sub_parent and 30 or 0
+                local heading_height=MOD.nav.section_height(row)
+                local parent_height=row.component and row.component~=parent and(row.collapsed_component and 18 or 42)or 0
+                local sec_height=(not row.collapsed_component and row.section~=section)and heading_height or 0
+                if y + pitch + sub_height + parent_height + sec_height + (row.after_h or 0) > bottom then
                     ui.last_visible = n - 1
                     break
                 end
+                if sub_height>0 then
+                    rect(x0-6,y+2,W-x0-10,24,color(18,28,40),951)
+                    outline(x0-6,y+2,W-x0-10,24,color(56,82,108))
+                    rect(x0-6,y+2,4,24,color(120,200,255),952)
+                    text(row.component_sub_of(),x0+8,y+4,17,color(120,200,255),W-x0-30)
+                    y=y+sub_height
+                end
+                sub_parent=row.component_sub
+                if row.collapsed_component then
+                    local key='comp_toggle:'..row.component
+                    local hovered=ui.hover==key or n==ui.row
+                    local comp_mod=row.component_modified and row.component_modified()
+                    rect(x0-6,y+2,W-x0-10,36,hovered and color(36,44,54)or color(25,27,28),951)
+                    outline(x0-6,y+2,W-x0-10,36,hovered and GOLD or color(118,106,30))
+                    rect(x0-6,y+2,5,36,GOLD,952)
+                    text((comp_mod and'* 'or'')..'▶ '..row.component_of(),x0+8,y+8,20,GOLD,W-x0-170)
+                    local hint=MOD.nav.text({row.component_count..' fields · Click to expand',row.component_count..' 项参数 · 点击展开',row.component_count..' 項參數 · 點擊展開'})
+                    text(hint,W-24,y+11,14,hovered and WHITE or MUTED,156,true)
+                    region(key,x0-6,y+2,W-x0-10,36)
+                    parent,section,y=row.component,row.section,y+parent_height+pitch
+                else
+                    if parent_height>0 then
+                        if row.collapsible then
+                            local key='comp_toggle:'..row.component
+                            local hovered=ui.hover==key
+                            local comp_mod=row.component_modified and row.component_modified()
+                            rect(x0-6,y+2,W-x0-10,36,hovered and color(36,44,54)or color(25,27,28),951)
+                            outline(x0-6,y+2,W-x0-10,36,hovered and GOLD or color(118,106,30))
+                            rect(x0-6,y+2,5,36,GOLD,952)
+                            text((comp_mod and'* 'or'')..'▼ '..row.component_of(),x0+8,y+8,20,GOLD,W-x0-170)
+                            local hint=MOD.nav.text({row.component_count..' fields · Click to collapse',row.component_count..' 项参数 · 点击收起',row.component_count..' 項參數 · 點擊收起'})
+                            text(hint,W-24,y+11,14,hovered and WHITE or MUTED,156,true)
+                            region(key,x0-6,y+2,W-x0-10,36)
+                        else
+                            rect(x0-6,y+2,W-x0-10,36,color(25,27,28),951)
+                            outline(x0-6,y+2,W-x0-10,36,color(118,106,30))
+                            rect(x0-6,y+2,5,36,GOLD,952)
+                            text(row.component_of(),x0+8,y+8,22,GOLD,W-x0-30)
+                        end
+                        y=y+parent_height
+                    end
+                    parent=row.component
                 if row.section ~= section then
                     section = row.section
                     local note, others = row.note or '', shared_with(weapon, row)
                     if type(note) == 'function' then note, others = note(others), {} end
                     -- the note after the section's name (long ones: 'PARTIAL CHARGE EXPLOSION')
-                    local nx = math.max(110, #section * 10 + 14)
+                    -- (the name in its band, below: as large as it is, the note after it moves along)
+                    local head = row.section_of and row.section_of() or section:upper()
+                    local component=row.section_level=='component'
+                    local nx = component and (math.floor(width(head,22))+26)or math.max(110, row.component and 0 or #section * 10 + 14, math.floor(width(head, 17)) + 24)
                     local room, shown = W - x0 - 20 - nx, 0
                     if note == '' and #others > 0 then
                         -- as many names (up to 3) as fit at full size, then '+N' (one name at least)
@@ -19124,15 +20837,26 @@ local function draw(width, height)
                             if k == 1 or not ink_font or width(note, 14 * s) <= room * s then break end
                         end
                     end
-                    text((row.section_of and row.section_of() or section):upper(), x0, y + 4, 15, MUTED)
-                    if note ~= '' then text(note, x0 + nx, y + 4, 14, WARN, room) end
+                    -- a section's name: gold in a band with a bar at its left, unlike the rows under it
+                    if component then
+                        rect(x0-6,y+2,W-x0-10,36,color(25,27,28),951)
+                        outline(x0-6,y+2,W-x0-10,36,color(118,106,30))
+                        rect(x0-6,y+2,5,36,GOLD,952)
+                        text(head,x0+8,y+8,22,GOLD,nx-16)
+                        if note~=''then text(note,x0+nx,y+13,14,WARN,room)end
+                    else
+                        rect(x0 - 6, y + 1, W - x0 - 10, 21, MOD.enemy.on and color(48, 18, 16) or color(40, 34, 10), 951)
+                        rect(x0 - 6, y + 1, 4, 21, GOLD, 952)
+                        text(head, x0 + 6, y + 3, 17, GOLD, nx - 12)
+                        if note ~= '' then text(note, x0 + nx, y + 4, 14, WARN, room) end
+                    end
                     -- a list cut short: hovering it shows every name
                     if #others > shown then   -- (a note of its own lists none)
                         local key = 'shared_' .. n
-                        region(key, x0 + nx, y, W - x0 - 20 - nx, 22)
-                        if ui.hover == key then shared_overlay = { names = others, y = y + 24, x = x0 + nx } end
+                        region(key, x0 + nx, y, W - x0 - 20 - nx, heading_height-2)
+                        if ui.hover == key then shared_overlay = { names = others, y = y + heading_height, x = x0 + nx } end
                     end
-                    y = y + 24
+                    y = y + heading_height
                 end
                 local value, default = row_value(row), row_value(row, true)
                 local changed = value ~= nil and default ~= nil and math.abs(value - default) > 1e-4
@@ -19152,12 +20876,37 @@ local function draw(width, height)
                 if focus then rect(x0 - 6, y - 1, W - x0 - 10, pitch - 1, color(30, 38, 48), 951) end
                 local label = row.label
                 if row.label_of then label = row.label_of() end
-                text(label, x0, y + bh / 2 - 8, 16, focus and GOLD or row.empty and DIM or WHITE, 236)
-                if row.tip then
-                    text('(?)', x0 + math.min(width(label, 16), 236) + 6, y + bh / 2 - 7, 14, DIM)
-                    if ui.hover == 'row:' .. n then tip_overlay = { lines = row.tip, x = x0, y = y + bh + 2 } end
+                local ref = MOD.references.type_of(row)
+                local badge = ref and ('[' .. ref .. ']')
+                local badge_width = badge and width(badge, 12) or 0
+                text(label, x0, y + bh / 2 - 8, 16, focus and GOLD or (row.empty and not row.readonly_text) and DIM or WHITE,
+                    ref and (236 - badge_width - 6) or 236)
+                if badge then text(badge, x0 + 236 - badge_width, y + bh / 2 - 6, 12, MUTED, badge_width) end
+                local tip = MOD.references.tip(row, row.tip_of and row.tip_of() or row.tip)
+                if tip then
+                    text('(?)', x0 + (ref and 236 or math.min(width(label, 16), 236)) + 6, y + bh / 2 - 7, 14, DIM)
+                    if ui.hover == 'row:' .. n or (ref and ui.hover == 'value:' .. n) then
+                        tip_overlay = { lines = tip, x = x0, y = y + bh + 2 }
+                    end
                 end
-                if row.empty then   -- a field of the layout document the editor has no stat for: an empty box
+                if row.readonly_text then
+                    local value=type(row.readonly_text)=='function'and row.readonly_text()or row.readonly_text
+                    text(value, 954, y + bh / 2 - 8, 17, WHITE, 330, true)
+                    region('row:' .. n, x0 - 6, y - 1, W - x0 - 10, pitch - 1)
+                elseif row.hash64 then
+                    local typing=ui.value and ui.value.weapon==weapon and ui.value.n==n
+                    if typing or ui.hover=='value:'..n then rect(636,y,318,bh,color(20,26,34),951);outline(636,y,318,bh,GOLD)end
+                    local value=typing and (ui.value.text..'_')or MOD.stratagem.hash_text(row)
+                    text(value,950,y+bh/2-8,17,ink,310,true)
+                    local was=MOD.stratagem.hash_text(row)~=MOD.stratagem.hash_text(row,true)
+                    button('reset:'..n,'R',958,y,26,bh,was)
+                    region('row:'..n,x0-6,y-1,430,pitch-1)
+                    region('value:'..n,636,y,318,bh,true)
+                elseif row.link_only then
+                    text(fmt(value, row.storage), 780, y + bh / 2 - 8, 17, WHITE, 84, true)
+                    region('row:' .. n, x0 - 6, y - 1, 430, pitch - 1)
+                    region('value:' .. n, 696, y, 88, bh, value ~= nil)
+                elseif row.empty then   -- a field of the layout document the editor has no stat for: an empty box
                     rect(696, y, 88, bh, color(20, 26, 34), 951)
                     outline(696, y, 88, bh, color(56, 66, 78))
                     region('row:' .. n, x0 - 6, y - 1, 430, pitch - 1)
@@ -19202,6 +20951,7 @@ local function draw(width, height)
                 y = y + pitch
                 for k, line in ipairs(row.after or {}) do text(line, x0, y + 2 + (k - 1) * 16, 14, MUTED, W - x0 - 20) end
                 y = y + (row.after_h or 0)
+                end
             end
         end
         ui.sbar, ui.last_page = nil, nil
@@ -19212,11 +20962,18 @@ local function draw(width, height)
             local shown = math.max(1, ui.last_visible - ui.scroll + 1)
             -- the furthest scroll: the first row of the last page, counted from the end (a page's section
             -- headers take room, so the page in view says nothing about how many rows the last one holds)
-            local last_page, changes, under = total, 0, weapon.rows[total].after_h or 0
-            for n = total - 1, 1, -1 do
-                if weapon.rows[n + 1].section ~= weapon.rows[n].section then changes = changes + 1 end
-                under = under + (weapon.rows[n].after_h or 0)
-                if (total - n + 1) * pitch + 24 * (1 + changes) + under > len then break end
+            local last_page = total
+            for n = total, 1, -1 do
+                local h, sp, cp, sec = 0, nil, nil, nil
+                for k = n, total do
+                    local r = weapon.rows[k]
+                    if r.component_sub and r.component_sub ~= sp then h, sp = h + 30, r.component_sub end
+                    if r.component and r.component ~= cp then h, cp = h + (r.collapsed_component and 18 or 42), r.component end
+                    if not r.collapsed_component and r.section ~= sec then h, sec = h + MOD.nav.section_height(r), r.section end
+                    h = h + pitch + (r.after_h or 0)
+                    if h > len then break end
+                end
+                if h > len then break end
                 last_page = n
             end
             local span = math.max(1, last_page - 1)
@@ -19370,6 +21127,15 @@ local function draw(width, height)
                  col_w - 12, false, 960)
         end
     end
+    if component_browser and ui.component_menu then
+        local categories=MOD.component_catalog:categories();local h=#categories*28+8
+        rect(16,124,318,h,color(12,17,23),970)
+        for i,category in ipairs(categories)do button('component_cat:'..category.id,category.name,20,128+(i-1)*28,310,26,true,settings.component_category==category.id,nil,971)end
+    elseif weapon_browser and ui.weapon_menu then
+        local categories=MOD.weapon_categories();local h=#categories*28+8
+        rect(16,124,318,h,color(12,17,23),970)
+        for i,category in ipairs(categories)do button('weapon_cat:'..category.id,category.name,20,128+(i-1)*28,310,26,true,settings.weapon_category==category.id,nil,971)end
+    end
     return regions
 end
 
@@ -19402,13 +21168,66 @@ local function click(key)
     if not key then return end
     local weapon = ui.weapon
     local kind, arg = key:match('^([%w_]+):?(.*)$')
+    local ref_n = (kind == 'value' or kind == 'row') and tonumber(arg)
+    local ref_row = ref_n and weapon and weapon.rows[ref_n]
+    if ref_row and MOD.references.type_of(ref_row) then
+        if MOD.references.double_click(weapon, ref_n, api.now(), ui.cursor_gx, ui.cursor_gy) then
+            if ui.value then
+                if state.commit_value then
+                    local ok, why = state.commit_value()
+                    if not ok then ui.message = { text = why, till = api.now() + 4 }; return end
+                else finish_value(true) end
+            end
+            MOD.references.open(ref_row)
+            return
+        end
+    else ui.reference_click = nil end
+    if kind~='component_cat'then ui.component_menu=nil end
+    if kind~='weapon_cat'then ui.weapon_menu=nil end
     -- clicking anything else while naming keeps the name typed so far
     if ui.editing and kind ~= 'name' then presets.finish_rename(true) end
     if ui.search.active and kind ~= 'search' then ui.search.active = false end
     if ui.value and key ~= 'value:' .. ui.value.n then finish_value(true) end
     if ui.code and key ~= 'code:' .. ui.code.n then MOD.code.finish(false) end
     if kind ~= 'set' then ui.binding = nil end
-    if kind == 'tab' then
+    if kind=='component_missing'then
+        settings.component_show_missing=not settings.component_show_missing;ui.page=1;MOD.component_reselect();mark_config_dirty()
+    elseif kind=='component_reload'then
+        local ok,why=MOD.component_catalog:reload()
+        if not ok then MOD.notify(tostring(why),8)
+        else MOD.notify(MOD.nav.text({'Entity names and categories reloaded.','实体分类与命名已重新加载。','實體分類與命名已重新載入。'}),4)end
+        ui.page=1;MOD.component_reselect()
+    elseif kind=='component_config'then settings.open(MOD.component_catalog.path)
+    elseif kind=='component_cat'then
+        if arg=='menu'then ui.component_menu=not ui.component_menu
+        else
+            if arg=='prev'or arg=='next'then
+                local categories=MOD.component_catalog:categories();local at=1
+                for i,c in ipairs(categories)do if c.id==settings.component_category then at=i end end
+                at=(at-1+(arg=='next'and 1 or-1))%#categories+1;settings.component_category=categories[at].id
+            else settings.component_category=arg end
+            ui.component_menu=nil;ui.page=1;MOD.component_reselect();mark_config_dirty()
+        end
+    elseif kind=='weapon_cat'then
+        if arg=='menu'then ui.weapon_menu=not ui.weapon_menu
+        else
+            local categories=MOD.weapon_categories()
+            if arg=='prev'or arg=='next'then
+                local at=1
+                for i,c in ipairs(categories)do if c.id==settings.weapon_category then at=i end end
+                at=(at-1+(arg=='next'and 1 or-1))%#categories+1;settings.weapon_category=categories[at].id
+            else settings.weapon_category=arg end
+            ui.weapon_menu=nil;ui.page=1
+            if settings.weapon_category~='all'and MOD.WEAPON_SLOTS[settings.weapon_category]then
+                ui.tab=settings.weapon_category
+            end
+            local list=weapons_in(ui.search.text~=''and'?search'or ui.tab)
+            local keep=false
+            for _,w in ipairs(list)do if w==ui.weapon then keep=true;break end end
+            select_weapon(keep and ui.weapon or list[1])
+            mark_config_dirty();ui.version=ui.version+1
+        end
+    elseif kind == 'tab' then
         ui.tab, ui.page, ui.search, ui.settings = arg, 1, { text = '', active = false }, false
         local last = settings.last[MOD.enemy.on and 'enemy' or 'stat']
         if state.phase == 'ready' and last.tab ~= arg then
@@ -19429,6 +21248,8 @@ local function click(key)
         end
         local sub = page and page.subs[k]
         if sub then
+            local component_switch=page.id=='components'and MOD.component_kind()and sub.tabs and MOD.component_kind(sub.tabs[1])
+            local component_entity=ui.component_selected
             if (page.enemy == true) ~= MOD.enemy.on then   -- the Enemy Editor's page, or back from it
                 MOD.enemy.on = not MOD.enemy.on
                 settings.enemy_last = MOD.enemy.on
@@ -19436,7 +21257,8 @@ local function click(key)
                 mark_config_dirty()
             end
             nav.page, nav.sub[page.id] = page.id, k
-            ui.page, ui.search, ui.settings, ui.stack_pick = 1, { text = '', active = false }, false, nil
+            if not component_switch then ui.page,ui.search=1,{text='',active=false}end
+            ui.settings, ui.stack_pick = false, nil
             if sub.tabs then
                 local key, shown = page.id .. ':' .. k, {}
                 for _, t in ipairs(sub.tabs) do
@@ -19453,16 +21275,29 @@ local function click(key)
                 nav.cat[key], ui.tab = tab, tab
                 -- the page last chosen on that tab, else its first
                 local w = ui.weapon
-                if not (w and MOD.nav.tab_of(w) == tab) then
+                if component_switch and MOD.component_catalog then w=MOD.component_catalog.by_entity[MOD.component_kind(tab)][component_entity]end
+                if sub.weapon_browser then
+                    if kind == 'cat' and MOD.WEAPON_SLOTS[tab] then settings.weapon_category = tab end
+                    if settings.weapon_category ~= 'all' and not settings.hidden[settings.weapon_category] then
+                        tab = settings.weapon_category
+                        nav.cat[key], ui.tab = tab, tab
+                    end
+                    local function ok(p) return p and #p.rows > 0 and (settings.weapon_category == 'all' and MOD.WEAPON_SLOTS[p.slot] or p.slot == tab) end
+                    if not ok(w) then w = nav.weapon[tab] and by_hash[nav.weapon[tab]] end
+                    if not ok(w) then w = weapons_in(tab)[1] end
+                elseif not (w and MOD.nav.tab_of(w) == tab) then
                     w = nav.weapon[tab] and by_hash[nav.weapon[tab]]
-                    if not (w and MOD.nav.tab_of(w) == tab and #w.rows > 0) then w = weapons_in(tab)[1] end
+                    if not (w and MOD.nav.tab_of(w) == tab and (#w.rows > 0 or w.component_entry)) then w = weapons_in(tab)[1] end
                 end
+                if component_switch and not settings.component_show_missing and w and not w.has_component then w=weapons_in(ui.search.text~=''and'?search'or tab)[1]end
                 select_weapon(w)
                 local last = settings.last[MOD.enemy.on and 'enemy' or 'stat']
                 if state.phase == 'ready' and last.tab ~= tab then
                     last.tab = tab
                     mark_config_dirty()
                 end
+            elseif sub.external then
+                ui.tab,ui.weapon='EntityDemolition',nil
             else   -- a placeholder: nothing to choose
                 ui.tab, ui.weapon = 'todo', nil
             end
@@ -19529,7 +21364,7 @@ local function click(key)
         if arg == 'clear' then ui.search, ui.page = { text = '', active = false }, 1
         else ui.search.active = true end
     elseif kind == 'weapon' then select_weapon(by_hash[arg])
-    elseif kind == 'page' then ui.page = math.max(1, ui.page + (arg == 'next' and LIST_ROWS or -LIST_ROWS))
+    elseif kind == 'page' then ui.page = math.max(1, ui.page + (arg == 'next' and MOD.component_rows() or -MOD.component_rows()))
     elseif kind == 'reset_all' then
         if not (ui.confirm and ui.confirm.kind == 'reset_all') then
             ui.confirm = { kind = 'reset_all', till = api.now() + 3 }
@@ -19580,10 +21415,20 @@ local function click(key)
     elseif kind == 'scroll' and weapon then
         local page = math.max(1, (ui.last_visible or ui.scroll) - ui.scroll)
         ui.scroll = math.max(1, math.min(#weapon.rows, ui.scroll + (arg == 'down' and page or -page)))
+    elseif kind == 'comp_toggle' and weapon and weapon.sync_rows then
+        local k = weapon.hash .. ':' .. arg
+        ui.expanded_components[k] = not ui.expanded_components[k] or nil
+        weapon.sync_rows(arg)
+        ui.version = ui.version + 1
     elseif weapon and tonumber(arg) and weapon.rows[tonumber(arg)] then
         local row = weapon.rows[tonumber(arg)]
         ui.row = tonumber(arg)
-        if kind == 'dec' then change(row, -1, false)
+        if row.collapsed_component and weapon.sync_rows then
+            local k = weapon.hash .. ':' .. row.component
+            ui.expanded_components[k] = not ui.expanded_components[k] or nil
+            weapon.sync_rows(row.component)
+            ui.version = ui.version + 1
+        elseif kind == 'dec' then change(row, -1, false)
         elseif kind == 'dec_big' then change(row, -1, true)
         elseif kind == 'inc' then change(row, 1, false)
         elseif kind == 'inc_big' then change(row, 1, true)
@@ -19591,8 +21436,8 @@ local function click(key)
         elseif kind == 'code' and row.code then
             if ui.code then MOD.code.finish(true) else MOD.code.start(tonumber(arg)) end
         elseif kind == 'value' and row.code then MOD.code.start(tonumber(arg))
-        elseif kind == 'value' and not ui.value and row_value(row) ~= nil then
-            ui.value = { n = tonumber(arg), weapon = weapon, text = fmt(row_value(row), row.storage), fresh = true }
+        elseif kind == 'value' and not row.link_only and not ui.value and row_value(row) ~= nil then
+            ui.value = { n = tonumber(arg), weapon = weapon, text = row.hash64 and MOD.stratagem.hash_text(row)or fmt(row_value(row), row.storage), fresh = true }
         end
     end
 end
@@ -19609,10 +21454,27 @@ state.nav_page = function()
     if state.phase == 'ready' then MOD.nav.sync() end
     return ui.nav.page
 end
-state.nav_open = function(id)
-    click('nav:' .. id)
+state.nav_open = function(id,sub)
+    click('nav:' .. id .. (sub and(':'..sub)or''))
     ui.version = ui.version + 1
 end
+state.component_view = function()
+    return MOD.component_kind()=='demolition'and'demolition'or nil
+end
+state.native_component_browser=true
+state.component_catalog=function()return MOD.component_catalog end
+state.component_reload=function()click('component_reload')end
+state.component_filter=function(category,show_missing)
+    settings.component_category=category or'all'
+    if show_missing~=nil then settings.component_show_missing=show_missing end
+    MOD.component_reselect()
+end
+state.component_tabs = function()
+    local page=MOD.nav.page('components');local _,_,selected=MOD.nav.current();local out={}
+    for i,sub in ipairs(page.subs)do out[#out+1]={id=i,label=MOD.nav.text(sub.name),selected=i==selected}end
+    return out
+end
+state.health_components = function()return MOD.health_components end
 -- the window's titles (offline/host.lua, before the pages): which editor is shown, and a click on the other one's title
 state.enemy_on = function() return MOD.enemy.on end
 state.switch_editor = function(enemy)
@@ -19769,9 +21631,13 @@ local function keyboard(now)
         -- every page of the sub-page shown (each of its tabs), in turn
         local all = {}
         local _, sub = MOD.nav.current()
-        for _, tab in ipairs(sub and sub.tabs or {}) do
-            if not settings.hidden[MOD.nav.base(tab)] then
-                for _, w in ipairs(weapons_in(tab)) do all[#all + 1] = w end
+        if sub and sub.weapon_browser then
+            all = weapons_in(ui.tab)
+        else
+            for _, tab in ipairs(sub and sub.tabs or {}) do
+                if not settings.hidden[MOD.nav.base(tab)] then
+                    for _, w in ipairs(weapons_in(tab)) do all[#all + 1] = w end
+                end
             end
         end
         if #all == 0 then return end
@@ -19810,9 +21676,15 @@ local function keyboard(now)
         end
     end
     local enter = pressed('Enter', now)
+    if enter and weapon.rows[ui.row] and weapon.rows[ui.row].collapsed_component then
+        click('comp_toggle:' .. weapon.rows[ui.row].component)
+        return
+    end
     if enter and weapon.rows[ui.row] and weapon.rows[ui.row].code then MOD.code.start(ui.row); return end
+    if enter and weapon.rows[ui.row] and weapon.rows[ui.row].link_only then MOD.references.open(weapon.rows[ui.row]); return end
     if enter and weapon.rows[ui.row] and row_value(weapon.rows[ui.row]) ~= nil then
-        ui.value = { n = ui.row, weapon = weapon, text = fmt(row_value(weapon.rows[ui.row]), weapon.rows[ui.row].storage), fresh = true }
+        local row=weapon.rows[ui.row]
+        ui.value = { n = ui.row, weapon = weapon, text = row.hash64 and MOD.stratagem.hash_text(row)or fmt(row_value(row),row.storage), fresh = true }
         return
     end
     local moved = false
@@ -19829,6 +21701,7 @@ local function keyboard(now)
     end
     local row = weapon.rows[ui.row]
     if not row then ui.row = 1; return end
+    if row.collapsed_component then return end
     local big = key_down(VK.Shift)
     if pressed('Right', now) then change(row, 1, big) end
     if pressed('Left', now) then change(row, -1, big) end
@@ -19878,6 +21751,7 @@ local function mouse(window)
     local width, height = sr.Gui.resolution()
     local gy = (ch - y) * height / ch
     ui.cursor_gx = x * width / cw
+    ui.cursor_gy = gy
     ui.hover = hit(ui.cursor_gx, gy, true)
     local down
     if cursor.raw.saved then
@@ -20264,6 +22138,9 @@ local function panel_frame(now)
                                      tostring(ui.settings), tostring(ui.binding), hotkey_name,
                                      #overrides, ui.wslot, tostring(ui.fslot), ui.fpage,
                                      state.demolition_revision or 0,
+                                     MOD.component_catalog and MOD.component_catalog.revision or 0,
+                                     tostring(settings.component_show_missing),settings.component_category,tostring(ui.component_menu),
+                                     settings.weapon_category,tostring(ui.weapon_menu),
                                      ui.message and ui.message.text or '', ui.editing and ui.editing.text or '-',
                                      ui.search.text, tostring(ui.search.active),
                                      ui.value and (ui.value.n .. '=' .. ui.value.text) or '-' }, '|')
@@ -21353,7 +23230,9 @@ end)()
 local function tick()
     state.frame = state.frame + 1
     local now = api.now()
-    if state.phase == 'building' then
+    if state.phase == 'searching' and state.offline_direct then
+        state.read_offline_tables(now + FRAME_BUDGET)
+    elseif state.phase == 'building' then
         state.build_some()
     elseif state.phase == 'preparing' then
         prepare(now + FRAME_BUDGET)
@@ -21472,15 +23351,33 @@ if not BUS then
     _G.OCLAW_UPDATE_BUS = BUS
     update = dispatcher
 end
-BUS.jobs[MOD.global] = tick
-
-local own = api.address_of(NEEDLE)
-local skip_low = (own or LUA_HEAP_LIMIT) < LUA_HEAP_LIMIT
-hub = rawget(_G, HUB_NAME)
-if type(hub) ~= 'table' or hub.version ~= HUB_VERSION then
-    hub = new_hub(api, skip_low)
-    rawset(_G, HUB_NAME, hub)
-    BUS.jobs[HUB_NAME] = hub.tick
+-- A failed prepare must not run again next frame: partially built component pages
+-- are retained by fields[].users, so repeated failures otherwise grow the heap.
+-- Guard our own job even when another mod created the shared update bus.
+BUS.jobs[MOD.global] = function()
+    if state.phase == 'gave_up' then return end
+    local ok, why = xpcall(tick, debug.traceback)
+    if not ok then
+        state.failure = tostring(why)
+        progress, state.build_steps, state.offline_scan = nil, nil, nil
+        set_status('gave_up', 'Editor stopped: ' .. (state.failure:match('^[^\n]+') or state.failure))
+        log(state.failure)
+        pcall(flush_log)
+    end
 end
-hub.register({ name = MOD.title, searching = searching, wants = wants, handle = handle_table,
-               after_pass = after_pass })
+
+if MOD.offline and type(rawget(_G, 'SHODAN_OFFLINE_TABLES')) == 'function' then
+    state.offline_direct = true
+    set_status('searching', 'reading loaded game tables')
+else
+    local own = api.address_of(NEEDLE)
+    local skip_low = (own or LUA_HEAP_LIMIT) < LUA_HEAP_LIMIT
+    hub = rawget(_G, HUB_NAME)
+    if type(hub) ~= 'table' or hub.version ~= HUB_VERSION then
+        hub = new_hub(api, skip_low)
+        rawset(_G, HUB_NAME, hub)
+        BUS.jobs[HUB_NAME] = hub.tick
+    end
+    hub.register({ name = MOD.title, searching = searching, wants = wants, handle = handle_table,
+                   after_pass = after_pass })
+end

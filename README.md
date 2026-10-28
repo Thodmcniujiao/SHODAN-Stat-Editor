@@ -1,6 +1,6 @@
 # SHODAN Stat Editor — Thodmcniujiao fork
 
-> 本 fork 基于 [SHODAN-HORAI/SHODAN-Stat-Editor](https://github.com/SHODAN-HORAI/SHODAN-Stat-Editor) v4.1.0。下面先说明本 fork 的改动
+> 本 fork 基于 [SHODAN-HORAI/SHODAN-Stat-Editor](https://github.com/SHODAN-HORAI/SHODAN-Stat-Editor) v4.1.0。下面先说明本 fork 的改动，原版 README 附在后面，未作修改。
 >
 > This fork is based on [SHODAN-HORAI/SHODAN-Stat-Editor](https://github.com/SHODAN-HORAI/SHODAN-Stat-Editor) v4.1.0. What this fork changes comes first; the original README follows unchanged.
 
@@ -42,6 +42,15 @@
 
 ### 3. 其他
 
+- **当前组件解析**：实体组件、伤害/射弹/爆炸/电弧/激光/状态效果 ID、战备参数及引用跳转均已接入。轨道武器编辑完整覆盖当前两条 OrbitalAbility 记录，每条 140 项字段（含 56 个二维轨迹控制点）。详见 [轨道武器参数说明](offline/ORBITAL_WEAPON_COMPONENTS.md)。
+
+- **纯净发布**：`dev` 分支只提交源码、构建脚本、测试与说明；便携运行包单独上传 GitHub Releases，发布标签对应源码提交。不包含个人配置、游戏文件、备份、测试输出或本机缓存。
+
+- **StratagemType 战备参数**：按当前 400 字节 StratagemInfo 布局解析，覆盖参考 INI 的 39 个字段和更多新增字段，统一应用到轨道编辑、飞鹰编辑及游戏数据的战备 ID 页面。提供英文、简体中文、繁体中文名称；支持 -1 无限次数、完整 64 位哈希和按实际长度读取的指令/载荷数组。详见 [战备参数说明](offline/STRATAGEM_COMPONENTS.md)。
+
+- **ID 类型与跳转**：引用字段显示 `projectile_id`、`explosion_id`、`damage_id` 等类型。单击可编辑数值保留输入功能，双击 ID 打开对应记录；支持射弹、爆炸、伤害、状态效果、电弧、激光和额外战备。伤害、电弧、激光的数据页已接入已有解析支持的真实参数。详见 [ID 跳转说明](offline/REFERENCE_NAVIGATION.md)。
+
+- **实体拆毁（Entity Demolition）**：顶栏最右侧的独立页面，统一设置实体的拆毁参数。
 - **打包脚本**：运行项目根目录的 `build_release.bat`，会把当前源码打包到 `offline\release\<时间>\`，并把根目录快捷方式指向新 exe。脚本还会检查正在运行的实例和各处快捷方式是否用的是旧代码。窗口标题末尾显示 `build <打包时间>`。
 - **自动更新已关闭**：避免本 fork 被上游版本覆盖。
 - **分支**：`dev` 分支只放源码，不含任何打包产物；打包好的 zip 只发布在 Releases。

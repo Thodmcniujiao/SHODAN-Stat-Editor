@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "default_category": "other",
+  "categories": [
+    {"id":"terminids", "name":{"en":"Terminids","zh-Hans":"虫族","zh-Hant":"蟲族"}, "order":10},
+    {"id":"automatons", "name":{"en":"Automatons","zh-Hans":"机器人","zh-Hant":"機器人"}, "order":20},
+    {"id":"illuminate", "name":{"en":"Illuminate","zh-Hans":"光能者","zh-Hant":"光能者"}, "order":30},
+    {"id":"seaf", "name":{"en":"SEAF","zh-Hans":"SEAF友军","zh-Hant":"SEAF友軍"}, "order":40},
+    {"id":"helldivers", "name":{"en":"Helldivers / equipment","zh-Hans":"潜兵与装备","zh-Hant":"潛兵與裝備"}, "order":50},
+    {"id":"scene", "name":{"en":"Scene Units","zh-Hans":"场景Unit","zh-Hant":"場景Unit"}, "order":80},
+    {"id":"other", "name":{"en":"Other / unclassified","zh-Hans":"其他／未分类","zh-Hant":"其他／未分類"}, "order":100}
+  ],
+  "rules": [
+    {"category":"terminids", "path_prefix":"content/fac_bugs/"},
+    {"category":"automatons", "path_prefix":"content/fac_robots/"},
+    {"category":"illuminate", "path_prefix":"content/fac_illuminate/"},
+    {"category":"seaf", "path_prefix":"content/fac_seaf/"},
+    {"category":"helldivers", "path_prefix":"content/fac_helldivers/"},
+    {"category":"scene", "kind":"unit"}
+  ],
+  "entities": {}
+}
