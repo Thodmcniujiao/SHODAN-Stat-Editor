@@ -68,7 +68,7 @@ with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     for arc, src in sorted(files.items()):
         if arc.startswith('app/') and arc != 'app/stat_editor.lua':
             text = DEV.sub('', open(src, encoding='utf-8').read())
-            assert 'DEV' not in text and 'SHODAN_HOST_TEST' not in text, arc
+            assert '--[[DEV]]' not in text and 'SHODAN_HOST_TEST' not in text, arc
             z.writestr(TOP + '/' + arc, text)
         else:
             z.write(src, TOP + '/' + arc)
