@@ -1,4 +1,4 @@
-# SHODAN Stat Editor Offline：按当前源码打包，并检查 exe / 快捷方式的链路。
+﻿# SHODAN Stat Editor Offline：按当前源码打包，并检查 exe / 快捷方式的链路。
 #   1. 把当前源码（src\stat_editor_offline.lua、offline\*.lua、启动器与运行库）打包到
 #      offline\release\<yyyyMMdd-HHmmss>\SHODAN Stat Editor Offline\，与 package.py 的 portable 版布局一致
 #   2. 校验打包结果与源码一致，把项目根目录的“SHODAN Stat Editor Offline.lnk”指向新 exe
