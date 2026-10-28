@@ -1,0 +1,32 @@
+{
+  "title": "SHODAN component entity catalog v1",
+  "type": "object",
+  "required": ["version", "default_category", "categories"],
+  "properties": {
+    "version": {"const": 1},
+    "default_category": {"type": "string"},
+    "categories": {
+      "type": "array", "minItems": 1,
+      "items": {"type":"object", "required":["id","name"], "properties":{
+        "id":{"type":"string","pattern":"^[A-Za-z0-9_-]+$"},
+        "name":{"$ref":"#/$defs/name"}, "order":{"type":"number"}
+      }}
+    },
+    "rules": {
+      "type":"array", "items":{"type":"object","required":["category"],"additionalProperties":false,"properties":{
+        "category":{"type":"string"}, "path_prefix":{"type":"string"}, "path_contains":{"type":"string"},
+        "name_contains":{"type":"string"}, "hash_prefix":{"type":"string"},
+        "kind":{"enum":["entity","unit"]}, "component":{"type":"string"}
+      }}
+    },
+    "entities": {
+      "type":"object", "propertyNames":{"pattern":"^(0[xX])?([EUeu])?[0-9A-Fa-f]{16}$"},
+      "additionalProperties":{"type":"object","additionalProperties":false,"properties":{
+        "name":{"$ref":"#/$defs/name"},"category":{"type":"string"}
+      }}
+    }
+  },
+  "$defs": {
+    "name":{"oneOf":[{"type":"string","maxLength":1024},{"type":"object","minProperties":1,"additionalProperties":{"type":"string","maxLength":1024}}]}
+  }
+}

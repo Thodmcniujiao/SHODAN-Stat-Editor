@@ -9,6 +9,22 @@ offline/launcher/*.exp
 offline/launcher/*.res
 # build_release.bat: the shortcut it points at the latest build
 /SHODAN Stat Editor Offline.lnk
-# local work files (not source)
+# Local backups, test output, extracted game data and reference checkouts
+/.repair-backups/
+/.test-work/
 /_backup_before_layout/
 /_src_export.tgz
+/tools/_backup*/
+/tools/component_gen/work/
+/tools/component_gen/HelldiversData/
+/tools/component_gen/Helldivers2_RawData/
+__pycache__/
+*.py[cod]
+*.dl_bin
+*.dl_typelib
+*.zip
+*.rar
+*.tgz
+*.log
+*.tmp
+*.pdb

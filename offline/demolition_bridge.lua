@@ -10,10 +10,11 @@ local function copy(values)
  local out={};for id,slots in pairs(values)do out[id]={};for key,v in pairs(slots)do out[id][key]=v end end;return out
 end
 function B.new(panel,options)return setmetatable({panel=panel,options=options or{},fields={}},B)end
-function B:rows(key)
+function B:rows(key,target_id)
  if type(key)~='string'or #key~=8 then return{}end
  local hash=hex(key);local model=self.panel.model
- local target=model.by_id['E'..hash]or model.by_id['U'..hash]
+ local target
+ if target_id then target=model.by_id[target_id]else target=model.by_id['E'..hash]or model.by_id['U'..hash]end
  if not target or target.why then return{}end
  local rows={}
  for _,level in ipairs(target.levels)do

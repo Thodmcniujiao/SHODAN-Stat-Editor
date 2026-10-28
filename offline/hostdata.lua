@@ -162,10 +162,40 @@ local function changes(f)
     if changed == 0 then G.free(orig); return nil end
     -- floats among the changed words (a salt for one-table files): a value with decimals between 1e-4 and 1e7
     local floats = {}
+    -- A uint64 hash can have a low/high half that happens to look like f32. Never use those bits
+    -- as a variable hash-correction salt. Known resource-bearing records only offer actual float members.
+    local stratagem_floats
+    if f.name=='generated_stratagem_settings.dl_bin'then
+        stratagem_floats={}
+        for _,h in ipairs(G.headers(f.p,f.n))do if h.type==0x30EB6399 then
+            local P=h.at+24;local count=u32(f.p,P+8)
+            if 16+count*400<=h.size then for i=0,count-1 do
+                for _,off in ipairs({84,88,92,96,100,104,108})do stratagem_floats[P+16+i*400+off]=true end
+            end end
+        end end
+    elseif f.name=='generated_projectile_settings.dl_bin'or f.name=='generated_explosion_settings.dl_bin'or f.name=='generated_arc_settings.dl_bin'or f.name=='generated_beam_settings.dl_bin'or f.name=='generated_status_effect_settings.dl_bin'then
+        stratagem_floats={}
+        local C=require(f.name=='generated_projectile_settings.dl_bin'and'projectile_components'or f.name=='generated_arc_settings.dl_bin'and'arc_components'or f.name=='generated_beam_settings.dl_bin'and'beam_components'or f.name=='generated_status_effect_settings.dl_bin'and'status_components'or'explosion_components')
+        for _,h in ipairs(G.headers(f.p,f.n))do if h.type==C.TYPE then
+            local P=h.at+24;local count=u32(f.p,P+8)
+            if 16+count*C.SIZE<=h.size then for i=0,count-1 do
+                for _,off in ipairs(C.FLOAT_OFFSETS)do stratagem_floats[P+16+i*C.SIZE+off]=true end
+                for _,array in ipairs(C.ARRAYS or{})do
+                    local R=P+16+i*C.SIZE+array.offset
+                    local count=u32(f.p,R+8);local pad=u32(f.p,R+12)
+                    local target=tonumber(ffi.cast('uint64_t *',f.p+R)[0])
+                    if target>=h.size then target=target-tonumber(ffi.cast('uintptr_t',f.p+P))end
+                    if count<=4096 and pad==0 and target>=16+u32(f.p,P+8)*C.SIZE and target+count*array.stride<=h.size then
+                        for item=0,count-1 do for _,off in ipairs(array.value_offsets)do stratagem_floats[P+target+item*array.stride+off]=true end end
+                    end
+                end
+            end end
+        end end
+    end
     for o in pairs(words) do
         local v = ffi.cast('float *', orig + o)[0]
         local i = u32(orig, o)
-        if v == v and math.abs(v) >= 1e-4 and math.abs(v) < 1e7 and i >= 0x38D1B717 then floats[#floats + 1] = o end
+        if (not stratagem_floats or stratagem_floats[o])and v == v and math.abs(v) >= 1e-4 and math.abs(v) < 1e7 and i >= 0x38D1B717 then floats[#floats + 1] = o end
     end
     table.sort(floats)
     return orig, n, changed, floats
@@ -365,7 +395,7 @@ function M.codes(changes, codes, log)
                     log('stratagem ' .. u32(p, R) .. ': code left as it is (1 to 9 arrows, 1-4 each)')
                 elseif code then
                     local at, count = tonumber(ffi.cast(u64p, p + R + 64)[0]), u32(p, R + 72)
-                    if at < 16 + rows * 400 or at + count * 4 > h.size then
+                    if count > 0 and (at < 16 + rows * 400 or at + count * 4 > h.size) then
                         log('stratagem ' .. u32(p, R) .. ': its code is not where it should be: left as it is')
                     else
                         if #code > count then   -- appended: 8-aligned, after the payload and earlier ones

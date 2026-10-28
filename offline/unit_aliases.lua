@@ -169,26 +169,70 @@ local function quoted(s)
     assert(not s:find('[\r\n]') and not s:find('\0',1,true),'invalid argument')
     return '"'..s:gsub('(\\*)"',function(bs)return bs..bs..'\\"'end):gsub('(\\+)$','%1%1')..'"'
 end
-local function run(exe,args,logpath,pump)
-    local command={quoted(exe)};for _,arg in ipairs(args)do command[#command+1]=quoted(arg)end
+-- Starts Filediver for `job` ({ args, logpath }): its output goes to job.logpath.
+local function start(exe,job)
+    local command={quoted(exe)};for _,arg in ipairs(job.args)do command[#command+1]=quoted(arg)end
     local sa=ffi.new('demo_security');sa.n=ffi.sizeof(sa);sa.inherit=1
-    local h=ffi.C.CreateFileW(wide(logpath),0x40000000,3,sa,2,0x80,nil)
+    local h=ffi.C.CreateFileW(wide(job.logpath),0x40000000,3,sa,2,0x80,nil)
     assert(h~=nil and ffi.cast('intptr_t',h)~=-1,'could not create export log')
     local si=ffi.new('demo_startup');si.n=ffi.sizeof(si);si.flags=0x100;si.output=h;si.error=h
     local pi=ffi.new('demo_process')
     local ok=ffi.C.CreateProcessW(wide(exe),wide(table.concat(command,' ')),nil,nil,1,0x08000000,nil,nil,si,pi)
     ffi.C.CloseHandle(h);assert(ok~=0,'could not start Filediver')
     ffi.C.CloseHandle(pi.thread)
-    local start=tonumber(ffi.C.GetTickCount64())
-    while ffi.C.WaitForSingleObject(pi.process,20)==0x102 do
-        if (pump and pump()==false)or tonumber(ffi.C.GetTickCount64())-start>180000 then
-            ffi.C.TerminateProcess(pi.process,1);ffi.C.CloseHandle(pi.process);error('Filediver export cancelled or timed out')
-        end
+    job.process,job.start=pi.process,tonumber(ffi.C.GetTickCount64())
+end
+-- After its process ended: the job's output (an error when Filediver failed).
+local function finish(job)
+    local code=ffi.new('uint32_t[1]');ffi.C.GetExitCodeProcess(job.process,code);ffi.C.CloseHandle(job.process);job.process=nil
+    local output=read(job.logpath)or''
+    assert(code[0]==0,'Filediver failed; see '..job.logpath..'\n'..output:sub(-1500))
+    return (output:gsub('\27%[[%d;]*m',''))
+end
+-- Runs every job, several side by side (each Filediver run is independent of the others: up to half the cores, 2-4
+-- at a time). A job already done for this game build (its .ok marker in the cache) is not run again: its output is
+-- read back. Each job ends with .output; a failure, a cancel (pump() false) or 180 s on one job stops them all.
+local function run_all(exe,jobs,context)
+    local cores=tonumber(os.getenv('NUMBER_OF_PROCESSORS')or'')or 4
+    local width=math.max(2,math.min(4,math.floor(cores/2)))
+    local pending,running={},{}
+    for _,job in ipairs(jobs)do
+        if I.exists(job.done)then
+            job.output=((read(job.logpath)or''):gsub('\27%[[%d;]*m',''))
+            if context.log then context.log('Entity resources: '..job.label..' (cached)')end
+        else pending[#pending+1]=job end
     end
-    local code=ffi.new('uint32_t[1]');ffi.C.GetExitCodeProcess(pi.process,code);ffi.C.CloseHandle(pi.process)
-    local output=read(logpath)or''
-    assert(code[0]==0,'Filediver failed; see '..logpath..'\n'..output:sub(-1500))
-    return output:gsub('\27%[[%d;]*m','')
+    local function stop(why)
+        for _,job in ipairs(running)do
+            if job.process then ffi.C.TerminateProcess(job.process,1);ffi.C.CloseHandle(job.process);job.process=nil end
+        end
+        error(why,0)
+    end
+    while #pending>0 or #running>0 do
+        while #running<width and #pending>0 do
+            local job=table.remove(pending,1)
+            os.remove(job.done)
+            local ok,why=pcall(start,exe,job)
+            if not ok then stop(why)end
+            running[#running+1]=job
+            if context.log then context.log('Entity resources: '..job.label..' ('..#running..' running)')end
+        end
+        ffi.C.WaitForSingleObject(running[1].process,20)
+        local now=tonumber(ffi.C.GetTickCount64())
+        for k=#running,1,-1 do
+            local job=running[k]
+            if ffi.C.WaitForSingleObject(job.process,0)==0 then
+                table.remove(running,k)
+                local ok,output=pcall(finish,job)
+                if not ok then stop(output)end
+                job.output=output
+                write(job.done,'ok\n')
+            elseif now-job.start>180000 then
+                stop('Filediver export timed out: '..job.label)
+            end
+        end
+        if context.pump and context.pump()==false then stop('Filediver export cancelled or timed out')end
+    end
 end
 
 local function walk(folder,out)
@@ -216,18 +260,51 @@ function M.find_filediver(here)
     return nil
 end
 
+-- The resource cache of a game build. Filediver's indexes and exports depend on the game's archives and the patches
+-- other tools put beside them (this editor's own are left out), so the cache is kept per game.dll (time, size) and
+-- those patches: an install after the first reuses it (run_all), until the game or another tool's patches change.
+pcall(ffi.cdef,'typedef struct { uint32_t attributes,c1,c2,a1,a2,w1,w2,size_hi,size_lo; } ua_file_data;'..
+               'int GetFileAttributesExA(const char *name,int level,ua_file_data *data);')
+local function stamp(path)
+    local d=ffi.new('ua_file_data')
+    if ffi.C.GetFileAttributesExA(path,0,d)==0 then return 'missing' end
+    return string.format('%08x%08x:%08x%08x',d.w2,d.w1,d.size_hi,d.size_lo)
+end
+function M.cache_dir(home,game,owned)
+    local folder=game:gsub('\\','/'):gsub('/+$','')
+    local data_root=folder:gsub('/game$','')
+    local parts={'game.dll '..stamp(folder..'/game.dll')}
+    for _,name in ipairs(I.list_files(data_root,'*.patch_*'))do
+        if not(owned and owned[name])then parts[#parts+1]=name..' '..stamp(data_root..'/'..name)end
+    end
+    return home..'/entity-resource-cache/'..D.hex(D.hash_resource(table.concat(parts,'\n'))):lower()
+end
+
 function M.prepare(requests,context)
     if #requests==0 then return {},{} end
     local exe=assert(context.filediver,'Filediver is required for independent Unit resources. Set filediver path.txt in the editor settings folder.')
     local cache=context.cache;I.mkdirs(cache)
     local game=context.game:gsub('\\','/'):gsub('/data/game/?$','')
     local common={'--gamedir',game,'--no-pager'}
-    local function invoke(args,label)
+    local jobs={}
+    local function job(args,label)
         local all={};for _,s in ipairs(common)do all[#all+1]=s end;for _,s in ipairs(args)do all[#all+1]=s end
-        if context.log then context.log('Entity resources: '..label)end
-        return run(exe,all,cache..'/'..label..'.log',context.pump)
+        jobs[#jobs+1]={args=all,label=label,logpath=cache..'/'..label..'.log',done=cache..'/'..label..'.ok'}
+        return jobs[#jobs]
     end
-    local index=invoke({'--list','--include','*','--types','unit'},'unit-index')
+    local wanted,allarchives={},{}
+    for _,r in ipairs(requests)do wanted[r.source_unit]=true end
+    -- every Filediver run up front (none needs another's output): the indexes, each Unit, the packages
+    local index_job=job({'--list','--include','*','--types','unit'},'unit-index')
+    for _,source in ipairs(keys(wanted))do
+        local folder=cache..'/u'..source;I.mkdirs(folder)
+        job({'--include','0x'..source:lower()..'.unit','--types','unit','--model-format','raw','--raw-format','separate','--out',folder},'unit-'..source)
+    end
+    local package_folder=cache..'/packages';I.mkdirs(package_folder)
+    job({'--include','*','--types','package','--text-format','raw','--raw-format','separate','--out',package_folder},'packages')
+    local package_job=job({'--list','--include','*','--types','package'},'package-index')
+    run_all(exe,jobs,context)
+    local index=index_job.output
     local locations={}
     for line in index:gmatch('[^\r\n]+')do
         local hash,typ,archives=line:match('0x(%x+)%.0x(%x+)%s+<%-%s*(.*)')
@@ -236,14 +313,11 @@ function M.prepare(requests,context)
             locations[hash:upper()]=list
         end
     end
-    local wanted,allarchives={},{}
-    for _,r in ipairs(requests)do wanted[r.source_unit]=true end
     local extracted={}
     for source in pairs(wanted)do
         local archives=assert(locations[source],'Unit resource not found in Filediver index: '..source)
         assert(#archives>0,'Unit has no source archives: '..source)
-        local folder=cache..'/u'..source;I.mkdirs(folder)
-        invoke({'--include','0x'..source:lower()..'.unit','--types','unit','--model-format','raw','--raw-format','separate','--out',folder},'unit-'..source)
+        local folder=cache..'/u'..source
         local main,gpu,stream
         for _,p in ipairs(walk(folder))do
             if p:match('%.unit%.main$')then main=read(p)
@@ -257,10 +331,9 @@ function M.prepare(requests,context)
             allarchives[id]=true
         end
     end
-    local folder=cache..'/packages';I.mkdirs(folder)
-    invoke({'--include','*','--types','package','--text-format','raw','--raw-format','separate','--out',folder},'packages')
+    local folder=package_folder
     -- A package belongs to the triads reported by Filediver's list, not to every triad.
-    local packages=invoke({'--list','--include','*','--types','package'},'package-index')
+    local packages=package_job.output
     local package_archives={}
     for line in packages:gmatch('[^\r\n]+')do
         local hash,_,archives=line:match('0x(%x+)%.0x(%x+)%s+<%-%s*(.*)')
