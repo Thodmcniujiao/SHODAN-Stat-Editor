@@ -219,9 +219,9 @@ local function changes(f)
         end end
     end
     for o in pairs(words) do
-        local v = ffi.cast('float *', orig + o)[0]
-        local i = u32(orig, o)
-        if not nonfloats[o]and(not stratagem_floats or stratagem_floats[o])and v == v and math.abs(v) >= 1e-4 and math.abs(v) < 1e7 and i >= 0x38D1B717 then floats[#floats + 1] = o end
+        -- Judge the bits: LuaJIT can read the FFFFFFFF sentinel as nil, rather than NaN.
+        local a = bit.band(u32(orig, o), 0x7FFFFFFF)
+        if not nonfloats[o]and(not stratagem_floats or stratagem_floats[o])and a >= 0x38D1B718 and a < 0x4B189680 then floats[#floats + 1] = o end
     end
     table.sort(floats)
     return orig, n, changed, floats

@@ -39,8 +39,12 @@ for _,p in ipairs(E.MOD.eagle_spawner_components.pages)do
  assert(p.by_id.eagle_type and p.by_id.eagle_type.row.reference_type=='stratagem_id')
 end
 
--- 3. Verify Orbital & Eagle -> Eagle editing (轨道飞鹰 -> 飞鹰编辑)
-local eagles=E.weapons_in('Eagle')
+-- 3. The visible Eagle directory now uses ComponentIndexData.index, including
+-- hashless records. Verify the named originating stratagems' shared attachments
+-- separately; several stratagems may refer to the same component record.
+assert(#E.weapons_in('Eagle')>=10,'expected the current component-index Eagle directory')
+local eagles={}
+for _,w in ipairs(E.weapons)do if w.stratagem and w.stratagem.family=='eagle'then eagles[#eagles+1]=w end end
 assert(#eagles>=10,'expected at least 10 Eagle stratagems, got '..#eagles)
 local by_name={}
 for _,w in ipairs(eagles)do
@@ -48,13 +52,13 @@ for _,w in ipairs(eagles)do
  local has_strat=false
  local has_eagle=false
  for _,r in ipairs(w.rows)do
-  local allowed=(r.section=='StratagemType' or r.section=='StratagemType additional'
+  local allowed=(r.component=='StratagemType' or r.section=='StratagemType' or r.section=='StratagemType additional'
    or r.component=='EagleComponentData' or r.component=='EagleSpawnerComponentData')
   assert(allowed,w.name..' has disallowed row in Eagle editing: section='..tostring(r.section)..', component='..tostring(r.component)..', id='..tostring(r.id))
-  if r.section=='StratagemType'then has_strat=true end
+  if r.component=='StratagemType'or r.section=='StratagemType'then has_strat=true end
   if r.component=='EagleComponentData'then has_eagle=true end
  end
- assert(has_strat,w.name..' missing StratagemType rows')
+ if w.component_index==nil then assert(has_strat,w.name..' missing StratagemType rows')end
  assert(has_eagle,w.name..' missing EagleComponentData rows')
 end
 

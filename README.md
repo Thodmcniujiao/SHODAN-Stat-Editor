@@ -29,7 +29,7 @@ Windows x64 · 无需 mod loader · GPL-3.0 · English / 简体中文 / 繁體�
 - **命名预设库。** 原来的每武器 1–5 快捷槽和 50 个整包预设，统一为按类别管理的命名预设，旧预设首次启动自动导入。
 - **上游更新已关闭。** 本 fork 不会被上游二进制包静默替换；窗口标题和 `app\build.txt` 里的 `build <时间>` 标明本地构建。
 
-界面语言：**English、简体中文、繁體中文、Русский**。版本号沿用上游 **4.1.0**，但内容不等同于上游 4.1.0；以打包时间为准。
+界面语言：**English、简体中文、繁體中文、Русский**。版本号 **4.5.1**：基于上游 4.1.0，并已移植上游 4.5.1 的大部分数值行（见 `offline/UPSTREAM_4.5.1_PORT.md`）；内容不等同于上游 4.5.1，以打包时间为准。
 
 **分支：** `dev` 只放源码、构建脚本、测试和说明；便携包发布在 Releases，发布标签对应源码提交。
 
@@ -55,8 +55,8 @@ Windows x64 · 无需 mod loader · GPL-3.0 · English / 简体中文 / 繁體�
 
 **注意：**
 
-- 版本号 **4.1.0** 是沿用上游的基线号，不代表与上游 4.1.0 完全相同。请用窗口标题的 `build <时间>` 区分本地构建。
-- 上游 4.1.0 之后的改动**没有系统合并**；合并上游时需要重新应用本地扩展。
+- 版本号 **4.5.1** 表示已对齐上游 4.5.1 的数值行，不代表与上游 4.5.1 完全相同。请用窗口标题的 `build <时间>` 区分本地构建。
+- 上游 4.5.1 的改动按差异块逐项移植（取舍见 `offline/UPSTREAM_4.5.1_PORT.md`）；名称/描述改写、载具物理、机甲移动和敌人动画速度已经移植，读取游戏数据包用编辑器自带的读取层（`offline/archives.lua`），不再需要 Filediver。
 - 本 fork 的自动更新被 `offline/host.lua` 里的 `LOCAL_ENTITY_EXTENSION` 关闭。设置页的“更新/更新渠道”仍显示，但不会联网检查或安装上游版本。
 
 ### 下载与安装
@@ -203,7 +203,7 @@ SHODAN Stat Editor Offline/
 | 地狱舱 | 下落（26 字段 / 8 实体）、载荷（3 / 117）、挂架（124 / 72）、舰上（1 / 2） |
 
 - **完整实体目录：** 约 3,400 个 ECS 实体和场景 Unit 合并成一份目录，生命、拆毁、淹没、护盾、接触伤害等标签共用。默认显示“没有本组件”的实体（灰色），可关闭。
-- **分类与命名：** 通过 `entity_catalog.json` 自定义分类、规则和实体名称；`entity_catalog.index.json` 是供外部工具查询的完整索引。JSON 只影响显示，不改游戏资源或哈希。详见 [ENTITY_CATALOG_API.md](offline/ENTITY_CATALOG_API.md)。
+- **分类与命名：** 通过 `EntityNames/` 中的各组 JSON 自定义分类和实体策划名；`entity_catalog.index.json` 是供外部工具查询的完整索引。JSON 只影响显示，不改游戏资源或哈希。详见 [ENTITY_CATALOG_API.md](offline/ENTITY_CATALOG_API.md)。
 - **字段来源：** 布局在启动时对照已安装游戏的类型库校验；字段名来自游戏类型库、RawData dump 和 2024 年结构，推断或未知的字段会在提示里注明。
 - 原武器页、敌人页、炮台页与组件页共用同一份字段；改一处，两边同步。详见 [ENTITY_COMPONENTS.md](offline/ENTITY_COMPONENTS.md) 和 [ENTITY_DEMOLITION.md](offline/ENTITY_DEMOLITION.md)。
 
@@ -243,7 +243,7 @@ SHODAN Stat Editor Offline/
 - **身份设置：** 占位。
 - **修改器设置：** 字体大小、分辨率大小等显示选项，实时保存；其余旧设置项以占位说明呈现。
 - **预载设置：** 7 个分类：额外预载、全局/任务、装备包、敌人包、环境/星球、包目录、热加入参考。支持按名称/哈希选包、合并包清单、向环境包数组追加、增删改包内资源。
-  - 需要 **Filediver CLI** 读取/导出包；程序会自动查找，也可用 `SHODAN_FILEDIVER`、`tools\filediver.exe` 或配置目录的 `filediver path.txt`。
+  - 包由编辑器自带的读取层直接从游戏数据包读取（`offline/archives.lua`，按游戏版本缓存索引），**不再需要 Filediver**；配置了 Filediver 时仅作兜底。
   - 写游戏时生成独立的 `.patch_N`，原 NXA 容器保持原样；恢复时只移除本编辑器拥有的补丁。
   - 文件层已验证；**尚未在游戏内确认**新增数组是否被运行时消费、全局/任务包合并的实际驻留效果。详见 [PRELOAD_COMPONENTS.md](offline/PRELOAD_COMPONENTS.md)。
 - **寻找器：** 占位。
@@ -255,27 +255,15 @@ SHODAN Stat Editor Offline/
 
 ### 记录 ID 与外部策划名
 
-“轨道飞鹰”和“游戏数据”左侧列出的是当前列表的**记录 id / 组件 EntityHash**：轨道编辑用 `BombardmentTypeID`（`BombardmentComponentData` 的 EntityHash），飞鹰编辑用 `EagleTypeID`（`EagleComponentData` / EagleSpawner 的 EntityHash），游戏数据 › 战备id 用 `StratagemTypeID`，伤害/射弹等用各自的记录 id。它们不是实体组件里的全局实体哈希。因此这里使用独立的两行输入：
+实体哈希和 TypeID/index 分开管理：
 
-- **列表上方输入框**：输入 id，按 Enter 直接跳转；支持十进制、8 位十六进制，以及轨道武器的 16 位实体哈希。
-- **列表下方搜索框**：按内置名称或外部“策划名”过滤当前列表。
-- **重载**按钮：修改外部名称文件后重新读取。
+- `EntityNames/`：每个 JSON 是一个实体组，条目包含字符串 `hash` 与 `name`；未分类实体放入 `未分类.json`。实体列表上下输入框支持精确的十进制、十六进制哈希；下方搜索跨所有实体组匹配名称与哈希。
+- `TypeIdNames/`：每种 TypeID 一个 JSON，例如 `projectile.json`、`damage.json`、`eagle.json`。同号的不同类型分别命名，搜索与跳转严格限定当前种类。
+- 上方输入框输入时自动跳转，无需回车；“重载JSON”和“打开JSON文件夹”使用统一布局。
 
-外部名称文件（可只用其一；先读 JSON，再读 TXT，TXT 覆盖同名项）：
+轨道编辑与飞鹰编辑使用各自组件数组的 `ComponentIndexData.index`（从 0 开始）；轨道武器编辑使用全局 EntityHash。游戏数据中的战备、伤害、射弹等使用各自 TypeID。局部编号以当前游戏表为准。
 
-- `%LOCALAPPDATA%\SHODAN\StatEditor\record_names.json`
-- `%LOCALAPPDATA%\SHODAN\StatEditor\record_names.txt`
-
-```json
-{"version":1,"types":{"projectile":{"282":"轨道炮射弹"},"bombardment":{"AC129AA2DB5EABC9":"轨道120mm高爆弹火力网"},"eagle":{"7A3F19D20C4B8E61":"飞鹰空袭"}}}
-```
-
-```text
-projectile 282 轨道炮射弹
-damage 123 主武器伤害
-```
-
-类型键：`damage`、`projectile`、`explosion`、`arc`、`beam`、`status`、`stratagem`、`bombardment`、`eagle`、`orbital`；完整格式、别名和 ID 规则见 [RECORD_NAMES.md](offline/RECORD_NAMES.md)。名称只影响列表显示和搜索，不改游戏数据；没有对应条目时回退内置名称和数字 id。
+第一次加载会导入原 `entity_catalog.json`、`record_names.json` / `.txt`，原文件保留。此后编辑新文件夹中的 JSON。完整格式见 [实体分组](offline/ENTITY_CATALOG_API.md) 与 [TypeID 名称](offline/RECORD_NAMES.md)。名称只影响显示和检索，不修改游戏参数。
 
 ### 上游原有编辑范围（保留）
 
@@ -284,11 +272,12 @@ damage 123 主武器伤害
 | 武器 | 伤害、耐久伤害、穿甲、拆毁、硬直、击退、射速、弹道、爆炸/电弧、燃烧/毒气、弹匣/备弹/装填、后坐/散布/晃动/人体工学、热量、槽位、射弹替换 |
 | 投掷物 | 初始/最大/补给数量、投掷距离、引信、爆炸、破片、电弧、燃烧/毒气 |
 | 战备 | 冷却、使用次数、呼叫指令、飞鹰、轨道轰炸/激光、护卫犬、哨戒炮/固定武器、雷区、跳包/悬浮包/传送包、背包充能 |
-| 机甲/载具 | 冷却、生命/护甲、各部位、武器；武器按武器页逐项编辑 |
+| 机甲/载具 | 冷却、生命/护甲、各部位、武器；武器按武器页逐项编辑；FRV/坦克操控（重量、重心、扭矩、转速、挡位、刹车、车轮抓地/半径/弹簧/阻尼/行程），机甲行走/转身/跺脚/上下机/落地/硬直恢复速度 |
 | 强化资源 | 实验注射、火焰/眩晕地狱舱、隐蔽插入、死亡冲刺、武装补给、额外 EAT |
 | 配件 | 瞄具、下挂、枪口、喉缩、弹药类型的倍率与参数 |
 | 护甲/绝地潜兵 | 全部护甲被动、被动叠加、护甲重量；绝地潜兵现在在人物数据页 |
-| 敌人 | 生命/护甲/部位、行为/感知、攻击、敌人武器、护盾/干扰、SEAF、阵营倍率、生成 |
+| 敌人 | 生命/护甲/部位、行为/感知、攻击、敌人武器、护盾/干扰、SEAF、阵营倍率（含动画速度）、生成；攻击/受击/其余动画速度 |
+| 名称与描述 | 武器、战备、护甲等的游戏内名称和描述（面板参数表下方两个输入框；超长只提示不拦截） |
 
 上游 README 的逐项表格可作为这些字段的参考；本 fork 只改变了入口和分组，没有删掉这些字段。
 
@@ -299,12 +288,12 @@ damage 123 主武器伤害
 - **与其他 mod 共存：** 先装其他 mod，再点本编辑器的“写入游戏”，本编辑器会保留它们的改动并在上面叠加；同一数值冲突时以本编辑器为准。这个流程没有经过穷尽测试。
 - **游戏更新 / Steam 校验文件：** 游戏原文件会回来。先点“恢复游戏原始文件”，再点“写入游戏”，否则可能无法连接 EAC。
 - **当前装备栏**的“写入存档”是独立操作，只改所选 `.sav`，不涉及游戏数据文件。
-- **预载设置、实体拆毁**用到资源包/Unit 克隆时依赖 Filediver；没有 Filediver 时相应安装会失败并提示，其他页面不受影响。
+- **预载设置、实体拆毁、名称与描述、载具操控与动画速度**的改动写进本编辑器自己的 `<归档>.patch_N`（游戏原归档不动），恢复时删除；这些都由自带读取层完成，不需要 Filediver。
 - **联机：** 改动只在本机生效；联机前建议恢复原文件。使用修改后的游戏文件带来的风险由使用者承担。
 
 ### 预设
 
-底部 **预设** 按钮进入独立工作区：顶部导航、分类、实体列表和参数表都会隐藏，左侧选预设，右侧载入/覆盖/重命名/删除。**Esc** 或“返回编辑”退出，并恢复之前的页面、选中项、滚动和搜索。
+底部 **预设** 按钮进入独立工作区：顶部导航、分类、实体列表和参数表都会隐藏，左侧选预设，右侧载入/覆盖/重命名/删除。**Esc** 或“返回编辑”退出，并恢复之前的页面、选中项、滚动和搜索。首次启动会在 “Built-in” 分组加入三个示例难度（Horde、Glass Cannon、Elite）；删掉后可在设置页“恢复内置预设”找回（同名的会覆盖）。
 
 预设分为 4 类：
 
@@ -343,7 +332,7 @@ damage 123 主武器伤害
 
 设置会立即保存到 `config.txt`。
 
-**搜索：** 点列表下方的搜索框（或 `Ctrl+F`）输入关键词。列表会显示所有页面中名称包含全部关键词的武器/战备；在实体组件页搜索实体名称或哈希；在游戏数据页搜索记录。**Enter** 保留结果，**Esc** 或 **X** 清除。
+**搜索：** 点列表下方的搜索框（或 `Ctrl+F`）输入关键词。列表会显示所有页面中名称包含全部关键词的武器/战备；在实体组件页搜索实体名称或哈希；在游戏数据页搜索记录。**Enter** 保留结果，**Esc** 或 **X** 清除。输入 `*`（或点搜索框旁的 **\*** 按钮）只列出改过的武器/战备/敌人（跨所有页面，名称与描述的改动也算），可与关键词同时用。
 
 **快捷键：**
 
@@ -368,12 +357,12 @@ damage 123 主武器伤害
 | `entity_demolition.txt` | 实体拆毁覆盖 |
 | `entity_assets_installed.txt` | 资源补丁所有权记录 |
 | `preload_config.json` | 预载包清单、数组和方案 |
-| `entity_catalog.json` / `entity_catalog.index.json` | 实体分类/命名配置与完整索引 |
-| `record_names.json` / `record_names.txt` | 记录行 id 的外部策划名（轨道飞鹰 / 游戏数据） |
+| `EntityNames/` / `entity_catalog.index.json` | 每组一个实体策划名 JSON / 完整索引 |
+| `TypeIdNames/` | 每种 TypeID 一个策划名 JSON；旧 JSON/TXT 保留供首次导入 |
 | `originals\` | 游戏原始文件备份 |
 | `Logs\SHODANStatEditor.log` / `SHODANStatEditorHost.log` | 面板日志 / 宿主日志 |
 | `game folder.txt` | 手动指定的游戏目录 |
-| `filediver path.txt` | Filediver CLI 路径 |
+| `filediver path.txt` | Filediver CLI 路径（可选，仅兜底） |
 | `demolition-migration-backups\` | 旧拆毁配置迁移备份 |
 
 这些文件按需创建；删除配置目录会同时丢失预设、修改记录和 `originals` 游戏原件备份——删除前先点“恢复游戏原始文件”。
@@ -412,7 +401,7 @@ python tests\run_lua.py tests\test_preset_library.lua --isolated-profile --work 
 
 **CI：** `.github/workflows/dev-build.yml` 会在推送到 `main` 时构建 Development build 预发布；本 fork 关闭了客户端自动更新，CI 产物不会自动替换本地版本。
 
-**Filediver：** 预载设置和实体拆毁的 Unit 克隆需要 [Filediver](https://github.com/xypwn/filediver) CLI。程序会自动查找 `Downloads\Compressed\filediver-cli\filediver.exe`，也支持 `SHODAN_FILEDIVER`、`tools\filediver.exe` 或 `%LOCALAPPDATA%\SHODAN\StatEditor\filediver path.txt`。
+**Filediver（可选）：** 游戏数据包（DSAR 分块 bundles 与独立归档）由 `offline/archives.lua` 直接读取，预载、实体拆毁的 Unit 克隆、名称与描述、载具物理与动画都不再需要 [Filediver](https://github.com/xypwn/filediver)。原生读取失败且配置了 Filediver（`SHODAN_FILEDIVER`、`tools\filediver.exe` 或 `%LOCALAPPDATA%\SHODAN\StatEditor\filediver path.txt`）时，实体拆毁才回退使用它。
 
 ### 目录结构
 
@@ -449,7 +438,7 @@ python tests\run_lua.py tests\test_preset_library.lua --isolated-profile --work 
 - **占位页不会改游戏。** “游戏功能”“材料货币”“身份设置”“寻找器”等子页只列出计划；以页面上的灰字和说明为准。
 - **银河地图的服务端数据不可改。** 星球归属、生命值、恢复、坐标、锁定和当前生效效果不在本地文件里。
 - **部分新功能只做到文件层验证。** 星球环境实体数组、预载包合并/数组、存档配装、实体拆毁的私有模板和 Unit 别名，尚未全部在游戏内确认运行时效果；详见各说明文档的“验证范围”。
-- **需要 Filediver 的功能。** 预载和实体拆毁在需要读取/克隆资源包时依赖 Filediver CLI；缺少时会失败并提示。
+- **数据包读取。** 预载、实体拆毁、名称与描述、载具操控与动画速度直接读游戏数据包；首次启动建立索引（约数秒，之后按游戏版本缓存）。读取失败时对应行隐藏、安装提示原因，其他页面不受影响。载具操控、机甲移动和动画速度的偏移按标记扫描并做布局校验，已对照 2026-10-30 游戏文件，游戏内效果沿用上游 2026-10-28 的实测。
 - **共享记录。** 多个实体/武器引用同一条生命、伤害、爆炸或组件记录时，改一处会一起生效；页面通常会提示共用数量。
 - **游戏更新可能改变布局。** 字段偏移和类型在启动时对照类型库校验；布局不符时页面会提示并保留原解析，未知字段会标注“未知”。不要在未核对时批量写入。
 - **实体替换有风险。** 把挂载/背包/生成点换成不兼容的实体，可能在生成时崩溃；地雷面板数、每面板地雷数只能调低。
@@ -527,7 +516,7 @@ This repository is Thodmcniujiao's fork, based on upstream **v4.1.0**. The main 
 - **A named preset library.** The old 1–5 quick slots per weapon and 50 full presets are replaced by named presets grouped by category; old presets are imported automatically on first start.
 - **Upstream updates are off.** This fork cannot be silently replaced by an upstream binary; the window title and `app\build.txt` show `build <time>` for the local build.
 
-UI languages: **English, Simplified Chinese, Traditional Chinese, Russian**. The version number stays at upstream **4.1.0**, but the content is not the same as upstream 4.1.0; use the build time.
+UI languages: **English, Simplified Chinese, Traditional Chinese, Russian**. Version **4.5.1**: based on upstream 4.1.0 with most of upstream 4.5.1's stat rows ported (see `offline/UPSTREAM_4.5.1_PORT.md`); not the same as upstream 4.5.1, use the build time.
 
 **Branch:** `dev` holds source, build scripts, tests and documentation only; the portable package is published under Releases, whose tag names the matching source commit.
 
@@ -553,8 +542,8 @@ UI languages: **English, Simplified Chinese, Traditional Chinese, Russian**. The
 
 **Notes:**
 
-- **4.1.0** is the upstream base version, not a claim that this fork equals upstream 4.1.0. Use the `build <time>` in the window title to tell local builds apart.
-- Upstream changes after 4.1.0 have **not been systematically merged**; merging them means re-applying the local extensions.
+- **4.5.1** means upstream 4.5.1's stat rows are in, not that this fork equals upstream 4.5.1. Use the `build <time>` in the window title to tell local builds apart.
+- Upstream 4.5.1 was ported hunk by hunk (choices in `offline/UPSTREAM_4.5.1_PORT.md`); names/descriptions, vehicle physics, exosuit movement and enemy animation speeds are ported too; the game's archives are read by the editor's own reader (`offline/archives.lua`), Filediver is no longer needed.
 - The updater is disabled by `LOCAL_ENTITY_EXTENSION` in `offline/host.lua`. Settings still shows "Updates" and "Update channel", but this build never checks for or installs an upstream version.
 
 ### Download and install
@@ -701,7 +690,7 @@ See [PLANET_SETTINGS.md](offline/PLANET_SETTINGS.md) and [MODIFIER_ATTACHMENTS.m
 | Hellpods | Descent (26 fields / 8 entities), payload (3 / 117), rack (124 / 72), ship hellpod (1 / 2) |
 
 - **Full entity catalog:** about 3,400 ECS entities and scene Units in one catalog, shared by the health, demolition, drowning, shield and contact damage tabs. Entities without the current component are shown greyed out by default and can be hidden.
-- **Categories and names:** `entity_catalog.json` customizes categories, rules and entity names; `entity_catalog.index.json` is a full index for external tools. The JSON changes display only, never game resources or hashes. See [ENTITY_CATALOG_API.md](offline/ENTITY_CATALOG_API.md).
+- **Categories and names:** `EntityNames/` group JSON files customize categories and entity planning names; `entity_catalog.index.json` is a full index for external tools. The JSON changes display only, never game resources or hashes. See [ENTITY_CATALOG_API.md](offline/ENTITY_CATALOG_API.md).
 - **Field sources:** layouts are checked against the installed game's type library at start; names come from the type library, RawData dumps and the 2024 structures, and inferred or unknown fields are labelled in the tooltips.
 - The original weapon, enemy and turret pages share the same fields as the component pages; a change on one shows on the other. See [ENTITY_COMPONENTS.md](offline/ENTITY_COMPONENTS.md) and [ENTITY_DEMOLITION.md](offline/ENTITY_DEMOLITION.md).
 
@@ -741,7 +730,7 @@ See [REFERENCE_NAVIGATION.md](offline/REFERENCE_NAVIGATION.md), [DAMAGE_COMPONEN
 - **Identity:** placeholder.
 - **Editor settings:** font size, resolution and other display options, saved immediately; the remaining old items are shown as placeholders.
 - **Preload:** 7 categories: Extra preload, Global / mission, Loadout, Enemies, World, Catalog, Hot join. Pick packages by name/hash, merge manifests, append to environment package arrays and add/replace/delete package contents.
-  - **Filediver CLI** is needed to read/export packages; the program finds it automatically, or use `SHODAN_FILEDIVER`, `tools\filediver.exe` or `filediver path.txt` in the config folder.
+  - Packages are read straight from the game's archives by the editor's own reader (`offline/archives.lua`, its index cached per game build); **Filediver is no longer needed**, and is only a fallback when configured.
   - Install writes a separate `.patch_N`; the original NXA container is left as it is. Restore removes only the patches this editor owns.
   - This is verified at the file level; **it is not confirmed in game** that the new arrays are consumed at runtime or that global/mission manifest merging keeps everything resident. See [PRELOAD_COMPONENTS.md](offline/PRELOAD_COMPONENTS.md).
 - **Finder:** placeholder.
@@ -753,27 +742,15 @@ See [REFERENCE_NAVIGATION.md](offline/REFERENCE_NAVIGATION.md), [DAMAGE_COMPONEN
 
 ### Record ids and external planning names
 
-The left lists of **Orbital & Eagle** and **Game data** show the **record id / component EntityHash** of the current list: Orbital editing uses the `BombardmentTypeID` (the `BombardmentComponentData` EntityHash), Eagle editing the `EagleTypeID` (the `EagleComponentData` / EagleSpawner EntityHash), Game data › Stratagem ids the `StratagemTypeID`, and damage/projectile/etc. their own record ids. They are not the global entity hashes of Components. They therefore have their own two inputs:
+Static entity hashes and local TypeID/index values use separate name folders:
 
-- **Box above the list:** type an id and press Enter to jump; decimal, 8-digit hexadecimal and a 16-hex component hash are accepted.
-- **Search box below the list:** filter by the built-in name or an external "planning" name.
-- **Reload** button: read the external name files again.
+- `EntityNames/`: one JSON per entity group, with string `hash` and `name` entries. `未分类.json` holds unclassified and newly discovered entities. Search spans entity groups and accepts planning names, decimal hashes and hexadecimal hashes.
+- `TypeIdNames/`: one JSON per type, such as `projectile.json`, `damage.json` and `eagle.json`. Search and jump stay within the current type, even when another type uses the same number.
+- The upper box jumps as you type, without Enter. Reload JSON and Open JSON folder have matching layouts on both kinds of list.
 
-External name files (either or both; JSON is read first, then TXT overrides the same entries):
+Orbital and Eagle editing use their respective zero-based `ComponentIndexData.index`; orbital weapon editing uses EntityHash. Game data uses each record's own TypeID. Local index meanings follow the current game tables.
 
-- `%LOCALAPPDATA%\SHODAN\StatEditor\record_names.json`
-- `%LOCALAPPDATA%\SHODAN\StatEditor\record_names.txt`
-
-```json
-{"version":1,"types":{"projectile":{"282":"Railgun round"},"bombardment":{"AC129AA2DB5EABC9":"Orbital 120mm barrage"},"eagle":{"7A3F19D20C4B8E61":"Eagle airstrike"}}}
-```
-
-```text
-projectile 282 Railgun round
-damage 123 Primary damage
-```
-
-Type keys: `damage`, `projectile`, `explosion`, `arc`, `beam`, `status`, `stratagem`, `bombardment`, `eagle`, `orbital`; see [RECORD_NAMES.md](offline/RECORD_NAMES.md) for aliases and id rules. Names only affect the list and search, never game data; without an entry the built-in name and numeric id are used.
+Existing `entity_catalog.json` and `record_names.json` / `.txt` files are imported once and retained. Edit the new folder JSON files afterwards. See [entity groups](offline/ENTITY_CATALOG_API.md) and [TypeID names](offline/RECORD_NAMES.md). Names affect display and lookup only.
 
 ### What the upstream editor already did
 
@@ -782,11 +759,12 @@ Type keys: `damage`, `projectile`, `explosion`, `arc`, `beam`, `status`, `strata
 | Weapons | Damage, durable damage, armor penetration, demolition, stagger, push, fire rate, ballistics, explosion/arc, burning/gas, magazine/spare/reload, recoil/spread/sway/ergonomics, heat, slot, projectile swap |
 | Throwables | Starting/max/supply count, throw distance, fuse, explosion, shrapnel, arc, burning/gas |
 | Stratagems | Cooldown, uses, call-in code, Eagles, orbital barrages/laser, guard dogs, sentries/emplacements, minefields, jump/hover/warp packs, backpack charges |
-| Mechas / vehicles | Cooldown, health/armor, body parts, weapons; each weapon edits like a weapon page |
+| Mechas / vehicles | Cooldown, health/armor, body parts, weapons; each weapon edits like a weapon page; FRV/tank handling (weight, centre of mass, torque, rpm, gears, brakes, wheel grip/radius/spring/damping/travel), exosuit walk/turn/stomp/get in and out/landing/stagger recovery speeds |
 | Boosters | Experimental Infusion, Firebomb/Stun Pods, Concealed Insertion, Dead Sprint, Armed Resupply Pods, surplus EAT |
 | Attachments | Optics, underbarrels, muzzles, chokes, ammunition types and their multipliers |
 | Armor / helldiver | Every armor passive, passive stacking, armor weight; the helldiver now lives on the Character page |
-| Enemies | Health/armor/body parts, behavior/senses, attacks, enemy weapons, shields/jamming, SEAF, faction multipliers, spawning |
+| Enemies | Health/armor/body parts, behavior/senses, attacks, enemy weapons, shields/jamming, SEAF, faction multipliers (animation speed too), spawning; attack/hit-reaction/other animation speeds |
+| Names and descriptions | The in-game names and descriptions of weapons, stratagems, armor and more (two boxes under the value table; too long only warns) |
 
 The upstream README's per-field tables remain a reference for these values; this fork changed the entry points and grouping, not the fields.
 
@@ -797,12 +775,12 @@ The upstream README's per-field tables remain a reference for these values; this
 - **Other mods:** install the other mod first, then press Install here. This editor keeps their changes and adds yours on top; where both change the same value, this editor wins. This has not been exhaustively tested.
 - **Game updates / Steam's file verification:** the game's own files come back. Restore first, then Install again, or the game may fail to connect to EAC.
 - **Current loadout's "Write save"** is a separate action: it only writes the selected `.sav`, not the game's data files.
-- **Preload and entity demolition** need Filediver when packages or Unit clones are involved; without it the affected install fails with a message, and the other pages are unaffected.
+- **Preload, entity demolition, names and descriptions, vehicle handling and animation speeds** go into this editor's own `<archive>.patch_N` (the game's archives are left as they are), which Restore deletes; all of them use the editor's own archive reader, no Filediver.
 - **Multiplayer:** changes only exist in your game; restore the game's files before joining other players. Modified game files are used at your own risk.
 
 ### Presets
 
-The **Presets** button at the bottom opens a separate workspace: the top navigation, categories, entity list and value table are hidden; pick a preset on the left, then load, overwrite, rename or delete it on the right. **Esc** or "Back to editor" returns and restores the page, selection, scroll position and search you had.
+The **Presets** button at the bottom opens a separate workspace: the top navigation, categories, entity list and value table are hidden; pick a preset on the left, then load, overwrite, rename or delete it on the right. **Esc** or "Back to editor" returns and restores the page, selection, scroll position and search you had. The first start adds three example difficulties (Horde, Glass Cannon, Elite) in the "Built-in" group; Settings › "Restore built-in presets" brings them back (overwriting ones of the same name).
 
 There are 4 preset scopes:
 
@@ -841,7 +819,7 @@ See [PRESETS.md](offline/PRESETS.md).
 
 Settings are saved to `config.txt` immediately.
 
-**Search:** click the box under the list (or press `Ctrl+F`) and type. The list shows the weapons/stratagems of every page whose name contains every word; on Components it searches entity names or hashes; on Game data it searches records. **Enter** keeps the results, **Esc** or **X** clears them.
+**Search:** click the box under the list (or press `Ctrl+F`) and type. The list shows the weapons/stratagems of every page whose name contains every word; on Components it searches entity names or hashes; on Game data it searches records. **Enter** keeps the results, **Esc** or **X** clears them. Type `*` (or press the **\*** button beside the box) to list only what you changed (every page; renamed names and descriptions count), together with words if you like.
 
 **Keyboard:**
 
@@ -866,12 +844,12 @@ All user data is in `%LOCALAPPDATA%\SHODAN\StatEditor`:
 | `entity_demolition.txt` | Entity demolition overrides |
 | `entity_assets_installed.txt` | Asset patch ownership |
 | `preload_config.json` | Preload manifests, arrays and plans |
-| `entity_catalog.json` / `entity_catalog.index.json` | Entity category/name config and full index |
-| `record_names.json` / `record_names.txt` | External planning names for record row ids (Orbital & Eagle / Game data) |
+| `EntityNames/` / `entity_catalog.index.json` | Per-group entity planning-name JSON files and full index |
+| `TypeIdNames/` | One planning-name JSON per TypeID; legacy JSON/TXT retained for initial import |
 | `originals\` | Backups of the game's original files |
 | `Logs\SHODANStatEditor.log` / `SHODANStatEditorHost.log` | Panel log / host log |
 | `game folder.txt` | Manually set game folder |
-| `filediver path.txt` | Filediver CLI path |
+| `filediver path.txt` | Filediver CLI path (optional, a fallback only) |
 | `demolition-migration-backups\` | Backups from the old demolition config migration |
 
 These are created as needed; deleting the config folder also loses presets, edits and the `originals` backups of the game's files. Press Restore before deleting it.
@@ -910,7 +888,7 @@ Some tests need the local game data or test fixtures; pass `--fixtures`, `--game
 
 **CI:** `.github/workflows/dev-build.yml` builds a Development build pre-release on pushes to `main`; this fork disables the client's auto-update, so a CI build never replaces the local version by itself.
 
-**Filediver:** Preload and entity demolition's Unit cloning need the [Filediver](https://github.com/xypwn/filediver) CLI. The program looks in `Downloads\Compressed\filediver-cli\filediver.exe`, and also accepts `SHODAN_FILEDIVER`, `tools\filediver.exe` or `%LOCALAPPDATA%\SHODAN\StatEditor\filediver path.txt`.
+**Filediver (optional):** the game's archives (DSAR chunked bundles and loose archives) are read by `offline/archives.lua`; preload, entity demolition's Unit cloning, names and descriptions, vehicle physics and animation no longer need [Filediver](https://github.com/xypwn/filediver). Only when native reading fails and Filediver is configured (`SHODAN_FILEDIVER`, `tools\filediver.exe` or `%LOCALAPPDATA%\SHODAN\StatEditor\filediver path.txt`) does entity demolition fall back to it.
 
 ### Repository layout
 
@@ -947,7 +925,7 @@ Some tests need the local game data or test fixtures; pass `--fixtures`, `--game
 - **Placeholders change nothing.** Features, Currency, Identity and Finder list plans only; the grey text and the page notes are authoritative.
 - **Galactic-map server data cannot be changed.** Planet ownership, health, regeneration, coordinates, locks and active effects are not in local files.
 - **Some new features are verified at the file level only.** The planet environment arrays, preload manifest merging/arrays, save loadout and entity demolition's private templates/Unit aliases have not all been confirmed in game; see each document's "verification" section.
-- **Filediver-dependent features.** Preload and entity demolition need the Filediver CLI when packages or Unit clones are read or cloned; without it they fail with a message.
+- **Archive reading.** Preload, entity demolition, names and descriptions, vehicle handling and animation speeds read the game's archives; the first start builds an index (a few seconds, then cached per game build). If reading fails those rows are hidden and Install says why; the other pages are unaffected. Vehicle handling, exosuit movement and animation offsets are found by marker scans with layout checks, checked against the game files of 2026-10-30; the in-game effect follows upstream's tests of 2026-10-28.
 - **Shared records.** When several entities/weapons reference one health, damage, explosion or component record, editing one changes them all; the page usually says how many share it.
 - **Game updates can change layouts.** Offsets and types are checked against the type library at start; on a mismatch the page says so and keeps the old parsing, and unknown fields are labelled "unknown". Do not bulk-write without checking.
 - **Entity swaps can break things.** An incompatible mount, backpack item or spawner entity can crash the game when it spawns; minefield panel counts and mines per panel can only be lowered.

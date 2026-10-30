@@ -42,6 +42,6 @@ end
 SHODAN_OFFLINE_LANG='zh-Hans';arg={[1]=TEST_ROOT..'/src/stat_editor_offline.lua'}
 assert(loadfile(TEST_ROOT..'/offline/host.lua'))()
 assert(phase==4,'host failed before all modes were rendered')
-assert(S.title:find('v4.1.0',1,true))
+assert(S.title:find('v4.5.1',1,true))
 gdi.DeleteDC(S.dc)
 print('PASS: production host starts with current game tables, all four footer actions render, preset/settings hide original tabs, original editor restores; isolated profile and no live writes')

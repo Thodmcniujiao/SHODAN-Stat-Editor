@@ -283,8 +283,64 @@ function M.cache_dir(home,game,owned)
     return home..'/entity-resource-cache/'..D.hex(D.hash_resource(table.concat(parts,'\n'))):lower()
 end
 
+-- The Units and packages read straight out of the game's archives (archives.lua): where each Unit and package is
+-- (an index of every archive's directory, kept per game build in the cache folder), each wanted Unit's main / gpu /
+-- stream data, and the packages that load one of them. Then as the Filediver path below (patches over them, the plan).
+function M.prepare_native(requests,context)
+    local A=require('archives')
+    local data_root=context.game:gsub('\\','/'):gsub('/+$',''):gsub('/[Gg][Aa][Mm][Ee]$','')
+    local store=A.open(data_root)
+    local cache=context.cache;I.mkdirs(cache)
+    if context.log then context.log('Reading the game archives (Unit and package locations)...')end
+    local index=A.index(store,{[UTYPE]=true,[PTYPE]=true},cache..'/archive-index.bin',cache,
+        function(dir,pattern)return I.list_files(dir,pattern)end,
+        function(k,n)if context.pump then context.pump()end end)
+    local wanted={}
+    for _,r in ipairs(requests)do wanted[D.unhex(r.source_unit)]=true end
+    local extracted={}
+    for source in pairs(wanted)do
+        local archives=assert(index[source..UTYPE],'Unit resource not found in the game archives: '..D.hex(source))
+        local r=assert(store:resource(archives[1],source..UTYPE),'Unit resource unreadable: '..D.hex(source))
+        for _,id in ipairs(archives)do
+            extracted[id]=extracted[id]or{units={},packages={}}
+            extracted[id].units[source]={name=source,type=UTYPE,main=r.main,gpu=r.gpu,stream=r.stream}
+        end
+    end
+    -- the packages that load a wanted Unit (each package's dependency array: 16 bytes an entry, type then name)
+    for key,archives in pairs(index)do
+        if key:sub(9)==PTYPE then
+            local r=store:resource(archives[1],key)
+            local data=r and r.main
+            if data and #data>=16 then
+                local count=u32(data,8)
+                assert(16+count*16<=#data,'package is truncated: '..D.hex(key:sub(1,8)))
+                local affected=false
+                for i=0,count-1 do
+                    local at=16+i*16
+                    if data:sub(at+1,at+8)==UTYPE and wanted[data:sub(at+9,at+16)]then affected=true;break end
+                end
+                if affected then
+                    for _,id in ipairs(archives)do
+                        extracted[id]=extracted[id]or{units={},packages={}}
+                        extracted[id].packages[key:sub(1,8)]={name=key:sub(1,8),type=PTYPE,main=data}
+                    end
+                end
+            end
+        end
+    end
+    return extracted
+end
+
+-- Filediver (when asked for: context.filediver and context.use_filediver, or the archives could not be read)
 function M.prepare(requests,context)
     if #requests==0 then return {},{} end
+    local native_ok,extracted=false,nil
+    if not context.use_filediver then
+        native_ok,extracted=pcall(M.prepare_native,requests,context)
+        if not native_ok and context.log then context.log('reading the game archives failed: '..tostring(extracted))end
+        if not native_ok and not context.filediver then error(extracted,0)end
+    end
+    if native_ok then return M.finish(requests,context,extracted)end
     local exe=assert(context.filediver,'Filediver is required for independent Unit resources. Set filediver path.txt in the editor settings folder.')
     local cache=context.cache;I.mkdirs(cache)
     local game=context.game:gsub('\\','/'):gsub('/data/game/?$','')
@@ -367,8 +423,12 @@ function M.prepare(requests,context)
             end
         end
     end
-    -- Respect resource replacements from pre-existing ordinary triad patches. Our own
-    -- previous outputs are excluded because this build starts from their original inputs.
+    return M.finish(requests,context,extracted)
+end
+
+-- Respect resource replacements from pre-existing ordinary triad patches. Our own
+-- previous outputs are excluded because this build starts from their original inputs.
+function M.finish(requests,context,extracted)
     local data_root=context.game:gsub('\\','/'):gsub('/game/?$','')
     for id,src in pairs(extracted)do
         local patchfiles=I.list_files(data_root,id..'.patch_*')

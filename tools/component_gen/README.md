@@ -47,3 +47,7 @@
   - +0x2B0～+0x2C2：dump 的未命名成员整体错开了一位。
 - 改正后，5 个组件共 59744 个值与 RawData 逐项一致。
 - 词表在 `enemy_zh.py`。
+
+## 战备与载具相关组件
+
+`python -X utf8 gen_stratagem_entities.py` 使用同一组 `COMPONENT_GEN_WORK`、`RAWDATA`、`SHALZUTH` 环境变量生成 `offline/stratagem_entity_specs.lua`：包含当前 272 类键值实体组件的记录大小和类型名称，以及 10 类载具、背包、制导等组件的命名字段。动态数组、字符串／指针和暂不支持的原始类型由运行时反射作为只读描述符显示；生成器不会把这些指针槽生成为可编辑字段。运行时 `stratagem_entity_editor.lua` 使用当前类型库补齐其他关联组件的内联字段并检查记录布局。

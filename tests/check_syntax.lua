@@ -6,7 +6,7 @@ assert(loadfile(TEST_ROOT..'/offline/orbital_components.lua'))
 assert(loadfile(TEST_ROOT..'/offline/identity_components.lua'))
 assert(loadfile(TEST_ROOT..'/offline/preload_components.lua'))
 assert(loadfile(TEST_ROOT..'/offline/preload_data.lua'))
-for _,name in ipairs({'preload_store','preload_io','preload_authoring'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
+for _,name in ipairs({'preload_store','preload_io','preload_authoring','archives','game_texts','physics','enemy_anim'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
 assert(loadfile(TEST_ROOT..'/offline/planet_components.lua'))
 assert(loadfile(TEST_ROOT..'/offline/planet_data.lua'))
 for _,name in ipairs({'player_save','player_save_io','player_save_view'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
@@ -18,4 +18,8 @@ assert(loadfile(TEST_ROOT..'/offline/spawn_queue_components.lua'))
 assert(loadfile(TEST_ROOT..'/offline/health_schema.lua'))
 assert(loadfile(TEST_ROOT..'/offline/global_preset.lua'))
 assert(loadfile(TEST_ROOT..'/offline/preset_details.lua'))
+assert(loadfile(TEST_ROOT..'/offline/stratagem_entity_editor.lua'))
+assert(loadfile(TEST_ROOT..'/offline/stratagem_entity_specs.lua'))
+for _,name in ipairs({'name_ids','entity_names'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
+assert(loadfile(TEST_ROOT..'/offline/vehicle_tips.lua'))
 print('PASS: all offline modules and the original panel compile with the bundled LuaJIT')

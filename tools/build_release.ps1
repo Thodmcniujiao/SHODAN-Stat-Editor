@@ -1,11 +1,12 @@
-﻿# SHODAN Stat Editor Offline：按当前源码打包，并检查 exe / 快捷方式的链路。
+# SHODAN Stat Editor Offline：按当前源码打包，并检查 exe / 快捷方式的链路。
 #   1. 把当前源码（src\stat_editor_offline.lua、offline\*.lua、启动器与运行库）打包到
 #      offline\release\<yyyyMMdd-HHmmss>\SHODAN Stat Editor Offline\，与 package.py 的 portable 版布局一致
 #   2. 校验打包结果与源码一致，把项目根目录的“SHODAN Stat Editor Offline.lnk”指向新 exe
 #   3. 检测：正在运行的编辑器进程（含没有窗口的残留进程），桌面 / 开始菜单 / 项目根目录里指向
 #      “SHODAN Stat Editor Offline.exe”的快捷方式，以及它们指向的那份是否与当前源码一致
-# 由项目根目录的 build_release.bat 调用。参数：-NoShortcut 只打包，不改快捷方式。
-param([switch]$NoShortcut)
+# 由项目根目录的 build_release.bat 调用。参数：-NoShortcut 只打包，不改快捷方式；
+#   -Dev <commit>  标记为来自该上游开发提交（写进 build.txt 的 dev=，窗口标题显示 “v<版本> dev <commit>”）。
+param([switch]$NoShortcut, [string]$Dev = '')
 
 $ErrorActionPreference = 'Stop'
 $root = Split-Path -Parent $PSScriptRoot
@@ -77,12 +78,12 @@ New-Item -ItemType Directory -Force -Path (Join-Path $out 'app') | Out-Null
 Say ('打包 v' + $version + ' -> ' + $out) 'Cyan'
 
 # 测试用的 --[[DEV]] ... --[[/DEV]] 段不进发布版（package.py 同样处理；stat_editor.lua 原样复制）
-$dev = '(?s)[ \t]*--\[\[DEV\]\].*?--\[\[/DEV\]\][^\n]*\n'
+$devBlock = '(?s)[ \t]*--\[\[DEV\]\].*?--\[\[/DEV\]\][^\n]*\n'
 foreach ($k in $files.Keys) {
     $dst = Join-Path $out $k
     if ($k -like 'app\*.lua' -and $k -ne 'app\stat_editor.lua') {
         $text = [IO.File]::ReadAllText($files[$k], $utf8)
-        $text = [regex]::Replace($text, $dev, '')
+        $text = [regex]::Replace($text, $devBlock, '')
         if ($text.Contains('SHODAN_HOST_TEST')) { Fail ($k + ' 里还留有测试代码（SHODAN_HOST_TEST）') }
         [IO.File]::WriteAllText($dst, $text, $utf8)
     } else {
@@ -90,13 +91,16 @@ foreach ($k in $files.Keys) {
     }
 }
 
-# build.txt：版本、提交、渠道，以及打包时间（显示在窗口标题上，看得出跑的是哪一次打包）
+# build.txt：版本、提交、渠道、上游开发提交，以及打包时间（显示在窗口标题上，看得出跑的是哪一次打包）
 $commit = ''
 if ((Get-Command git -ErrorAction SilentlyContinue) -and (Test-Path -LiteralPath (In-Root '.git'))) {
     try { $commit = (& git -C $root rev-parse HEAD 2>$null | Select-Object -First 1) } catch { $commit = '' }
     if (-not $commit) { $commit = '' }
 }
-$buildTxt = "version=$version`ncommit=$commit`nchannel=local`nbuilt=$stamp`n"
+$Dev = ($Dev -replace '\s', '').ToLowerInvariant()
+$channel = if ($Dev) { 'dev' } else { 'local' }
+$devLine = if ($Dev) { "dev=$Dev`n" } else { '' }
+$buildTxt = "version=$version`ncommit=$commit`nchannel=$channel`n" + $devLine + "built=$stamp`n"
 [IO.File]::WriteAllText((Join-Path $out 'app\build.txt'), $buildTxt, $utf8)
 
 # 说明与第三方许可

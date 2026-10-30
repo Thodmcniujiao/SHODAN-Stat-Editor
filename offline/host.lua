@@ -21,6 +21,8 @@ local PreloadIO=require('preload_io')
 local PlayerSave=require('player_save')
 local PlayerSaveIO=require('player_save_io')
 local EditorFooter=require('editor_footer')
+local GameTexts=require('game_texts')
+local Physics=require('physics')
 local LOCAL_ENTITY_EXTENSION = true
 
 pcall(ffi.cdef, 'uint64_t GetTickCount64(void);')
@@ -155,9 +157,10 @@ local function main()
     if not ok then fatal('Stat Editor did not start:\n' .. tostring(err)) end
     local state = rawget(_G, 'ShodanStatEditor')
     if type(state) ~= 'table' then fatal('Stat Editor did not start (no state).') end
-    local build = U.build(here)   -- app/build.txt: version, commit, channel
-    shim.set_title('SHODAN Stat Editor Offline v' .. tostring(state.version) .. ' | Entity Components'
-                   .. (build.channel == 'dev' and build.commit and ' (dev ' .. build.commit:sub(1, 7) .. ')' or '')
+    local build = U.build(here)   -- app/build.txt: version, commit, channel, dev
+    local dev = build.dev or (build.channel == 'dev' and build.commit and build.commit:sub(1, 7))
+    shim.set_title('SHODAN Stat Editor Offline v' .. tostring(state.version)
+                   .. (dev and ' dev ' .. dev or '') .. ' | Entity Components'
                    .. (build.built and ' | build ' .. build.built or ''))   -- (build_release.bat: when it was packed)
     -- the host's own text in the panel's language, drawn with its font
     local function tr(text) return type(state.tr) == 'function' and state.tr(text) or text end
@@ -195,6 +198,30 @@ local function main()
         log(string.format('entity demolition: %d targets catalogued',#demolition_model.targets))
     end)
     if not demo_ok then demolition_error=tostring(demo_why);log('entity demolition unavailable: '..demolition_error) end
+    -- the game's English texts for the panel's Name / Description boxes (game_texts.lua: read out of the archives;
+    -- where they are kept per game build in the resource cache)
+    local data_root=game:gsub('\\','/'):gsub('/+$',''):gsub('/[Gg][Aa][Mm][Ee]$','')
+    local texts_ok,game_texts=pcall(function()
+        local cache=UnitAliases.cache_dir(I.home,game,EntityAssets.owned());I.mkdirs(cache)
+        local started=clock()
+        local t=GameTexts.load(data_root,cache..'/strings-index.bin',cache,function(dir,pattern)return I.list_files(dir,pattern)end)
+        local n=0;for _ in pairs(t.english)do n=n+1 end
+        log(string.format('game texts: %d English texts, %d strings files (%.2f s)',n,#t.files,clock()-started))
+        return t
+    end)
+    if texts_ok then rawset(_G,'SHODAN_TEXTS',{texts=game_texts.english})
+    else log('game texts unavailable: '..tostring(game_texts))end
+    -- vehicle handling, the exosuits' movement and the enemies' animation speed (physics.lua: their files found by the
+    -- archive index, kept per game build; read when the panel first shows a vehicle or an enemy)
+    local physics_ok,physics_why=pcall(function()
+        local cache=UnitAliases.cache_dir(I.home,game,EntityAssets.owned());I.mkdirs(cache)
+        local started=clock()
+        local store=texts_ok and game_texts.store or require('archives').open(data_root)
+        local index=Physics.index(store,cache..'/physics-index.bin',cache,function(dir,pattern)return I.list_files(dir,pattern)end)
+        rawset(_G,'SHODAN_PHYSICS',Physics.setup(store,index,log))
+        log(string.format('vehicle handling and animation: index ready (%.2f s)',clock()-started))
+    end)
+    if not physics_ok then log('vehicle handling and animation unavailable: '..tostring(physics_why))end
     local preload_io=PreloadIO.new({game=game,here=here,owned=function()return EntityAssets.owned()end,
         log=log,pump=function()return shim.pump()end})
     I.mkdirs(I.home)
@@ -495,6 +522,29 @@ local function main()
             if not ok then
                 for _,c in ipairs(changes)do G.free(c.plain)end
                 bar.busy=nil;log('preload preparation failed: '..tostring(why));say('Not installed: '..tostring(why),WARN);return
+            end
+        end
+        -- typed names and descriptions: every language's strings file holding one, into the patch over its archive
+        if texts_ok and type(state.rename_map)=='function' then
+            local ok,why=pcall(function()
+                local n=GameTexts.add_to(asset_writes,game_texts,state.rename_map(),EntityAssets.owned(),data_root,UnitAliases,I.exists)
+                if n>0 then log('names and descriptions: '..n..' strings files patched')end
+            end)
+            if not ok then
+                for _,c in ipairs(changes)do G.free(c.plain)end
+                bar.busy=nil;log('names and descriptions failed: '..tostring(why));say('Not installed: '..tostring(why),WARN);return
+            end
+        end
+        -- vehicle handling and animation speeds: the changed files, into the patch over the base archive
+        if physics_ok then
+            local ok,why=pcall(function()
+                local list=Physics.add_to(asset_writes,EntityAssets.owned(),data_root,UnitAliases,I.exists,GameTexts.merge)
+                local ids={};for _,r in ipairs(list)do ids[#ids+1]=r.id end
+                if #list>0 then log('vehicle handling and animation: '..#list..' files patched ('..table.concat(ids,', ')..')')end
+            end)
+            if not ok then
+                for _,c in ipairs(changes)do G.free(c.plain)end
+                bar.busy=nil;log('vehicle handling and animation failed: '..tostring(why));say('Not installed: '..tostring(why),WARN);return
             end
         end
         for k, c in ipairs(changes) do

@@ -5,9 +5,16 @@ local DATA=require('preload_data')
 local S=require('preload_store')
 local M={};M.__index=M
 function M.new(options)return setmetatable({options=options},M)end
+-- The game's package manifests: read straight out of its archives (archives.lua; the catalog names the archives
+-- holding each package), or (o.raw: the tests' fixtures; o.filediver: asked for) a folder of exported ones.
 function M:load_index()
- if self.paths then return end
+ if self.paths or self.store then return end
  local o=self.options;local folder=o.raw
+ if not folder and not o.filediver then
+  local A=require('archives')
+  local root=o.game:gsub('\\','/'):gsub('/+$',''):gsub('/[Gg][Aa][Mm][Ee]$','')
+  self.store=A.open(root);return
+ end
  if not folder then
   local cache=UA.cache_dir(I.home,o.game,o.owned());self.export_cache=cache;I.mkdirs(cache)
   folder=cache..'/preload-packages';I.mkdirs(folder)
@@ -26,8 +33,19 @@ function M:load_index()
  self.paths=paths
 end
 function M:load(h)
- self:load_index();local p=assert(self.paths[h],'Package not found in current game export: '..h)
- local s=assert(I.read(p),'Could not read package '..h)
+ self:load_index()
+ local s
+ if self.store then
+  local A=require('archives');local entry=assert(DATA.catalog[h],'Package not in the catalog: '..h)
+  for _,id in ipairs(entry.archives)do
+   local ok,r=pcall(self.store.resource,self.store,id:lower(),A.raw(h)..A.raw(S.PTYPE))
+   if ok and r then s=r.main;break end
+  end
+  assert(s,'Package not found in the game archives: '..h)
+ else
+  local p=assert(self.paths[h],'Package not found in current game export: '..h)
+  s=assert(I.read(p),'Could not read package '..h)
+ end
  -- Filediver extracts bundle originals; ordinary triad patches must be overlaid explicitly.
  self.patch_cache=self.patch_cache or{};self.patch_lists=self.patch_lists or{}
  self.owner_set=self.owner_set or self.options.owned()
@@ -47,6 +65,7 @@ function M:load(h)
 end
 function M:prepare(model,existing,aliases)
  if self.export_cache and self.export_cache~=UA.cache_dir(I.home,self.options.game,self.options.owned())then self.paths=nil end
+ self.store=nil   -- (the archives read again: a game update since the last install)
  self.patch_cache,self.patch_lists,self.owner_set={},{},self.options.owned()
  local outputs=model:package_outputs();if not next(outputs)then return existing,{}end
  local o=self.options;local root=o.game:gsub('\\','/'):gsub('/game/?$','')

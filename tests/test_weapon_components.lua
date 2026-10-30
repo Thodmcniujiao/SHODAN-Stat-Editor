@@ -12,7 +12,7 @@ local W=require('weapon_components')
 local SIZE={f32=4,u32=4,i32=4,enum=4,flag=1,u8=1,u64=8}
 for b=0,7 do SIZE['bit'..b]=1 end
 assert(#W.SPECS==27,#W.SPECS)
-local total,subs=0,{weapon=0,type=0,attach=0}
+local total,subs=0,{weapon=0,type=0,attach=0,mount=0}
 for _,spec in ipairs(W.SPECS)do
  subs[spec.SUB]=subs[spec.SUB]+1
  total=total+#spec.FIELDS
@@ -66,5 +66,5 @@ for _,spec in ipairs(W.SPECS)do
  for _,r in ipairs(page.rows)do assert(r.component_of()and r.section_of()and r.label_of()and r.tip_of())end
 end
 assert(total==2016,total)
-assert(subs.weapon==8 and subs.type==9 and subs.attach==10)
+assert(subs.weapon==8 and subs.type==9 and subs.attach==8 and subs.mount==2)
 print('weapon components: ok ('..#W.SPECS..' components, '..total..' fields)')

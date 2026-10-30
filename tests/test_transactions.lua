@@ -34,4 +34,23 @@ assert(not pcall(function()A.begin(game,{['../outside']='bad'})end))
 write(work..'/fake/data/'..patch,'another mod')
 assert(not pcall(function()A.begin(game,{[patch]='overwrite'})end))
 assert(I.read(work..'/fake/data/'..patch)=='another mod')
+-- Read-only game files must install and restore through the same transaction wrapper.
+local ffi=require('ffi');local name='generated_readonly.dl_bin';local target=game..'/'..name
+write(target,'readonly original');assert(ffi.C.SetFileAttributesA(target,1)~=0)
+assert(I.write_files(game,{[name]='readonly changed'},{[name]='readonly original'}))
+assert(I.read(target)=='readonly changed')
+assert(I.write_files(game,{[name]='readonly original'},{[name]='readonly original'},true))
+assert(I.read(target)=='readonly original')
+assert(ffi.C.SetFileAttributesA(target,1)~=0)
+local moved,code=I.move_file(work..'/missing-source',target,9)
+assert(moved==0 and code==2 and ffi.C.GetFileAttributesA(target)%2==1)
+assert(ffi.C.SetFileAttributesA(target,0x80)~=0)
+-- Preserve the move's error even when rollback makes further system calls.
+I.move_file=function(from,to,flags)
+ if from:match('%.shodan%-new$')then return 0,32 end
+ return actual_move(from,to,flags)
+end
+local blocked,reason=I.write_files(game,{[name]='blocked'},{[name]='readonly original'})
+assert(not blocked and reason:find('in use by another program',1,true)and reason:find('restored',1,true))
+assert(I.read(target)=='readonly original');I.move_file=actual_move
 print('PASS: partial-write rollback, coordinated asset rollback, install/restore and foreign-file protection')

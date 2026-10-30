@@ -60,7 +60,10 @@ if not COMMIT and os.path.isdir(os.path.join(REPO, '.git')):
     COMMIT = git('rev-parse', 'HEAD')
     if git('status', '--porcelain', '--untracked-files=no'):
         print('note: the repository has uncommitted changes; build.txt names its HEAD', COMMIT[:7])
+DEV_COMMIT = (os.environ.get('SSEO_DEV', '') or '').strip().lower()
 build_txt = 'version=%s\ncommit=%s\nchannel=%s\n' % (VERSION, COMMIT, CHANNEL)
+if DEV_COMMIT:
+    build_txt += 'dev=' + DEV_COMMIT + '\n'
 if os.environ.get('SSEO_BUILT'):
     build_txt += 'built=' + os.environ['SSEO_BUILT'] + '\n'
 os.makedirs(RELEASE, exist_ok=True)

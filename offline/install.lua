@@ -10,6 +10,8 @@ local G = require('gamedata')
 
 for _, declaration in ipairs({
     'int MoveFileExA(const char *from, const char *to, uint32_t flags);',
+    'int SetFileAttributesA(const char *path, uint32_t attributes);',
+    'uint32_t GetLastError(void);',
     'int CreateDirectoryA(const char *path, void *security);',
     'int DeleteFileA(const char *path);',
     'uint32_t GetEnvironmentVariableA(const char *name, char *out, uint32_t size);',
@@ -251,7 +253,20 @@ function M.originals(game)
 end
 
 -- ---------------------------------------------------------------- writing
-function M.move_file(from, to, flags) return kernel.MoveFileExA(from, to, flags) end
+function M.move_file(from, to, flags)
+    local attributes = kernel.GetFileAttributesA(to)
+    local readonly = attributes ~= 0xFFFFFFFF and attributes % 2 == 1
+    if readonly then
+        local writable = attributes - 1
+        if kernel.SetFileAttributesA(to, writable == 0 and 0x80 or writable) == 0 then
+            return 0, tonumber(kernel.GetLastError())
+        end
+    end
+    local moved = kernel.MoveFileExA(from, to, flags)
+    local code = moved == 0 and tonumber(kernel.GetLastError()) or nil
+    if moved == 0 and readonly then kernel.SetFileAttributesA(to, attributes) end
+    return moved, code
+end
 
 -- writes: name -> bytes (a changed file, or the original for one going back); originals: name -> original bytes.
 -- A game file another tool changed after this editor read it (neither its original nor written by an install,
@@ -327,10 +342,14 @@ function M.write_files(game, writes, originals, skip_changed)
     end
     for _, s in ipairs(staged) do
         -- MOVEFILE_REPLACE_EXISTING | MOVEFILE_WRITE_THROUGH
-        if read(game .. '/' .. s.name) ~= before[s.name]
-           or M.move_file(s.tmp, game .. '/' .. s.name, 0x9) == 0 or read(game .. '/' .. s.name) ~= s.data then
+        local target, moved, code = game .. '/' .. s.name, nil, nil
+        if read(target) == before[s.name] then moved, code = M.move_file(s.tmp, target, 0x9) end
+        if not moved or moved == 0 or read(target) ~= s.data then
+            -- Capture the move's error before rollback makes further Windows calls.
+            local detail = code == 5 and ' (access denied)' or code == 32 and ' (in use by another program)'
+                           or code and (' (Windows error ' .. code .. ')') or ''
             local ok, why = rollback()
-            return nil, 'could not replace ' .. s.name .. (ok and '; previous files restored' or '; rollback failed: ' .. why)
+            return nil, 'could not replace ' .. s.name .. detail .. (ok and '; previous files restored' or '; rollback failed: ' .. why)
         elseif s.data == originals[s.name] then
             list[s.name] = nil
         else

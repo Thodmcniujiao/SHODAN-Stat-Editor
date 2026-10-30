@@ -1,32 +1,91 @@
 {
-  "title": "SHODAN component entity catalog v1",
+  "title": "SHODAN entity group JSON",
   "type": "object",
-  "required": ["version", "default_category", "categories"],
+  "required": [
+    "entities"
+  ],
   "properties": {
-    "version": {"const": 1},
-    "default_category": {"type": "string"},
-    "categories": {
-      "type": "array", "minItems": 1,
-      "items": {"type":"object", "required":["id","name"], "properties":{
-        "id":{"type":"string","pattern":"^[A-Za-z0-9_-]+$"},
-        "name":{"$ref":"#/$defs/name"}, "order":{"type":"number"}
-      }}
+    "version": {
+      "const": 1
     },
-    "rules": {
-      "type":"array", "items":{"type":"object","required":["category"],"additionalProperties":false,"properties":{
-        "category":{"type":"string"}, "path_prefix":{"type":"string"}, "path_contains":{"type":"string"},
-        "name_contains":{"type":"string"}, "hash_prefix":{"type":"string"},
-        "kind":{"enum":["entity","unit"]}, "component":{"type":"string"}
-      }}
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]+$"
+    },
+    "group": {
+      "oneOf": [
+        {
+          "type": "string",
+          "maxLength": 1024
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "minProperties": 1
+        }
+      ]
+    },
+    "name": {
+      "oneOf": [
+        {
+          "type": "string",
+          "maxLength": 1024
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "minProperties": 1
+        }
+      ]
+    },
+    "order": {
+      "type": "number"
     },
     "entities": {
-      "type":"object", "propertyNames":{"pattern":"^(0[xX])?([EUeu])?[0-9A-Fa-f]{16}$"},
-      "additionalProperties":{"type":"object","additionalProperties":false,"properties":{
-        "name":{"$ref":"#/$defs/name"},"category":{"type":"string"}
-      }}
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "hash",
+          "name"
+        ],
+        "properties": {
+          "hash": {
+            "type": "string",
+            "pattern": "^(0[xX][0-9A-Fa-f]{1,16}|[0-9]{1,20}|[0-9A-Fa-f]{16})$"
+          },
+          "name": {
+            "oneOf": [
+              {
+                "type": "string",
+                "maxLength": 1024
+              },
+              {
+                "type": "object",
+                "additionalProperties": {
+                  "type": "string",
+                  "maxLength": 1024
+                },
+                "minProperties": 1
+              }
+            ]
+          },
+          "kind": {
+            "enum": [
+              "entity",
+              "unit"
+            ]
+          }
+        },
+        "additionalProperties": false
+      }
     }
   },
-  "$defs": {
-    "name":{"oneOf":[{"type":"string","maxLength":1024},{"type":"object","minProperties":1,"additionalProperties":{"type":"string","maxLength":1024}}]}
-  }
+  "additionalProperties": false
 }

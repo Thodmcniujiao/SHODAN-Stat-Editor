@@ -1,5 +1,5 @@
 -- Shared entity directory and declarative, reloadable naming/classification.
-local D=require('demolition');local J=require('json_data');local I=require('install')
+local D=require('demolition');local J=require('json_data');local I=require('install');local N=require('entity_names');local IDs=require('name_ids')
 local C={};C.__index=C
 local here=(debug.getinfo(1,'S').source:match('^@(.*[/\\])')or'./')
 -- the component pages, in order; the kinds with views of their own (c[kind]: health_ / drown_ / shield_components)
@@ -201,7 +201,14 @@ function C.build(c)
  end
  local ok,t=pcall(config,initial)
  if not ok then self.config_error=t;t=config(assert(I.read(self.default_path)))end
- self.config=t;self:refresh(true);self:export_index()
+ self.config=t;self:refresh(true)
+ self.folder=meta.names_folder or(self.path:match('^(.*)[/\\]')..'/EntityNames')
+ local R=require('record_names')
+ if not R.loaded then pcall(R.load,self.path:match('^(.*)[/\\]'))end
+ t.hash_names=R.hash_names
+ local named,folder_config=pcall(self.config_error and N.load or N.open,self.folder,t,self.records)
+ if named then self.config=folder_config;self.config_error=nil;self:refresh(true)else self.config_error=folder_config end
+ self:export_index()
  return self
 end
 function C:localized(en,zh)
@@ -216,6 +223,7 @@ function C:refresh(force)
   r.category=category or(self.config.by_id[r.hint]and r.hint)or self.config.default_category
   r.category_name=label(self.config.by_id[r.category].name,lang)
   r.name=item.name and label(item.name,lang)or r.base_name
+  r.decimal=r.decimal or IDs.decimal(r.hash)
   for _,kind in ipairs(KINDS)do
    local page=not self.lazy[kind]and self.by_entity[kind][r.id]
    if page then page.name=r.name;page.category=r.category end
@@ -228,7 +236,7 @@ function C:refresh(force)
  self.revision=self.revision+1
 end
 function C:reload()
- local ok,t=pcall(function()return config(assert(I.read(self.path),'catalog JSON is missing'))end)
+ local ok,t=pcall(N.open,self.folder,self.config,self.records)
  if not ok then self.config_error=t;return nil,t end
  self.config=t;self.config_error=nil;self:refresh(true);self:export_index();return true
 end
@@ -239,8 +247,10 @@ function C:list(kind,category,show_missing,search,tr)
  local out={}
  for _,page in ipairs(self.views[kind])do
   local r=page.catalog_record
-  local include=(show_missing or page.has_component)and(category==nil or category=='all'or category==r.category)
-  local hay=((tr and tr(page.name)or page.name)..' '..r.base_name..' '..r.hash..' '..r.path..' '..r.category_name):lower()
+  local include=#words>0 or((show_missing or page.has_component)and(category==nil or category=='all'or category==r.category))
+  local names=self.config.entities[r.id]or self.config.entities[r.hash];local aliases={}
+  if names and type(names.name)=='table'then for _,v in pairs(names.name)do aliases[#aliases+1]=v end end
+  local hay=((tr and tr(page.name)or page.name)..' '..r.base_name..' 0x'..r.hash..' '..r.decimal..' '..r.path..' '..r.category_name..' '..table.concat(aliases,' ')):lower()
   for _,w in ipairs(words)do if not hay:find(w,1,true)then include=false;break end end
   if include then out[#out+1]=page end
  end

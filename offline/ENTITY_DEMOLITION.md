@@ -50,14 +50,15 @@
 
 实体拆毁设置自动保存在 `%LOCALAPPDATA%\SHODAN\StatEditor\entity_demolition.txt`，关闭重开会恢复。资源所有权记录位于同目录的 `entity_assets_installed.txt`；保留该目录与 originals 备份以便恢复。
 
-ECS 实体独立覆盖需要 Filediver CLI。程序会自动查找现有的 `Downloads\Compressed\filediver-cli\filediver.exe`，也支持环境变量 `SHODAN_FILEDIVER`、程序旁 `tools\filediver.exe`，或上述配置目录中的 `filediver path.txt`。该文本文件只放 Filediver 可执行文件的完整路径。
+ECS 实体独立覆盖读取 Unit 与 package 时使用编辑器自带的归档读取层（`offline/archives.lua`：DSAR 分块 bundles 与独立归档，索引按游戏版本缓存），不再需要 Filediver CLI。原生读取失败时，若找到 Filediver（`Downloads\Compressed\filediver-cli\filediver.exe`、环境变量 `SHODAN_FILEDIVER`、程序旁 `tools\filediver.exe`，或上述配置目录中的 `filediver path.txt`，只放可执行文件完整路径）才回退使用它。
 
 此版本保留原程序的统计编辑和敌人编辑功能。为保护本地扩展，上游自动更新检查在此构建中关闭；合并上游版本后应重新构建本地扩展。
 
 ## 源码与测试
 
 - `offline/demolition.lua`：类型库、目标目录、私有模板、独立映射及表生成。
-- `offline/unit_aliases.lua`：Filediver 导出、Unit 克隆、package 依赖与资源归档。
+- `offline/unit_aliases.lua`：原生读取（`prepare_native`，Filediver 仅兜底）、Unit 克隆、package 依赖与资源归档。
+- `offline/archives.lua`：游戏归档只读层（bundles.nxa 列表、DSAR/LZ4 分块、文件目录、按类型建索引）。
 - `offline/demolition_panel.lua`：界面、搜索、整数校验、自动保存与恢复。
 - `offline/demolition_bridge.lua`：原页面与实体页的统一字段、旧配置迁移及备份。
 - `offline/entity_assets.lua`：资源补丁所有权与回滚。

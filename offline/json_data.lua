@@ -67,7 +67,7 @@ function M.decode(s,max_bytes)
  end
  local out=value(0);space();if i<=n then fail('trailing data')end;return out
 end
-function M.encode(v)
+function M.encode(v,pretty,key_less)
  local function quote(s)return '"'..s:gsub('[%z\1-\31\\"]',function(c)
   local e={['"']='\\"',['\\']='\\\\',['\n']='\\n',['\r']='\\r',['\t']='\\t'}
   return e[c]or string.format('\\u%04x',c:byte())
@@ -83,10 +83,15 @@ function M.encode(v)
   local keys,array={},true;for k in pairs(x)do keys[#keys+1]=k;if type(k)~='number'or k<1 or k%1~=0 then array=false end end
   if #keys==0 then return getmetatable(x)and getmetatable(x).__json_array and'[]'or'{}'end
   local out={}
-  if array and #keys==#x then for i=1,#x do out[i]=encode(x[i],depth+1)end;return'['..table.concat(out,',')..']'end
-  table.sort(keys);for _,k in ipairs(keys)do assert(type(k)=='string');out[#out+1]=quote(k)..':'..encode(x[k],depth+1)end
-  return'{'..table.concat(out,',')..'}'
+  local function wrap(left,right)
+   if not pretty then return left..table.concat(out,',')..right end
+   local indent=string.rep('  ',depth+1)
+   return left..'\n'..indent..table.concat(out,',\n'..indent)..'\n'..string.rep('  ',depth)..right
+  end
+  if array and #keys==#x then for i=1,#x do out[i]=encode(x[i],depth+1)end;return wrap('[',']')end
+  table.sort(keys,key_less);for _,k in ipairs(keys)do assert(type(k)=='string');out[#out+1]=quote(k)..(pretty and': 'or':')..encode(x[k],depth+1)end
+  return wrap('{','}')
  end
- return encode(v,0)
+ return encode(v,0)..(pretty and'\n'or'')
 end
 return M
