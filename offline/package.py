@@ -61,6 +61,10 @@ if not COMMIT and os.path.isdir(os.path.join(REPO, '.git')):
     if git('status', '--porcelain', '--untracked-files=no'):
         print('note: the repository has uncommitted changes; build.txt names its HEAD', COMMIT[:7])
 DEV_COMMIT = (os.environ.get('SSEO_DEV', '') or '').strip().lower()
+if not DEV_COMMIT:
+    _baseline = os.path.join(HERE, 'dev_baseline.txt')
+    if os.path.exists(_baseline):
+        DEV_COMMIT = open(_baseline, encoding='utf-8').read().strip().lower()
 build_txt = 'version=%s\ncommit=%s\nchannel=%s\n' % (VERSION, COMMIT, CHANNEL)
 if DEV_COMMIT:
     build_txt += 'dev=' + DEV_COMMIT + '\n'

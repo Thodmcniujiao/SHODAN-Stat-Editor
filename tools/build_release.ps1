@@ -6,7 +6,7 @@
 #   3. 检测：正在运行的编辑器进程（含没有窗口的残留进程），桌面 / 开始菜单 / 项目根目录里指向
 #      “SHODAN Stat Editor Offline.exe”的快捷方式，以及它们指向的那份是否与当前源码一致
 # 由项目根目录的 build_release.bat 调用。参数：-NoShortcut 只打包，不改快捷方式；
-#   -Dev <commit>  标记为来自该上游开发提交（写进 build.txt 的 dev=，窗口标题显示 “v<版本> dev <commit>”）。
+#   -Dev <commit>  标记为来自该上游开发提交（写进 build.txt 的 dev=，窗口标题显示 “v<版本> dev <commit>”）；省略时读 offline\dev_baseline.txt。
 param([switch]$NoShortcut, [string]$Dev = '')
 
 $ErrorActionPreference = 'Stop'
@@ -97,6 +97,10 @@ $commit = ''
 if ((Get-Command git -ErrorAction SilentlyContinue) -and (Test-Path -LiteralPath (In-Root '.git'))) {
     try { $commit = (& git -C $root rev-parse HEAD 2>$null | Select-Object -First 1) } catch { $commit = '' }
     if (-not $commit) { $commit = '' }
+}
+if (-not $PSBoundParameters.ContainsKey('Dev')) {
+    $baseline = In-Root 'offline\dev_baseline.txt'
+    if (Test-Path -LiteralPath $baseline) { $Dev = ([IO.File]::ReadAllText($baseline, $utf8)).Trim() }
 }
 $Dev = ($Dev -replace '\s', '').ToLowerInvariant()
 $channel = if ($Dev) { 'dev' } else { 'local' }
