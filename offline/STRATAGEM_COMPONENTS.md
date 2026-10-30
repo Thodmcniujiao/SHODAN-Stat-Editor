@@ -1,10 +1,28 @@
 # StratagemType / 战备类型参数
 
-三个入口使用同一套当前游戏数据：
+三个入口使用同一套当前游戏数据，并共用同一组参数分类（`stratagem_components.lua` 的 `M.GROUPS`）：
 
-- 轨道飞鹰 → 轨道编辑：StratagemType 参数组，后接轰炸参数。
-- 轨道飞鹰 → 飞鹰编辑：StratagemType 替换原来的“战略配备”参数组；保留飞鹰自身参数和重新武装时间。
-- 游戏数据 → 战备id → 战备id：按 StratagemTypeID 浏览当前全部 153 条记录，包括任务、重新武装及原列表没有列出的战备。
+- 轨道飞鹰 → 轨道编辑：组件组“轨道组件”默认展开；`StratagemType` 和 `BombardmentType` 组件默认折叠。
+- 轨道飞鹰 → 飞鹰编辑：组件组“飞鹰组件”默认展开；`StratagemType`、`EagleComponentData`、`EagleSpawnerComponentData` 组件默认折叠。
+- 游戏数据 → 战备id → 战备id：按 StratagemTypeID 浏览当前全部记录；字段使用同一套参数组。
+
+## 共享参数组
+
+| 组 | 包含字段（节选） |
+|---|---|
+| 标识与名称 `identity` | StratagemTypeID、Name、RecordID、VideoID、NameUpperTextID、NameCasedTextID、DescriptionTextID、FluffTextID、LoadingTextID |
+| 呼叫指令 `callin` | button_combination、Button1–Button9 |
+| 分类与消耗 `category` | Category、Uses、Cost、MaxInLoadout、IsEnabled、HUDType、BeaconColor |
+| 冷却与投放 `timing` | SpawnTime、SpawnRadius、BeaconingTime、ExtraTravelTime、Cooldown、CooldownIfFail、CooldownType、AltCooldown、ExtraHellpods |
+| 来源与呼叫方式 `origin` | OriginType、CallInType、ObjectiveRequirement、StratagemFlags、ShipLaserPointer |
+| 载荷与资源 `payload` | PayloadSpawnPosition、Payload1–PayloadN、Package、Icon、PayloadUnitCustomization |
+| 依赖与关联 `links` | DependsOnStratagemID、AdditionalStratagemID、MatchingSupportWeapon、DamageDealer、DLCPackID、SharedStratagemUpgradesType、SharedStratagemUpgradesCategories |
+| 标志与条件 `flags` | MissionSpecific、Selectable、TriggersWar、IsClanStratagem、InfoFlags、AllowForButtonOverlap、DeployOnNavmeshOnly、Field_208、Field_296_Bit1 |
+| 语音与音效 `audio` | ReadyVO、DeniedVO、ConfirmationVOOwner、CalloutVO、SpottableVOLine |
+| 数组与自定义 `arrays` | HellpodTargetOffset、HellpodAdditionalRotationInTau、EquipmentTags、Customizations、Field_280、Field_376 |
+| 未知字段 `unknown` | 未识别的 `Field_*` 等 |
+
+组顺序固定；所有页面都按这个顺序排列同一组件的字段，不再各自定义分类。组件组标题始终可见（默认展开），组件本身默认折叠。
 
 英文、简体中文和繁体中文界面均有参数名；悬停说明同时保留英文原字段名和中文含义。
 切换语言即可更新名称。未知语义的新增字段标为“未知字段 +偏移 / Unknown field +offset”，不猜测其作用。
@@ -13,7 +31,7 @@
 当前记录 **400 字节、67 个类型库成员**。读取和编辑前核对当前类型库的成员偏移、长度、存储类型和位布局。
 旧 INI 只用作字段名称参考，不套用旧版本编号、偏移或默认值。
 
-下表覆盖参考 INI 的全部 **39 个字段**。偏移均相对于当前 StratagemInfo 记录起点。
+下表覆盖当前 400 字节记录的 **67 个字段**（含类型库已知的额外字段）。偏移均相对于当前 StratagemInfo 记录起点。
 
 | INI 字段 | 中文名 | 当前存储 |
 |---|---|---|

@@ -104,9 +104,11 @@ E.change(flags,0,false,255);E.change(find(w,'block_sprint'),0,false,0)
 local expected=ffi.string(file.p,file.n);local staged=H.diff();assert(#staged==1 and #staged[1].floats==0,'uint64/ID bits classified as floats')
 local sealed,why=H.build(staged[1]);assert(sealed,why)
 local plain,n=G.open_sealed(sealed);assert(plain and G.murmur64(plain,n)==staged[1].hash)
-for _,h in ipairs(G.headers(plain,n))do if h.type==E.T_STATUS then local P=h.at+24
- assert(ffi.string(plain+P,file.n-P)==expected:sub(P+1),'builder changed status data, strings or array elements')
-end end
+-- Hash correction may change a later block's reserved header bytes. Verify every
+-- payload (including strings/arrays), without treating those salt bytes as data.
+for _,h in ipairs(G.headers(plain,n))do local P=h.at+24
+ assert(ffi.string(plain+P,h.size)==expected:sub(P+1,P+h.size),'builder changed status data, strings or array elements')
+end
 G.free(plain)
 TEST_PRESETS_HELPER.save(E,w,1);assert(E.save_config())
 local n=0;for _,v in ipairs(TEST_PRESETS_HELPER.values(E,w,1))do if v.id=='status_flags'then n=n+1;assert(v.value==247)end end;assert(n==1)

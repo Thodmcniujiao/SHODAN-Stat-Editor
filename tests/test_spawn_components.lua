@@ -10,7 +10,7 @@ end
 local V=require('component_view')
 local MC=require('mission_components')
 local SP=require('spawn_components')
-assert(#SP.SPECS==2 and #SP.SUBS.spawn==2)
+assert(#SP.SPECS==4 and #SP.SUBS.spawn==4)
 local hive,seaf=SP.SPECS[1],SP.SPECS[2]
 assert(hive.TYPE=='HiveMindComponentData'and hive.SUB=='spawn'and hive.KEY~='hive_mind')
 -- every field of the mission editor's hive mind, once, at the same offset and storage

@@ -1,5 +1,6 @@
 -- StatusEffectInfo: old decrypted names, current record and nested layouts.
 local M={TYPE=0xC63E0B22,SIZE=160}
+M.GROUP_ORDER={'basic','parameters','damage','modifiers','terrain','effects','scripts','animation','audio','flags','unknown'}
 M.GROUPS={
  basic={'Identity and name','标识与名称','識別與名稱'},parameters={'Strength and duration','强度与持续时间','強度與持續時間'},
  damage={'Damage reference','伤害引用','傷害引用'},effects={'Shading and particles','着色与粒子特效','著色與粒子特效'},

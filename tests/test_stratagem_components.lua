@@ -24,6 +24,10 @@ end
 assert(not schema.parse_u64('18446744073709551616'))
 assert(not schema.parse_u64('-1')and not schema.parse_u64('1e3'))
 local function row(w,name)
+ if w.component_groups then
+  for _,g in ipairs(w.component_groups)do E.ui.expanded_components[w.hash..':'..g.type]=true end
+  w.sync_rows()
+ end
  for _,r in ipairs(w.rows)do if r.tip_of and r.tip_of()[1]==name then return r end end
  error(w.name..' missing '..name)
 end
@@ -64,7 +68,7 @@ end
 E.settings.lang='en'
 local orbital,eagle
 for _,w in ipairs(E.weapons)do if w.stratagem and w.stratagem.def then
- if w.stratagem.family=='orbital'then orbital=orbital or w end
+ if w.stratagem.family=='orbital'and w.by_id.uses and E.row_value(w.by_id.uses.row)==-1 then orbital=orbital or w end
  if w.stratagem.family=='eagle'then eagle=eagle or w end
 end end
 assert(orbital and eagle)

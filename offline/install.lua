@@ -25,6 +25,9 @@ for _, declaration in ipairs({
     'int FindNextFileA(void *find, host_find_data *data);',
     'int FindClose(void *find);',
     'int32_t RegGetValueA(void *key, const char *sub, const char *value, uint32_t flags, uint32_t *type, void *data, uint32_t *size);',
+    'void *OpenProcess(uint32_t access, int inherit, uint32_t pid);',
+    'int TerminateProcess(void *process, uint32_t code);',
+    'void *ShellExecuteA(void *window, const char *verb, const char *file, const char *params, const char *dir, int show);',
 }) do pcall(ffi.cdef, declaration) end
 local kernel = ffi.C
 
@@ -157,12 +160,13 @@ function M.remember_game(folder)
     write(CHOSEN, folder .. '\n')
 end
 
-function M.game_running()
+-- the process ids of every running helldivers2.exe
+function M.game_pids()
+    local pids = {}
     local snap = kernel.CreateToolhelp32Snapshot(2, 0)   -- TH32CS_SNAPPROCESS
-    if snap == nil or ffi.cast('intptr_t', snap) == -1 then return false end
+    if snap == nil or ffi.cast('intptr_t', snap) == -1 then return pids end
     local e = ffi.new('host_process_entry')
     e.size = ffi.sizeof(e)
-    local running = false
     local ok = kernel.Process32FirstW(snap, e)
     while ok ~= 0 do
         local name = {}
@@ -171,11 +175,36 @@ function M.game_running()
             if c == 0 then break end
             name[#name + 1] = c < 128 and string.char(c) or '?'
         end
-        if table.concat(name):lower() == 'helldivers2.exe' then running = true; break end
+        if table.concat(name):lower() == 'helldivers2.exe' then pids[#pids + 1] = e.pid end
         ok = kernel.Process32NextW(snap, e)
     end
     kernel.CloseHandle(snap)
-    return running
+    return pids
+end
+
+function M.game_running() return #M.game_pids() > 0 end
+
+-- Starts the game through Steam (steam://rungameid/553850: Steam's own checks and launch options apply).
+-- true once Windows accepted the request.
+function M.launch_game()
+    local ok, result = pcall(function()
+        return ffi.load('shell32').ShellExecuteA(nil, 'open', 'steam://rungameid/553850', nil, nil, 1)
+    end)
+    return ok and tonumber(ffi.cast('intptr_t', result)) > 32
+end
+
+-- Ends every helldivers2.exe (TerminateProcess: the game gets no chance to save). Returns how many ended and
+-- how many there were.
+function M.kill_game()
+    local pids, ended = M.game_pids(), 0
+    for _, pid in ipairs(pids) do
+        local h = kernel.OpenProcess(0x0001, 0, pid)   -- PROCESS_TERMINATE
+        if h ~= nil then
+            if kernel.TerminateProcess(h, 1) ~= 0 then ended = ended + 1 end
+            kernel.CloseHandle(h)
+        end
+    end
+    return ended, #pids
 end
 
 -- ---------------------------------------------------------------- installed.txt

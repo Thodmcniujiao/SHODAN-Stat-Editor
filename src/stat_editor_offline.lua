@@ -382,6 +382,7 @@ MOD.kit_names = {
     [0x04E317CA] = 'CM-21 Trench Paramedic',
     [0x056E4441] = 'B-22 Model Citizen',
     [0x09D77183] = 'TG-8 Sharpshooter',
+    [0x0E5C4AD4] = 'KDM-500 Outrider',
     [0x0F8B6B05] = 'CM-17 Butcher',
     [0x10D32856] = 'SA-32 Dynamo',
     [0x112A1FEE] = 'SS-500 Pale Prosecutor',
@@ -391,6 +392,7 @@ MOD.kit_names = {
     [0x1B1CF8E3] = 'UF-16 Inspector',
     [0x1D305570] = 'SA-8 Ram',
     [0x1E0BABAE] = 'SA-25 Steel Trooper',
+    [0x1EFFB74C] = 'CPG-48 Sapper',
     [0x1F5B4D7A] = 'CM-09 Bonesnapper',
     [0x2064551F] = 'RS-20 Constrictor',
     [0x23A903AE] = 'GS-11 Democracy\'s Deputy',
@@ -409,6 +411,7 @@ MOD.kit_names = {
     [0x44DC4579] = 'SC-34 Infiltrator',
     [0x49225B9A] = 'EX-16 Prototype 16',
     [0x4B6FD4A6] = 'CE-35 Trench Engineer',
+    [0x4CFFABE9] = 'O-44 Bonded Pilot',
     [0x4FD99C0F] = 'B-16 Battle-Scarred Veteran',
     [0x523BA461] = 'FS-23 Battle Master',
     [0x538E1ED3] = 'BP-77 Grand Juror',
@@ -426,6 +429,7 @@ MOD.kit_names = {
     [0x6857AC79] = 'UF-84 Doubt Killer',
     [0x6CCC59A7] = 'SA-04 Combat Technician',
     [0x6E531B9A] = 'BP-32 Jackboot',
+    [0x6F0218B0] = 'RS-89 Shadow Paragon',
     [0x70CF3B78] = 'FS-61 Dreadnought',
     [0x7523B88D] = 'SS-15 Focal Point',
     [0x779C24F9] = 'KDM-763 Pacesetter',
@@ -434,6 +438,7 @@ MOD.kit_names = {
     [0x78755FA1] = 'B-01 Tactical',
     [0x791E13F7] = 'PH-202 Twigsnapper',
     [0x795C12F4] = 'DP-8 Mountain-Scaled',
+    [0x7D5E463F] = 'CPH-26 Commandant',
     [0x7EF0D18B] = 'B-08 Light Gunner',
     [0x7FEF5D6D] = 'TR-9 Cavalier of Democracy',
     [0x83C41D03] = 'AF-50 Noxious Ranger',
@@ -444,6 +449,7 @@ MOD.kit_names = {
     [0x8F2D7126] = 'CM-14 Physician',
     [0x90D5F96F] = 'IE-57 Hell-Bent',
     [0x94DE5F89] = 'SS-33 Mimetic Marshal',
+    [0x994B4ECC] = 'BFM-16 Tanker',
     [0x996FDD44] = 'B-27 Fortified Commando',
     [0x9EBCAD7F] = 'I-44 Salamander',
     [0xA1653599] = 'KDM-73 Dragoon',
@@ -466,6 +472,7 @@ MOD.kit_names = {
     [0xC25D4D98] = 'CW-9 White Wolf',
     [0xC692CC5E] = 'AC-1 Dutiful',
     [0xC7D6E5ED] = 'AD-11 Livewire',
+    [0xCDD75838] = 'RS-100 Sanctioner',
     [0xD1923A46] = 'CW-22 Kodiak',
     [0xD3DED852] = 'DP-40 Hero of the Federation',
     [0xD54B8082] = 'RS-67 Null Cipher',
@@ -715,6 +722,10 @@ MOD.ENEMY_LIST = {
     { 'automatons', 'structure', 'Stratagem Jammer', '', '23C85E970FB46685', '', '' },
     { 'illuminate', 'structure', 'Cognitive Disruptor', '', '3478839C3C9B6646', '', '' },
     { 'automatons', 'structure', 'Stratagem Scrambler (convoy)', '', 'B971B1141E1CBFAC', '', '' },
+    { 'illuminate', 'structure', 'Grounded Warp Ship', '', 'B3C9CDB79DC17937', '', '' },
+    { 'illuminate', 'structure', 'Warp Ship (invasion)', '', '2AD2E055DAD21F6E', '', '' },
+    { 'illuminate', 'structure', 'Warp Gateway', '', '7DF314C744F0D935', '', '' },
+    { 'terminids', 'structure', 'Infested Tower', '', 'AFC719AF96F10DC3', '', '' },
     { 'seaf', 'enemy', 'SEAF Soldier', 'Variant 1', '75F7E96AF7DCD303', '0=head;1=torso;2=left_arm;3=right_arm;4=left_leg;5=right_leg', '' },
     { 'seaf', 'enemy', 'SEAF Soldier', 'Variant 2', '6B22AE8E5F669D4F', '0=head;1=torso;2=left_arm;3=right_arm;4=left_leg;5=right_leg', '' },
     { 'seaf', 'enemy', 'SEAF Soldier', 'Variant 3', 'A00331F24DEEF2EE', '0=head;1=torso;2=left_arm;3=right_arm;4=left_leg;5=right_leg', '' },
@@ -2090,6 +2101,7 @@ MOD.langs = {
       ['Reset passive'] = '重置被动',
       ['Reset record'] = '重置记录',
       ['Reset spawning'] = '重置生成',
+      ['Reset this page'] = '重置本页',
       ['Reset weapon'] = '重置武器',
       ['Resets all values from the current preset to default.'] = '将当前预设的全部数值恢复为默认值。',
       ['Restore the game\'s files'] = '恢复游戏原始文件',
@@ -2736,6 +2748,122 @@ MOD.langs = {
       ['weapon\'s fire rate, ammo, handling and heat. To tune the shot, edit the chosen weapon.'] = '射速、弹药、操控和热量保持不变。要调整弹丸，请编辑所选武器。',
       ['what each hit applies; the slots go in order'] = '每次命中施加的状态；状态槽需按顺序填写',
       ['what it has left once its health is gone, lost over time'] = '生命值耗尽后剩余的部分，随时间流失',
+      ['-180 with right at 180: all the way round'] = '-180 且右限为 180：可转一整圈',
+      ['180 with left at -180: all the way round'] = '180 且左限为 -180：可转一整圈',
+      ['2 puts a second one on the other side of the pod'] = '2 在舱的另一侧再放一件',
+      ['90: straight up'] = '90：正上方',
+      ['A hit to the head costs this many times its damage. 1 = the same as the body.'] = '头部命中按伤害的这个倍数扣血。1 = 与身体相同。',
+      ['A weapon whose own Sway multiplier you changed keeps it. Sway this row changes shows in blue.'] = '你单独改过晃动系数的武器保留其数值。此行改变的晃动以蓝色显示。',
+      ['Aim limit, down (deg)'] = '瞄准下限（度）',
+      ['Aim limit, left (deg)'] = '瞄准左限（度）',
+      ['Aim limit, right (deg)'] = '瞄准右限（度）',
+      ['Aim limit, up (deg)'] = '瞄准上限（度）',
+      ['Aim steadies again after (s)'] = '瞄准恢复稳定所需时间（秒）',
+      ['Aim zoom (x)'] = '瞄准放大倍率 (x)',
+      ['Ammo per puff'] = '每次喷射耗弹',
+      ['Bayonet melee'] = '刺刀近战',
+      ['Bleed-out drain (health/s)'] = '失血流失 (生命值/秒)',
+      ['Blows up when overcharged'] = '过载时爆炸',
+      ['Body part bleed-out drain (health/s)'] = '部位失血流失 (生命值/秒)',
+      ['Bomb pattern'] = '投弹模式',
+      ['Charging speed (m/s)'] = '冲锋速度 (米/秒)',
+      ['Drifting speed (m/s)'] = '漂移速度 (米/秒)',
+      ['Enemy shots count within (m)'] = '敌方射击生效范围（米）',
+      ['Every weapon you aim yourself, emplacements and vehicle guns too: the game\'s sway times this. 0 = no sway.'] = '你亲手瞄准的所有武器，包括固定炮台和载具武器：游戏的晃动乘以此数。0 = 无晃动。',
+      ['Faction'] = '阵营',
+      ['Faction: 1 Super Earth, 2 Terminids, 4 Illuminate or 8 Automatons.'] = '阵营：1 超级地球、2 虫族、4 光能者或 8 机器人。',
+      ['Faction: Automatons'] = '阵营：机器人',
+      ['Faction: Illuminate'] = '阵营：光能者',
+      ['Faction: Super Earth'] = '阵营：超级地球',
+      ['Faction: Terminids'] = '阵营：虫族',
+      ['Fighting speed (m/s)'] = '战斗速度 (米/秒)',
+      ['Flinch from your fire'] = '受你火力影响的瞄准抖动',
+      ['Flinch from your fire (x)'] = '受你火力影响的瞄准抖动 (x)',
+      ['Grounded Warp Ship'] = '着陆穿梭舰',
+      ['Head hits: damage to your health (x)'] = '头部命中：对生命值的伤害 (x)',
+      ['Held this long, it blows up. 600 = it never does.'] = '蓄力保持这么久就会爆炸。600 = 永不爆炸。',
+      ['Hellpod'] = '地狱舱',
+      ['Hit radius (m)'] = '命中半径（米）',
+      ['Holster position (choice)'] = '收枪位置（选择）',
+      ['Holster: 0 back or 1 hip.'] = '收枪位置：0 背部或 1 腰部。',
+      ['Holster: Back'] = '收枪位置：背部',
+      ['Holster: Hip'] = '收枪位置：腰部',
+      ['How close the view gets when you aim: 1 is the normal view, 2 twice as close, 4 four times.'] = '瞄准时视野拉近多少：1 为正常视野，2 拉近两倍，4 拉近四倍。',
+      ['How many bombs one run drops and how they land. The bombs stay this Eagle\'s own.'] = '一次飞越投下多少枚炸弹以及落点分布。炸弹仍是该飞鹰自己的。',
+      ['Hulk death (and medium vehicles)'] = '巨人机甲毁灭（及中型载具）',
+      ['Idle walking speed (m/s)'] = '待机行走速度 (米/秒)',
+      ['Infested Tower'] = '侵染塔巢',
+      ['Infinite ammo'] = '无限弹药',
+      ['Items per drop'] = '每次投放数量',
+      ['Lock-on range (m)'] = '锁定距离（米）',
+      ['Melee'] = '近战',
+      ['Most suppression'] = '最大压制',
+      ['Near misses suppress you'] = '擦身而过的射击会压制你',
+      ['Never'] = '从不',
+      ['Patrolling speed (m/s)'] = '巡逻速度 (米/秒)',
+      ['Picked up into'] = '拾取到',
+      ['Picked up into: Primary slot'] = '拾取到：主武器栏',
+      ['Picked up into: Support slot'] = '拾取到：支援武器栏',
+      ['Picking it up puts it in your primary slot instead (1), in place of your primary. 3 = the support slot.'] = '拾取后放入主武器栏 (1)，替换你的主武器。3 = 支援武器栏。',
+      ['Pickup'] = '拾取',
+      ['Pilot light goes out after (s)'] = '引火熄灭时间（秒）',
+      ['Retreating speed (m/s)'] = '撤退速度 (米/秒)',
+      ['Rounds loaded, first tube'] = '已装填弹数（第一弹管）',
+      ['Rounds loaded, second tube'] = '已装填弹数（第二弹管）',
+      ['Searching speed (m/s)'] = '搜索速度 (米/秒)',
+      ['Sentry aiming'] = '哨戒炮瞄准',
+      ['Sets off mines'] = '会引爆地雷',
+      ['Shots count within (m)'] = '射击生效范围（米）',
+      ['Shots count within (x)'] = '射击生效范围 (x)',
+      ['Sparks'] = '火花',
+      ['Spray'] = '喷射',
+      ['Strafing speed (m/s)'] = '侧移速度 (米/秒)',
+      ['Suppression'] = '压制',
+      ['Target lock'] = '目标锁定',
+      ['The game holds at most 1023 rounds in a backpack.'] = '游戏中一个背包最多容纳 1023 发。',
+      ['The magazine never runs out. Flamethrowers: also set Ammo per puff to 0.'] = '弹匣永不耗尽。火焰喷射器：还需把“每次喷射耗弹”设为 0。',
+      ['These values are shared by ALL bayonets: they change the Constitution, Sweeper and Amendment at once.'] = '这些数值由所有刺刀共用：会同时改变 Constitution、Sweeper 和 Amendment。',
+      ['Warm-up before it sprays (s)'] = '喷射前预热（秒）',
+      ['Warp Gateway'] = '传送门',
+      ['Warp Ship (invasion)'] = '穿梭舰（入侵）',
+      ['Weapon spread (x)'] = '武器散布 (x)',
+      ['Weapon sway (x)'] = '武器晃动 (x)',
+      ['Weapons'] = '武器',
+      ['enemies at 0 stay immune'] = '为 0 的敌人仍然免疫',
+      ['how close enemy fire must pass to shake your aim; 0: never'] = '敌方火力需掠过多近才会干扰你的瞄准；0：从不',
+      ['how close your shots must land to rattle it'] = '你的射击需落在多近才能干扰它',
+      ['how far it can build up; 0: none'] = '可累积的上限；0：无',
+      ['how fast a body part\'s bleed-out health runs out'] = '部位失血生命值耗尽的速度',
+      ['how fast the bleed-out health runs out'] = '失血生命值耗尽的速度',
+      ['how hard your fire throws off its aim; 0: never; higher: a little fire throws it off fully'] = '你的火力对其瞄准的干扰强度；0：从不；越高：少量火力就能完全打乱其瞄准',
+      ['how long it keeps hunting you once you break line of sight; x1: as in the game, x2: twice as long'] = '你脱离其视线后它继续追击你的时长；x1：与游戏相同，x2：两倍时长',
+      ['how long its aim stays thrown off after your fire stops; Never: it never steadies'] = '你停火后其瞄准保持混乱的时长；从不：瞄准永远不会恢复稳定',
+      ['how many of the items on its rack come down in one pod'] = '一个舱里落下它架子上的几件物品',
+      ['lower: their shots land closer to where they aim (0: dead on)'] = '越低：射击越接近瞄准点 (0：百发百中)',
+      ['negative: below level, -90 straight down'] = '负数：低于水平，-90 为正下方',
+      ['not a faction'] = '不是有效阵营',
+      ['the holster is on the back or the hip'] = '收枪位置在背部或腰部',
+      ['the model and its body parts; on some enemies the hitboxes may not match the model, and on others it may not work at all'] = '模型及其身体部位；部分敌人的受击判定可能与模型不符，另一些敌人可能完全无效',
+      ['where it hangs when put away: 0 on the back, 1 on the hip'] = '收起时挂在哪里：0 背部，1 腰部',
+      ['who it fights for: units of other sides attack it, and it attacks them'] = '它为谁而战：其他阵营的单位会攻击它，它也会攻击它们',
+      ['Spark damage'] = '火花伤害',
+      ['Spark durable damage'] = '火花耐久伤害',
+      ['Holster node (hash)'] = '收枪节点（哈希）',
+      ['the wielder node it hangs from: EC864C61 back, CCF501C7 hip (pistols)'] = '挂在持有者的哪个节点上：EC864C61 背部，CCF501C7 腰部（手枪用）',
+      ['Holster rotation X (deg)'] = '收枪旋转 X（度）',
+      ['Holster rotation Y (deg)'] = '收枪旋转 Y（度）',
+      ['Holster rotation Z (deg)'] = '收枪旋转 Z（度）',
+      ['Holster offset X (m)'] = '收枪偏移 X（米）',
+      ['Holster offset Y (m)'] = '收枪偏移 Y（米）',
+      ['Holster offset Z (m)'] = '收枪偏移 Z（米）',
+      ['Items per drop (count)'] = '每次投放数量（数值）',
+      ['spawn_payload_size: how many of the rack\'s slots come down'] = 'spawn_payload_size：挂架上有几个槽位随舱落下',
+      ['Picked up into: Secondary slot'] = '拾取到：副武器栏',
+      ['The interaction its pickup zone is (Interactable, the zone\'s +40): 1 primary slot, in place of your primary; 2 secondary (the weapon has vanished); 3 the support slot. Any other value is written as typed.'] = '拾取区域的交互类型（Interactable 区域 +40）：1 主武器栏，替换你的主武器；2 副武器栏（测试中武器会消失）；3 支援武器栏。其他数值按输入原样写入。',
+      ['Arrows step through 1 Super Earth, 2 Terminids, 4 Illuminate, 8 Automatons. Typed: any value 0-255 (the sides are bits: 10 = Terminids and Automatons; 0 = none).'] = '方向键在 1 超级地球、2 虫族、4 光能者、8 机器人之间切换。直接输入：0-255 任意值（阵营按位相加：10 = 虫族 + 机器人；0 = 无阵营）。',
+      ['Faction: 0-255 (1 Super Earth, 2 Terminids, 4 Illuminate, 8 Automatons; add them for several).'] = '阵营：0-255（1 超级地球、2 虫族、4 光能者、8 机器人；多个阵营相加）。',
+      ['Slot: 0-255 (1 primary, 3 secondary).'] = '栏位：0-255（1 主武器，3 副武器）。',
+      ['shared by every bayonet: the Constitution, Sweeper and Amendment change together'] = '所有刺刀共用：宪法、扫荡者、修正会一起改变',
     },
     lower = {
       ['"+ new preset" (or insert) saves your current changes as one; you name it next.'] = '“+ 新建预设”（或 Insert 键）会把当前修改存为一组，接着你可以为它命名。',
@@ -4023,6 +4151,24 @@ MOD.langs = {
       ['wretch'] = '悲怜体',
       ['xenobite ardent'] = '炽热异噬者',
       ['your changes are off: turn them on in settings to edit.'] = '你的改动当前处于关闭状态：请在设置里开启后再编辑。',
+      ['infested tower'] = '侵染塔巢',
+      ['warp gateway'] = '传送门',
+      ['holster node (hash)'] = '收枪节点（哈希）',
+      ['the wielder node it hangs from: ec864c61 back, ccf501c7 hip (pistols)'] = '挂在持有者的哪个节点上：EC864C61 背部，CCF501C7 腰部（手枪用）',
+      ['holster rotation x (deg)'] = '收枪旋转 X（度）',
+      ['holster rotation y (deg)'] = '收枪旋转 Y（度）',
+      ['holster rotation z (deg)'] = '收枪旋转 Z（度）',
+      ['holster offset x (m)'] = '收枪偏移 X（米）',
+      ['holster offset y (m)'] = '收枪偏移 Y（米）',
+      ['holster offset z (m)'] = '收枪偏移 Z（米）',
+      ['items per drop (count)'] = '每次投放数量（数值）',
+      ['spawn_payload_size: how many of the rack\'s slots come down'] = 'spawn_payload_size：挂架上有几个槽位随舱落下',
+      ['picked up into: secondary slot'] = '拾取到：副武器栏',
+      ['the interaction its pickup zone is (interactable, the zone\'s +40): 1 primary slot, in place of your primary; 2 secondary (the weapon has vanished); 3 the support slot. any other value is written as typed.'] = '拾取区域的交互类型（Interactable 区域 +40）：1 主武器栏，替换你的主武器；2 副武器栏（测试中武器会消失）；3 支援武器栏。其他数值按输入原样写入。',
+      ['arrows step through 1 super earth, 2 terminids, 4 illuminate, 8 automatons. typed: any value 0-255 (the sides are bits: 10 = terminids and automatons; 0 = none).'] = '方向键在 1 超级地球、2 虫族、4 光能者、8 机器人之间切换。直接输入：0-255 任意值（阵营按位相加：10 = 虫族 + 机器人；0 = 无阵营）。',
+      ['faction: 0-255 (1 super earth, 2 terminids, 4 illuminate, 8 automatons; add them for several).'] = '阵营：0-255（1 超级地球、2 虫族、4 光能者、8 机器人；多个阵营相加）。',
+      ['slot: 0-255 (1 primary, 3 secondary).'] = '栏位：0-255（1 主武器，3 副武器）。',
+      ['shared by every bayonet: the constitution, sweeper and amendment change together'] = '所有刺刀共用：宪法、扫荡者、修正会一起改变',
     },
     patterns = {
       { '^Zoom level (%d) %(x%)$', '放大倍率 %1 级（x）' },
@@ -4236,6 +4382,8 @@ MOD.langs = {
       { '^STATUS (%d+)$', '状态 %1' },
       { '^SHODAN Stat Editor v([%d%.]+)$', 'SHODAN 数值编辑器 v%1' },
       { '^(.+) %(([A-Z][^()]*)%)$', '%1 (%2)' },
+      { '^Bomb pattern (%d): (%d) bombs$', '投弹模式 %1：%2 枚炸弹' },
+      { '^Bomb pattern (%d+)$', '投弹模式 %1' },
     },
     prefix = {
       { 'PgUp/PgDn change weapon, Del resets, Ctrl+1-5 loads a weapon preset, Ctrl+Shift+1-5 saves one; ', 'PgUp/PgDn 切换武器，Del 重置，Ctrl+1-5 读取武器预设，Ctrl+Shift+1-5 保存预设；' },
@@ -5632,6 +5780,7 @@ MOD.langs = {
       ['Reset passive'] = '重置被動',
       ['Reset record'] = '重置記錄',
       ['Reset spawning'] = '重置生成',
+      ['Reset this page'] = '重置本頁',
       ['Reset weapon'] = '重置武器',
       ['Resets all values from the current preset to default.'] = '將當前預設的全部數值恢復為預設值。',
       ['Restore the game\'s files'] = '恢復遊戲原始檔案',
@@ -6278,6 +6427,122 @@ MOD.langs = {
       ['weapon\'s fire rate, ammo, handling and heat. To tune the shot, edit the chosen weapon.'] = '射速、彈藥、操控和熱量保持不變。要調整射彈，請編輯所選武器。',
       ['what each hit applies; the slots go in order'] = '每次命中施加的狀態；狀態槽需按順序填寫',
       ['what it has left once its health is gone, lost over time'] = '生命值耗盡後剩餘的部分，隨時間流失',
+      ['-180 with right at 180: all the way round'] = '-180 且右限為 180：可轉一整圈',
+      ['180 with left at -180: all the way round'] = '180 且左限為 -180：可轉一整圈',
+      ['2 puts a second one on the other side of the pod'] = '2 在艙的另一側再放一件',
+      ['90: straight up'] = '90：正上方',
+      ['A hit to the head costs this many times its damage. 1 = the same as the body.'] = '頭部命中按傷害的這個倍數扣血。1 = 與身體相同。',
+      ['A weapon whose own Sway multiplier you changed keeps it. Sway this row changes shows in blue.'] = '你單獨改過晃動係數的武器保留其數值。此行改變的晃動以藍色顯示。',
+      ['Aim limit, down (deg)'] = '瞄準下限（度）',
+      ['Aim limit, left (deg)'] = '瞄準左限（度）',
+      ['Aim limit, right (deg)'] = '瞄準右限（度）',
+      ['Aim limit, up (deg)'] = '瞄準上限（度）',
+      ['Aim steadies again after (s)'] = '瞄準恢復穩定所需時間（秒）',
+      ['Aim zoom (x)'] = '瞄準放大倍率 (x)',
+      ['Ammo per puff'] = '每次噴射耗彈',
+      ['Bayonet melee'] = '刺刀近戰',
+      ['Bleed-out drain (health/s)'] = '失血流失 (生命值/秒)',
+      ['Blows up when overcharged'] = '過載時爆炸',
+      ['Body part bleed-out drain (health/s)'] = '部位失血流失 (生命值/秒)',
+      ['Bomb pattern'] = '投彈模式',
+      ['Charging speed (m/s)'] = '衝鋒速度 (米/秒)',
+      ['Drifting speed (m/s)'] = '漂移速度 (米/秒)',
+      ['Enemy shots count within (m)'] = '敵方射擊生效範圍（米）',
+      ['Every weapon you aim yourself, emplacements and vehicle guns too: the game\'s sway times this. 0 = no sway.'] = '你親手瞄準的所有武器，包括固定炮台和載具武器：遊戲的晃動乘以此數。0 = 無晃動。',
+      ['Faction'] = '陣營',
+      ['Faction: 1 Super Earth, 2 Terminids, 4 Illuminate or 8 Automatons.'] = '陣營：1 超級地球、2 蟲族、4 光能者或 8 機器人。',
+      ['Faction: Automatons'] = '陣營：機器人',
+      ['Faction: Illuminate'] = '陣營：光能者',
+      ['Faction: Super Earth'] = '陣營：超級地球',
+      ['Faction: Terminids'] = '陣營：蟲族',
+      ['Fighting speed (m/s)'] = '戰鬥速度 (米/秒)',
+      ['Flinch from your fire'] = '受你火力影響的瞄準抖動',
+      ['Flinch from your fire (x)'] = '受你火力影響的瞄準抖動 (x)',
+      ['Grounded Warp Ship'] = '著陸穿梭艦',
+      ['Head hits: damage to your health (x)'] = '頭部命中：對生命值的傷害 (x)',
+      ['Held this long, it blows up. 600 = it never does.'] = '蓄力保持這麼久就會爆炸。600 = 永不爆炸。',
+      ['Hellpod'] = '地獄艙',
+      ['Hit radius (m)'] = '命中半徑（米）',
+      ['Holster position (choice)'] = '收槍位置（選擇）',
+      ['Holster: 0 back or 1 hip.'] = '收槍位置：0 背部或 1 腰部。',
+      ['Holster: Back'] = '收槍位置：背部',
+      ['Holster: Hip'] = '收槍位置：腰部',
+      ['How close the view gets when you aim: 1 is the normal view, 2 twice as close, 4 four times.'] = '瞄準時視野拉近多少：1 為正常視野，2 拉近兩倍，4 拉近四倍。',
+      ['How many bombs one run drops and how they land. The bombs stay this Eagle\'s own.'] = '一次飛越投下多少枚炸彈以及落點分佈。炸彈仍是該飛鷹自己的。',
+      ['Hulk death (and medium vehicles)'] = '巨人機甲毀滅（及中型載具）',
+      ['Idle walking speed (m/s)'] = '待機行走速度 (米/秒)',
+      ['Infested Tower'] = '蟲巢塔',
+      ['Infinite ammo'] = '無限彈藥',
+      ['Items per drop'] = '每次投放數量',
+      ['Lock-on range (m)'] = '鎖定距離（米）',
+      ['Melee'] = '近戰',
+      ['Most suppression'] = '最大壓制',
+      ['Near misses suppress you'] = '擦身而過的射擊會壓制你',
+      ['Never'] = '從不',
+      ['Patrolling speed (m/s)'] = '巡邏速度 (米/秒)',
+      ['Picked up into'] = '拾取到',
+      ['Picked up into: Primary slot'] = '拾取到：主武器欄',
+      ['Picked up into: Support slot'] = '拾取到：支援武器欄',
+      ['Picking it up puts it in your primary slot instead (1), in place of your primary. 3 = the support slot.'] = '拾取後放入主武器欄 (1)，替換你的主武器。3 = 支援武器欄。',
+      ['Pickup'] = '拾取',
+      ['Pilot light goes out after (s)'] = '引火熄滅時間（秒）',
+      ['Retreating speed (m/s)'] = '撤退速度 (米/秒)',
+      ['Rounds loaded, first tube'] = '已裝填彈數（第一彈管）',
+      ['Rounds loaded, second tube'] = '已裝填彈數（第二彈管）',
+      ['Searching speed (m/s)'] = '搜尋速度 (米/秒)',
+      ['Sentry aiming'] = '哨戒炮瞄準',
+      ['Sets off mines'] = '會引爆地雷',
+      ['Shots count within (m)'] = '射擊生效範圍（米）',
+      ['Shots count within (x)'] = '射擊生效範圍 (x)',
+      ['Sparks'] = '火花',
+      ['Spray'] = '噴射',
+      ['Strafing speed (m/s)'] = '側移速度 (米/秒)',
+      ['Suppression'] = '壓制',
+      ['Target lock'] = '目標鎖定',
+      ['The game holds at most 1023 rounds in a backpack.'] = '遊戲中一個背包最多容納 1023 發。',
+      ['The magazine never runs out. Flamethrowers: also set Ammo per puff to 0.'] = '彈匣永不耗盡。火焰噴射器：還需把「每次噴射耗彈」設為 0。',
+      ['These values are shared by ALL bayonets: they change the Constitution, Sweeper and Amendment at once.'] = '這些數值由所有刺刀共用：會同時改變 Constitution、Sweeper 和 Amendment。',
+      ['Warm-up before it sprays (s)'] = '噴射前預熱（秒）',
+      ['Warp Gateway'] = '傳送通道',
+      ['Warp Ship (invasion)'] = '穿梭艦（入侵）',
+      ['Weapon spread (x)'] = '武器散佈 (x)',
+      ['Weapon sway (x)'] = '武器晃動 (x)',
+      ['Weapons'] = '武器',
+      ['enemies at 0 stay immune'] = '為 0 的敵人仍然免疫',
+      ['how close enemy fire must pass to shake your aim; 0: never'] = '敵方火力需掠過多近才會干擾你的瞄準；0：從不',
+      ['how close your shots must land to rattle it'] = '你的射擊需落在多近才能干擾它',
+      ['how far it can build up; 0: none'] = '可累積的上限；0：無',
+      ['how fast a body part\'s bleed-out health runs out'] = '部位失血生命值耗盡的速度',
+      ['how fast the bleed-out health runs out'] = '失血生命值耗盡的速度',
+      ['how hard your fire throws off its aim; 0: never; higher: a little fire throws it off fully'] = '你的火力對其瞄準的干擾強度；0：從不；越高：少量火力就能完全打亂其瞄準',
+      ['how long it keeps hunting you once you break line of sight; x1: as in the game, x2: twice as long'] = '你脫離其視線後它繼續追擊你的時長；x1：與遊戲相同，x2：兩倍時長',
+      ['how long its aim stays thrown off after your fire stops; Never: it never steadies'] = '你停火後其瞄準保持混亂的時長；從不：瞄準永遠不會恢復穩定',
+      ['how many of the items on its rack come down in one pod'] = '一個艙裡落下它架子上的幾件物品',
+      ['lower: their shots land closer to where they aim (0: dead on)'] = '越低：射擊越接近瞄準點 (0：百發百中)',
+      ['negative: below level, -90 straight down'] = '負數：低於水平，-90 為正下方',
+      ['not a faction'] = '不是有效陣營',
+      ['the holster is on the back or the hip'] = '收槍位置在背部或腰部',
+      ['the model and its body parts; on some enemies the hitboxes may not match the model, and on others it may not work at all'] = '模型及其身體部位；部分敵人的受擊判定可能與模型不符，另一些敵人可能完全無效',
+      ['where it hangs when put away: 0 on the back, 1 on the hip'] = '收起時掛在哪裡：0 背部，1 腰部',
+      ['who it fights for: units of other sides attack it, and it attacks them'] = '它為誰而戰：其他陣營的單位會攻擊它，它也會攻擊它們',
+      ['Spark damage'] = '火花傷害',
+      ['Spark durable damage'] = '火花耐久傷害',
+      ['Holster node (hash)'] = '收槍節點（雜湊）',
+      ['the wielder node it hangs from: EC864C61 back, CCF501C7 hip (pistols)'] = '掛在持有者的哪個節點上：EC864C61 背部，CCF501C7 腰部（手槍用）',
+      ['Holster rotation X (deg)'] = '收槍旋轉 X（度）',
+      ['Holster rotation Y (deg)'] = '收槍旋轉 Y（度）',
+      ['Holster rotation Z (deg)'] = '收槍旋轉 Z（度）',
+      ['Holster offset X (m)'] = '收槍偏移 X（公尺）',
+      ['Holster offset Y (m)'] = '收槍偏移 Y（公尺）',
+      ['Holster offset Z (m)'] = '收槍偏移 Z（公尺）',
+      ['Items per drop (count)'] = '每次投放數量（數值）',
+      ['spawn_payload_size: how many of the rack\'s slots come down'] = 'spawn_payload_size：掛架上有幾個槽位隨艙落下',
+      ['Picked up into: Secondary slot'] = '拾取到：副武器欄',
+      ['The interaction its pickup zone is (Interactable, the zone\'s +40): 1 primary slot, in place of your primary; 2 secondary (the weapon has vanished); 3 the support slot. Any other value is written as typed.'] = '拾取區域的互動類型（Interactable 區域 +40）：1 主武器欄，替換你的主武器；2 副武器欄（測試中武器會消失）；3 支援武器欄。其他數值按輸入原樣寫入。',
+      ['Arrows step through 1 Super Earth, 2 Terminids, 4 Illuminate, 8 Automatons. Typed: any value 0-255 (the sides are bits: 10 = Terminids and Automatons; 0 = none).'] = '方向鍵在 1 超級地球、2 蟲族、4 光能者、8 機器人之間切換。直接輸入：0-255 任意值（陣營按位相加：10 = 蟲族 + 機器人；0 = 無陣營）。',
+      ['Faction: 0-255 (1 Super Earth, 2 Terminids, 4 Illuminate, 8 Automatons; add them for several).'] = '陣營：0-255（1 超級地球、2 蟲族、4 光能者、8 機器人；多個陣營相加）。',
+      ['Slot: 0-255 (1 primary, 3 secondary).'] = '欄位：0-255（1 主武器，3 副武器）。',
+      ['shared by every bayonet: the Constitution, Sweeper and Amendment change together'] = '所有刺刀共用：憲法、掃蕩者、修正會一起改變',
     },
     lower = {
       ['"+ new preset" (or insert) saves your current changes as one; you name it next.'] = '「+ 新建預設」（或 Insert 鍵）會把當前修改存為一組，接著你可以為它命名。',
@@ -7565,6 +7830,24 @@ MOD.langs = {
       ['wretch'] = '哀惡者',
       ['xenobite ardent'] = '熾燃地獄使者',
       ['your changes are off: turn them on in settings to edit.'] = '你的改動當前處於關閉狀態：請在設定裡開啟後再編輯。',
+      ['infested tower'] = '蟲巢塔',
+      ['warp gateway'] = '傳送通道',
+      ['holster node (hash)'] = '收槍節點（雜湊）',
+      ['the wielder node it hangs from: ec864c61 back, ccf501c7 hip (pistols)'] = '掛在持有者的哪個節點上：EC864C61 背部，CCF501C7 腰部（手槍用）',
+      ['holster rotation x (deg)'] = '收槍旋轉 X（度）',
+      ['holster rotation y (deg)'] = '收槍旋轉 Y（度）',
+      ['holster rotation z (deg)'] = '收槍旋轉 Z（度）',
+      ['holster offset x (m)'] = '收槍偏移 X（公尺）',
+      ['holster offset y (m)'] = '收槍偏移 Y（公尺）',
+      ['holster offset z (m)'] = '收槍偏移 Z（公尺）',
+      ['items per drop (count)'] = '每次投放數量（數值）',
+      ['spawn_payload_size: how many of the rack\'s slots come down'] = 'spawn_payload_size：掛架上有幾個槽位隨艙落下',
+      ['picked up into: secondary slot'] = '拾取到：副武器欄',
+      ['the interaction its pickup zone is (interactable, the zone\'s +40): 1 primary slot, in place of your primary; 2 secondary (the weapon has vanished); 3 the support slot. any other value is written as typed.'] = '拾取區域的互動類型（Interactable 區域 +40）：1 主武器欄，替換你的主武器；2 副武器欄（測試中武器會消失）；3 支援武器欄。其他數值按輸入原樣寫入。',
+      ['arrows step through 1 super earth, 2 terminids, 4 illuminate, 8 automatons. typed: any value 0-255 (the sides are bits: 10 = terminids and automatons; 0 = none).'] = '方向鍵在 1 超級地球、2 蟲族、4 光能者、8 機器人之間切換。直接輸入：0-255 任意值（陣營按位相加：10 = 蟲族 + 機器人；0 = 無陣營）。',
+      ['faction: 0-255 (1 super earth, 2 terminids, 4 illuminate, 8 automatons; add them for several).'] = '陣營：0-255（1 超級地球、2 蟲族、4 光能者、8 機器人；多個陣營相加）。',
+      ['slot: 0-255 (1 primary, 3 secondary).'] = '欄位：0-255（1 主武器，3 副武器）。',
+      ['shared by every bayonet: the constitution, sweeper and amendment change together'] = '所有刺刀共用：憲法、掃蕩者、修正會一起改變',
     },
     patterns = {
       { '^Zoom level (%d) %(x%)$', '放大倍率 %1 級（x）' },
@@ -7778,6 +8061,8 @@ MOD.langs = {
       { '^STATUS (%d+)$', '狀態 %1' },
       { '^SHODAN Stat Editor v([%d%.]+)$', 'SHODAN 數值編輯器 v%1' },
       { '^(.+) %(([A-Z][^()]*)%)$', '%1 (%2)' },
+      { '^Bomb pattern (%d): (%d) bombs$', '投彈模式 %1：%2 枚炸彈' },
+      { '^Bomb pattern (%d+)$', '投彈模式 %1' },
     },
     prefix = {
       { 'PgUp/PgDn change weapon, Del resets, Ctrl+1-5 loads a weapon preset, Ctrl+Shift+1-5 saves one; ', 'PgUp/PgDn 切換武器，Del 重置，Ctrl+1-5 讀取武器預設，Ctrl+Shift+1-5 儲存預設；' },
@@ -9101,6 +9386,7 @@ MOD.langs = {
       ['Reset passive'] = 'Сброс эффекта',
       ['Reset record'] = 'Сбросить запись',
       ['Reset spawning'] = 'Сбросить появление',
+      ['Reset this page'] = 'Сброс страницы',
       ['Reset weapon'] = 'Сброс оружия',
       ['Resets all values from the current preset to default.'] = 'Сбрасывает все значения текущего пресета к значениям по умолчанию.',
       ['Restore the game\'s files'] = 'Вернуть файлы игры',
@@ -9666,6 +9952,122 @@ MOD.langs = {
       ['v3'] = 'v3',
       ['walking, patrolling, searching, fighting and charging speeds together'] = 'скорости ходьбы, патрулирования, поиска, боя и рывка вместе',
       ['what it has left once its health is gone, lost over time'] = 'остаток после потери здоровья, убывает со временем',
+      ['-180 with right at 180: all the way round'] = '-180 при правом 180: полный круг',
+      ['180 with left at -180: all the way round'] = '180 при левом -180: полный круг',
+      ['2 puts a second one on the other side of the pod'] = '2 ставит второй на другую сторону капсулы',
+      ['90: straight up'] = '90: прямо вверх',
+      ['A hit to the head costs this many times its damage. 1 = the same as the body.'] = 'Попадание в голову отнимает урон, умноженный на это число. 1 = как по телу.',
+      ['A weapon whose own Sway multiplier you changed keeps it. Sway this row changes shows in blue.'] = 'Оружие, у которого вы изменили свой Множитель колебания, сохраняет его. Колебание, изменённое этой строкой, показано синим.',
+      ['Aim limit, down (deg)'] = 'Предел наведения вниз (°)',
+      ['Aim limit, left (deg)'] = 'Предел наведения влево (°)',
+      ['Aim limit, right (deg)'] = 'Предел наведения вправо (°)',
+      ['Aim limit, up (deg)'] = 'Предел наведения вверх (°)',
+      ['Aim steadies again after (s)'] = 'Прицел восстанавливается через (с)',
+      ['Aim zoom (x)'] = 'Увеличение при прицеливании (x)',
+      ['Ammo per puff'] = 'Патронов за выброс',
+      ['Bayonet melee'] = 'Удар штыком',
+      ['Bleed-out drain (health/s)'] = 'Убывание здоровья при кровотечении (здоровье/с)',
+      ['Blows up when overcharged'] = 'Взрывается при перезаряде',
+      ['Body part bleed-out drain (health/s)'] = 'Убывание здоровья части тела при кровотечении (здоровье/с)',
+      ['Bomb pattern'] = 'Схема бомбометания',
+      ['Charging speed (m/s)'] = 'Скорость рывка (м/с)',
+      ['Drifting speed (m/s)'] = 'Скорость дрейфа (м/с)',
+      ['Enemy shots count within (m)'] = 'Вражеские выстрелы считаются в пределах (м)',
+      ['Every weapon you aim yourself, emplacements and vehicle guns too: the game\'s sway times this. 0 = no sway.'] = 'Всё оружие, которым вы целитесь сами, включая турели-укрепления и оружие техники: колебание игры, умноженное на это число. 0 = без колебания.',
+      ['Faction'] = 'Фракция',
+      ['Faction: 1 Super Earth, 2 Terminids, 4 Illuminate or 8 Automatons.'] = 'Фракция: 1 Супер-Земля, 2 Терминиды, 4 Светороды или 8 Автоматоны.',
+      ['Faction: Automatons'] = 'Фракция: Автоматоны',
+      ['Faction: Illuminate'] = 'Фракция: Светороды',
+      ['Faction: Super Earth'] = 'Фракция: Супер-Земля',
+      ['Faction: Terminids'] = 'Фракция: Терминиды',
+      ['Fighting speed (m/s)'] = 'Скорость в бою (м/с)',
+      ['Flinch from your fire'] = 'Сбой прицела от вашего огня',
+      ['Flinch from your fire (x)'] = 'Сбой прицела от вашего огня (x)',
+      ['Grounded Warp Ship'] = 'Приземлившийся варп-корабль',
+      ['Head hits: damage to your health (x)'] = 'Попадания в голову: урон здоровью (x)',
+      ['Held this long, it blows up. 600 = it never does.'] = 'Если держать заряд столько, оружие взрывается. 600 = никогда.',
+      ['Hellpod'] = 'Адская капсула',
+      ['Hit radius (m)'] = 'Радиус попадания (м)',
+      ['Holster position (choice)'] = 'Место в кобуре (выбор)',
+      ['Holster: 0 back or 1 hip.'] = 'Кобура: 0 на спине или 1 на бедре.',
+      ['Holster: Back'] = 'Кобура: на спине',
+      ['Holster: Hip'] = 'Кобура: на бедре',
+      ['How close the view gets when you aim: 1 is the normal view, 2 twice as close, 4 four times.'] = 'Насколько приближается вид при прицеливании: 1 — обычный вид, 2 — вдвое ближе, 4 — вчетверо.',
+      ['How many bombs one run drops and how they land. The bombs stay this Eagle\'s own.'] = 'Сколько бомб сбрасывает один заход и как они ложатся. Бомбы остаются своими для этого «Орла».',
+      ['Hulk death (and medium vehicles)'] = 'Гибель халка (и средней техники)',
+      ['Idle walking speed (m/s)'] = 'Скорость ходьбы в покое (м/с)',
+      ['Infested Tower'] = 'Зараженная башня',
+      ['Infinite ammo'] = 'Бесконечные патроны',
+      ['Items per drop'] = 'Предметов за сброс',
+      ['Lock-on range (m)'] = 'Дальность захвата (м)',
+      ['Melee'] = 'Ближний бой',
+      ['Most suppression'] = 'Максимальное подавление',
+      ['Near misses suppress you'] = 'Промахи рядом подавляют вас',
+      ['Never'] = 'Никогда',
+      ['Patrolling speed (m/s)'] = 'Скорость патрулирования (м/с)',
+      ['Picked up into'] = 'Подбирается в',
+      ['Picked up into: Primary slot'] = 'Подбирается в: основной слот',
+      ['Picked up into: Support slot'] = 'Подбирается в: слот поддержки',
+      ['Picking it up puts it in your primary slot instead (1), in place of your primary. 3 = the support slot.'] = 'При подборе оружие встаёт в основной слот (1) вместо вашего основного. 3 = слот поддержки.',
+      ['Pickup'] = 'Подбор',
+      ['Pilot light goes out after (s)'] = 'Запальник гаснет через (с)',
+      ['Retreating speed (m/s)'] = 'Скорость отступления (м/с)',
+      ['Rounds loaded, first tube'] = 'Патронов заряжено, первая трубка',
+      ['Rounds loaded, second tube'] = 'Патронов заряжено, вторая трубка',
+      ['Searching speed (m/s)'] = 'Скорость поиска (м/с)',
+      ['Sentry aiming'] = 'Наведение турели',
+      ['Sets off mines'] = 'Подрывает мины',
+      ['Shots count within (m)'] = 'Выстрелы считаются в пределах (м)',
+      ['Shots count within (x)'] = 'Выстрелы считаются в пределах (x)',
+      ['Sparks'] = 'Искры',
+      ['Spray'] = 'Распыление',
+      ['Strafing speed (m/s)'] = 'Скорость стрейфа (м/с)',
+      ['Suppression'] = 'Подавление',
+      ['Target lock'] = 'Захват цели',
+      ['The game holds at most 1023 rounds in a backpack.'] = 'Игра вмещает в рюкзак не более 1023 патронов.',
+      ['The magazine never runs out. Flamethrowers: also set Ammo per puff to 0.'] = 'Магазин никогда не кончается. Огнемёты: также поставьте «Патронов за выброс» на 0.',
+      ['These values are shared by ALL bayonets: they change the Constitution, Sweeper and Amendment at once.'] = 'Эти значения общие для ВСЕХ штыков: они меняют Constitution, Sweeper и Amendment сразу.',
+      ['Warm-up before it sprays (s)'] = 'Разогрев перед распылением (с)',
+      ['Warp Gateway'] = 'Варп-врата',
+      ['Warp Ship (invasion)'] = 'Варп-корабль (вторжение)',
+      ['Weapon spread (x)'] = 'Разброс оружия (x)',
+      ['Weapon sway (x)'] = 'Колебание оружия (x)',
+      ['Weapons'] = 'Оружие',
+      ['enemies at 0 stay immune'] = 'враги с 0 остаются невосприимчивыми',
+      ['how close enemy fire must pass to shake your aim; 0: never'] = 'как близко должен пройти вражеский огонь, чтобы сбить ваш прицел; 0: никогда',
+      ['how close your shots must land to rattle it'] = 'как близко должны лечь ваши выстрелы, чтобы сбить его',
+      ['how far it can build up; 0: none'] = 'до какого уровня оно может накопиться; 0: нет',
+      ['how fast a body part\'s bleed-out health runs out'] = 'как быстро заканчивается здоровье части тела при кровотечении',
+      ['how fast the bleed-out health runs out'] = 'как быстро заканчивается здоровье при кровотечении',
+      ['how hard your fire throws off its aim; 0: never; higher: a little fire throws it off fully'] = 'насколько сильно ваш огонь сбивает его прицел; 0: никогда; больше: даже немного огня сбивает его полностью',
+      ['how long it keeps hunting you once you break line of sight; x1: as in the game, x2: twice as long'] = 'как долго он продолжает охоту на вас после потери из виду; x1: как в игре, x2: вдвое дольше',
+      ['how long its aim stays thrown off after your fire stops; Never: it never steadies'] = 'как долго его прицел остаётся сбитым после того, как вы прекратили огонь; Никогда: он никогда не восстанавливается',
+      ['how many of the items on its rack come down in one pod'] = 'сколько предметов с её стойки прилетает в одной капсуле',
+      ['lower: their shots land closer to where they aim (0: dead on)'] = 'ниже: выстрелы ложатся ближе к точке прицеливания (0: точно в цель)',
+      ['negative: below level, -90 straight down'] = 'отрицательное: ниже горизонта, -90 прямо вниз',
+      ['not a faction'] = 'не фракция',
+      ['the holster is on the back or the hip'] = 'кобура на спине или на бедре',
+      ['the model and its body parts; on some enemies the hitboxes may not match the model, and on others it may not work at all'] = 'модель и части тела; у некоторых врагов хитбоксы могут не совпадать с моделью, а у других это может вообще не работать',
+      ['where it hangs when put away: 0 on the back, 1 on the hip'] = 'где висит, когда убрано: 0 на спине, 1 на бедре',
+      ['who it fights for: units of other sides attack it, and it attacks them'] = 'за кого сражается: юниты других сторон атакуют его, а он атакует их',
+      ['Spark damage'] = 'Урон искр',
+      ['Spark durable damage'] = 'Урон искр по прочным целям',
+      ['Holster node (hash)'] = 'Узел кобуры (хеш)',
+      ['the wielder node it hangs from: EC864C61 back, CCF501C7 hip (pistols)'] = 'узел носителя, на котором оно висит: EC864C61 — спина, CCF501C7 — бедро (пистолеты)',
+      ['Holster rotation X (deg)'] = 'Поворот в кобуре X (°)',
+      ['Holster rotation Y (deg)'] = 'Поворот в кобуре Y (°)',
+      ['Holster rotation Z (deg)'] = 'Поворот в кобуре Z (°)',
+      ['Holster offset X (m)'] = 'Смещение в кобуре X (м)',
+      ['Holster offset Y (m)'] = 'Смещение в кобуре Y (м)',
+      ['Holster offset Z (m)'] = 'Смещение в кобуре Z (м)',
+      ['Items per drop (count)'] = 'Предметов за сброс (число)',
+      ['spawn_payload_size: how many of the rack\'s slots come down'] = 'spawn_payload_size: сколько ячеек стойки сбрасывается',
+      ['Picked up into: Secondary slot'] = 'Подбирается в: дополнительный слот',
+      ['The interaction its pickup zone is (Interactable, the zone\'s +40): 1 primary slot, in place of your primary; 2 secondary (the weapon has vanished); 3 the support slot. Any other value is written as typed.'] = 'Тип взаимодействия зоны подбора (Interactable, зона +40): 1 — основной слот вместо вашего основного оружия; 2 — дополнительный (оружие пропадало); 3 — слот поддержки. Любое другое значение записывается как введено.',
+      ['Arrows step through 1 Super Earth, 2 Terminids, 4 Illuminate, 8 Automatons. Typed: any value 0-255 (the sides are bits: 10 = Terminids and Automatons; 0 = none).'] = 'Стрелки перебирают 1 Супер-Земля, 2 Терминиды, 4 Светороды, 8 Автоматоны. Ввод: любое значение 0-255 (стороны — биты: 10 = Терминиды и Автоматоны; 0 — никто).',
+      ['Faction: 0-255 (1 Super Earth, 2 Terminids, 4 Illuminate, 8 Automatons; add them for several).'] = 'Фракция: 0-255 (1 Супер-Земля, 2 Терминиды, 4 Светороды, 8 Автоматоны; сложите для нескольких).',
+      ['Slot: 0-255 (1 primary, 3 secondary).'] = 'Слот: 0-255 (1 — основной, 3 — дополнительный).',
+      ['shared by every bayonet: the Constitution, Sweeper and Amendment change together'] = 'общее для всех штыков: Constitution, Sweeper и Amendment меняются вместе',
     },
     lower = {
       ['100kg bomb'] = 'Бомба (100 кг)',
@@ -10365,6 +10767,24 @@ MOD.langs = {
       ['watcher'] = 'Смотритель',
       ['wretch'] = 'Паскуда',
       ['xenobite ardent'] = 'Ксенобит-приверженец',
+      ['infested tower'] = 'Зараженная башня',
+      ['warp gateway'] = 'Варп-врата',
+      ['holster node (hash)'] = 'Узел кобуры (хеш)',
+      ['the wielder node it hangs from: ec864c61 back, ccf501c7 hip (pistols)'] = 'узел носителя, на котором оно висит: EC864C61 — спина, CCF501C7 — бедро (пистолеты)',
+      ['holster rotation x (deg)'] = 'Поворот в кобуре X (°)',
+      ['holster rotation y (deg)'] = 'Поворот в кобуре Y (°)',
+      ['holster rotation z (deg)'] = 'Поворот в кобуре Z (°)',
+      ['holster offset x (m)'] = 'Смещение в кобуре X (м)',
+      ['holster offset y (m)'] = 'Смещение в кобуре Y (м)',
+      ['holster offset z (m)'] = 'Смещение в кобуре Z (м)',
+      ['items per drop (count)'] = 'Предметов за сброс (число)',
+      ['spawn_payload_size: how many of the rack\'s slots come down'] = 'spawn_payload_size: сколько ячеек стойки сбрасывается',
+      ['picked up into: secondary slot'] = 'Подбирается в: дополнительный слот',
+      ['the interaction its pickup zone is (interactable, the zone\'s +40): 1 primary slot, in place of your primary; 2 secondary (the weapon has vanished); 3 the support slot. any other value is written as typed.'] = 'Тип взаимодействия зоны подбора (Interactable, зона +40): 1 — основной слот вместо вашего основного оружия; 2 — дополнительный (оружие пропадало); 3 — слот поддержки. Любое другое значение записывается как введено.',
+      ['arrows step through 1 super earth, 2 terminids, 4 illuminate, 8 automatons. typed: any value 0-255 (the sides are bits: 10 = terminids and automatons; 0 = none).'] = 'Стрелки перебирают 1 Супер-Земля, 2 Терминиды, 4 Светороды, 8 Автоматоны. Ввод: любое значение 0-255 (стороны — биты: 10 = Терминиды и Автоматоны; 0 — никто).',
+      ['faction: 0-255 (1 super earth, 2 terminids, 4 illuminate, 8 automatons; add them for several).'] = 'Фракция: 0-255 (1 Супер-Земля, 2 Терминиды, 4 Светороды, 8 Автоматоны; сложите для нескольких).',
+      ['slot: 0-255 (1 primary, 3 secondary).'] = 'Слот: 0-255 (1 — основной, 3 — дополнительный).',
+      ['shared by every bayonet: the constitution, sweeper and amendment change together'] = 'общее для всех штыков: Constitution, Sweeper и Amendment меняются вместе',
     },
     patterns = {
       { '^Zoom level (%d) %(x%)$', 'Увеличение, уровень %1 (x)' },
@@ -10536,6 +10956,8 @@ MOD.langs = {
       { '^Part (%d+)$', 'Часть %1' },
       { '^Weapon (%d+)$', 'Оружие %1' },
       { '^(.+) %(([A-Z][^()]*)%)$', '%1 (%2)' },
+      { '^Bomb pattern (%d): (%d) bombs$', 'Схема бомбометания %1: бомб — %2' },
+      { '^Bomb pattern (%d+)$', 'Схема бомбометания %1' },
     },
     prefix = {
       { 'PgUp/PgDn change weapon, Del resets, Ctrl+1-5 loads a weapon preset, Ctrl+Shift+1-5 saves one; ', 'PgUp/PgDn — смена оружия, Del — сброс, Ctrl+1-5 — загрузить пресет оружия, Ctrl+Shift+1-5 — сохранить; ' },
@@ -11540,10 +11962,12 @@ KINDS[TYPES.mine_spawner] = { name = 'mine spawner', stride = 32, keyed = true }
 -- walking speed (the Walking Barrage)
 KINDS[TYPES.bombard] = { name = 'bombardment', stride = 192, keyed = true }
 -- Eagles (EagleComponentData): +16 payload (2 strafe, 4 rocket pods, 5 bombs), +20 drop pattern (fixes the
--- bomb count; not offered), +40 fire duration (guns, rockets), +44 time between bombs, +52 / +56 the shortest /
+-- bomb count, BOMBS), +40 fire duration (guns, rockets), +44 time between bombs, +52 / +56 the shortest /
 -- longest distance the jet starts its approach from (m), +76 its speed until it has fired (m/s), +108 run length (m)
 KINDS[TYPES.eagle] = { name = 'eagle', stride = 152, keyed = true,
-                       layouts = { { stride = 336, offsets = { [40] = 52, [44] = 56, [52] = 64, [56] = 68, [76] = 92, [108] = 124 } } } }
+                       layouts = { { stride = 336, offsets = { [40] = 52, [44] = 56, [52] = 64, [56] = 68, [76] = 92, [108] = 124 } } },
+                       -- bombs per pattern (this build's order: the 500kg's 6 is the single bomb)
+                       BOMBS = { [0] = 6, 6, 8, 8, 4, 5, 1, 3 } }
 KINDS[TYPES.eagle_spawner] = { name = 'eagle spawner', stride = 24, keyed = true }
 -- Seeking missiles (SeekingMissileComponentData; the MS-11 Solo Silo's missile): +12 guidance on after (s),
 -- +28 guidance lost past this angle (deg), +56 / +60 movement / warhead on after (s; the silo's -1: by
@@ -11562,7 +11986,7 @@ TYPES.drown, TYPES.hellpod, TYPES.payload = 0x726A4F6B, 0x7EF5CC55, 0xDDB5C03F
 KINDS[TYPES.drown] = { name = 'drownable', stride = 64, keyed = true }
 KINDS[TYPES.hellpod] = { name = 'hellpod', stride = 104, keyed = true }
 KINDS[TYPES.payload] = { name = 'hellpod payload', stride = 12, keyed = true }
--- FactionComponentData (152 bytes): an entity's factions, how it is targeted, its spawn influence (实体组件 › 阵营)
+-- FactionComponentData (152 bytes): an entity's factions, how it is targeted, its spawn influence (实体组件 › 生命与拆毁 › 阵营)
 TYPES.faction = 0x5653EA91
 KINDS[TYPES.faction] = { name = 'faction', stride = 152, keyed = true }
 -- the weapon components (offline/weapon_components.lua, generated from the game's type library and the RawData dump),
@@ -11579,10 +12003,10 @@ MOD.weapon_components.register = function()   -- (a function: the main chunk is 
     for _, spec in ipairs(require('hellpod_components').SPECS) do specs[#specs + 1] = spec end
     -- 敌人设置 › 刷怪编辑器 (offline/spawn_components.lua): the hive mind regrouped as 敌人生成's groups, SEAF objectives
     for _, spec in ipairs(require('spawn_components').SPECS) do specs[#specs + 1] = spec end
-    -- 敌人设置 › AI设置 and 实体组件 › 接触伤害 (offline/ai_components.lua): the enemies' AI, senses, contact damage
+    -- 敌人设置 › AI设置 and 生命与拆毁 › 接触伤害 (offline/ai_components.lua): the enemies' AI, senses, contact damage
     for _, spec in ipairs(require('ai_components').SPECS) do specs[#specs + 1] = spec end
     for _, spec in ipairs(MOD.weapon_components.SPECS) do
-        if not KINDS[spec.HASH] then KINDS[spec.HASH] = { name = spec.KEY, stride = spec.SIZE, keyed = true } end
+        if not KINDS[spec.HASH] then KINDS[spec.HASH] = { name = spec.KEY, stride = spec.SIZE, keyed = true, slack = spec.SLACK } end
         MOD.component_tab_kind[spec.SLOT], MOD.component_tab_label[spec.SLOT] = spec.KEY, spec.TAB
     end
 end
@@ -11781,7 +12205,7 @@ local function parse_keyed(blob, stride, spec)
             entries = entries + 1
         end
     end
-    return index, entries
+    return index, entries, {data_offset=buckets*16,record_count=(total-buckets*16-slack)/stride,stride=stride}
 end
 
 -- Row table: u64 descriptor, u32 row count, u32 0, then rows that carry a u32 id (at +0
@@ -12157,6 +12581,16 @@ end
 local function part(id, kind, offset, storage, limit)
     return { id = id, field = field_at(kind, offset, storage, limit) }
 end
+
+-- An explosion's cone (ExplosionInfo +28; the Orbital Airburst's 27 degrees, the Cluster Bomb's 45; 0: all round):
+-- a row where the game sets one. (No rows for +104 cloud time and the fire sizes: they did nothing in game.)
+function MOD.explosion_extras(entry, section, prefix, xrow)
+    if (default_of(field_at(T_EXPLOSION, xrow + 28, 'f32', 100000)) or 0) > 0 then
+        add_row(entry, section, prefix .. 'cone', 'Cone angle (deg)', 'f32',
+                { part(prefix .. 'cone', T_EXPLOSION, xrow + 28, 'f32', 100000) }, 0, 360, 1, 10)
+    end
+end
+
 
 local function read_text(address)
     local bytes = address and address > 65536 and api.read(address, 96)
@@ -12718,12 +13152,12 @@ KINDS[TYPES.avatar].QUICK = {
 KINDS[TYPES.avatar].health_band = function(row, id)
     row.component = 'HealthComponentData'
     row.component_of = function() return MOD.nav.text({ 'Health component', '生命组件（Health）', '生命組件（Health）' }) end
-    local part = id:match('^zone%d+_health$') ~= nil
+    local part = id:match('^zone%d+_') ~= nil
     row.section = part and 'quick_health:parts' or 'quick_health:body'
     row.section_of = function() return MOD.nav.text(part and { 'Body parts', '身体部位', '身體部位' } or { 'Body', '本体', '本體' }) end
 end
 -- 快速编辑's faction box: the helldiver's three factions only (FactionComponentData's 阵营 group, from
--- offline/faction_components.lua: the same fields as its 实体组件 › 阵营 page, so a change on one shows on the other),
+-- offline/faction_components.lua: the same fields as its 实体组件 › 生命与拆毁 › 阵营 page, so a change on one shows on the other),
 -- rows moved onto `entry`
 KINDS[TYPES.avatar].faction_rows = function(entry, key)
     local ft = tables[TYPES.faction]
@@ -12789,6 +13223,12 @@ KINDS[TYPES.avatar].resolve = function(entry)
                 local id = 'zone' .. z .. '_health'
                 add('Body parts', id, label .. ' health', 'u32',
                         { part(id, TYPES.health, base + 232, 'u32', 10000000) }, 1, 100000, 5, 25)
+                -- +248 how much of a hit passes to your health: 1.5 on the head (SHODAN Offline Integration)
+                if label == 'Head' then
+                    add('Body parts', 'zone' .. z .. '_to_body', 'Head hits: damage to your health (x)', 'f32',
+                        { part('zone' .. z .. '_to_body', TYPES.health, base + 248, 'f32', 100) }, 0, 100, 0.05, 0.25).tip =
+                        { 'A hit to the head costs this many times its damage. 1 = the same as the body.' }
+                end
             end
         end
     end
@@ -12836,11 +13276,11 @@ KINDS[TYPES.avatar].resolve = function(entry)
     for _, box in ipairs(A.DOC) do
         for _, f in ipairs(box.fields) do if f.id then in_doc[f.id] = true end end
     end
-    local function health(id) return id == 'health' or id == 'health_regen' or id:find('^zone%d+_health$') ~= nil end
+    local function health(id) return id == 'health' or id == 'health_regen' or id:find('^zone%d+_health$') ~= nil or id:find('^zone%d+_to_body$') ~= nil end
     local function named(n) return function() return MOD.nav.text(n) end end
     local function put(r, section, section_of, label_of, tip)
         local row = add_row(entry, section, r.id, r.label, r.storage, r.parts, r.min, r.max, r.small, r.big)
-        row.note, row.section_of, row.label_of, row.tip = r.note, section_of, label_of, tip
+        row.note, row.section_of, row.label_of, row.tip = r.note, section_of, label_of, tip or r.tip
         r.placed = true
     end
     -- a field of the document the editor has no stat for: shown, left empty
@@ -12876,6 +13316,7 @@ KINDS[TYPES.avatar].resolve = function(entry)
                 end
             end
         end
+        if KINDS[TYPES.avatar].group_doc then KINDS[TYPES.avatar].group_doc(entry, made, order, key, health) end
     elseif view == 'quick' then
         for _, box in ipairs(A.QUICK) do
             local any = false
@@ -12935,6 +13376,7 @@ end
 function MOD.damage.rows(entry,section,prefix,drow,strike)
     local C=MOD.damage.schema
     local component='DamageType:'..prefix..':'..drow
+    local first_row=#entry.rows+1
     local function decorate(row,field,off,status)
         row.component=component
         row.damage_origin=section
@@ -12942,8 +13384,9 @@ function MOD.damage.rows(entry,section,prefix,drow,strike)
             local title=MOD.nav.text({'DamageType','伤害类型（DamageType）','傷害類型（DamageType）'})
             return section=='Damage'and title or(title..' · '..(state.tr and state.tr(section)or section))
         end
-        row.section=component..(status and ':status' or ':damage')
-        row.section_of=function()return MOD.nav.text(status and{'Status effects','状态效果','狀態效果'}or{'Damage','伤害','傷害'})end
+        local group=C.group(field)
+        row.section=component..':'..group
+        row.section_of=function()return MOD.nav.text(C.GROUPS[group])end
         row.label_of=function()return MOD.nav.text(C.names(field))end
         row.tip_of=function()
             local names=C.names(field)
@@ -12985,6 +13428,7 @@ function MOD.damage.rows(entry,section,prefix,drow,strike)
             entry.aliases=entry.aliases or{};entry.aliases[alias]=id..'_strength'
         end
     end
+    require('typeid_groups').sort(C,entry.rows,first_row)
     return first
 end
 local function damage_rows(entry, section, prefix, drow, what, count, strike)
@@ -13004,6 +13448,20 @@ local function damage_rows(entry, section, prefix, drow, what, count, strike)
         first = first or row
     end
     return first
+end
+
+-- A melee strike's damage row (a DamageInfoType id) on a page, every parameter of the DamageInfo record (damage,
+-- durable damage, armor penetration per angle, demolition, stagger / push force, element, status effects: the
+-- damage rows' own layout, MOD.damage.rows): the Helldiver's (560 DamageInfoType_Ability_Avatar_Melee), and the
+-- bayonet guns' (568 _Melee_Bayonet, MOD.BAYONET: one record every bayonet shares). Returns its first row; none
+-- without it.
+MOD.BAYONET = { ['R-2124 Constitution'] = true, ['SG-97 Sweeper'] = true, ['R-2 Amendment'] = true }
+function MOD.melee_rows(entry, id, section, prefix)
+    local drow = tables[T_DAMAGE] and tables[T_DAMAGE].index[id]
+    if not drow then return nil end
+    local n = #entry.rows
+    damage_rows(entry, section, prefix, drow, nil, nil, true)
+    return entry.rows[n + 1]
 end
 
 -- Adds the rows of the gun whose entity hash is `key` (8 bytes) to `weapon` (a weapon, or a
@@ -13125,6 +13583,28 @@ local function resolve_gun(weapon, key)
     local function record(kind)
         local entry = tables[kind]
         return entry and entry.index[key]
+    end
+    -- (from LovedeHua's fork) flame and gas weapons (SprayWeaponComponentData): +0 warm-up, +4 how long the
+    -- pilot light stays lit, +16 hit radius, +192 ammo per puff, +208 sets off mines
+    local spray = record(T_SPRAY)
+    for _, f in ipairs(spray and {
+        { 'spray_warmup', 'Warm-up before it sprays (s)', 0, 'f32', 10, 0.1, 0.5 },
+        { 'spray_cooldown', 'Pilot light goes out after (s)', 4, 'f32', 60, 0.5, 2 },
+        { 'spray_radius', 'Hit radius (m)', 16, 'f32', 10, 0.05, 0.25 },
+        { 'spray_cost', 'Ammo per puff', 192, 'u32', 100, 1, 5 },
+        { 'spray_mines', 'Sets off mines', 208, 'flag', 1, 1, 1 },
+    } or {}) do
+        add_row(weapon, 'Spray', f[1], f[2], f[4], { part(f[1], T_SPRAY, spray + f[3], f[4], 100000) }, 0, f[5], f[6], f[7])
+    end
+    -- (from LovedeHua's fork) the guided weapons' lock-on range: their own SensorComponent +0, gated on its
+    -- stock value so a shifted record gets no row
+    local sight = ({ ['25AA2FD4643CF4EE'] = 300, ['CC786F6491FE7E65'] = 300,   -- FAF-14 Spear, StA-X3 W.A.S.P.
+                     ['CF8934FF6567A42D'] = 60, ['14D5D4506056C7A4'] = 100 })[weapon.key == key and weapon.hash or '']   -- P-92 Warrant, P-33 Missile Pistol
+    local at = sight and record(TYPES.sensor)
+    if at and math.abs((default_of(field_at(TYPES.sensor, at, 'f32', 10000)) or 0) - sight) < 0.01 then
+        local p = part('lock_range', TYPES.sensor, at, 'f32', 100000)
+        p.field.limit = math.max(p.field.limit or 0, 100000)   -- (the gate above read it first, with a lower limit)
+        add_row(weapon, 'Target lock', 'lock_range', 'Lock-on range (m)', 'f32', { p }, 0, 100000, 10, 100)
     end
     -- its magazine attachments, each with rows of its own (KINDS[TYPES.items].item_rows); a magazine /
     -- reload / heat value of the weapon's own record ('component:offset') has a row while one of them
@@ -13345,6 +13825,7 @@ local function resolve_gun(weapon, key)
                     local rid = blast.prefix .. '_' .. r[1]
                     add_row(weapon, blast.section, rid, r[2], 'f32', { part(rid, T_EXPLOSION, xrow + r[3], 'f32', 100000) }, 0, 200, 0.1, 1)
                 end
+                MOD.explosion_extras(weapon, blast.section, blast.prefix .. '_', xrow)
                 -- the shrapnel it throws: the projectile every piece is (+84, a choice: its own flight, damage and
                 -- explosion) and how many (+80)
                 MOD.records.shrapnel_rows(weapon, blast.section == 'Explosion' and 'Shrapnel' or (blast.section .. ' shrapnel'),
@@ -13495,7 +13976,14 @@ local function resolve_gun(weapon, key)
         local limit = default_of(cf(208))
         if limit and limit > 0 then
             add_row(weapon, 'Charge', 'charge_limit', 'Overcharge limit (s)', 'f32',
-                    { part('charge_limit', TYPES.charge, charge + 208, 'f32', 100000) }, 0, 600, 0.05, 0.25)
+                    { part('charge_limit', TYPES.charge, charge + 208, 'f32', 100000) }, 0, 600, 0.05, 0.25).tip =
+                { 'Held this long, it blows up. 600 = it never does.' }
+        end
+        -- +185 blows up at the last stage's charge time (the Railgun's unsafe mode; SHODAN Offline Integration)
+        local boom = part('charge_explodes', TYPES.charge, charge + 185, 'flag', 1)
+        local bv = default_of(boom.field)
+        if bv == 0 or bv == 1 then
+            add_row(weapon, 'Charge', 'charge_explodes', 'Blows up when overcharged', 'flag', { boom }, 0, 1, 1, 1)
         end
         for _, m in ipairs(KINDS[TYPES.charge].MULTIPLIERS) do
             if not m.arc or record(TYPES.arc_weapon) then
@@ -13518,16 +14006,17 @@ local function resolve_gun(weapon, key)
         end
         -- settings of one value (Maxigun, Bullet Storm, SG-88: all three; LAS-44 Nova: two, the first 0): no
         -- rate to pick in game, so one row writes them all (its first part is the default setting, the one the
-        -- game fires at)
+        -- game fires at). Sentries, emplacements and vehicles can't switch either: one row, whatever their values
         local same = #rates > 1
-        for _, rate in ipairs(rates) do same = same and values[rate.n] == values[rates[1].n] end
+        local fixed = weapon.slot == 'Stratagems' or weapon.slot == 'Mechas' or weapon.slot == 'Boosters'
+        for _, rate in ipairs(rates) do same = same and (fixed or values[rate.n] == values[rates[1].n]) end
         if same then
             local parts = {}
             for _, rate in ipairs(rates) do
                 local id = ({ 'rpm_1', 'rpm', 'rpm_3' })[rate.n]
                 table.insert(parts, rate.n == 2 and 1 or #parts + 1, part(id, T_FIRE, fire + rate.offset, 'f32', 100000))
             end
-            add_row(weapon, 'Fire', parts[1].id, 'Fire rate (RPM)', 'f32', parts, 1, 6000, 10, 50)
+            add_row(weapon, 'Fire', parts[1].id, 'Fire rate (RPM)', 'f32', parts, 1, 6000, 10, 50).lead = true   -- (shows the default)
             rates = {}
         end
         for k, rate in ipairs(rates) do
@@ -13577,12 +14066,18 @@ local function resolve_gun(weapon, key)
                 weapon.sealed = default_of(field_at(T_MAGAZINE, magazine + 140, 'u32', 100000)) == 0
                                 and default_of(field_at(T_MAGAZINE, magazine + 148, 'u32', 100000)) == 0
             end
+            -- not a player's gun (sentries, emplacements, vehicles) and no spare magazines to start with or hold:
+            -- no magazine rows (their reload stays)
+            local spares = not (magazine and not item and weapon.slot ~= 'Primary' and weapon.slot ~= 'Secondary'
+                                and weapon.slot ~= 'Support'
+                                and default_of(field_at(T_MAGAZINE, magazine + 140, 'u32', 100000)) == 0
+                                and default_of(field_at(T_MAGAZINE, magazine + 148, 'u32', 100000)) == 0)
             -- the game keeps at most 2048 rounds in a magazine (more drops to 2048 at the first shot): rows stop
             -- there, and going past it says why (row.limit)
             for _, m in ipairs(magazine and { { 'capacity', 'Magazine size', 136, 1, 2048, 10 },
-                                              not weapon.sealed and { 'mags_start', 'Starting magazines', 140, 0, 100000, 50 } or nil,
-                                              not weapon.sealed and { 'mags_supply', 'Magazines from supply', 144, 0, 100000, 50 } or nil,
-                                              not weapon.sealed and { 'mags_max', 'Max spare magazines', 148, 0, 100000, 50 } or nil } or {}) do
+                                              not weapon.sealed and spares and { 'mags_start', 'Starting magazines', 140, 0, 100000, 50 } or nil,
+                                              not weapon.sealed and spares and { 'mags_supply', 'Magazines from supply', 144, 0, 100000, 50 } or nil,
+                                              not weapon.sealed and spares and { 'mags_max', 'Max spare magazines', 148, 0, 100000, 50 } or nil } or {}) do
                 local r = row('Ammo', m[1], m[2], 'u32', get(m[1], '5:' .. m[3], T_MAGAZINE, magazine + m[3], 'u32', 100000), m[4], m[5], 1, m[6])
                 if r and m[1] == 'capacity' then r.limit = 'The game holds at most 2048 rounds in a magazine.' end
             end
@@ -13652,8 +14147,15 @@ local function resolve_gun(weapon, key)
     end
     stock(nil, true)
     if rounds then
-        add_row(weapon, 'Ammo', 'rounds_capacity', 'Rounds loaded', 'f32',
+        -- +72 the first magazine's capacity, +76 the second's (0: none; the Punisher, Slugger, Cookout and Halt
+        -- have two 8-round tubes, 16 in all)
+        local tubes = (default_of(field_at(T_ROUNDS, rounds + 76, 'f32', 100000)) or 0) > 0
+        add_row(weapon, 'Ammo', 'rounds_capacity', tubes and 'Rounds loaded, first tube' or 'Rounds loaded', 'f32',
                 { part('rounds_capacity', T_ROUNDS, rounds + 72, 'f32', 100000) }, 1, 999, 1, 5)
+        if tubes then
+            add_row(weapon, 'Ammo', 'rounds_capacity2', 'Rounds loaded, second tube', 'f32',
+                    { part('rounds_capacity2', T_ROUNDS, rounds + 76, 'f32', 100000) }, 1, 999, 1, 5)
+        end
         local function rnd(id, label, offset)
             add_row(weapon, 'Ammo', id, label, 'u32', { part(id, T_ROUNDS, rounds + offset, 'u32', 100000) }, 0, 9999, 1, 10)
         end
@@ -13755,6 +14257,42 @@ local function resolve_gun(weapon, key)
             r.lead, r.suppression = true, true
             r.tip = { "Quieter for enemies: the noise of the game's suppressed guns. No suppressor model, same firing sound." }
         end
+        -- infinite ammo (SHODAN Offline Integration): the game's own switches, WeaponData +960 and the
+        -- projectile weapon's +36 (1240-byte layout)
+        local inf = KINDS[T_WEAPON].stride == 1240 and { part('infinite_ammo', T_WEAPON, data + 960, 'flag', 1) }
+        if inf and fire then inf[2] = part('infinite_ammo_2', T_FIRE, fire + 36, 'flag', 1) end
+        local d1, d2 = inf and default_of(inf[1].field), inf and inf[2] and default_of(inf[2].field)
+        if inf and (d1 == 0 or d1 == 1) and (not inf[2] or d2 == 0 or d2 == 1) then
+            add_row(weapon, 'Ammo', 'infinite_ammo', 'Infinite ammo', 'flag', inf, 0, 1, 1, 1).tip =
+                { 'The magazine never runs out. Flamethrowers: also set Ammo per puff to 0.' }
+        end
+        -- the bayonet guns: the bayonet strike's damage row, which every bayonet shares
+        local bayonet = MOD.BAYONET[weapon.name] and not weapon.mounted and MOD.melee_rows(weapon, 568, 'Bayonet melee', 'bayonet_')
+        if bayonet then
+            bayonet.note = 'shared by every bayonet: the Constitution, Sweeper and Amendment change together'
+        end
+        -- fixed sights (SHODAN Offline Integration): a gun with no optic part (the Constitution) keeps its zoom
+        -- on itself, WeaponData +116/+120/+124; guns with one edit it on the optic's Attachments page
+        local custom = tables[TYPES.custom]
+        local at = weapon.key == key and not weapon.mounted and custom and custom.index[key]
+        local optic = false
+        for slot = 0, at and 9 or -1 do
+            local c = custom.copies[1] + HEADER_BYTES + at + slot * 8
+            optic = optic or (peek4(c) == 2 and (peek4(c + 4) or 0) ~= 0)
+        end
+        -- (not melee weapons, not a gun's underbarrel part); one row, the three levels scaled together
+        if at and not optic and not weapon.name:find('^CQC%-') and not weapon.name:find('(', 1, true)
+           and (weapon.slot == 'Primary' or weapon.slot == 'Secondary' or weapon.slot == 'Support') then
+            local zoom = {}
+            for k = 1, 3 do
+                local p = part('sight_zoom' .. k, T_WEAPON, data + 112 + k * 4, 'f32', 1000)
+                if (default_of(p.field) or 0) > 0 then zoom[#zoom + 1] = p end
+            end
+            if #zoom > 0 then
+                add_row(weapon, 'Scope', 'sight_zoom', 'Aim zoom (x)', 'f32', zoom, 0, 1000, 0.1, 1).tip =
+                    { 'How close the view gets when you aim: 1 is the normal view, 2 twice as close, 4 four times.' }
+            end
+        end
         MOD.spin_rows(weapon, data, record(TYPES.windup))
     end
     local equipment = weapon.key == key and record(TYPES.equipment)
@@ -13769,6 +14307,7 @@ local function resolve_gun(weapon, key)
     if weapon.key == key and weapon.slot == 'Support' then
         local pack = KINDS[TYPES.rack].pack(key)
         if pack then KINDS[TYPES.jumppack].backpack(weapon, pack, true) end
+        MOD.slot.pickup_row(weapon, key)
     end
     if weapon.key == key then
         KINDS[T_PROJECTILE].swap_row(weapon, sources, shots, fire, extra)
@@ -13970,8 +14509,9 @@ function MOD.tweaks.apply()
 end
 
 local function build_stratagems()
+    MOD.component_records=nil
     for k = #weapons, 1, -1 do
-        if weapons[k].stratagem or weapons[k].mounted or weapons[k].orbital_beam then by_hash[weapons[k].hash] = nil; table.remove(weapons, k) end
+        if weapons[k].stratagem or weapons[k].mounted or weapons[k].orbital_beam or weapons[k].component_index~=nil then by_hash[weapons[k].hash] = nil; table.remove(weapons, k) end
     end
     -- A Guard Dog, from its stratagem's payloads: its hellpod rack carries the backpack (first slot, +0),
     -- whose charges (DepositComponentData) name the drone (+24); the drone's first mount (+0) is its gun.
@@ -14224,6 +14764,26 @@ local function unit_rows(entry, key, section, prefix)
     unit(TYPES.detector, 'search_max', 'Target search interval, max (s)', 4, 'f32', 60, 0.05, 0.25)
     unit(TYPES.turret, 'turn_h', 'Turn speed, horizontal (deg/s)', 12, 'f32', 3600, 1, 10)
     unit(TYPES.turret, 'turn_v', 'Turn speed, vertical (deg/s)', 8, 'f32', 3600, 1, 10)
+    -- (from LovedeHua's fork) a sentry's aiming limits (TurretComponentData +20 / +24 lowest / highest, +28 / +32
+    -- left / right, degrees); an axis that cannot move (lowest = highest) stays as it is
+    local tt = section == 'Sentry' and tables[TYPES.turret]
+    local at = tt and tt.index[key]
+    for _, c in ipairs(at and {
+        { 'aim_down', 'Aim limit, down (deg)', 20, -90, 24, 'negative: below level, -90 straight down' },
+        { 'aim_up', 'Aim limit, up (deg)', 24, -90, 20, '90: straight up' },
+        { 'aim_left', 'Aim limit, left (deg)', 28, -180, 32, '-180 with right at 180: all the way round' },
+        { 'aim_right', 'Aim limit, right (deg)', 32, -180, 28, '180 with left at -180: all the way round' },
+    } or {}) do
+        local f, other = field_at(TYPES.turret, at + c[3], 'f32', 180), field_at(TYPES.turret, at + c[5], 'f32', 180)
+        f.signed, other.signed = true, true
+        local v, o = default_of(f), default_of(other)
+        if v and o and v ~= o and math.abs(v) <= -c[4] then
+            local p = part(prefix .. c[1], TYPES.turret, at + c[3], 'f32', 360)
+            p.field.signed, p.field.limit = true, math.max(p.field.limit or 0, 360)
+            add_row(entry, 'Sentry aiming', prefix .. c[1], c[2], 'f32', { p }, -360, 360, 1, 5).note = c[6]
+        end
+    end
+    MOD.faction.row(entry, section, prefix .. 'faction', { key })
 end
 
 -- A vehicle's rows (by its entity, `key`): its health component: health +0 (i32), armor +280 (the
@@ -14392,7 +14952,7 @@ KINDS[TYPES.jumppack].backpack = function(entry, key, ammo)
         return t and t.index[key]
     end
     local function r(section, id, label, kind, offset, storage, max, small, big, parts)
-        add_row(entry, section, id, label, storage, parts or { part(id, kind, offset, storage, 1000000) }, 0, max, small, big)
+        return add_row(entry, section, id, label, storage, parts or { part(id, kind, offset, storage, 1000000) }, 0, max, small, big)
     end
     local jump, recharge = at(TYPES.jumppack), at(TYPES.recharge)
     if jump then
@@ -14485,18 +15045,21 @@ KINDS[TYPES.jumppack].backpack = function(entry, key, ammo)
                                  { 'shockwave', 'Shockwave radius (m)', 24 } }) do
                 r(section, 'bp_warp_x_' .. f[1], f[2], T_EXPLOSION, xrow + f[3], 'f32', 200, 0.1, 1)
             end
+            MOD.explosion_extras(entry, section, 'bp_warp_x_', xrow)
         end
     end
     local deposit = at(TYPES.deposit)
     if deposit and ammo then
         -- a support weapon's ammo backpack: the spare rockets / magazines it reloads from, or the rounds
         -- a belt-fed weapon fires from it
+        -- the game sends a backpack's ammo count in 10 bits: rows stop at 1023, and going past it says why
+        local cap = 'The game holds at most 1023 rounds in a backpack.'
         local first = add_row(entry, 'Backpack', 'bp_ammo', 'Ammo carried', 'u32',
-                              { part('bp_ammo', TYPES.deposit, deposit, 'u32', 1000000) }, 0, 100000, 1, 10)
-        first.note = 'the spare ammo in its backpack; read when the backpack is called in'
+                              { part('bp_ammo', TYPES.deposit, deposit, 'u32', 1000000) }, 0, 1023, 1, 10)
+        first.note, first.limit = 'the spare ammo in its backpack; read when the backpack is called in', cap
         local start = read_field(field_at(TYPES.deposit, deposit + 4, 'u32', 0xFFFFFFFF))
-        if start and start ~= 0xFFFFFFFF then r('Backpack', 'bp_ammo_start', 'Ammo at the start', TYPES.deposit, deposit + 4, 'u32', 100000, 1, 10) end
-        r('Backpack', 'bp_ammo_supply', 'Ammo from resupply', TYPES.deposit, deposit + 8, 'u32', 100000, 1, 10)
+        if start and start ~= 0xFFFFFFFF then r('Backpack', 'bp_ammo_start', 'Ammo at the start', TYPES.deposit, deposit + 4, 'u32', 1023, 1, 10).limit = cap end
+        r('Backpack', 'bp_ammo_supply', 'Ammo from resupply', TYPES.deposit, deposit + 8, 'u32', 1023, 1, 10).limit = cap
     elseif deposit then
         r('Backpack', 'bp_charges', 'Charges', TYPES.deposit, deposit, 'u32', 999, 1, 5)
         local start = read_field(field_at(TYPES.deposit, deposit + 4, 'u32', 0xFFFFFFFF))
@@ -14556,6 +15119,7 @@ KINDS[TYPES.minefield].rows = function(entry, key)
                                  { 'shockwave', 'Shockwave radius (m)', 24 } }) do
                 r(section, 'mine_x_' .. f[1], f[2], T_EXPLOSION, xrow + f[3], 'f32', 0, 200, 0.1, 1)
             end
+            MOD.explosion_extras(entry, section, 'mine_x_', xrow)
         end
     end
     -- the pod itself (enemies go for it like a sentry): health, durable ratio, demolition force, armor +280
@@ -14804,7 +15368,20 @@ local function resolve_stratagem(entry)
                              "The beacon's timer still counts down the usual time (tested)." }
             e('eagle_speed', 'Speed until it has fired (m/s)', 76, 0, 5000, 10, 50)
             local payload = read_field(field_at(TYPES.eagle, eagle + 16, 'u32', 100))
-            if payload == 5 then e('eagle_bomb_gap', 'Time between bombs (s)', 44, 0, 10, 0.05, 0.25)
+            if payload == 5 then
+                e('eagle_bomb_gap', 'Time between bombs (s)', 44, 0, 10, 0.05, 0.25)
+                -- +20 the drop pattern (EagleAirstrikePattern), which fixes the bomb count (SHODAN Offline Integration)
+                local p = part('eagle_pattern', TYPES.eagle, eagle + 20, 'u32', 7)
+                if default_of(p.field) then
+                    p.field.limit = 4294967295
+                    local r = add_row(entry, 'Eagle', 'eagle_pattern', 'Bomb pattern', 'u32', { p }, 0, 255, 1, 1)
+                    r.label_of = function()
+                        local n = read_field(p.field) or 0
+                        local bombs = KINDS[TYPES.eagle].BOMBS[n]
+                        return bombs and ('Bomb pattern ' .. n .. ': ' .. bombs .. ' bombs') or ('Bomb pattern ' .. n)
+                    end
+                    r.tip = { 'How many bombs one run drops and how they land. The bombs stay this Eagle\'s own.' }
+                end
             else e('eagle_fire_time', 'Fire duration (s)', 40, 0, 30, 0.1, 0.5) end
             if (read_field(field_at(TYPES.eagle, eagle + (moved[108] or 108), 'f32', 100000)) or 0) > 0 then
                 e('eagle_run_length', 'Run length (m)', 108, 0, 500, 1, 5)
@@ -14843,6 +15420,7 @@ local function resolve_stratagem(entry)
                     local id = 'x' .. record .. '_' .. f[1]
                     add_row(entry, section, id, f[2], 'f32', { part(id, T_EXPLOSION, row + f[3], 'f32', 10000) }, 0, 500, 0.5, 2)
                 end
+                MOD.explosion_extras(entry, section, 'x' .. record .. '_', row)
             end
         elseif kind == 'D' then
             local row = tables[T_DAMAGE] and tables[T_DAMAGE].index[record]
@@ -14855,6 +15433,23 @@ local function resolve_stratagem(entry)
     -- a backpack (in its hellpod rack's first slot): its own rows; a shield (the Shield Generator Relay, a
     -- shield backpack)
     local rt = tables[TYPES.rack]
+    -- how many of the rack's filled slots the pod drops (+556 spawn_payload_size; issue #104): the EAT-17's 2 of
+    -- 2, the Commando's and MG-43's 1 of 2 (one per side)
+    for _, key in ipairs(s.payloads) do
+        local rack = rt and rt.index[key]
+        local slots = rack and api.read(rt.copies[1] + HEADER_BYTES + rack, 512)
+        local filled = 0
+        for k = 0, slots and #slots == 512 and 7 or -1 do   -- (the game's slots: a copy this mod put in does not count)
+            if (default_of(field_at(TYPES.rack, rack + k * 64, 'u32', 4294967295)) or 0) ~= 0
+               or (default_of(field_at(TYPES.rack, rack + k * 64 + 4, 'u32', 4294967295)) or 0) ~= 0 then filled = filled + 1 end
+        end
+        if filled >= 2 and not entry.by_id.pod_items then
+            add_row(entry, 'Hellpod', 'pod_items', 'Items per drop', 'u32', { part('pod_items', TYPES.rack, rack + 556, 'u32', 8) },
+                    0, 8, 1, 1).note = 'how many of the items on its rack come down in one pod'
+        elseif filled == 1 and u32(slots, 8) == MOD.pod.LEFT and not entry.by_id.pod_twin then
+            MOD.pod.twin_row(entry, rack)
+        end
+    end
     for _, key in ipairs(s.payloads) do
         local rack = rt and rt.index[key]
         local carried = rack and api.read(rt.copies[1] + HEADER_BYTES + rack, 8)
@@ -14862,7 +15457,18 @@ local function resolve_stratagem(entry)
         -- a minefield: the pod, or what the stratagem's hellpod carries
         for _, k in ipairs({ key, carried }) do KINDS[TYPES.minefield].rows(entry, k) end
         for _, k in ipairs({ key, carried }) do
-            if KINDS[TYPES.shield].rows(entry, string.format('%08X%08X', u32(k, 4), u32(k, 0))) then return end
+            if KINDS[TYPES.shield].rows(entry, string.format('%08X%08X', u32(k, 4), u32(k, 0))) then
+                -- how long it stays once deployed, as the sentries' (the Relay: issue #109)
+                local pt = tables[TYPES.payload]
+                local pat = pt and pt.index[k]
+                local life = pat and default_of(field_at(TYPES.payload, pat + 4, 'f32', 100000))
+                if life and life > 0 and life <= 7200 then
+                    local of = KINDS[TYPES.shield].OF[string.format('%08X%08X', u32(k, 4), u32(k, 0))]
+                    add_row(entry, of.bodies and of.bodies[1][2] or 'Shield', 'unit_lifetime', 'Time deployed (s)', 'f32',
+                            { part('unit_lifetime', TYPES.payload, pat + 4, 'f32', 100000) }, 1, 7200, 5, 30)
+                end
+                return
+            end
         end
     end
     -- a Guard Dog: its drone (health +0, spotting range +0, target search interval +0 / +4), then
@@ -14916,9 +15522,10 @@ function MOD.stratagem.rows(entry, def)
     if not full then return nil, why end
     local rows = {}
     local function emit(row, field, off, typ)
-        row.section = 'StratagemType'
-        row.section_level = 'component'
-        row.section_of = function() return MOD.nav.text({'StratagemType','战备类型（StratagemType）','戰備類型（StratagemType）'}) end
+        local group = S.schema.group(field)
+        row.section = 'StratagemType:' .. group.id
+        row.section_level = 'group'
+        row.section_of = function() return MOD.nav.text(group.name) end
         row.label_of=function()return MOD.nav.text(S.schema.names(field))end
         row.tip_of = function()
             local names=S.schema.names(field)
@@ -15002,8 +15609,7 @@ function MOD.stratagem.rows(entry, def)
     for i=1,math.max(2,count or 0)do hash('Payload'..i,payload and i<=(count or 0) and payload+(i-1)*8 or nil)end
     for i=1,2 do local p=S.schema.HASHES[i];hash(p[1],def.off+p[2])end
     for i=14,#S.schema.FIELDS do number(S.schema.FIELDS[i])end
-    -- Fields absent from the reference image are still visible, in a separate component section.
-    local extra_start=#rows+1
+    -- Fields absent from the reference image are still visible, grouped with the other fields of the same kind.
     readonly('RecordID',4,'uint32 (stable record identity)',function()return tostring(peek4(def.at+4))end)
     for _,p in ipairs(S.schema.EXTRA)do number(p)end
     for i=3,#S.schema.HASHES do local p=S.schema.HASHES[i];hash(p[1],def.off+p[2])end
@@ -15035,9 +15641,19 @@ function MOD.stratagem.rows(entry, def)
             return '['..n..'] '..(b:gsub('.',function(c)return string.format('%02X',c:byte())end))..(n*(stride or 1)>64 and '…'or'')
         end)
     end
-    for i=extra_start,#rows do rows[i].section='StratagemType additional';rows[i].section_level='group';rows[i].section_of=function()return MOD.nav.text({
-        'StratagemType: additional fields','StratagemType：其他字段','StratagemType：其他欄位'})end end
     rows[1].note=function()return 'StratagemTypeID '..tostring(peek4(def.at))end
+    -- keep every parameter group contiguous: the shared classification is the order of the groups
+    local group_order = {}
+    for i, g in ipairs(S.schema.GROUPS) do group_order[g.id] = i end
+    for i, r in ipairs(rows) do r._order = i end
+    table.sort(rows, function(a, b)
+        local ga = a.section and a.section:match('^StratagemType:(.*)$')
+        local gb = b.section and b.section:match('^StratagemType:(.*)$')
+        local oa = group_order[ga] or 999
+        local ob = group_order[gb] or 999
+        if oa ~= ob then return oa < ob end
+        return a._order < b._order
+    end)
     return rows
 end
 function MOD.stratagem.apply(entry,def)
@@ -15047,7 +15663,7 @@ function MOD.stratagem.apply(entry,def)
     for _,r in ipairs(previous)do
         if r.id=='rearm' then r.section='Eagle rearm';rows[#rows+1]=r
         elseif r.section~='Stratagem'and r.section~='Extra stratagem'and r.section~='Stratagem id'
-           and r.section~='StratagemType'and r.section~='StratagemType additional' then rows[#rows+1]=r end
+           and not (r.section and r.section:match('^StratagemType')) then rows[#rows+1]=r end
     end
     entry.rows=rows
     return true
@@ -15356,6 +15972,9 @@ do
         rows_of(entry)
         if entry.stratagem.family == 'orbital' then MOD.orbital.layout(entry) end
         if entry.stratagem.def then MOD.stratagem.apply(entry,entry.stratagem.def) end
+        if entry.stratagem.family == 'orbital' and MOD.component_groups then
+            MOD.component_groups.stratagem_page(entry)
+        end
     end
 end
 
@@ -15389,6 +16008,14 @@ local function resolve_throwable(entry, placed)
         damage_rows(entry, 'Damage', '', hit)
         status_rows(entry, 'Damage', '', hit, 'hit')
     end
+    -- the G-142 Pyrotech's sparks: a spray (SprayWeaponComponentData +200 damage row; their count, range and spray
+    -- time are not in it, all 0)
+    local spray = record(T_SPRAY)
+    local sparks = spray and damage(read_field(field_at(T_SPRAY, spray + 200, 'u32', 100000)))
+    if sparks then
+        damage_rows(entry, 'Sparks', 'spark_', sparks, 'Spark')
+        status_rows(entry, 'Sparks', 'spark_', sparks, 'hit')
+    end
     local ex = record(TYPES.explosive)
     if not ex then return end
     MOD.references.row(entry, 'Explosion', 'explosion_id', 'Explosion ID', TYPES.explosive, ex + 36, 'explosion_id')
@@ -15404,6 +16031,7 @@ local function resolve_throwable(entry, placed)
                              { 'shockwave', 'Shockwave radius (m)', 24 } }) do
             add_row(entry, section, prefix .. r[1], r[2], 'f32', { part(prefix .. r[1], T_EXPLOSION, xrow + r[3], 'f32', 100000) }, 0, 200, 0.1, 1)
         end
+        MOD.explosion_extras(entry, section, prefix, xrow)
         if not deep then return true end
         local arc = tables[TYPES.arc] and tables[TYPES.arc].index[read_field(field_at(T_EXPLOSION, xrow + 120, 'u32', 100000)) or -1]
         if arc then
@@ -15635,6 +16263,7 @@ function MOD.boosters.resolve(entry)
             add_row(entry, kind == 'smoke' and 'Smoke' or 'Explosion', 'x_' .. r[1], r[2], 'f32',
                     { part('x_' .. r[1], T_EXPLOSION, xrow + r[3], 'f32', 100000) }, 0, 200, 0.1, 1)
         end
+        MOD.explosion_extras(entry, kind == 'smoke' and 'Smoke' or 'Explosion', 'x_', xrow)
     elseif kind == 'turret' then
         resolve_gun(entry, hash_key(b[5]))
     elseif kind == 'eat' then
@@ -15882,6 +16511,14 @@ function MOD.enemy.resolve(entry)
     row('Health', 'explosive', 'Explosive damage taken (x)', 388, 'f32', 100, 100, 0.05, 0.25)
     row('Health', 'bleed', 'Bleed-out health', 24, 'u32', 10000000, 1000000, 10, 100,
         'what it has left once its health is gone, lost over time')
+    -- +28 the bleed-out health's change per second (negative: shown as the health lost)
+    for _, p in ipairs(parts('bleed_drain', 28, 'f32', 10000000)) do p.field.signed = true end
+    local drain = row('Health', 'bleed_drain', 'Bleed-out drain (health/s)', 28, 'f32', 10000000, 1000000, 1, 10,
+                      'how fast the bleed-out health runs out')
+    if drain then drain.scale = -1 end
+    -- +36 the health lost per second by its body parts' bleed-out health (issue #91; positive, unlike +28)
+    row('Health', 'zone_drain', 'Body part bleed-out drain (health/s)', 36, 'f32', 10000000, 1000000, 1, 10,
+        "how fast a body part's bleed-out health runs out")
     row('Health', 'regen', 'Regeneration (health/s)', 4, 'f32', 1000000, 100000, 1, 10)
     row('Health', 'regen_delay', 'Regeneration delay after damage (s)', 12, 'f32', 3600, 600, 0.1, 1)
     local names = {}
@@ -15896,6 +16533,8 @@ function MOD.enemy.resolve(entry)
             local section = MOD.enemy.zone_name(names[z]) or ('Body part ' .. count)
             local id = 'zone' .. z
             row(section, id .. '_health', 'Health', base + 232, 'u32', 10000000, 1000000, 10, 100)
+            row(section, id .. '_bleed', 'Bleed-out health', base + 236, 'u32', 10000000, 1000000, 10, 100,
+                'what it has left once its health is gone, lost over time')
             row(section, id .. '_armor', 'Armor', base + 216, 'u32', 100, 10, 1, 1)
             row(section, id .. '_durable', 'Durable ratio (0-1)', base + 204, 'f32', 1, 1, 0.05, 0.1)
             row(section, id .. '_explosive', 'Explosive damage taken (x)', base + 324, 'f32', 100, 100, 0.05, 0.25)
@@ -15924,6 +16563,8 @@ MOD.enemy.STATUSES = {
 -- Senses: SensorEye +0 sight distance, +12 / +16 cone angles; SensorEar +4 hearing multiplier.
 -- Size: Unit +8 / +12 scale. Attacks: its melee damage rows (MOD.ENEMY_LIST's 7th field).
 MOD.enemy.SPEEDS = { 0, 36, 60, 100, 124, 152, 244, 276 }
+MOD.enemy.SPEED_LABELS = { 'Idle walking speed (m/s)', 'Patrolling speed (m/s)', 'Searching speed (m/s)', 'Fighting speed (m/s)',
+                           'Strafing speed (m/s)', 'Drifting speed (m/s)', 'Retreating speed (m/s)', 'Charging speed (m/s)' }
 function MOD.enemy.more_rows(entry)
     local members = entry.enemy.members
     local function at(kind, m) return tables[kind] and tables[kind].index[m.key] end
@@ -15960,8 +16601,19 @@ function MOD.enemy.more_rows(entry)
     if #fields > 0 then
         MOD.enemy.mult_row(entry, 'Movement', 'speed', 'Movement speed (x)', fields, 10, nil,
                            'walking, patrolling, searching, fighting and charging speeds together')
+        -- each state's own speed, for the states it uses (the first variant's speed above 0)
+        local ai = at(TYPES.ai_enemy, members[1])
+        for k, label in ipairs(MOD.enemy.SPEED_LABELS) do
+            local v = ai and read_field(field_at(TYPES.ai_enemy, ai + MOD.enemy.SPEEDS[k], 'f32', 1000))
+            if v and v > 0 and v < 1000 then
+                row(TYPES.ai_enemy, 'Movement', 'move_' .. k, label, { MOD.enemy.SPEEDS[k] }, 'f32', 1000, 0, 50, 0.1, 0.5)
+            end
+        end
     end
     row(TYPES.sensor, 'Senses', 'sight', 'Sight range (m)', { 0 }, 'f32', 10000, 0, 1000, 1, 10)
+    local keys = {}
+    for _, m in ipairs(members) do keys[#keys + 1] = m.key end
+    MOD.faction.row(entry, 'Senses', 'faction', keys)
     -- the weapons it carries (inventory +0 / +8 / +16): SEAF only, a SEAF or player weapon instead
     -- (an enemy's gun in SEAF hands crashed the game; enemies keep theirs)
     for _, slot in ipairs(entry.slot == 'SEAF' and { { 0, 'gun_primary', 'Primary weapon' }, { 8, 'gun_sidearm', 'Sidearm' }, { 16, 'gun_support', 'Support weapon' } } or {}) do
@@ -16026,13 +16678,28 @@ function MOD.enemy.more_rows(entry)
     end
     if #keep > 0 then
         MOD.enemy.mult_row(entry, 'Senses', 'retention', 'Tracking after losing sight (x)', keep, 20, true,
-                           'how long it keeps after you once you break line of sight')
+                           'how long it keeps hunting you once you break line of sight; x1: as in the game, x2: twice as long')
     end
     row(TYPES.sensor, 'Senses', 'sight_h', 'Sight cone width (degrees)', { 12 }, 'f32', 360, 0, 360, 1, 10)
     row(TYPES.sensor, 'Senses', 'sight_v', 'Sight cone height (degrees)', { 16 }, 'f32', 360, 0, 360, 1, 10)
     row(TYPES.ear, 'Senses', 'hearing', 'Hearing (x)', { 4 }, 'f32', 100, 0, 100, 0.05, 0.25)
+    row(TYPES.danger, 'Suppression', 'danger_radius', 'Shots count within (m)', { 4 }, 'f32', 1000, 0, 100, 0.5, 2,
+        'how close your shots must land to rattle it')
+    row(TYPES.targeting, 'Suppression', 'flinch', 'Flinch from your fire', { 36 }, 'f32', 1000, 0, 100, 0.1, 0.5,
+        'how hard your fire throws off its aim; 0: never; higher: a little fire throws it off fully')
+    -- shown as the seconds a fully thrown-off aim takes to settle: the flinch cap (+44) over how fast it drains (+40)
+    local tg = members[1] and at(TYPES.targeting, members[1])
+    if tg then
+        local cap = field_at(TYPES.targeting, tg + 44, 'f32', 1000)
+        local r = row(TYPES.targeting, 'Suppression', 'flinch_recover', 'Aim steadies again after (s)', { 40 }, 'f32', 10000, 0.01, 60, 0.05, 0.25,
+                      'how long its aim stays thrown off after your fire stops; Never: it never steadies')
+        if r then   -- (every variant written from the first's cap, so not a lead row)
+            r.span, r.span_default, r.lead = function() return read_field(cap) end, function() return default_of(cap) end, nil
+            r.never = true   -- a drain of 0 shows as Never (Tanks, Berserkers...), not blank
+        end
+    end
     row(TYPES.unit, 'Size', 'scale', 'Size (x)', { 8, 12 }, 'f32', 100, 0.1, 10, 0.05, 0.25,
-        'the model and its body parts; very large or small sizes may look or move oddly')
+        'the model and its body parts; on some enemies the hitboxes may not match the model, and on others it may not work at all')
     local jam_note = 'stratagems cannot be called within this distance while it stands'
     for _, m in ipairs(members) do   -- the kind it blocks (+0): 7 every kind, 0 Eagles
         local j = at(TYPES.jammer, m)
@@ -16211,10 +16878,16 @@ MOD.enemy.FACTION_STATS = {
       function(page, r, p) return r.id == 'fire_taken' and p ~= r.parts[1] end },
     { 'Attacks', 'all_damage', 'Damage (x)', 'mult', 20, 'melee, guns and death explosions, shared ones included',
       function(page, r, p) return MOD.enemy.damage_part(p) end },
+    { 'Attacks', 'all_spread', 'Weapon spread (x)', 'mult', 10, 'lower: their shots land closer to where they aim (0: dead on)',
+      function(page, r) return r.id == 'spread_h' or r.id == 'spread_v' end },
     { 'Movement', 'all_speed', 'Movement speed (x)', 'mult', 10, nil,
       function(page, r, p) return r.id == 'speed' and p ~= r.parts[1] end },
     { 'Senses', 'all_sight', 'Sight range (x)', 'mult', 10, nil,
       function(page, r) return not page.enemy.gun and r.id == 'sight' end },
+    { 'Suppression', 'all_flinch', 'Flinch from your fire (x)', 'mult', 20, 'enemies at 0 stay immune',
+      function(page, r) return not page.enemy.gun and r.id == 'flinch' end },
+    { 'Suppression', 'all_danger_radius', 'Shots count within (x)', 'mult', 10, nil,
+      function(page, r) return not page.enemy.gun and r.id == 'danger_radius' end },
 }
 
 -- Death explosions (ExplosionType ids of this build, checked against their records: the acid deaths carry acid):
@@ -16222,7 +16895,7 @@ MOD.enemy.FACTION_STATS = {
 MOD.enemy.BLASTS = {
     Terminids = { { 71, 'Scavenger acid burst' }, { 310, 'Warrior acid burst' }, { 275, 'Bile Spewer acid burst' },
                   { 276, 'Charger acid burst' } },
-    Automatons = { { 10, 'Vehicle death (medium)' }, { 103, 'Vehicle death (medium, ground)' }, { 13, 'Vehicle death (large, ground)' },
+    Automatons = { { 10, 'Hulk death (and medium vehicles)' }, { 103, 'Vehicle death (medium, ground)' }, { 13, 'Vehicle death (large, ground)' },
                    { 39, 'Vehicle death (large, air)' }, { 346, 'Vehicle death (huge)' }, { 37, 'Fabricator death' },
                    { 114, 'Dropship death (air)' }, { 153, 'Dropship death (ground)' } },
     Illuminate = { { 311, 'Illusionist death' }, { 61, 'Spawner death' }, { 137, 'Dark Fluid burst' } },
@@ -16239,6 +16912,7 @@ function MOD.enemy.blasts_resolve(entry)
                                  { 'shockwave', 'Shockwave radius (m)', 24 } }) do
                 add_row(entry, b[2], prefix .. r[1], r[2], 'f32', { part(prefix .. r[1], T_EXPLOSION, xrow + r[3], 'f32', 100000) }, 0, 200, 0.1, 1)
             end
+            MOD.explosion_extras(entry, b[2], prefix, xrow)
         end
     end
 end
@@ -16447,6 +17121,7 @@ local function resolve(weapon)
     resolve_gun(weapon, weapon.key)
     if not weapon.mounted and (weapon.slot == 'Primary' or weapon.slot == 'Secondary') then
         MOD.slot.row(weapon)
+        if weapon.slot == 'Primary' then MOD.holster.row(weapon) end
     end
 end
 
@@ -16588,6 +17263,114 @@ MOD.records = { pages = {}, list = nil, cache = nil, KINDS = { T_PROJECTILE, T_E
                          [T_DAMAGE] = 'Damage', [TYPES.arc] = 'Arc', [T_BEAM] = 'Beam' },
                 PREFIX = { [T_PROJECTILE] = 'F1', [T_EXPLOSION] = 'F2', [T_STATUS] = 'F3',
                            [T_DAMAGE] = 'F4', [TYPES.arc] = 'F5', [T_BEAM] = 'F6' } }
+-- Enum/record row ids (轨道飞鹰 / 游戏数据): external "planning" names from record_names.json / .txt.
+MOD.record_names = require('record_names')
+function MOD.record_names.is_tab(tab)
+    return tab == 'RecDamage' or tab == 'RecProjectile' or tab == 'RecExplosion' or tab == 'RecArc'
+        or tab == 'RecBeam' or tab == 'RecStatus' or tab == 'RecStratagem' or tab == 'Orbital'
+        or tab == 'Eagle' or tab == 'OrbitalBeam' or tab == 'Stratagems' or tab == 'Mechas' or tab == 'Records'
+end
+function MOD.record_names.type_of(page)
+    if page.component_index~=nil then return page.component_type end
+    if page.stratagem then
+        local family = page.stratagem.family
+        if family == 'orbital' then return 'bombardment' end
+        if family == 'eagle' then return 'eagle' end
+        return 'stratagem'
+    end
+    if page.stratagem_type then return 'stratagem' end
+    if page.orbital_beam then return 'orbital' end
+    local kind = page.kind
+    if kind == T_DAMAGE then return 'damage'
+    elseif kind == T_PROJECTILE then return 'projectile'
+    elseif kind == T_EXPLOSION then return 'explosion'
+    elseif kind == T_STATUS then return 'status'
+    elseif kind == TYPES.arc then return 'arc'
+    elseif kind == T_BEAM then return 'beam'
+    elseif kind == T_STRATAGEM then return 'stratagem' end
+end
+-- The payload component's own record key (EntityHash): Bombardment for an orbital barrage, EagleComponent
+-- (or EagleSpawner) for an Eagle strike. Hex is the display/jump id; decimal is accepted by the name files too.
+function MOD.record_names.payload_component(page)
+    local s = page.stratagem
+    if not s then return nil end
+    local family = s.family
+    local function key_hex(key) return string.format('%08X%08X', u32(key, 4), u32(key, 0)) end
+    for _, key in ipairs(s.payloads or {}) do
+        local hex = key_hex(key)
+        if family == 'orbital' and tables[TYPES.bombard] and tables[TYPES.bombard].index[key] then return hex, key end
+        if family == 'eagle' and MOD.eagle_components and MOD.eagle_components.by_entity
+           and MOD.eagle_components.by_entity[hex] then return hex, key end
+    end
+    for _, key in ipairs(s.payloads or {}) do
+        local hex = key_hex(key)
+        if family == 'orbital' and tables[T_ORBITAL] and tables[T_ORBITAL].index[key] then return hex, key end
+        if family == 'eagle' and MOD.eagle_spawner_components and MOD.eagle_spawner_components.by_entity
+           and MOD.eagle_spawner_components.by_entity[hex] then return hex, key end
+    end
+end
+function MOD.record_names.decimal_of(page)
+    local _, key = MOD.record_names.payload_component(page)
+    return key and MOD.orbital.decimal(key)
+end
+function MOD.record_names.id_of(page)
+    if page.component_index~=nil then return page.component_index end
+    if page.stratagem then
+        local family = page.stratagem.family
+        if family == 'orbital' or family == 'eagle' then return MOD.record_names.payload_component(page) end
+        local def = page.stratagem.def
+        return def and peek4(def.at) or page.stratagem.id
+    end
+    if page.orbital_beam then return page.hash end
+    if page.stratagem_type or page.record then return page.id end
+end
+function MOD.record_names.is_page(page)
+    return MOD.record_names.type_of(page) ~= nil and MOD.record_names.id_of(page) ~= nil
+end
+function MOD.record_names.ensure()
+    if not MOD.record_names.loaded then
+        local dir = data_dir('StatEditor')
+        if dir then pcall(MOD.record_names.load, dir) end
+    end
+end
+function MOD.record_names.name_of(page)
+    local t, id = MOD.record_names.type_of(page), MOD.record_names.id_of(page)
+    if not t or not id then return nil end
+    MOD.record_names.ensure()
+    local name = MOD.record_names.name(t, id)
+    if not name and page.component_index~=nil then
+        for _,key in ipairs(page.component_keys or{})do
+            local hex=string.format('%08X%08X',u32(key,4),u32(key,0))
+            name=MOD.record_names.name(t,hex)or MOD.record_names.name(t,MOD.orbital.decimal(key))
+            if name then break end
+        end
+    end
+    if not name then
+        local decimal = MOD.record_names.decimal_of(page)
+        if decimal then name = MOD.record_names.name(t, decimal) end
+    end
+    if not name and page.orbital_beam then
+        name = MOD.record_names.name(t, MOD.orbital.decimal(page.key)) or MOD.record_names.name(t, page.hash)
+    end
+    return name
+end
+function MOD.record_names.label(page, tr)
+    local id, name = MOD.record_names.id_of(page), tr and tr(page.name) or page.name
+    local custom = MOD.record_names.name_of(page)
+    if custom and custom ~= '' then
+        return (id and ('#' .. tostring(id) .. ' · ') or '') .. custom
+    end
+    if id and not name:find('#' .. tostring(id), 1, true) then return '#' .. tostring(id) .. ' · ' .. name end
+    return name
+end
+function MOD.record_names.search_text(page)
+    local id, custom = MOD.record_names.id_of(page), MOD.record_names.name_of(page)
+    local decimal = MOD.record_names.decimal_of(page)
+    return tostring(page.name or '') .. ' ' .. tostring(page.note or '')
+        .. (id and (' ' .. tostring(id)) or '') .. (decimal and (' ' .. tostring(decimal)) or '')
+        .. (custom and (' ' .. custom) or '')
+        .. (page.component_search and (' '..page.component_search)or'')
+end
 -- Semantic reference types, independent of labels/translations and integer storage.
 MOD.references = {
     KINDS = { projectile_id=T_PROJECTILE, explosion_id=T_EXPLOSION, damage_id=T_DAMAGE,
@@ -16804,6 +17587,7 @@ function MOD.projectile.rows(page,at)
             end end
         end
     end
+    require('typeid_groups').sort(C,page.rows)
     return true
 end
 MOD.explosion={schema=require('explosion_components')}
@@ -16886,6 +17670,7 @@ function MOD.explosion.rows(page,at)
             end end
         end
     end
+    require('typeid_groups').sort(C,page.rows)
     return true
 end
 MOD.arc={schema=require('arc_components')}
@@ -16930,6 +17715,7 @@ function MOD.arc.rows(page,at)
             return lines
         end
     end
+    require('typeid_groups').sort(C,page.rows)
     return true
 end
 MOD.beam={schema=require('beam_components')}
@@ -16975,6 +17761,7 @@ function MOD.beam.rows(page,at)
             return lines
         end
     end
+    require('typeid_groups').sort(C,page.rows)
     return true
 end
 MOD.status_component={schema=require('status_components')}
@@ -17079,6 +17866,7 @@ function MOD.status_component.rows(page,at)
             end end
         end
     end
+    require('typeid_groups').sort(C,page.rows)
     return true
 end
 function MOD.records.rows(page)
@@ -17219,6 +18007,7 @@ function MOD.records.page(kind, id)
 end
 function MOD.records.find(hash)
     if type(hash) ~= 'string' or #hash ~= 16 then return nil end
+    if MOD.component_records and MOD.component_records.pages[hash]then return MOD.component_records.pages[hash]end
     if hash:sub(1,2)=='F7'and hash:sub(3):match('^%x+$')then return MOD.stratagem.page(tonumber(hash:sub(3),16))end
     local mark, digits = hash:match('^(F[123456])(%x+)$')
     if not mark then return nil end
@@ -17354,9 +18143,14 @@ local function row_value(row, default)
     if row.choice == 'grenade' and not default and row.parts[1].field.pending_value ~= nil then
         return row.parts[1].field.pending_value
     end
-    if row.choice or row.lead then return get(row.parts[1].field) end   -- lead: the others scale with it
+    if row.choice and MOD.choice_value[row.choice] then return MOD.choice_value[row.choice](row, default) end
+    if row.choice or row.lead then   -- lead: the others scale with it
+        local v = get(row.parts[1].field)
+        return (v and row.scale) and v * row.scale + 0 or v
+    end
     if row.span then
         local rate = get(row.parts[1].field)
+        if row.never and rate == 0 then return 0 end   -- (a drain of 0: shown as Never)
         return as_time((default and row.span_default or row.span)(), rate and rate + (row.rate_plus or 0))
     end
     local sum = 0
@@ -17366,7 +18160,7 @@ local function row_value(row, default)
         sum = sum + v
     end
     if row.zero and sum == 0 then return row.zero end   -- 0 stands for that (a reload played as animated)
-    return sum / #row.parts * (row.scale or 1)
+    return sum / #row.parts * (row.scale or 1) + 0   -- (+ 0: no -0 shown)
 end
 
 -- ---------------------------------------------------------------- config
@@ -17865,6 +18659,7 @@ function MOD.enemy.faction_refresh()
             if moved then by_all[f.key] = true end
         end
     end
+    MOD.weapon_sway_refresh(owned, by_all)
     -- the pages with a value only a faction-wide row changed (their name in the list: MOD.enemy.ALL_INK)
     local pages = {}
     for _, page in ipairs(weapons) do
@@ -17986,7 +18781,7 @@ end
 function MOD.parts_of(weapon, id)
     if weapon.ensure_rows then weapon.ensure_rows() end   -- (a component page whose rows are made when needed)
     local own = weapon.by_id[id]
-    if own and own.row and own.row.choice and own.row.parts[1] == own then return own.row.parts end
+    if own and own.row and own.row.choice and not own.row.each and own.row.parts[1] == own then return own.row.parts end   -- (each: every part its own value)
     if own then return { own } end
     local out = {}
     for _, listed in ipairs(weapon.legacy and weapon.legacy[id] or {}) do out[#out + 1] = weapon.by_id[listed] end
@@ -18108,6 +18903,37 @@ KINDS[TYPES.unit] = { name = 'unit', stride = 136, keyed = true }
 KINDS[TYPES.inventory] = { name = 'inventory', stride = 144, keyed = true }
 KINDS[TYPES.ear] = { name = 'hearing', stride = 16, keyed = true }
 KINDS[TYPES.transport] = { name = 'transport', stride = 48, keyed = true }
+-- whose side a unit is on (FactionComponentData, 152-byte records: +0 up to 3 factions of 4 bytes; 0 none,
+-- 1 Super Earth, 2 Terminids, 4 Illuminate, 8 Automatons). From 127MU's and CarbonAnime's forks. Only the
+-- first is shown; a unit whose first is none gets no row.
+MOD.faction = { NAMES = { [1] = 'Super Earth', [2] = 'Terminids', [4] = 'Illuminate', [8] = 'Automatons' }, ORDER = { 1, 2, 4, 8 } }
+-- 'Faction: <sides>' for any value (its bits named, others by number)
+function MOD.faction.label(v)
+    if v == nil then return 'Faction: ?' end
+    local names, rest = {}, v
+    for _, b in ipairs(MOD.faction.ORDER) do
+        if math.floor(rest / b) % 2 == 1 then names[#names + 1] = MOD.faction.NAMES[b]; rest = rest - b end
+    end
+    if rest ~= 0 or #names == 0 then names[#names + 1] = tostring(rest) end
+    if #names == 1 then return 'Faction: ' .. names[1] end   -- (one side: the translated 'Faction: <side>')
+    for k, n in ipairs(names) do names[k] = MOD.nav.text(n) end
+    return MOD.nav.text('Faction') .. (tostring(settings.lang):find('^zh') and '：' or ': ') .. table.concat(names, ' + ')
+end
+function MOD.faction.row(entry, section, id, keys)
+    local t, p = tables[TYPES.faction], {}
+    for n, key in ipairs(keys) do
+        local at = t and t.index[key]
+        if at then p[#p + 1] = part(#p == 0 and id or (id .. '_' .. n), TYPES.faction, at, 'u32', 255) end
+    end
+    if #p == 0 or not MOD.faction.NAMES[default_of(p[1].field) or 0] then return end
+    -- (no allowed values on the field: 实体组件 › 阵营 edits the same one, any value)
+    local r = add_row(entry, section, id, 'Faction', 'u32', p, 0, 255, 1, 1)
+    r.choice = 'faction'
+    r.label_of = function() return MOD.faction.label(read_field(p[1].field)) end
+    r.note = 'who it fights for: units of other sides attack it, and it attacks them'
+    r.tip = { 'Arrows step through 1 Super Earth, 2 Terminids, 4 Illuminate, 8 Automatons. Typed: any value 0-255 '
+              .. '(the sides are bits: 10 = Terminids and Automatons; 0 = none).' }
+end
 -- stratagem jammers (StratagemBlockerComponentData): +0 the stratagem kind blocked (7: every kind), +12 the
 -- radius, +16 active from the start; 4 bytes after the records
 TYPES.jammer = 0x8C5F8AB7
@@ -18129,6 +18955,12 @@ KINDS[TYPES.hitreact] = { name = 'hit reaction', stride = 4836, keyed = true }
 -- status effects taken (StatusEffectReceiverComponentData, 46600 bytes): 8 body parts of 5816 bytes from +0 (+0 the
 -- part's name), each with 33 susceptibilities of 176 bytes from +8 (+140 the kind: 6 fire, 10 acid, 12 fire (bots),
 -- 20 electric, 27 / 28 gas; +144 / +148 thresholds, +168 the damage it takes from it (x))
+-- suppression: SensorDangerComponentData (12 bytes, 4 after the records): +0 the most danger it builds, +4 the radius
+-- around it where shots count, +8 reacts to near misses (bool byte); TargetingComponentData (64 bytes): +36 how much
+-- danger throws off its aim, +40 how fast that wears off (per second), +44 the most it can
+TYPES.danger, TYPES.targeting = 0xC677F538, 0x2C0968D2
+KINDS[TYPES.danger] = { name = 'danger sensor', stride = 12, keyed = true, slack = 4 }
+KINDS[TYPES.targeting] = { name = 'targeting', stride = 64, keyed = true }
 TYPES.status_rx = 0x6062C233
 KINDS[TYPES.status_rx] = { name = 'status effects taken', stride = 46600, keyed = true }
 KINDS[TYPES.loadout] = { name = 'loadout', stride = 32 }
@@ -18171,23 +19003,110 @@ end
 -- Primary and secondary weapons only: a support weapon put in another slot is not listed there (the armory
 -- lists the weapons your account owns, and support weapons come with their stratagem; tested 2026-10-24).
 MOD.slot = { NAMES = { [1] = 'Primary', [3] = 'Secondary' } }
+
+-- Which slot a support weapon goes to when you pick it up (SHODAN Offline Integration): InteractableComponentData,
+-- 8 zones of 136 bytes from +8, +40 the interaction (1 primary, 2 secondary, 3 support). Secondary made weapons
+-- vanish, so only 1 and 3; only on a record with one weapon pickup zone
+TYPES.interactable = 0xFCCA29DB
+KINDS[TYPES.interactable] = { name = 'pickup', stride = 1104, keyed = true }
+function MOD.slot.pickup_row(weapon, key)
+    local t = tables[TYPES.interactable]
+    local off = t and KINDS[TYPES.interactable].stride == 1104 and t.index[key]
+    if not off then return end
+    local found, count = nil, 0
+    for zone = 0, 7 do
+        local at = off + 8 + zone * 136
+        local kind = peek4(t.copies[1] + HEADER_BYTES + at + 40)
+        if (peek4(t.copies[1] + HEADER_BYTES + at) or 0) ~= 0 and kind and kind >= 1 and kind <= 3 then
+            found, count = at + 40, count + 1
+        end
+    end
+    local p = count == 1 and part('pickup_slot', TYPES.interactable, found, 'u32', 3)
+    if not p or default_of(p.field) ~= 3 then return end
+    p.field.limit = 4294967295
+    local r = add_row(weapon, 'Pickup', 'pickup_slot', 'Picked up into', 'u32', { p }, 0, 255, 1, 1)
+    r.label_of = function()
+        local v = read_field(p.field)
+        return 'Picked up into: ' .. (({ [1] = 'Primary slot', [2] = 'Secondary slot', [3] = 'Support slot' })[v] or tostring(v))
+    end
+    r.tip = { 'The interaction its pickup zone is (Interactable, the zone\'s +40): 1 primary slot, in place of your primary; '
+              .. '2 secondary (the weapon has vanished); 3 the support slot. Any other value is written as typed.' }
+end
+
 function MOD.slot.row(weapon)
     local t = tables[TYPES.loadout]
     local off = t and t.index[weapon.key]
     if not off then return end
     local f = field_at(TYPES.loadout, off + 4, 'u32', 100000)
     if not MOD.slot.NAMES[default_of(f) or 0] then return end
-    f.allowed = { [1] = true, [3] = true, why = 'a slot is 1 (primary) or 3 (secondary)' }
-    local row = add_row(weapon, 'Loadout', 'slot', 'Slot (choice)', 'u32', { part('slot', TYPES.loadout, off + 4, 'u32', 100000) }, 1, 3, 2, 2)
+    local row = add_row(weapon, 'Loadout', 'slot', 'Slot (choice)', 'u32', { part('slot', TYPES.loadout, off + 4, 'u32', 100000) }, 0, 255, 2, 2)
     row.choice = 'slot'
-    row.label_of = function() return 'Slot: ' .. (MOD.slot.NAMES[read_field(f) or 0] or '?') end
+    row.label_of = function() return 'Slot: ' .. (MOD.slot.NAMES[read_field(f) or 0] or tostring(read_field(f))) end
     row.note = 'the armory list it is in: 1 primary, 3 secondary'
-    -- at the bottom, above the projectile swap
+    MOD.slot.place(weapon, row)
+end
+-- at the bottom, above the projectile swap
+function MOD.slot.place(weapon, row)
     table.remove(weapon.rows)
     local at = #weapon.rows + 1
     for k, r in ipairs(weapon.rows) do if r.section == 'Projectile swap' then at = k; break end end
     table.insert(weapon.rows, at, row)
 end
+
+-- A pod with one weapon on the rack's left (node 76C6D1E3, side 2: the Leveller, Meltagun, Breaching Hammer): 2 puts a
+-- copy on the right (slot 1 = slot 0's 64 bytes with the right's node 7FE13CFF, side 1, as the Commando's) and
+-- drops both (+556 2). Parts: slot 1's 16 words, then +556.
+MOD.pod = { LEFT = 0x76C6D1E3, RIGHT = 0x7FE13CFF }
+function MOD.pod.twin_row(entry, rack)
+    local parts = {}
+    for w = 0, 15 do parts[#parts + 1] = part('pod_twin' .. (w > 0 and ('_' .. w) or ''), TYPES.rack, rack + 64 + w * 4, 'u32', 4294967295) end
+    parts[#parts + 1] = part('pod_twin_count', TYPES.rack, rack + 556, 'u32', 8)
+    local row = add_row(entry, 'Hellpod', 'pod_twin', 'Items per drop', 'u32', parts, 1, 2, 1, 1)
+    row.choice, row.each, row.rack = 'pod_twin', true, rack
+    row.note = '2 puts a second one on the other side of the pod'
+    -- the count itself, free (0-8, the rack's slots); the right slot's 16 words: 实体组件 › 地狱舱 › 挂架
+    add_row(entry, 'Hellpod', 'pod_twin_count_raw', 'Items per drop (count)', 'u32', { parts[17] }, 0, 8, 1, 1).note =
+        'spawn_payload_size: how many of the rack\'s slots come down'
+end
+function MOD.pod.value(row, default)
+    local get = default and default_of or read_field
+    return (get(row.parts[3].field) == MOD.pod.RIGHT and (get(row.parts[17].field) or 0) >= 2) and 2 or 1
+end
+
+-- Holster position (issue #101): a primary carried on the back, or on the hip where pistols hang. EquipmentComponent
+-- +28 the holster node (primaries EC864C61, pistols CCF501C7), +32 / +44 its rotation (deg) / position offsets
+-- (pistols: none). Hip writes the pistols' node and no offsets; Back puts the weapon's own back.
+MOD.holster = { BACK = 0xEC864C61, HIP = 0xCCF501C7, NAMES = { [0] = 'Back', [1] = 'Hip' } }
+function MOD.holster.row(weapon)
+    local t = tables[TYPES.equipment]
+    local off = t and t.index[weapon.key]
+    if not off or default_of(field_at(TYPES.equipment, off + 28, 'u32', 4294967295)) ~= MOD.holster.BACK then return end
+    local parts = { part('holster', TYPES.equipment, off + 28, 'u32', 4294967295) }
+    for k = 1, 6 do
+        parts[k + 1] = part('holster_' .. k, TYPES.equipment, off + 28 + 4 * k, 'f32', 100000)
+        parts[k + 1].field.signed, parts[k + 1].field.limit = true, math.max(parts[k + 1].field.limit or 0, 100000)
+    end
+    local row = add_row(weapon, 'Loadout', 'holster', 'Holster position (choice)', 'u32', parts, 0, 1, 1, 1)
+    row.choice, row.each = 'holster', true
+    row.label_of = function() return 'Holster: ' .. MOD.holster.NAMES[MOD.holster.value(row)] end
+    row.note = 'where it hangs when put away: 0 on the back, 1 on the hip'
+    MOD.slot.place(weapon, row)
+    -- the same seven fields, each free (the choice above writes them together; a value set here is saved once,
+    -- whichever row set it)
+    local node = add_row(weapon, 'Loadout', 'holster_node', 'Holster node (hash)', 'u32', { parts[1] }, 0, 4294967295, 1, 1)
+    node.note = 'the wielder node it hangs from: EC864C61 back, CCF501C7 hip (pistols)'
+    MOD.slot.place(weapon, node)
+    for k, l in ipairs({ 'Holster rotation X (deg)', 'Holster rotation Y (deg)', 'Holster rotation Z (deg)',
+                         'Holster offset X (m)', 'Holster offset Y (m)', 'Holster offset Z (m)' }) do
+        MOD.slot.place(weapon, add_row(weapon, 'Loadout', 'holster_' .. k .. '_raw', l, 'f32', { parts[k + 1] },
+                                       k <= 3 and -360 or -10, k <= 3 and 360 or 10, k <= 3 and 1 or 0.01, k <= 3 and 5 or 0.05))
+    end
+end
+function MOD.holster.value(row, default)
+    return (default and default_of or read_field)(row.parts[1].field) == MOD.holster.HIP and 1 or 0
+end
+-- a choice row whose value is not its first part's (row_value)
+MOD.choice_value = { holster = MOD.holster.value, pod_twin = MOD.pod.value }
 
 -- ---------------------------------------------------------------- scan client
 -- Once the tables are in: resolve every weapon, then apply the saved values, a slice per frame.
@@ -18277,6 +19196,9 @@ local function prepare(deadline)
             end
             MOD.health_components=require('health_components').build({table=tables[TYPES.health],kind=TYPES.health,
                 weapons=weapons,by_hash=by_hash,field_at=field_at,read=read_field,add_row=add_row,
+                schemas=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas,log=log,
+                wrap=function(...)return MOD.component_groups.wrap(...)end,
+                translate=settings.tr,
                 names=rawget(_G,'SHODAN_COMPONENT_NAMES'),zone_name=MOD.enemy.zone_name,lang=function()return settings.lang end,
                 zone_present=function(offset)
                     local t=tables[TYPES.health]
@@ -18356,6 +19278,7 @@ local function prepare(deadline)
             state.component_entity_count=#MOD.component_catalog.records
             MOD.attach_weapon_components()
             MOD.attach_eagle_components()
+            MOD.build_component_records()
             MOD.identity.build({tables=tables,font_list=KINDS[MOD.identity.FONT].list,weapons=weapons,
                 by_hash=by_hash,field_at=field_at,read=read_field,add_row=add_row,default_of=default_of,
                 schemas=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas,
@@ -18452,13 +19375,13 @@ local function handle_table(address, kind, payload, blob)
     end
     local parse = spec.parse or (spec.keyed and parse_keyed or parse_rows)
     local started = api.now()
-    local index, info = parse(blob, spec.stride, spec, address)
+    local index, info, records_layout = parse(blob, spec.stride, spec, address)
     -- game build 25988413 (2026-10-20) changed some records: its layouts are tried after the first one, and the
     -- one that fits is kept (`offsets`: where fields moved, old offset -> new)
     for _, layout in ipairs(not index and spec.layouts or {}) do
         local was = { spec.stride, spec.slack, spec.offsets }
         spec.stride, spec.slack, spec.offsets = layout.stride, layout.slack, layout.offsets
-        index, info = parse(blob, spec.stride, spec, address)
+        index, info, records_layout = parse(blob, spec.stride, spec, address)
         if index then
             log(string.format('%s: layout of game build 25988413 (%d bytes a record)', spec.name, spec.stride))
             break
@@ -18485,7 +19408,7 @@ local function handle_table(address, kind, payload, blob)
         return
     end
     if not entry then
-        entry = { payload = payload, index = index, entries = info, copies = {}, type = table_type }
+        entry = { payload = payload, index = index, entries = info, copies = {}, type = table_type, records_layout=records_layout }
         tables[kind] = entry
         state.tables = state.tables + 1
     end
@@ -18701,6 +19624,7 @@ local ui = { open = false, measured = {}, measures = 0, tab = 'Primary', page = 
              fslot = nil, fpage = 1, message = nil,   -- named preset selection and status
              editing = nil, confirm = nil,    -- a preset name being typed; an overwrite / delete to confirm
              search = { text = '', active = false },    -- the list's search (active: being typed)
+             record_id = { text = '', active = false }, -- enum/record row id: type one and jump (轨道飞鹰 / 游戏数据)
              value = nil }   -- a value being typed: { n = row, weapon, text, fresh (the first key replaces it) }
 
 -- the status line, for code above the panel's
@@ -18803,21 +19727,21 @@ MOD.nav.PAGES = {
         { name = { 'Weapon components', '武器组件', '武器組件' }, tabs = MOD.weapon_components.SUBS.weapon },
         { name = { 'Weapon kinds', '武器类型', '武器類型' }, tabs = MOD.weapon_components.SUBS.type },
         { name = { 'Weapon attachments', '武器配件', '武器配件' }, tabs = MOD.weapon_components.SUBS.attach },
-        { name = { 'Turrets and guidance', '炮塔与制导', '炮塔與制導' }, tabs = { 'SensorEyeComponents', 'TurretComponents' } },
-        { name = { 'Backpack', '背包', '背包' }, tabs = { 'InventoryComponents' } },
-        { name = { 'Mounts', '挂载', '掛載' }, tabs = { 'MountComponents' } },
-        { name = { 'Faction', '阵营', '陣營' }, tabs = { 'FactionComponents' } },
+        -- 炮塔与制导: the sensor eye, the sensor ear (offline/ai_components.lua's copy for this page) and the turret
+        { name = { 'Turrets and guidance', '炮塔与制导', '炮塔與制導' },
+            tabs = { 'SensorEyeComponents', require('ai_components').SUBS.turret[1], 'TurretComponents' } },
+        -- 挂载: how things are carried, put away and picked up: mounts, equipment and pickup zones (offline/
+        -- weapon_components.lua's 'mount' sub), the backpack's inventory
+        { name = { 'Mounts', '挂载', '掛載' }, tabs = { 'MountComponents', MOD.weapon_components.SUBS.mount[1],
+                                                       MOD.weapon_components.SUBS.mount[2], 'InventoryComponents' } },
         { name = { 'Mines and throwing', '地雷与投掷', '地雷與投擲' },
             tabs = { 'MinefieldComponents', 'MineSpawnerComponents', 'ThrowableComponents', 'ThrowerComponents' } },
-        { name = { 'Drowning', '淹没', '淹沒' }, tabs = { 'DrownComponents' } },
-        { name = { 'Health and demolition', '生命与拆毁', '生命與拆毀' }, tabs = { 'HealthComponents', 'DemolitionComponents' } },
-        { name = { 'Shield', '护盾', '護盾' }, tabs = { 'ShieldComponents' } },
+        -- 生命与拆毁: health, demolition, drowning, shield, contact damage and faction, one tab each
+        { name = { 'Health and demolition', '生命与拆毁', '生命與拆毀' },
+            tabs = { 'HealthComponents', 'DemolitionComponents', 'DrownComponents', 'ShieldComponents', 'OverlapDamageComponents',
+                     'FactionComponents' } },
         -- 地狱舱: the hellpods' components (offline/hellpod_components.lua); the descent's values are the 额外 page's
         { name = { 'Hellpods', '地狱舱', '地獄艙' }, tabs = require('hellpod_components').SUBS.hellpod },
-        -- 接触伤害: OverlapDamageComponentData (the chargers' and vehicles' contact damage zones)
-        { name = { 'Contact damage', '接触伤害', '接觸傷害' }, tabs = require('ai_components').SUBS.overlap },
-        -- 飞鹰: EagleComponentData and EagleSpawnerComponentData (offline/eagle_components.lua, offline/eagle_spawner_components.lua)
-        { name = { 'Eagle', '飞鹰', '飛鷹' }, tabs = { 'EagleComponents', 'EagleSpawnerComponents' } },
     } },
     { id = 'orbitals', name = { 'Orbital & Eagle', '轨道飞鹰', '軌道飛鷹' }, subs = {
         { name = { 'Orbital editing', '轨道编辑', '軌道編輯' }, tabs = { 'Orbital' } },
@@ -18837,7 +19761,6 @@ MOD.nav.PAGES = {
         { name = { 'Identity', '身份设置', '身份設置' }, todo = {
             { items = { { 'Your name (size, colour, custom text)', '设置自己的名字（可更改字号和颜色并自定义名称）', '設置自己的名字（可更改字號和顏色並自定義名稱）' }, { 'Invisible', '设置隐身', '設置隱身' }, { 'Chat text colour', '设置打字颜色', '設置打字顏色' } } },
         } },
-        { name = { 'Named parameters', '已解析参数', '已解析參數' }, tabs = { 'CharacterNameFields', 'FontStyleFields', 'IdentityRpcInfo' } },
         -- display: the text size and resolution controls above the placeholders (settings.DISPLAY)
         { name = { 'Editor settings', '修改器设置', '修改器設置' }, display = true, todo = {
             { note = { 'Language, updates and the other settings there are now: the Settings button at the bottom right.', '语言、更新等现有设置：右下角的“设置”按钮。', '語言、更新等現有設置：右下角的“設置”按鈕。' }, items = { { 'Apply every ini now', '立即应用所有ini', '立即應用所有ini' }, { 'Keep every setting and close the editor', '保留所有设置并关闭修改器', '保留所有設置並關閉修改器' }, { 'Force-quit the game', '强制退出游戏', '強制退出遊戲' }, { 'Switch and save config groups', '切换与保存配置文件组', '切換與保存配置文件組' } } },
@@ -18846,6 +19769,8 @@ MOD.nav.PAGES = {
         { name = { 'Finder', '寻找器', '尋找器' }, todo = {
             { items = { { 'Held item hash', '手中物品哈希', '手中物品哈希' }, { 'Marked item hash', '标记物品哈希', '標記物品哈希' }, { 'Damage id', '伤害id', '傷害id' }, { 'Projectile id', '射弹id', '射彈id' }, { 'Explosion id', '爆炸id', '爆炸id' }, { 'Arc id', '电弧id', '電弧id' }, { 'Laser id', '激光id', '激光id' } } },
         } },
+        -- 其他已解析字段: the parsed character-name, font-style and network fields (offline/identity_components.lua)
+        { name = { 'Other parsed fields', '其他已解析字段', '其他已解析欄位' }, tabs = { 'CharacterNameFields', 'FontStyleFields', 'IdentityRpcInfo' } },
     } },
     -- (额外, the helldiver's stats the document does not list, removed: its water and hellpod values are
     -- 实体组件 › 淹没 / 地狱舱's fields; its page is still made, unlisted, so values saved on it keep applying)
@@ -18864,9 +19789,164 @@ function MOD.nav.section_height(row)
     if row.collapsed_component then return 0 end
     return row.section_level=='component'and 42 or 24
 end
+-- 人物数据's other components (after Avatar, Health, Faction), each { type, label, rows }: the helldiver's danger
+-- sense (SensorDangerComponentData: +0 the most suppression, +4 the radius enemy shots count within, +8 near misses
+-- count), its melee strikes (DamageInfo rows 560 / 568, MOD.melee_rows) and every hand-aimed weapon's sway (a value
+-- of the editor's, written by MOD.weapon_sway_refresh)
+KINDS[TYPES.avatar].more_groups = function(entry, key)
+    local out = {}
+    local function group(type_name, label, section)
+        local rows = entry.rows
+        entry.rows = {}
+        for _, r in ipairs(rows) do
+            local name = r.section
+            r.section_of = r.section_of or function() return MOD.nav.text(name) end
+            r.section = type_name .. ':' .. name
+            for _, p in ipairs(r.parts) do p.row = p.row or r end
+        end
+        if #rows > 0 then out[#out + 1] = { type_name, label, rows } end
+    end
+    entry.rows = {}
+    local st = tables[TYPES.danger]
+    local s = st and st.index[key]
+    if s then
+        add_row(entry, 'Suppression', 'danger_radius', 'Enemy shots count within (m)', 'f32',
+                { part('danger_radius', TYPES.danger, s + 4, 'f32', 1000) }, 0, 100, 0.5, 2).note = 'how close enemy fire must pass to shake your aim; 0: never'
+        add_row(entry, 'Suppression', 'danger_max', 'Most suppression', 'f32',
+                { part('danger_max', TYPES.danger, s, 'f32', 1000) }, 0, 1000, 1, 5).note = 'how far it can build up; 0: none'
+        add_row(entry, 'Suppression', 'danger_miss', 'Near misses suppress you', 'flag',
+                { part('danger_miss', TYPES.danger, s + 8, 'flag', 1) }, 0, 1, 1, 1)
+    end
+    group('SensorDangerComponentData', { 'Danger sense component', '危险感知组件', '危險感知組件' })
+    MOD.melee_rows(entry, 560, 'Melee', 'melee_')
+    local bay = MOD.melee_rows(entry, 568, 'Bayonet melee', 'bayonet_')
+    if bay then bay.note = 'shared by every bayonet: the Constitution, Sweeper and Amendment change together' end
+    group('DamageInfo', { 'Melee strikes (damage info)', '近战打击（伤害信息）', '近戰打擊（傷害資訊）' })
+    -- every hand-aimed weapon's sway at once (MOD.weapon_sway_refresh writes it); only its own value is saved
+    local sway = { id = 'weapon_sway', field = field_at(0, 'helldiver:weapon_sway', 'virtual', 1000) }
+    sway.field.default = 1
+    add_row(entry, 'Weapons', 'weapon_sway', 'Weapon sway (x)', 'f32', { sway }, 0, 100, 0.05, 0.25).tip =
+        { 'Every weapon you aim yourself, emplacements and vehicle guns too: the game\'s sway times this. 0 = no sway.',
+          'A weapon whose own Sway multiplier you changed keeps it. Sway this row changes shows in blue.' }
+    group('WeaponSway', { 'Every weapon', '全部武器', '全部武器' })
+    return out
+end
+-- 人物数据's Weapon sway (x): the game's sway x it on every weapon aimed by hand (not the SEAF copies, sentries or Guard
+-- Dogs; emplacements: 'E/'), but where a weapon's own Sway multiplier is changed; shown blue like a faction row's.
+-- From MOD.enemy.faction_refresh (owned: the fields a page has its own change on; by_all: the fields moved here)
+function MOD.weapon_sway_refresh(owned, by_all)
+    local hd = by_hash[KINDS[TYPES.avatar].ENTITY]
+    local lead = hd and hd.by_id.weapon_sway
+    if not lead then return end
+    local v = read_field(lead.field) or 1
+    for _, w in ipairs(weapons) do
+        local f = w.by_id.sway and w.by_id.sway.field
+        local d = f and not w.enemy and not owned[f.key] and (w.mounted or w.sentry_defs and w.name:find('^E/') or (w.slot == 'Primary'
+                  or w.slot == 'Secondary' or w.slot == 'Support') and not w.name:find('(SEAF)', 1, true)) and default_of(f)
+        if d then
+            local new, now = d * v, read_field(f)
+            if now == nil or math.abs(now - new) > 1e-4 * math.max(1, math.abs(new)) then write_field(f, new) end
+            if math.abs(new - d) > 1e-4 * math.max(1, math.abs(d)) then by_all[f.key] = true end
+        end
+    end
+end
+-- 人物数据: the helldiver's Avatar, Health and Faction as collapsible components (the Armory's component view),
+-- each keeping its parameter groups (Avatar's speed, climbing, ...; Health's body/parts; the three factions)
+KINDS[TYPES.avatar].group_doc = function(entry, made, order, key, is_health)
+    local groups = {}
+    local sub_key = 'character'
+    local sub_label = { 'Character components', '人物组件', '人物組件' }
+    local function sub_of() return MOD.nav.text(sub_label) .. ' (' .. #groups .. ')' end
+    local function changed(rows)
+        for _, r in ipairs(rows) do
+            for _, p in ipairs(r.parts or {}) do
+                local v, d = read_field(p.field), default_of(p.field)
+                if v ~= nil and d ~= nil and math.abs(v - d) > 1e-4 then return true end
+            end
+        end
+        return false
+    end
+    local function wrap(type_name, label, rows)
+        if #rows == 0 then return end
+        local component_of = function() return MOD.nav.text(label) .. ' (' .. type_name .. ')' end
+        local modified_fn = function() return changed(rows) end
+        local wrapped = {}
+        for _, row in ipairs(rows) do
+            wrapped[#wrapped + 1] = setmetatable({
+                component_sub = sub_key, component_count = #rows, component = type_name,
+                component_of = component_of, component_sub_of = sub_of,
+                component_modified = modified_fn, collapsible = true }, { __index = row })
+        end
+        groups[#groups + 1] = { type = type_name, rows = wrapped, header = {
+            id = 'collapsed_' .. type_name, label = type_name, section = type_name .. ':collapsed',
+            component = type_name, component_of = component_of, component_sub = sub_key,
+            component_sub_of = sub_of, component_count = #rows, component_modified = modified_fn,
+            collapsed_component = true, collapsible = true, parts = {} } }
+    end
+    -- Health and Faction were first edited on 快速编辑 (the FFFFF... page): keep their overrides saved there,
+    -- so the two pages share one config entry per field.
+    local owner_page = by_hash['FFFFFFF800000001']
+    local function own(rows)
+        if not owner_page then return end
+        entry.field_keys = entry.field_keys or {}
+        for _, row in ipairs(rows) do
+            for _, p in ipairs(row.parts or {}) do
+                p.health_owner = { weapon = owner_page, part = { id = p.id, field = p.field } }
+                entry.field_keys[p.field.key] = true
+            end
+        end
+    end
+    wrap('AvatarComponentData', { 'Avatar component', 'Avatar 组件', 'Avatar 組件' }, entry.rows)
+    entry.rows = {}
+    local health_rows = {}
+    for _, r in ipairs(order) do
+        if is_health(r.id) then
+            local row = add_row(entry, 'Health', r.id, r.label, r.storage, r.parts, r.min, r.max, r.small, r.big)
+            row.tip = r.tip
+            for _, p in ipairs(row.parts) do p.row = row; entry.by_id[p.id] = p end
+            KINDS[TYPES.avatar].health_band(row, r.id)
+            health_rows[#health_rows + 1] = row
+        end
+    end
+    entry.rows = {}
+    own(health_rows)
+    wrap('HealthComponentData', { 'Health component', '生命组件', '生命組件' }, health_rows)
+    local faction_rows = {}
+    if KINDS[TYPES.avatar].faction_rows(entry, key) then
+        for i, row in ipairs(entry.rows) do faction_rows[i] = row end
+    end
+    entry.rows = {}
+    own(faction_rows)
+    wrap('FactionComponentData', { 'Faction component', '阵营组件', '陣營組件' }, faction_rows)
+    for _, g in ipairs(KINDS[TYPES.avatar].more_groups(entry, key)) do wrap(g[1], g[2], g[3]) end
+    if #groups == 0 then return end
+    local function sync_rows(focus)
+        local visible, target = {}, nil
+        for _, g in ipairs(groups) do
+            if focus == g.type then target = #visible + 1 end
+            if ui.expanded_components[entry.hash .. ':' .. g.type] then
+                for _, row in ipairs(g.rows) do visible[#visible + 1] = row end
+            else
+                visible[#visible + 1] = g.header
+            end
+        end
+        entry.rows = visible
+        if target then
+            ui.row = target
+            if target < (ui.scroll or 1) then ui.scroll = target end
+        end
+        ui.row = math.max(1, math.min(ui.row or 1, #visible))
+        ui.scroll = math.max(1, math.min(ui.scroll or 1, #visible))
+    end
+    ui.expanded_components = ui.expanded_components or {}
+    entry.component_groups = groups
+    entry.sync_rows = sync_rows
+    sync_rows()
+end
 function MOD.nav.base(tab) return MOD.nav.BASE[tab] or tab end
 -- the tab a weapon's (stratagem's, record's...) page is listed on
 function MOD.nav.tab_of(w)
+    if w.catalog_tab then return w.catalog_tab end
     if w.record then return MOD.nav.REC[w.hash:sub(1, 2)] or 'RecStatus' end
     if w.player then
         return w.player_view == 'quick' and 'HelldiverQuick' or w.player_view == 'other' and 'HelldiverOther' or 'Helldiver'
@@ -18944,6 +20024,7 @@ MOD.WEAPON_COMP_SUBS = {
     weapon = { order = 1, name = { 'Weapon components', '武器组件', '武器組件' } },
     type = { order = 2, name = { 'Weapon kinds', '武器类型', '武器類型' } },
     attach = { order = 3, name = { 'Weapon attachments', '武器配件', '武器配件' } },
+    mount = { order = 4, name = { 'Mounts', '挂载', '掛載' } },
 }
 ui.expanded_components = ui.expanded_components or {}
 function MOD.weapon_categories()
@@ -19133,6 +20214,122 @@ function MOD.attach_weapon_components()
         end
     end
 end
+-- The shared presentation of a page's components: a visible group band (组件组), each component collapsed by
+-- default, and the component's own parameter groups inside. Used by 轨道编辑 and 飞鹰编辑; the Armory and
+-- 人物数据 follow the same rule.
+MOD.component_groups = {}
+function MOD.component_groups.wrap(entry, groups, sub_label)
+    local kept = {}
+    for _, g in ipairs(groups) do if #g.rows > 0 then kept[#kept + 1] = g end end
+    if #kept == 0 then return end
+    local sub_key = entry.hash .. ':components'
+    local function sub_of() return MOD.nav.text(sub_label) .. ' (' .. #kept .. ')' end
+    entry.field_keys = entry.field_keys or {}
+    for _, g in ipairs(kept) do
+        for _, row in ipairs(g.rows) do
+            for _, p in ipairs(row.parts or {}) do
+                if p.field and p.field.key then entry.field_keys[p.field.key] = true end
+            end
+        end
+    end
+    local function modified(rows)
+        for _, r in ipairs(rows) do
+            if r.hash64 and MOD.stratagem.hash_text(r)~=MOD.stratagem.hash_text(r,true)then return true end
+            local v, d = row_value(r), row_value(r, true)
+            if type(v) == 'number' and type(d) == 'number' and math.abs(v - d) > 1e-4 then return true end
+        end
+        return false
+    end
+    for _, g in ipairs(kept) do
+        local component_of = function() return (g.label_of and g.label_of()or MOD.nav.text(g.label)) .. (g.hide_type and '' or (' (' .. g.type .. ')')) end
+        local modified_fn = function() return modified(g.rows) end
+        local wrapped = {}
+        for _, row in ipairs(g.rows) do
+            wrapped[#wrapped + 1] = setmetatable({
+                component_sub = sub_key, component_count = #g.rows, component = g.type,
+                component_of = component_of, component_sub_of = sub_of,
+                component_modified = modified_fn, collapsible = true }, { __index = row })
+        end
+        g.rows = wrapped
+        g.header = { id = 'collapsed_' .. g.type, label = g.type, section = g.type .. ':collapsed',
+            component = g.type, component_of = component_of, component_sub = sub_key, component_sub_of = sub_of,
+            component_count = #wrapped, component_modified = modified_fn,
+            collapsed_component = true, collapsible = true, parts = {} }
+    end
+    local function sync_rows(focus)
+        local visible, target = {}, nil
+        for _, g in ipairs(kept) do
+            if focus == g.type then target = #visible + 1 end
+            if ui.expanded_components[entry.hash .. ':' .. g.type] then
+                for _, row in ipairs(g.rows) do visible[#visible + 1] = row end
+            else
+                visible[#visible + 1] = g.header
+            end
+        end
+        entry.rows = visible
+        if target then
+            ui.row = target
+            if target < (ui.scroll or 1) then ui.scroll = target end
+        end
+        ui.row = math.max(1, math.min(ui.row or 1, #visible))
+        ui.scroll = math.max(1, math.min(ui.scroll or 1, #visible))
+    end
+    ui.expanded_components = ui.expanded_components or {}
+    entry.component_groups = kept
+    entry.sync_rows = sync_rows
+    sync_rows()
+end
+function MOD.component_groups.stratagem_page(entry)
+    if entry.component_groups then return end
+    local s = entry.stratagem
+    if not s then return end
+    local strat, rest = {}, {}
+    for _, r in ipairs(entry.rows or {}) do
+        if r.section and r.section:match('^StratagemType') then strat[#strat + 1] = r
+        else rest[#rest + 1] = r end
+    end
+    local groups = {}
+    if #strat > 0 then
+        groups[#groups + 1] = { type = 'StratagemType', rows = strat,
+            label = { 'Stratagem component', '战备组件', '戰備組件' } }
+    end
+    if s.family == 'orbital' then
+        local bomb = {}
+        for _, r in ipairs(rest) do
+            if r.section == 'BombardmentType' then
+                r.section, r.section_level = 'BombardmentType:identity', 'group'
+                r.section_of = function() return MOD.nav.text({ 'Identity', '标识', '標識' }) end
+                bomb[#bomb + 1] = r
+            elseif r.section == 'Barrage' then
+                r.section, r.section_level = 'BombardmentType:barrage', 'group'
+                r.section_of = function() return MOD.nav.text({ 'Barrage parameters', '轰炸参数', '轟炸參數' }) end
+                bomb[#bomb + 1] = r
+            else
+                bomb[#bomb + 1] = r
+            end
+        end
+        if #bomb > 0 then
+            groups[#groups + 1] = { type = 'BombardmentType', rows = bomb,
+                label = { 'Bombardment component', '轰炸组件', '轟炸組件' } }
+        end
+        MOD.component_groups.wrap(entry, groups, { 'Orbital components', '轨道组件', '軌道組件' })
+    elseif s.family == 'eagle' then
+        local eagle, spawner = {}, {}
+        for _, r in ipairs(rest) do
+            if r.component == 'EagleComponentData' then eagle[#eagle + 1] = r
+            elseif r.component == 'EagleSpawnerComponentData' then spawner[#spawner + 1] = r end
+        end
+        if #eagle > 0 then
+            groups[#groups + 1] = { type = 'EagleComponentData', rows = eagle,
+                label = { 'Eagle component', '飞鹰组件', '飛鷹組件' } }
+        end
+        if #spawner > 0 then
+            groups[#groups + 1] = { type = 'EagleSpawnerComponentData', rows = spawner,
+                label = { 'Eagle spawner component', '飞鹰生成器组件', '飛鷹生成器組件' } }
+        end
+        MOD.component_groups.wrap(entry, groups, { 'Eagle components', '飞鹰组件', '飛鷹組件' })
+    end
+end
 function MOD.attach_eagle_components()
     for _, weapon in ipairs(weapons) do
         local s = weapon.stratagem
@@ -19141,7 +20338,7 @@ function MOD.attach_eagle_components()
             for _, r in ipairs(weapon.hidden_rows or {}) do hidden[#hidden + 1] = r end
             weapon.field_keys = weapon.field_keys or {}
             for _, r in ipairs(weapon.rows) do
-                if r.section == 'StratagemType' or r.section == 'StratagemType additional' then
+                if r.section and r.section:match('^StratagemType') then
                     kept[#kept + 1] = r
                     for _, p in ipairs(r.parts) do
                         if p.field and p.field.key then weapon.field_keys[p.field.key] = true end
@@ -19204,8 +20401,49 @@ function MOD.attach_eagle_components()
             end
             weapon.rows = kept
             weapon.hidden_rows = hidden
+            MOD.component_groups.stratagem_page(weapon)
         end
     end
+end
+-- Both lists are component data-array indices, not StratagemTypeID or EntityHash.
+function MOD.build_component_records()
+    for i=#weapons,1,-1 do
+        if weapons[i].component_index~=nil then by_hash[weapons[i].hash]=nil;table.remove(weapons,i)end
+    end
+    MOD.component_records=require('component_records').new({weapons=weapons,by_hash=by_hash,
+        wrap=MOD.component_groups.wrap,read=read_field})
+    local function build(tab,kind,typ,prefix)
+        local t=tables[kind];if not t or not t.records_layout then return end
+        MOD.component_records:build({tab=tab,kind=kind,type=typ,prefix=prefix,table=t,
+            make_rows=function(page,offset,key)
+                if kind==TYPES.bombard then
+                    MOD.orbital.bomb_rows(page,offset)
+                    for _,row in ipairs(page.rows)do
+                        row.section='BombardmentType:barrage';row.section_level='group'
+                        row.section_of=function()return MOD.nav.text({'Barrage parameters','轰炸参数','轟炸參數'})end
+                    end
+                else
+                    local spec=require('eagle_components')
+                    require('component_view').build(spec,{table={index={[key or string.rep('\0',8)]=offset}},
+                        kind=kind,weapons=weapons,by_hash=by_hash,page_for=function()return page end,
+                        field_at=field_at,read=read_field,add_row=add_row,default_of=default_of,
+                        schemas=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas,
+                        names=rawget(_G,'SHODAN_COMPONENT_NAMES'),lang=function()return settings.lang end,
+                        reference=function(row,ref,f,value)
+                            row.reference_type=ref;row.choice='reference'
+                            local target=tables[MOD.references.KINDS[ref]]
+                            if target then f.allowed=f.allowed or setmetatable({[0]=true,[value]=true,
+                                why='No matching record in this game build.'},
+                                {__index=function(_,id)return target.index[id]~=nil end})end
+                        end})
+                end
+            end,
+            label=typ=='bombardment'and{'Bombardment component','轰炸组件','轟炸組件'}or{'Eagle component','飞鹰组件','飛鷹組件'},
+            component=typ=='bombardment'and'BombardmentType'or'EagleComponentData',
+            sub=tab=='Orbital'and{'Orbital components','轨道组件','軌道組件'}or{'Eagle components','飞鹰组件','飛鷹組件'}})
+    end
+    build('Orbital',TYPES.bombard,'bombardment','F8')
+    build('Eagle',TYPES.eagle,'eagle','F9')
 end
 function MOD.component_kind(tab)
     tab=tab or ui.tab
@@ -19238,6 +20476,15 @@ local function weapons_in(tab)
     if planets then return planets end
     local saved=MOD.player_save_view.list(tab=='?search'and ui.tab or tab,words and ui.search.text or'')
     if saved then return saved end
+    local enum_list=MOD.component_records and MOD.component_records.lists[words and ui.tab or tab]
+    if enum_list then
+        for _,page in ipairs(enum_list)do
+            local text=MOD.record_names.search_text(page):lower();local matches=true
+            for _,word in ipairs(words or{})do if not text:find(word,1,true)then matches=false;break end end
+            if matches then list[#list+1]=page end
+        end
+        return list
+    end
     local component_kind=MOD.component_kind(tab)or words and MOD.component_kind()
     if component_kind and MOD.component_catalog then
         return MOD.component_catalog:list(component_kind,settings.component_category,settings.component_show_missing,words and ui.search.text or'',settings.tr)
@@ -19246,7 +20493,7 @@ local function weapons_in(tab)
     local function records(t) return t == 'Records' or MOD.nav.BASE[t] == 'Records' end
     if records(tab) or words and records(ui.tab) then
         for _, page in ipairs(MOD.records.all()) do
-            local text = (page.name .. ' ' .. page.note):lower()
+            local text = MOD.record_names.search_text(page):lower()
             local all = words ~= nil or tab == 'Records' or MOD.nav.tab_of(page) == tab
             for _, word in ipairs(words or {}) do
                 if not text:find(word, 1, true) then all = false; break end
@@ -19263,7 +20510,9 @@ local function weapons_in(tab)
             local b = buckets[weapon.slot]; b[#b + 1] = weapon
         elseif #weapon.rows > 0 and not settings.hidden[weapon.slot] and not weapon.nav_hidden then
             if words then
-                local name, all = weapon.name:lower(), true
+                local name = MOD.record_names.is_page(weapon) and MOD.record_names.search_text(weapon) or weapon.name
+                name = name:lower()
+                local all = true
                 for _, word in ipairs(words) do
                     if not name:find(word, 1, true) then all = false; break end
                 end
@@ -19402,6 +20651,7 @@ end
 
 local function fmt(v, storage)
     if v == nil then return '?' end
+    if storage=='f32'and math.abs(v)==3.4028234663852886e38 then return v<0 and'-FLT_MAX'or'FLT_MAX'end
     if storage == 'gun' then   -- its place in the list of weapons
         local g = MOD.enemy.gun_choices().by_id[v]
         return g and ('#' .. g.n) or '?'
@@ -19495,11 +20745,39 @@ local function select_weapon(weapon)
         ui.tab = MOD.nav.tab_of(weapon)
         ui.nav.weapon[ui.tab] = weapon.hash
         local list = weapons_in(ui.search.text ~= '' and '?search' or ui.tab)
+        local rows = ui.list_rows or MOD.component_rows()
         for n, w in ipairs(list) do
             if w == weapon and n < ui.page then ui.page = n
-            elseif w == weapon and n >= ui.page + MOD.component_rows() then ui.page = n - MOD.component_rows() + 1 end
+            elseif w == weapon and n >= ui.page + rows then ui.page = n - rows + 1 end
         end
     end
+end
+
+-- Direct jump by enum/record row id (or a component EntityHash, hex or decimal): 轨道飞鹰 / 游戏数据 lists.
+function MOD.record_names.jump(tab, text)
+    local input=tostring(text or ''):gsub('%s+', ''):upper()
+    local hex=input:match('^0X(%x+)$')
+    local want=hex and #hex<=8 and tostring(tonumber(hex,16))or input:gsub('^0X','')
+    if want == '' then return nil end
+    MOD.record_names.ensure()
+    for _, page in ipairs(weapons_in(tab)) do
+        local candidates = {}
+        local id = MOD.record_names.id_of(page)
+        if id then candidates[#candidates + 1] = tostring(id) end
+        local payload_hash=MOD.record_names.payload_component(page)
+        if payload_hash then candidates[#candidates+1]=payload_hash end
+        local decimal = MOD.record_names.decimal_of(page)
+        if decimal then candidates[#candidates + 1] = tostring(decimal) end
+        if page.orbital_beam then candidates[#candidates + 1] = MOD.orbital.decimal(page.key) end
+        for _, c in ipairs(candidates) do
+            c = tostring(c):upper():gsub('^0X', '')
+            if c == want or (#c <= 15 and #want <= 15 and c:match('^%d+$') and want:match('^%d+$')
+                             and tonumber(c) == tonumber(want)) then
+                return page
+            end
+        end
+    end
+    return nil
 end
 
 function MOD.references.open(row)
@@ -19680,10 +20958,27 @@ local function change(row, delta_sign, big, exact)
             ui.version = ui.version + 1
             return
         end
+        if row.choice == 'faction' then   -- the next / previous side (typed: its number, 1 2 4 8), every part
+            local order, at = MOD.faction.ORDER, 1
+            for k, v in ipairs(order) do if v == current then at = k end end
+            local target = exact and math.floor(exact + 0.5) or order[math.max(1, math.min(#order, at + delta_sign))]
+            if target < 0 or target > 255 then
+                ui.message = { text = 'Faction: 0-255 (1 Super Earth, 2 Terminids, 4 Illuminate, 8 Automatons; add them for several).', till = api.now() + 4 }
+                return
+            end
+            if target == current then return end
+            for _, p in ipairs(row.parts) do
+                local ok, err = write_field(p.field, target)
+                if ok then set_override(weapon, p, unless_default(target, default_of(p.field)))
+                else ui.message = { text = err, till = api.now() + 4 } end
+            end
+            ui.version = ui.version + 1
+            return
+        end
         if row.choice == 'slot' then   -- primary (1) or secondary (3)
             local target = exact and math.floor(exact + 0.5) or (current == 1 and 3 or 1)
-            if not MOD.slot.NAMES[target] then
-                ui.message = { text = 'Slot: 1 primary or 3 secondary.', till = api.now() + 4 }
+            if target < 0 or target > 255 then
+                ui.message = { text = 'Slot: 0-255 (1 primary, 3 secondary).', till = api.now() + 4 }
                 return
             end
             if target == current then return end
@@ -19691,6 +20986,42 @@ local function change(row, delta_sign, big, exact)
             local ok, err = write_field(p.field, target)
             if ok then set_override(weapon, p, unless_default(target, default_of(p.field)))
             else ui.message = { text = err, till = api.now() + 4 } end
+            ui.version = ui.version + 1
+            return
+        end
+        if row.choice == 'holster' then   -- 0 back (the weapon's own node and offsets), 1 hip (the pistols')
+            local target = exact and math.floor(exact + 0.5) or 1 - current
+            if not MOD.holster.NAMES[target] then
+                ui.message = { text = 'Holster: 0 back or 1 hip.', till = api.now() + 4 }
+                return
+            end
+            if target == current then return end
+            for k, p in ipairs(row.parts) do
+                local d = default_of(p.field)
+                local new = target == 0 and d or (k == 1 and MOD.holster.HIP or 0)
+                local ok, why = write_field(p.field, new)
+                if ok then set_override(weapon, p, unless_default(new, d))
+                else log('write refused: ' .. weapon.name .. ' ' .. p.id .. ': ' .. why) end
+            end
+            ui.version = ui.version + 1
+            return
+        end
+        if row.choice == 'pod_twin' then   -- 1 the game's, 2 a copy of the left slot on the right, both dropped
+            local target = math.max(1, math.min(2, exact and math.floor(exact + 0.5) or 3 - current))
+            if target == current then return end
+            local rt = tables[TYPES.rack]
+            local left = api.read(rt.copies[1] + HEADER_BYTES + row.rack, 64)
+            if not left or #left ~= 64 then return end
+            for k, p in ipairs(row.parts) do
+                local d = default_of(p.field)
+                local new = d
+                if target == 2 then
+                    new = k == 17 and math.max(2, d or 0) or k == 3 and MOD.pod.RIGHT or k == 14 and 1 or u32(left, (k - 1) * 4)
+                end
+                local ok, why = write_field(p.field, new)
+                if ok then set_override(weapon, p, unless_default(new, d))
+                else log('write refused: ' .. weapon.name .. ' ' .. p.id .. ': ' .. why) end
+            end
             ui.version = ui.version + 1
             return
         end
@@ -19769,6 +21100,7 @@ local function change(row, delta_sign, big, exact)
         ui.message = { text = row.limit, till = api.now() + 4 }
     end
     target = math.max(row.min, math.min(row.max, target))
+    if row.only and not row.only[target] then return end
     if target == current then return end
     if row.span and not ((row.span() or 0) > 0) then   -- a time of nothing (the Hover Pack at recharge 0)
         ui.message = { text = 'The recharge time is 0: set it above 0 first.', till = api.now() + 4 }
@@ -19785,7 +21117,7 @@ local function change(row, delta_sign, big, exact)
             elseif d == nil then new = nil
             else new = row.inverse and d / target or d * target end
         elseif row.span then new = row.span() / target - (row.rate_plus or 0)
-        elseif #row.parts > 1 then new = (current > 0) and v * target / current or target
+        elseif #row.parts > 1 then new = (current > 0) and v * target / current or target / (row.scale or 1)
         elseif row.zero and math.abs(target - row.zero) < 1e-4 and defaults[p.field.key] == 0 then new = 0
         elseif row.scale then new = target / row.scale end
         local ok, why = false, 'its game value unread'
@@ -19923,7 +21255,15 @@ end
 
 local function reset_weapon(weapon)
     if weapon.custom_reset then local ok,why=weapon.custom_reset();if not ok then ui.message={text=tostring(why),till=api.now()+6};return end end
-    for _, row in ipairs(weapon.rows) do if not(weapon.custom_reset and row.custom_value)then reset_row(weapon, row)end end
+    if weapon.component_groups then
+        for _, g in ipairs(weapon.component_groups) do
+            for _, row in ipairs(g.rows) do
+                if not(weapon.custom_reset and row.custom_value)then reset_row(weapon, row)end
+            end
+        end
+    else
+        for _, row in ipairs(weapon.rows) do if not(weapon.custom_reset and row.custom_value)then reset_row(weapon, row)end end
+    end
     for _, row in ipairs(weapon.hidden_rows or {}) do reset_row(weapon, row) end   -- (an orbital's stats not laid out)
     local t = weapon.passive and tables[weapon.passive]   -- an armor passive: its stacked passives go too
     if t and (settings.stacks[t.index.id] or settings.own_off[t.index.id]) then
@@ -19936,7 +21276,7 @@ end
 -- The Enemy Editor's values (enemy and spawning pages) or the Stat Editor's: presets of one leave the other's alone.
 function MOD.is_enemy_value(hash)
     local w = by_hash[hash]
-    return w and w.enemy and true or false
+    return w and (w.enemy or w.health_enemy_scope) and true or false
 end
 
 -- Every change of one side back to the game's (enemy: the Enemy Editor's, else the Stat Editor's).
@@ -19959,7 +21299,7 @@ function MOD.reset_side(enemy)
 end
 
 local function reset_all()
-    local preload=rawget(_G,'SHODAN_PRELOAD_MODEL');if preload then local ok,why=preload:reset('all');if not ok then ui.message={text=tostring(why),till=api.now()+6};return end end
+    local preload=rawget(_G,'SHODAN_PRELOAD_MODEL');if preload then local ok,why=preload:reset('all');if not ok then ui.message={text=tostring(why),till=api.now()+6};return nil,why end end
     apply_at = 1
     MOD.clear_grenade_pending()
     for n = #pending, 1, -1 do
@@ -19974,11 +21314,12 @@ local function reset_all()
     local bridge = MOD.offline and rawget(_G, 'SHODAN_DEMOLITION_BRIDGE')
     if bridge then
         local ok, why = bridge:clear()
-        if not ok then ui.message = {text=tostring(why),till=api.now()+5}; return end
+        if not ok then ui.message = {text=tostring(why),till=api.now()+5}; return nil,why end
     end
     overrides = {}
     mark_config_dirty()
     ui.version = ui.version + 1
+    return true
 end
 
 function settings.set_changes(on)
@@ -20009,15 +21350,25 @@ function settings.set_changes(on)
 end
 
 -- ---------------------------------------------------------------- presets
--- One named library for game parameters, enemy parameters, saved equipment and preload plans.
+-- One global snapshot across parameters, demolition, equipment and preload plans.
 local presets = require('preset_controller').new({
     ui=ui,by_hash=by_hash,lang=function()return settings.lang end,tr=function(v)return settings.tr(v)end,
+    navigation=MOD.nav.PAGES,tab_of=MOD.nav.tab_of,tab_label=MOD.nav.tab_label,
+    default_value=function(hash,id)return state.vanilla(hash,id)end,
+    detail_version=function()
+        local save=rawget(_G,'SHODAN_PLAYER_SAVE_MODEL')
+        return tostring(save)..':'..tostring(save and save.version)..':'..tostring(save and save.save)
+    end,
+    passive_name=function(id)return settings.tr(KINDS[TYPES.passive].NAMES[tonumber(id)]or('Passive '..id))end,
     folder=function()return assert(data_dir('StatEditor'),'Preset directory unavailable')end,
+    preset_folder=function()return rawget(_G,'SHODAN_PRESET_DIRECTORY')or(assert(data_dir('StatEditor'))..'/Presets')end,
+    open_folder=function(path)return settings.open(path:gsub('/','\\'))end,
+    sync=function()MOD.sync_demolition();mark_config_dirty()end,
     now=function()return api.now()end,log=log,parse_number=MOD.parse_number,
     enabled=function()return settings.changes end,
     values=function(enemy)
         local out={}
-        for _,o in ipairs(overrides)do if MOD.is_enemy_value(o.hash)==enemy then
+        for _,o in ipairs(overrides)do if (enemy==nil or MOD.is_enemy_value(o.hash)==enemy)and(enemy~=nil or not o.demolition)then
             out[#out+1]={hash=o.hash,id=o.id,value=o.value}
         end end
         return out
@@ -20037,7 +21388,7 @@ local presets = require('preset_controller').new({
     end,
     apply=function(preset)
         local stacks,own_off
-        if preset.scope=='game'and preset.data and preset.kind=='snapshot'then
+        if preset.data and((preset.scope=='game'and preset.kind=='snapshot')or preset.scope=='global')then
             assert(type(preset.data.stacks)=='table'and type(preset.data.own_off)=='table','Invalid armor configuration in preset')
             stacks,own_off={},{}
             for id,values in pairs(preset.data.stacks)do
@@ -20048,7 +21399,10 @@ local presets = require('preset_controller').new({
                 assert(key and key%1==0 and key>=0 and type(value)=='boolean','Invalid passive switch');own_off[key]=value
             end
         end
-        if preset.scope=='preload'and preset.kind~='patch'then
+        if preset.scope=='global'and preset.kind~='patch'then
+            local ok,why=reset_all();assert(ok,why)
+            pending,apply_at={},1
+        elseif preset.scope=='preload'and preset.kind~='patch'then
             local kept={};for _,o in ipairs(overrides)do local w=by_hash[o.hash]
                 if w and w.preload_parameters then
                     for _,part in ipairs(MOD.parts_of(w,o.id)or{})do local value=default_of(part.field);if value~=nil then write_field(part.field,value)end end
@@ -20100,10 +21454,7 @@ function MOD.workspace.open(mode)
         end
         ui.stack_pick,ui.component_menu,ui.weapon_menu,ui.binding=nil,nil,nil,nil
         if mode=='presets'then
-            if current=='editor'then
-                local scope=ui.tab=='CurrentLoadout'and'loadout'or ui.tab:match('^Preload')and'preload'or MOD.enemy.on and'enemy'or'game'
-                presets.select_scope(scope)
-            end
+            presets.select_scope('global')
             ui.tab='Presets';ui.settings=false
         elseif mode=='settings'then ui.tab=ui.workspace_return.tab;ui.settings=true
         else return nil,'Unknown workspace'end
@@ -20205,12 +21556,18 @@ local function draw(width, height)
 
     -- frame
     rect(0, 0, W, H, color(8, 11, 15, math.floor(255 * settings.opacity / 100 + 0.5)), 950)
-    outline(0, 0, W, H, GOLD)
-    region('panel', 0, 0, W, H, false)
+    local frame_top=state.phase=='ready'and ui.tab=='Presets'and not ui.settings and 48 or 0
+    outline(0, frame_top, W, H-frame_top, GOLD)
+    region('panel', 0, frame_top, W, H-frame_top, false)
     if state.phase=='ready'and ui.tab=='Presets'and not ui.settings then
         ui.lbar=nil;ui.split_gx=ox+343*sx
-        require('preset_panel').draw({presets=presets,ui=ui,W=W,H=H,lang=function()return settings.lang end,
-            text=text,button=button,rect=rect,outline=outline,region=region,
+        button('workspace_back',MOD.nav.text({'Back to editor','返回编辑','返回編輯'}),W-156,8,140,32,true)
+        require('preset_panel').draw({presets=presets,ui=ui,W=W,H=H-frame_top,lang=function()return settings.lang end,
+            text=function(v,x,y,...)return text(v,x,y+frame_top,...)end,
+            button=function(k,v,x,y,...)return button(k,v,x,y+frame_top,...)end,
+            rect=function(x,y,...)return rect(x,y+frame_top,...)end,
+            outline=function(x,y,...)return outline(x,y+frame_top,...)end,
+            region=function(k,x,y,...)return region(k,x,y+frame_top,...)end,
             GOLD=GOLD,WHITE=WHITE,MUTED=MUTED,selected=color(90,74,8),hover=color(40,52,64),
             line=color(70,82,94),input=color(20,26,34),status=state.host_status})
         return regions
@@ -20282,15 +21639,16 @@ local function draw(width, height)
             end
         end
     end
-    if not ui.settings then button('reset_weapon', ui.weapon and (ui.weapon.component_entry and MOD.nav.text({ 'Reset component', '重置组件', '重置組件' }) or ui.weapon.passive and 'Reset passive' or ui.weapon.booster and 'Reset booster' or ui.weapon.enemy and (ui.weapon.slot == 'Spawning' and 'Reset spawning' or 'Reset enemy') or ui.weapon.player and 'Reset helldiver' or ui.weapon.record and 'Reset record') or (MOD.enemy.on and 'Reset enemy' or 'Reset weapon'), W - 16 - 124, MOD.offline and 10 or 52, 124, MOD.offline and 30 or 32, ui.weapon ~= nil and modified(ui.weapon))end
+    if not ui.settings then button('reset_weapon', settings.tr('Reset this page'), W - 16 - 124, MOD.offline and 10 or 52, 124, MOD.offline and 30 or 32, ui.weapon ~= nil and modified(ui.weapon))end
 
     -- a list's scroll bar (the weapon list, or the full presets): a thin track between the list and the
     -- line that parts the panel's halves, shown when the list is longer than LIST_ROWS
     ui.lbar, ui.split_gx = nil, ox + 343 * sx
     local function list_bar(id, total)
-        local count=id=='page'and MOD.component_rows()or LIST_ROWS
+        local count=ui.list_rows or(id=='page'and MOD.component_rows()or LIST_ROWS)
         if total <= count then return end
-        local top, len, span = id=='page'and(MOD.component_kind()and 154 or(MOD.weapon_browser_active()or MOD.enemy_browser())and 126)or 96, count * 26 - 1, total - count
+        local top = ui.list_top or(id=='page'and(MOD.component_kind()and 154 or(MOD.weapon_browser_active()or MOD.enemy_browser())and 126)or 96)
+        local len, span = count * 26 - 1, total - count
         local th = math.max(24, len * count / total)
         local ty = top + (len - th) * math.min(1, (ui[id] - 1) / span)
         rect(336, top, 5, len, color(28, 34, 42), 951)
@@ -20315,8 +21673,10 @@ local function draw(width, height)
     local weapon_browser=MOD.weapon_browser_active()
     local enemy_categories,enemy_key=nil,nil
     if not component_browser and not weapon_browser and MOD.enemy_browser()then enemy_categories,enemy_key=MOD.enemy_categories()end
-    local list_rows=component_browser and 24 or(weapon_browser or enemy_key)and 26 or LIST_ROWS
-    local list_top=component_browser and 154 or(weapon_browser or enemy_key)and 126 or 96
+    local record_tab = MOD.record_names.is_tab(ui.tab)
+    local list_rows=component_browser and 24 or(weapon_browser or enemy_key)and 26 or(record_tab and 26 or LIST_ROWS)
+    local list_top=component_browser and 154 or(weapon_browser or enemy_key)and 126 or(record_tab and 132 or 96)
+    ui.list_top, ui.list_rows = list_top, list_rows
     if component_browser then
         local catalog=MOD.component_catalog
         local categories=catalog:categories();local selected=1
@@ -20346,6 +21706,20 @@ local function draw(width, height)
         button('enemy_cat:menu',enemy_categories[selected].name,52,94,246,28,true,ui.enemy_menu)
         button('enemy_cat:next','>',302,94,32,28,true)
     end
+    -- enum/record row id: type an id and jump; the bottom box searches names (including the external planning names)
+    if record_tab and not presets_tab and not ui.settings and not todo_view and not solo_view then
+        local rid, active = ui.record_id, ui.record_id.active
+        rect(16, 94, 224, 30, active and color(20, 26, 34) or color(28, 34, 42), 951)
+        outline(16, 94, 224, 30, active and GOLD or (ui.hover == 'record_id' and GOLD or color(70, 82, 94)))
+        if rid.text == '' and not active then
+            local hint=ui.tab=='Orbital'or ui.tab=='Eagle'
+            text(hint and MOD.nav.text({'Component record ID (from 0)','组件记录 ID（从 0 开始）','組件記錄 ID（從 0 開始）'}) or MOD.nav.text({ 'Record id / component hash', '记录 ID / 组件哈希', '記錄 ID / 組件雜湊' }), 24, 101, 14, DIM, 208)
+        else
+            text(rid.text .. (active and '_' or ''), 24, 100, 16, WHITE, 208)
+        end
+        region('record_id', 16, 94, 224, 30)
+        button('record_names_reload', MOD.nav.text({ 'Reload', '重载', '重載' }), 246, 94, 72, 30, true)
+    end
     local searching = ui.search.text ~= '' or ui.search.active
     local list = (presets_tab or ui.settings or todo_view or solo_view) and {} or weapons_in(ui.search.text ~= '' and '?search' or ui.tab)
     local last_top = math.max(1, #list - list_rows + 1)
@@ -20365,7 +21739,7 @@ local function draw(width, height)
         if not changed and MOD.enemy.by_all_pages and MOD.enemy.by_all_pages[weapon.hash] then changed, ink = true, MOD.enemy.ALL_INK end
         -- a stratagem: its number as an extra stratagem after its name
         if (weapon.stratagem or weapon.sentry_defs) and not MOD.extra.list then MOD.extra.choices() end
-        local id = weapon.extra_id and ' (' .. weapon.extra_id .. ')' or ''
+        local id = (not record_tab) and weapon.extra_id and ' (' .. weapon.extra_id .. ')' or ''
         -- a part of the page above it ("Annihilator Tank: mounted weapon 1" under Annihilator Tank): indented,
         -- smaller, without the name it shares
         local owner = not searching and weapon.name:match('^(.+): [^:]+$')
@@ -20385,7 +21759,8 @@ local function draw(width, height)
             local category=component_browser and settings.component_category=='all'and('['..weapon.catalog_record.category_name..'] ')
                 or weapon_browser and settings.weapon_category=='all'and('['..settings.tr(weapon.slot)..'] ')
                 or enemy_key and not searching and settings[enemy_key]=='all'and('['..settings.tr(weapon.slot)..'] ')or''
-            text((changed and '* ' or '') .. category .. settings.tr(weapon.name) .. id, 24, y + 4, 16, ink, (component_browser or weapon_browser or enemy_key) and 302 or searching and 226 or 302)
+            local label = record_tab and MOD.record_names.label(weapon, settings.tr) or settings.tr(weapon.name)
+            text((changed and '* ' or '') .. category .. label .. id, 24, y + 4, 16, ink, (component_browser or weapon_browser or enemy_key) and 302 or searching and 226 or 302)
         end
         region(key, 16, y, 318, 25)
     end
@@ -20417,7 +21792,7 @@ local function draw(width, height)
         rect(16, sy, 274, 30, active and color(20, 26, 34) or color(28, 34, 42), 951)
         outline(16, sy, 274, 30, active and GOLD or (ui.hover == 'search' and GOLD or color(70, 82, 94)))
         if ui.search.text == '' and not active then
-            text(component_browser and MOD.nav.text({'Search entity name or hash','搜索实体名称或哈希','搜尋實體名稱或雜湊'})or MOD.enemy.on and 'Search enemies' or 'Search weapons and stratagems', 24, sy + 7, 15, DIM, 258)
+            text(record_tab and MOD.nav.text({'Search name or design name','搜索名称或策划名','搜尋名稱或策劃名'})or component_browser and MOD.nav.text({'Search entity name or hash','搜索实体名称或哈希','搜尋實體名稱或雜湊'})or MOD.enemy.on and 'Search enemies' or 'Search weapons and stratagems', 24, sy + 7, 15, DIM, 258)
         else
             text(ui.search.text .. (active and '_' or ''), 24, sy + 6, 16, WHITE, 258)
         end
@@ -20786,7 +22161,7 @@ local function draw(width, height)
                     if p.field.demolition and p.field.demolition:own(p.field) ~= nil then changed = true end
                 end
                 -- changed only by an 'All <faction>' row: its value in that colour, no Reset (nothing of its own)
-                local by_all = weapon.enemy and not weapon.enemy.faction and MOD.enemy.by_all_value(row)
+                local by_all = not (weapon.enemy and weapon.enemy.faction) and MOD.enemy.by_all_value(row)
                 local ink = changed and GOLD or WHITE
                 if by_all and default ~= nil and math.abs(by_all - default) > 1e-4 then
                     value, ink, changed = by_all, MOD.enemy.ALL_INK, false
@@ -20859,7 +22234,8 @@ local function draw(width, height)
                     region('row:' .. n, x0 - 6, y - 1, 430, pitch - 1)
                     region('value:' .. n, 572, y, 212, bh, value ~= nil)
                 else
-                    text(was and ('was ' .. fmt(default, row.storage)) or '', 690, y + bh / 2 - 7, 14, DIM, 90, true)
+                    local shown = function(v) return row.never and v == 0 and 'Never' or fmt(v, row.storage) end
+                    text(was and ('was ' .. shown(default)) or '', 690, y + bh / 2 - 7, 14, DIM, 90, true)
                     local typing = ui.value and ui.value.n == n and ui.value.weapon == weapon
                     if typing or (ui.hover == 'value:' .. n and value ~= nil) then
                         rect(696, y, 88, bh, typing and color(20, 26, 34) or color(40, 52, 64), 951)
@@ -20868,7 +22244,7 @@ local function draw(width, height)
                     if typing then
                         text(ui.value.text .. '_', 780, y + bh / 2 - 8, 17, WHITE, 84, true)
                     else
-                        text(fmt(value, row.storage), 780, y + bh / 2 - 8, 17, ink, 84, true)
+                        text(shown(value), 780, y + bh / 2 - 8, 17, ink, 84, true)
                     end
                     local ok = value ~= nil
                     button('dec_big:' .. n, '--', 790, y, 40, bh, ok)
@@ -20949,51 +22325,60 @@ local function draw(width, height)
 
     -- Footer text only. The desktop host owns Presets / Settings beside Write / Restore.
     rect(16,H-64,W-32,1,color(70,82,94),951)
+    -- the game's own two (the desktop host's: start it through Steam, end its process after a second click), at the
+    -- left of the footer; its text moves right
+    local fx = (MOD.offline and state.host_game) and 274 or 18
+    if fx > 18 then
+        button('game_launch', MOD.nav.text({ 'Start the game', '启动游戏', '啟動遊戲' }), 18, H - 58, 120, 46, true)
+        local armed = state.host_kill_armed and state.host_kill_armed()
+        button('game_kill', MOD.nav.text(armed and { 'Click again', '再点一次确认', '再點一次確認' } or { 'Close the game', '关闭游戏进程', '關閉遊戲程序' }),
+               146, H - 58, 120, 46, true, armed)
+    end
     if not MOD.offline then
         button('presets','Presets',W-232,H-54,104,34,true,ui.tab=='Presets')
         button('settings','Settings',W-120,H-54,104,34,true,ui.settings)
     end
     if ui.binding then
         text('Press the key that should open and close the panel: F1-F12, Insert, Home, End, Pause or Scroll Lock. Esc cancels.',
-             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
+             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     elseif ui.code then
         text('Enter the new code with the arrow keys or WASD, 9 arrows at most. Enter or Done keeps it, Backspace takes ' ..
-             'one back, Esc cancels.', 18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
+             'one back, Esc cancels.', fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     elseif ui.settings then
-        text('Settings are saved at once, in config.txt with your changes.', 18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
+        text('Settings are saved at once, in config.txt with your changes.', fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     elseif ui.editing then
         text('Type the name: Enter keeps it, Esc cancels. The game sees these keys too, so name presets from a menu.',
-             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
+             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     elseif ui.value and ui.value.setting then
         local r = settings.RANGE[ui.value.setting]
-        text(string.format('Type the percent (%d-%d): Enter sets it, Esc cancels.', r[1], r[2]), 18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
+        text(string.format('Type the percent (%d-%d): Enter sets it, Esc cancels.', r[1], r[2]), fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     elseif ui.value then
         text('Type the value: Enter sets it, Esc cancels. Values out of range are set to the nearest allowed one.',
-             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
+             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     elseif ui.search.active and not presets_tab then
         text('Type to search: Enter keeps the results, Esc clears the search. The game sees these keys too.',
-             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
+             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     elseif presets_tab then
         text('Up/Down choose, Enter loads, Insert makes a new one, Shift+Insert saves into it, F2 renames, Del deletes.',
-             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
+             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     elseif todo_view then
-        text(MOD.nav.text(MOD.nav.T.todo_help), 18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
+        text(MOD.nav.text(MOD.nav.T.todo_help), fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     else
         text('Up/Down choose a stat, Left/Right change it (Shift: bigger steps), click a value or press Enter to type it,',
-             18, H - 56, 14, MUTED, MOD.offline and W-36 or W-260)
+             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     end
     if ui.message then
-        text(ui.message.text, 18, H - 34, 14, GOOD, MOD.offline and W-36 or W-260)
+        text(ui.message.text, fx, H - 34, 14, GOOD, MOD.offline and W-fx-18 or W-260)
     elseif MOD.offline and state.host_status then
-        text(state.host_status(),18,H-34,14,MUTED,W-36)
+        text(state.host_status(),fx,H-34,14,MUTED,W-fx-18)
     elseif presets_tab then
         text('Overwriting and deleting ask twice. Changes apply at once and are saved; ' .. #overrides ..
-             ' value(s) changed.', 18, H - 34, 14, MUTED, MOD.offline and W-36 or W-260)
+             ' value(s) changed.', fx, H - 34, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     elseif todo_view then
-        text(MOD.nav.text(MOD.nav.T.todo_help2), 18, H - 34, 14, MUTED, MOD.offline and W-36 or W-260)
+        text(MOD.nav.text(MOD.nav.T.todo_help2), fx, H - 34, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     else
         text(MOD.nav.text({'PgUp/PgDn change selection, Del resets; ','PgUp/PgDn 切换项目，Del 重置；','PgUp/PgDn 切換項目，Del 重設；'}) .. #overrides ..
-             ' value(s) changed.', 18, H - 34, 14, MUTED, MOD.offline and W-36 or W-260)
+             ' value(s) changed.', fx, H - 34, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     end
     -- the passives to stack on the chosen one: over its page, until one is chosen (Cancel / Esc: none)
     if ui.stack_pick and ui.stack_pick == weapon and not ui.settings then
@@ -21105,6 +22490,7 @@ local function click(key)
     if not key then return end
     local weapon = ui.weapon
     local kind, arg = key:match('^([%w_]+):?(.*)$')
+    if key~='fpreset:description'then ui.description_click=nil end
     local ref_n = (kind == 'value' or kind == 'row') and tonumber(arg)
     local ref_row = ref_n and weapon and weapon.rows[ref_n]
     if ref_row and MOD.references.type_of(ref_row) then
@@ -21122,8 +22508,9 @@ local function click(key)
     if kind~='component_cat'then ui.component_menu=nil end
     if kind~='weapon_cat'then ui.weapon_menu=nil end
     -- clicking anything else while naming keeps the name typed so far
-    if ui.editing and kind ~= 'name' then presets.finish_rename(true) end
+    if ui.editing and kind ~= 'name' then local ok=presets.finish_rename(true);if not ok then return end end
     if ui.search.active and kind ~= 'search' then ui.search.active = false end
+    if ui.record_id.active and kind ~= 'record_id' then ui.record_id.active = false end
     if ui.value and key ~= 'value:' .. ui.value.n then finish_value(true) end
     if ui.code and key ~= 'code:' .. ui.code.n then MOD.code.finish(false) end
     if kind ~= 'set' then ui.binding = nil end
@@ -21191,6 +22578,7 @@ local function click(key)
         end
     elseif kind == 'nav' or kind == 'cat' then
         ui.workspace_return=nil;ui.editing=nil;ui.confirm=nil
+        ui.record_id = { text = '', active = false }
         -- a page (the host's bar: 'nav:<page>'), a sub-page (the tab row: 'nav:<page>:<n>'), or a tab of the
         -- sub-page shown (the title's line: 'cat:<tab>')
         local nav, page, k, tab = ui.nav, nil, nil, nil
@@ -21275,6 +22663,9 @@ local function click(key)
     elseif kind=='settings'or kind=='presets'then return MOD.workspace.open(kind)
     elseif kind=='workspace_back'then return MOD.workspace.open('editor')
     elseif kind=='preset_scope'then return presets.select_scope(arg)
+    elseif kind=='preset_folder'then return presets.open_folder()
+    elseif kind=='game_launch'or kind=='game_kill'then   -- (the desktop host's: offline/host.lua)
+        return state.host_game and state.host_game(kind=='game_launch'and'launch_game'or'kill_game')
     elseif kind == 'value' and (arg == 'size' or arg == 'opacity' or settings.DISPLAY[arg]) then
         if not ui.value then
             local text = tostring(settings[arg])
@@ -21342,8 +22733,26 @@ local function click(key)
     elseif kind == 'search' then
         if arg == 'clear' then ui.search, ui.page = { text = '', active = false }, 1
         else ui.search.active = true end
+    elseif kind == 'record_id' then
+        if arg == 'clear' then
+            ui.record_id = { text = '', active = false }
+        else
+            ui.record_id.active = true
+            ui.search.active = false
+        end
+    elseif kind == 'record_names_reload' then
+        local ok, count, errors = pcall(MOD.record_names.reload, data_dir('StatEditor'))
+        if ok then
+            local msg = MOD.nav.text({ 'Reloaded ', '已重载 ', '已重載 ' }) .. tostring(count)
+                .. MOD.nav.text({ ' record name(s)', ' 条策划名', ' 條策劃名' })
+            if errors and errors[1] then msg = msg .. ' · ' .. tostring(errors[1]) end
+            ui.message = { text = msg, till = api.now() + 6 }
+        else
+            ui.message = { text = tostring(count), till = api.now() + 8 }
+        end
+        ui.version = ui.version + 1
     elseif kind == 'weapon' then select_weapon(by_hash[arg])
-    elseif kind == 'page' then ui.page = math.max(1, ui.page + (arg == 'next' and MOD.component_rows() or -MOD.component_rows()))
+    elseif kind == 'page' then ui.page = math.max(1, ui.page + (arg == 'next' and (ui.list_rows or MOD.component_rows()) or -(ui.list_rows or MOD.component_rows())))
     elseif kind == 'reset_all' then
         if not (ui.confirm and ui.confirm.kind == 'reset_all') then
             ui.confirm = { kind = 'reset_all', till = api.now() + 3 }
@@ -21352,7 +22761,18 @@ local function click(key)
             reset_all()
         end
     elseif kind == 'reset_weapon' and weapon then reset_weapon(weapon)
-    elseif kind == 'fslot' then ui.fslot = tonumber(arg)
+    elseif kind == 'fslot' then presets.show(tonumber(arg));ui.preset_menu=nil;ui.confirm=nil
+    elseif kind == 'pmenu' then
+        ui.preset_menu=arg~='dismiss'and ui.preset_menu~=arg and arg or nil
+        ui.preset_menu_scroll=1
+    elseif kind == 'pgroup' then
+        if arg=='new'then presets.start_group()else presets.cycle_group(arg)end
+    elseif kind == 'pgroup_id' then presets.select_group(arg)
+    elseif kind == 'pmove' then presets.move_group(arg)
+    elseif kind == 'ptree_page' then presets.toggle_detail('page',arg)
+    elseif kind == 'ptree_section' then presets.toggle_detail('section',arg)
+    elseif kind == 'pdetail_scroll' then
+        ui.preset_detail_scroll=math.max(1,math.min(ui.preset_detail_last or 1,(ui.preset_detail_scroll or 1)+(arg=='next'and 1 or-1)*(ui.preset_detail_rows or 8)))
     elseif kind == 'fpage' then ui.fpage = math.max(1,ui.fpage+(arg=='next'and(ui.preset_rows or LIST_ROWS)or-(ui.preset_rows or LIST_ROWS)))
     elseif kind == 'name' then presets.finish_rename(arg == 'ok')
     elseif kind == 'fpreset' then
@@ -21361,7 +22781,16 @@ local function click(key)
         elseif n and arg == 'load' then presets.load_full_preset(n)
         elseif n and arg == 'save' then presets.confirm('save', n)
         elseif n and arg == 'delete' then presets.confirm('delete', n)
-        elseif n and arg == 'rename' then presets.start_rename(n) end
+        elseif n and arg == 'rename' then presets.start_rename(n)
+        elseif n and arg == 'description' then
+            local now,last=api.now(),ui.description_click
+            local seconds=.5;local ok,ms=pcall(function()return user.GetDoubleClickTime()end);if ok then seconds=ms/1000 end
+            if last and last.id==n and now>=last.time and now-last.time<=seconds
+             and(not ui.cursor_gx or not last.x or math.abs(ui.cursor_gx-last.x)<=5)
+             and(not ui.cursor_gy or not last.y or math.abs(ui.cursor_gy-last.y)<=5)then
+                ui.description_click=nil;presets.start_description(n)
+            else ui.description_click={id=n,time=now,x=ui.cursor_gx,y=ui.cursor_gy}end
+        end
     elseif kind == 'stack_pick' and weapon then ui.stack_pick = weapon
     elseif kind == 'stack_cancel' then ui.stack_pick = nil
     elseif kind == 'stack_own' and weapon and weapon.passive and tables[weapon.passive] then
@@ -21514,7 +22943,10 @@ local function keyboard(now)
     end
     if ui.editing then
         if pressed('Escape', now) then presets.finish_rename(false); return end
-        if pressed('Enter', now) then presets.finish_rename(true); return end
+        if pressed('Enter', now) then
+            if ui.editing.kind=='description'and key_down(VK.Shift)then presets.type_char('\n')else presets.finish_rename(true)end
+            return
+        end
         if pressed('Backspace', now) then presets.type_char(false) end
         if poll then
             for _, vk in ipairs(TEXT_KEYS) do
@@ -21525,7 +22957,7 @@ local function keyboard(now)
             end
         end
         for _, c in ipairs(typed or {}) do
-            if c ~= '#' then presets.type_char(c) end   -- '#' starts a comment in the preset files
+            presets.type_char(c)
         end
         return
     end
@@ -21559,6 +22991,37 @@ local function keyboard(now)
                 if edit.fresh then edit.text, edit.fresh = '', false end
                 if #edit.text < 16 then edit.text = edit.text .. c end
             end
+        end
+        if poll then
+            for _, vk in ipairs(TEXT_KEYS) do
+                if pressed('T' .. vk, now) then
+                    local c = key_char(vk)
+                    if c then add(c) end
+                end
+            end
+        end
+        for _, c in ipairs(typed or {}) do add(c) end
+        return
+    end
+    if ui.record_id.active then
+        local edit = ui.record_id
+        if pressed('Escape', now) then ui.record_id = { text = '', active = false }; return end
+        if pressed('Enter', now) then
+            local page = MOD.record_names.jump(ui.tab, edit.text)
+            if page then
+                ui.search, ui.page, ui.record_id = { text = '', active = false }, 1, { text = '', active = false }
+                select_weapon(page)
+                ui.message = nil
+                ui.version = ui.version + 1
+            else
+                ui.message = { text = MOD.nav.text({ 'No record with that id: ', '没有这个 ID 的记录：', '沒有這個 ID 的記錄：' })
+                    .. (edit.text == '' and '?' or edit.text), till = now + 4 }
+            end
+            return
+        end
+        if pressed('Backspace', now) then edit.text = edit.text:sub(1, -2); return end
+        local function add(c)
+            if (c:find('^%x$') or c == 'x' or c == 'X') and #edit.text < 20 then edit.text = edit.text .. c end
         end
         if poll then
             for _, vk in ipairs(TEXT_KEYS) do
@@ -21707,7 +23170,15 @@ end
 
 function ui.wheel_scroll(notches)
     if ui.tab=='Presets'and not ui.settings then
-        ui.fpage=math.max(1,math.min(math.max(1,#presets.full_order()-(ui.preset_rows or LIST_ROWS)+1),ui.fpage-notches*3))
+        if ui.preset_menu then
+            ui.preset_menu_scroll=math.max(1,math.min(ui.preset_menu_last or 1,(ui.preset_menu_scroll or 1)-notches*3))
+        elseif ui.hover=='fpreset:description'and not ui.editing then
+            ui.preset_description_scroll=math.max(1,math.min(ui.preset_description_last or 1,(ui.preset_description_scroll or 1)-notches))
+        elseif ui.cursor_gx and ui.split_gx and ui.cursor_gx>=ui.split_gx then
+            ui.preset_detail_scroll=math.max(1,math.min(ui.preset_detail_last or 1,(ui.preset_detail_scroll or 1)-notches*3))
+        else
+            ui.fpage=math.max(1,math.min(math.max(1,#presets.full_order()-(ui.preset_rows or LIST_ROWS)+1),ui.fpage-notches*3))
+        end
         ui.version=ui.version+1;return
     end
     if ui.settings then return end
@@ -22129,6 +23600,7 @@ local function panel_frame(now)
                                      settings.weapon_category,tostring(ui.weapon_menu),
                                      ui.message and ui.message.text or '', ui.editing and ui.editing.text or '-',
                                      ui.search.text, tostring(ui.search.active),
+                                     ui.record_id.text, tostring(ui.record_id.active),
                                      ui.value and (ui.value.n .. '=' .. ui.value.text) or '-',
                                      state.host_status and state.host_status()or'' }, '|')
     if signature ~= ui.signature then

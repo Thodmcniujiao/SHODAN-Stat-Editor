@@ -1,7 +1,8 @@
 -- A component-first view of one keyed ECS component (a spec: thrower_components.lua, throwable_components.lua):
 -- every entity that has the component, every field of its record, under the component's heading in parameter
 -- groups. Every field is shown. The layouts were checked field by field against the game's type library and every
--- value against the game's data and the RawData dump (1.007.200); at start they are checked again against the
+-- value against the game's data and Darctor/Helldivers2_RawData
+-- (https://github.com/Darctor/Helldivers2_RawData, 1.007.200); at start they are checked again against the
 -- installed game's type library (LAYOUT, and NESTED for the structs inside it), and a difference (a game update) is
 -- logged and shown under the page's title, without hiding any field.
 -- Same field objects as the original pages (no duplicate value store): a field an original page already has keeps
@@ -70,7 +71,7 @@ local function members_of(t)
   local last=merged[#merged]
   if last and last.offset==m.offset then
    last.bits=(last.bits or 1)+1;last.size=math.max(last.size,m.size);last.bitfield=last.bitfield or m.atom==3
-  else merged[#merged+1]={offset=m.offset,size=m.size,count=m.count,type=m.type,bitfield=m.atom==3}end
+  else merged[#merged+1]={offset=m.offset,size=m.size,count=m.count,type=m.type,storage=m.storage,atom=m.atom,bitfield=m.atom==3}end
  end
  return merged
 end
@@ -93,6 +94,8 @@ local function check_struct(schemas,t,size,layout,nested,where)
  for i,m in ipairs(list)do
   local e=layout[i]
   if m.offset~=e[1]or not same_size(m,e[2])then return nil,where..' fields differ at +'..e[1]..describe(list)end
+  if e[3]and(m.storage~=e[3]or m.atom~=e[4]or m.count~=e[5])then return nil,where..' field type differs at +'..e[1]end
+  if e[6]and m.type~=e[6]then return nil,where..' member type hash differs at +'..e[1]end
   local n=nested and nested[e[1]]
   if n then
    local inner=schemas[m.type]
@@ -133,6 +136,10 @@ function M.build(spec,c)
  local function zh()local l=lang();return l=='zh-Hans'or l=='zh-Hant'end
  local full,why=M.check_layout(spec,c.schemas,c.kind)
  out.full,out.why=full,why
+ if spec.STRICT and not full then
+  if c.log then c.log(spec.KEY..': incompatible layout: '..tostring(why))end
+  return out
+ end
  if c.log then
   c.log(spec.KEY..': all '..#spec.FIELDS..' fields'..(full and' (type library layout matches)'
    or(' -- the type library differs, check before editing: '..tostring(why))))
@@ -153,6 +160,8 @@ function M.build(spec,c)
  for key,n in pairs(names)do by_hex[D.hex(key)]=n end
  local function entity_name(hex)
   if hex=='0000000000000000'then return pick(lang(),{'none','无','無'})end
+  local friendly=spec.ENTITY_NAMES and spec.ENTITY_NAMES[hex]
+  if friendly then return pick(lang(),friendly)end
   local path=(c.names or{})[hex]
   return by_hex[hex]or(path and path:match('([^/]+)$'))or nil
  end
@@ -176,6 +185,7 @@ function M.build(spec,c)
    hash=page.hash;page.component_view=spec.KEY;page.entity_hash=entity
    page.component_offset,page.shared_count,page.field_keys=at,users[at],page.field_keys or{}
   end
+  page.catalog_hint=spec.CATEGORIES and spec.CATEGORIES[entity]
   page.note=spec.TYPE..' · '..entity..' · '..users[at]..' entity reference(s) to this record'
   local short=not full and tostring(why):gsub(' %(.*$','')or nil
   page.note_of=function()
@@ -188,6 +198,10 @@ function M.build(spec,c)
      or('此实体的'..pick('zh-Hans',spec.COMPONENT):gsub('（.*$','')))
    end
    return page.note
+  end
+  if spec.NOTICE then
+   local source_note=page.note_of
+   page.note_of=function()return pick(lang(),spec.NOTICE)..' · '..source_note()end
   end
   -- the rows: at once, or (c.lazy_rows: the big weapon components) the first time the page is shown or one of its
   -- saved values is applied (page.ensure_rows, called by the editor)

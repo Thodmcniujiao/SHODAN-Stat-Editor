@@ -1,4 +1,4 @@
--- The generated weapon components (offline/weapon_components.lua): 25 components, every field once, no overlap, the
+-- The generated weapon components (offline/weapon_components.lua): 27 components (Equipment, Interactable too), every field once, no overlap, the
 -- type-library layout checks pass on a library built from the specs' own LAYOUT / NESTED, pages build lazily.
 -- python tests/run_lua.py tests/test_weapon_components.lua   (no game files needed; memory is simulated)
 if not jit then   -- (plain Lua: a stand-in for the parts of demolition.lua the module uses)
@@ -11,7 +11,7 @@ local V=require('component_view')
 local W=require('weapon_components')
 local SIZE={f32=4,u32=4,i32=4,enum=4,flag=1,u8=1,u64=8}
 for b=0,7 do SIZE['bit'..b]=1 end
-assert(#W.SPECS==25,#W.SPECS)
+assert(#W.SPECS==27,#W.SPECS)
 local total,subs=0,{weapon=0,type=0,attach=0}
 for _,spec in ipairs(W.SPECS)do
  subs[spec.SUB]=subs[spec.SUB]+1
@@ -65,6 +65,6 @@ for _,spec in ipairs(W.SPECS)do
  assert(#page.rows==#spec.FIELDS,spec.TYPE..' rows '..#page.rows)
  for _,r in ipairs(page.rows)do assert(r.component_of()and r.section_of()and r.label_of()and r.tip_of())end
 end
-assert(total==1631,total)
-assert(subs.weapon==8 and subs.type==9 and subs.attach==8)
+assert(total==2016,total)
+assert(subs.weapon==8 and subs.type==9 and subs.attach==10)
 print('weapon components: ok ('..#W.SPECS..' components, '..total..' fields)')

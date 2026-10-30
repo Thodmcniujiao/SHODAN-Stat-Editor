@@ -74,7 +74,7 @@ for _,name in ipairs({'Eagle Strafing Run','Eagle Gas Airstrike','Eagle Napalm A
  assert(has_spawner,name..' should include EagleSpawnerComponentData rows')
 end
 
--- 4. Verify bidirectional sync between Eagle editing and Entity Components -> Eagle
+-- 4. Verify that Eagle editing and the Eagle component pages share their fields
 local bomb500=by_name['Eagle 500kg Bomb']
 E.select_weapon(bomb500)
 local approach_part=assert(bomb500.by_id.eagle_approach,'missing eagle_approach')
@@ -87,7 +87,7 @@ E.select_weapon(comp_page)
 E.change(comp_page.by_id.eagle_approach.row,-1,false,orig_val)
 assert(math.abs(E.row_value(approach_part.row)-orig_val)<1e-3,'restore failed')
 
--- 5. Render GDI screenshots of 轨道飞鹰 -> 飞鹰编辑 and 实体组件 -> 飞鹰
+-- 5. Render GDI screenshots of 轨道飞鹰 -> 飞鹰编辑
 local info=ffi.new('host_bitmapinfo');info.size=ffi.sizeof(info)
 info.width,info.height,info.planes,info.bits=S.w,-S.h,1,32
 local bits=ffi.new('void *[1]');local dib=gdi.CreateDIBSection(S.dc,info,0,bits,nil,0);assert(dib~=nil)
@@ -105,12 +105,9 @@ E.ui.row=#by_name['Eagle Strafing Run'].rows;E.ui.scroll=#by_name['Eagle Strafin
 E.tick();assert(state.ui_errors==0)
 S.paint_guis({255,12,15,19});S.save_bmp(TEST_WORK..'/eagle_editing_strafing_spawner.bmp')
 
-state.nav_open('components',14)
-E.tick();assert(state.ui_errors==0)
-S.paint_guis({255,12,15,19});S.save_bmp(TEST_WORK..'/eagle_components_page.bmp')
 gdi.DeleteDC(S.dc)
 
-print('PASS: EagleComponentData (82 fields, 11 entities), EagleSpawnerComponentData (6 fields, 3 entities), and Eagle editing replacement verified')
+print('PASS: EagleComponentData (82 fields, 11 entities), EagleSpawnerComponentData (6 fields, 3 entities), shared fields and Eagle editing verified')
 ]==]
 
 assert(loadstring(start..checks))()

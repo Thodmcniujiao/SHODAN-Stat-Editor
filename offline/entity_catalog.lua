@@ -89,7 +89,11 @@ local function collect(c)
  for hash,page in pairs(c.health.by_entity)do local r=add('E'..hash,page.key,page.path);if page.name~=hash then r.base_name=page.name end end
  for _,kind in ipairs(KINDS)do
   if VIEW[kind]and kind~='health'then
-   for hash,page in pairs(c[kind]and c[kind].by_entity or{})do local r=add('E'..hash,page.key,page.path);if(not r.base_name or r.base_name==hash)and page.name~=hash then r.base_name=page.name end end
+   for hash,page in pairs(c[kind]and c[kind].by_entity or{})do
+    local r=add('E'..hash,page.key,page.path)
+    if(not r.base_name or r.base_name==hash)and page.name~=hash then r.base_name=page.name end
+    if page.catalog_hint then r.hint=page.catalog_hint end
+   end
   end
  end
  local model=c.bridge and c.bridge.panel.model
@@ -101,6 +105,7 @@ local function collect(c)
  for _,w in ipairs(c.weapons)do
   local r=w.key and records['E'..D.hex(w.key)]
   if r and not w.record then r.base_name=r.base_name or w.name end
+  if r and w.catalog_hint then r.hint=w.catalog_hint end
   for i,m in ipairs(w.enemy and w.enemy.members or{})do
    r=records['E'..D.hex(m.key)]
    if r then r.base_name=w.name..(#w.enemy.members>1 and(' · '..i)or'');r.hint=hints[w.slot]end

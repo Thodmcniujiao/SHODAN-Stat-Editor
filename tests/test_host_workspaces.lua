@@ -2,6 +2,7 @@
 -- Uses an isolated LOCALAPPDATA. Live game/save files are read only.
 local ffi=require('ffi');local I=require('install');local S=require('engine_shim')
 I.mkdirs(TEST_WORK);I.mkdirs(I.home)
+SHODAN_PRESET_DIRECTORY=TEST_WORK..'/program/Presets'
 local function write(path,text)local f=assert(io.open(path,'wb'));assert(f:write(text));f:close()end
 write(I.home..'/game folder.txt',TEST_GAME)
 write(I.home..'/preset_01.txt','name 示例预设\nEF85D6CF58E31D70 unit_demolition 222\n')

@@ -1,5 +1,21 @@
 -- DamageSettings -> DamageInfo: all 19 scalar fields of the current 76-byte record.
 local M={TYPE=0xE0A72CF0,SIZE=76}
+M.GROUP_ORDER={'identity','damage','penetration','forces','element','status','unknown'}
+M.GROUPS={
+ identity={'Identity','标识','標識'},damage={'Damage','伤害','傷害'},
+ penetration={'Armor penetration by angle','各角度穿甲','各角度穿甲'},
+ forces={'Demolition and forces','破坏与冲击','破壞與衝擊'},element={'Element','元素类型','元素類型'},
+ status={'Applied status effects','附加状态效果','附加狀態效果'},unknown={'Unknown fields','未知字段','未知欄位'},
+}
+function M.group(field)
+ if field=='DamageTypeID'then return 'identity' end
+ if field=='Damage'or field=='ArmorDamage'then return 'damage' end
+ if field:match('^PenetrationAngle')then return 'penetration' end
+ if field=='Demolition'or field=='ForceStrength'or field=='ForceImpulse'then return 'forces' end
+ if field=='ElementType'then return 'element' end
+ if field:match('^StatusEffect')then return 'status' end
+ return 'unknown'
+end
 -- Legacy stat id, INI field name, offset, storage, min, max, small step, big step.
 M.FIELDS={
  {'damage','Damage',4,'i32',-1000000,1000000,1,10},

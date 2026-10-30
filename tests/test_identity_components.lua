@@ -15,8 +15,8 @@ local schema=model.schemas[C.FONT];local old=schema.size;schema.size=104
 assert(not C.font_layout(model.schemas));schema.size=old
 local chars=E.weapons_in('CharacterNameFields');local fonts=E.weapons_in('FontStyleFields')
 assert(#chars==91,#chars);assert(#fonts==6,#fonts)
-local misc=E.MOD.nav.page('misc');assert(misc.subs[2].name[2]=='已解析参数')
-assert(table.concat(misc.subs[2].tabs,',')=='CharacterNameFields,FontStyleFields,IdentityRpcInfo')
+local misc=E.MOD.nav.page('misc');assert(misc.subs[5].name[2]=='其他已解析字段')
+assert(table.concat(misc.subs[5].tabs,',')=='CharacterNameFields,FontStyleFields,IdentityRpcInfo')
 local count=0
 for _,p in ipairs(chars)do
  assert(#p.rows==4 and E.by_hash[p.hash]==p)

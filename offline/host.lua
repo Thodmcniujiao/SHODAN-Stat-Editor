@@ -82,6 +82,7 @@ local function main()
     if migrated then log('copied ' .. migrated .. ' files from the CowboyBingus folder') end
     screen({ 'SHODAN Stat Editor Offline', 'Looking for Helldivers 2...' })
     local exe_dir = here:gsub('[/\\]app[/\\]$', ''):gsub('[/\\]$', '')
+    if not rawget(_G,'SHODAN_PRESET_DIRECTORY')then rawset(_G,'SHODAN_PRESET_DIRECTORY',exe_dir..'/Presets')end
     local game = I.find_game(exe_dir)
     if not game then
         fatal('Helldivers 2 was not found.\n\nWrite the path of its folder (the one holding "data") into\n'
@@ -262,6 +263,7 @@ local function main()
             return t
         end
         while size > 11 * s and total() > room do size, pad = size - 0.5 * s, math.max(5 * s, pad - 0.25 * s) end
+        x = 30 * sx + math.max(0, (room - total()) / 2)   -- (the row centred in the room it has)
         for _, it in ipairs(items) do
             local w = shim.text_width(it.label, size, true) + 2 * pad
             bar.titles[#bar.titles + 1] = { key = it.key, label = it.label, color = it.color, size = size, pad = pad,
@@ -328,17 +330,6 @@ local function main()
         end
         if workspace~='editor'then
             shim.text('SHODAN Stat Editor',30*(bar.sx or s),31*s,17*s,MUTED,true)
-        end
-        local t = (shim.lang()=='zh-Hans' or shim.lang()=='zh-Hant') and '拆毁设置已统一' or 'Unified demolition'
-        if not bar.release and workspace=='editor' then
-            -- smaller where it would run into the titles (a longer translation)
-            local last = bar.titles[#bar.titles]
-            local room, size = shim.w - 30 * s - (last and last.x1 + 16 * s or 0), 15 * s
-            while size > 10 * s and shim.text_width(t, size) > room do size = size - 0.5 * s end
-            -- (left out when the pages take the whole row)
-            if shim.text_width(t, size) <= room then
-                shim.text(t, shim.w - 30 * s - shim.text_width(t, size), 31 * s, size, MUTED)
-            end
         end
         for _, b in ipairs(bar.buttons) do
             local hovered = bar.hover == b.key and not bar.busy
@@ -408,6 +399,32 @@ local function main()
         if not ok then say(why or'Finish the current value before switching pages or installing.',WARN)end
         return ok
     end
+    -- 启动游戏 / 关闭游戏进程 (the panel's footer buttons, state.host_game): Steam starts the game; closing ends
+    -- helldivers2.exe, after a second click within 4 s (state.host_kill_armed: the button shows it)
+    local function game_process(which)
+        local lang = shim.lang()
+        local function L(en, zhs, zht) return lang == 'zh-Hans' and zhs or lang == 'zh-Hant' and zht or en end
+        if which == 'launch_game' then
+            if I.game_running() then say(L('Helldivers 2 is already running.', '游戏已在运行。', '遊戲已在執行。'), WARN)
+            elseif I.launch_game() then say(L('Starting Helldivers 2 through Steam...', '正在通过 Steam 启动游戏…', '正在透過 Steam 啟動遊戲…'), GOOD)
+            else say(L('Could not ask Steam to start the game.', '无法让 Steam 启动游戏。', '無法讓 Steam 啟動遊戲。'), WARN) end
+            return
+        end
+        if not I.game_running() then bar.kill_armed = nil; say(L('Helldivers 2 is not running.', '游戏没有在运行。', '遊戲沒有在執行。'), MUTED); return end
+        if not (bar.kill_armed and bar.kill_armed > clock()) then
+            bar.kill_armed = clock() + 4
+            say(L('Click again within 4 seconds to end the game (unsaved progress is lost).', '4 秒内再点一次即结束游戏进程（未保存的进度会丢失）。',
+                  '4 秒內再點一次即結束遊戲程序（未儲存的進度會遺失）。'), WARN)
+            return
+        end
+        bar.kill_armed = nil
+        local ended, all = I.kill_game()
+        if ended == all then say(L('The game was closed.', '游戏进程已结束。', '遊戲程序已結束。'), GOOD)
+        else say(L('Could not end every game process (run the editor as administrator?).', '未能结束全部游戏进程（可尝试以管理员身份运行）。',
+                   '未能結束全部遊戲程序（可嘗試以系統管理員身分執行）。'), WARN) end
+    end
+    state.host_game = game_process
+    state.host_kill_armed = function() return bar.kill_armed ~= nil and bar.kill_armed > clock() end
     local function install()
         if not commit_active()then return end
         if I.game_running() then say('Helldivers 2 is running: close it, then Install.', WARN); return end

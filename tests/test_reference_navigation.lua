@@ -24,7 +24,11 @@ end
 local function double(w,row)
  E.ui.search.text='stale search that hides the target'
  E.select_weapon(w)
- local n;for i,r in ipairs(w.rows)do if r==row then n=i end end;assert(n)
+ if w.component_groups then
+  for _,g in ipairs(w.component_groups)do E.ui.expanded_components[w.hash..':'..g.type]=true end
+  w.sync_rows()
+ end
+ local n;for i,r in ipairs(w.rows)do if r==row or r.id==row.id and r.parts==row.parts then n=i end end;assert(n)
  local value=E.row_value(row);local writes=state.writes
  E.click('value:'..n)
  assert(E.ui.weapon==w,'single click navigated')

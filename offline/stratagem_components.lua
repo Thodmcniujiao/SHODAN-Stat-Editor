@@ -99,6 +99,41 @@ M.HASHES={{'Package',168},{'Icon',176},{'Field_136',136},{'DamageDealer',240}}
 M.STRINGS={{'Name',16},{'Field_024',24},{'Field_032',32}}
 M.ARRAYS={{'Field_280',280},{'HellpodTargetOffset',304},{'HellpodAdditionalRotationInTau',320},
           {'EquipmentTags',336},{'Customizations',352},{'Field_376',376}}
+-- The one classification of StratagemInfo fields, shared by every page that shows this component
+-- (游戏数据 › 战备id, 轨道飞鹰 › 轨道/飞鹰编辑, ...). Keep this table as the only place groups are defined.
+M.GROUPS={
+ {id='identity',name={'Identity and name','标识与名称','標識與名稱'},fields={ 'StratagemTypeID','Name','RecordID','VideoID',
+   'NameUpperTextID','NameCasedTextID','DescriptionTextID','FluffTextID','LoadingTextID'}},
+ {id='callin',name={'Call-in code','呼叫指令','呼叫指令'},fields={ 'button_combination', 'Button1', 'Button2', 'Button3',
+   'Button4', 'Button5', 'Button6', 'Button7', 'Button8', 'Button9'}},
+ {id='category',name={'Category and cost','分类与消耗','分類與消耗'},fields={ 'Category','Uses','Cost','MaxInLoadout',
+   'IsEnabled','HUDType','BeaconColor'}},
+ {id='timing',name={'Cooldown and deployment','冷却与投放','冷卻與投放'},fields={ 'SpawnTime','SpawnRadius','BeaconingTime',
+   'ExtraTravelTime','Cooldown','CooldownIfFail','CooldownType','AltCooldown','ExtraHellpods'}},
+ {id='origin',name={'Origin and call-in type','来源与呼叫方式','來源與呼叫方式'},fields={ 'OriginType','CallInType',
+   'ObjectiveRequirement','StratagemFlags','ShipLaserPointer'}},
+ {id='payload',name={'Payload and assets','载荷与资源','載荷與資源'},fields={ 'PayloadSpawnPosition','Package','Icon',
+   'PayloadUnitCustomization'}},
+ {id='links',name={'Dependencies and links','依赖与关联','依賴與關聯'},fields={ 'DependsOnStratagemID',
+   'AdditionalStratagemID','MatchingSupportWeapon','DamageDealer','DLCPackID','SharedStratagemUpgradesType',
+   'SharedStratagemUpgradesCategories'}},
+ {id='flags',name={'Flags and conditions','标志与条件','旗標與條件'},fields={ 'MissionSpecific','Selectable','TriggersWar',
+   'IsClanStratagem','InfoFlags','AllowForButtonOverlap','DeployOnNavmeshOnly','Field_208','Field_296_Bit1'}},
+ {id='audio',name={'Voice and audio','语音与音效','語音與音效'},fields={ 'ReadyVO','DeniedVO','ConfirmationVOOwner',
+   'CalloutVO','SpottableVOLine'}},
+ {id='arrays',name={'Arrays and customization','数组与自定义','陣列與自訂'},fields={ 'HellpodTargetOffset',
+   'HellpodAdditionalRotationInTau','EquipmentTags','Customizations','Field_280','Field_376'}},
+ {id='unknown',name={'Unknown fields','未知字段','未知欄位'},fields={ '__unknown' }},
+}
+M.GROUP_OF={}
+for _,g in ipairs(M.GROUPS)do for _,f in ipairs(g.fields)do M.GROUP_OF[f]=g end end
+function M.group(name)
+ local g=M.GROUP_OF[name]
+ if g then return g end
+ if name:match('^Button%d+$')then return M.GROUP_OF.button_combination end
+ if name:match('^Payload%d+$')then return M.GROUP_OF.PayloadSpawnPosition end
+ return M.GROUP_OF.__unknown
+end
 M.LAYOUT={
  {0,4,16},{4,4,6},{8,4,6},{16,8,18},{24,8,18},{32,8,18},{40,4,6},{44,4,6},{48,4,6},{52,4,6},{56,4,6},
  {60,4,16},{64,16,16,1},{80,4,6},{84,4,8},{88,4,8},{92,4,8},{96,4,8},{100,4,8},{104,4,8},{108,4,8},
@@ -125,7 +160,15 @@ function M.check_layout(schemas)
 end
 -- Decimal unsigned 64-bit input -> two exact uint32 halves. No conversion through a Lua double.
 function M.parse_u64(text)
- if type(text)~='string'or not text:match('^%d+$')then return nil,'Enter an unsigned decimal integer.'end
+ if type(text)~='string'then return nil,'Enter an unsigned decimal integer or a 0x hexadecimal hash.'end
+ text=text:match('^%s*(.-)%s*$')
+ local hex=text:match('^0[xX](%x+)$')
+ if hex then
+  if #hex>16 then return nil,'Value exceeds uint64 (16 hexadecimal digits).'end
+  local low=hex:sub(-8);local high=#hex>8 and hex:sub(1,-9)or'0'
+  return tonumber(low,16),tonumber(high,16)
+ end
+ if not text:match('^%d+$')then return nil,'Enter an unsigned decimal integer or a 0x hexadecimal hash.'end
  local lo,hi=0,0
  for d in text:gmatch('.')do
   local n=lo*10+tonumber(d);lo=n%4294967296;hi=hi*10+math.floor(n/4294967296)

@@ -1,5 +1,6 @@
 -- ProjectileSettings -> ProjectileInfo, matched against the current type library.
 local M={TYPE=0xBD4042C2,SIZE=272}
+M.GROUP_ORDER={'basic','flight','damage','explosion','collision','ricochet','attachment','effects','impact','audio','templates','flags1','flags2','unknown'}
 M.GROUPS={
  basic={'Identity and display','标识与显示','識別與顯示'},flight={'Ballistics','弹道','彈道'},
  damage={'Damage reference','伤害引用','傷害引用'},effects={'Resources and effects','资源与特效','資源與特效'},

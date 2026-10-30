@@ -123,11 +123,19 @@ S.LAYOUT={{0,20},{20,20},{40,8},{48,8},{56,8},{64,8},{72,8},{80,8},{88,8}}
 S.NESTED={}
 M.SPECS[2]=V.prepare(S)
 
+local Q=require('spawn_queue_components')
+for _,spec in ipairs(Q.SPECS)do M.SPECS[#M.SPECS+1]=spec end
+H.CATEGORIES={}
+for hash,name in pairs(H.NAMES)do
+ local fac=name:match('Hive mind: (%a+)')
+ H.CATEGORIES[hash]=({Terminids='terminids',Automatons='automatons',Illuminate='illuminate'})[fac]or'other'
+end
 for _,s in ipairs(M.SPECS)do M.SUBS.spawn[#M.SUBS.spawn+1]=s.SLOT end
 
 -- the hive minds' page names ('Hive mind: Terminids · 40 min · D337A7BF'), translated
 local FACTION={None={'无','無'},Terminids={'虫族','蟲族'},Illuminate={'光能者','光能者'},Automatons={'机器人','機器人'}}
 function M.translate_name(v,lang)
+ local queue=Q.translate_name(v,lang);if queue then return queue end
  if type(v)~='string'then return nil end
  if v=='SEAF objectives (all factions)'then
   return lang=='zh-Hans'and'SEAF 目标（所有阵营）'or lang=='zh-Hant'and'SEAF 目標（所有陣營）'or nil

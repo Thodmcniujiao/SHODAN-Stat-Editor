@@ -13,7 +13,7 @@ assert(#H.load(TEST_GAME,original)==0)
 local checks=[==[
 local C=E.MOD.preload
 local slots={'PreloadGlobal','PreloadLoadout','PreloadEnemy','PreloadWorld','PreloadCatalog','PreloadHotjoin'}
-local misc=E.MOD.nav.page('misc');assert(table.concat(misc.subs[4].tabs,',')=='PreloadExtra,'..table.concat(slots,','))
+local misc=E.MOD.nav.page('misc');assert(table.concat(misc.subs[3].tabs,',')=='PreloadExtra,'..table.concat(slots,','))
 local entity_count,editable=0,0
 for _,slot in ipairs(slots)do
  local list=E.weapons_in(slot);assert(#list>0,slot..' empty');print(slot,#list)

@@ -10,9 +10,14 @@ end
 local V=require('component_view')
 local EC=require('enemy_components')
 local AI=require('ai_components')
--- the tabs: AI设置 (AiEnemy, AiCharacter, the sensor eye again, SensorEar, SensorDanger), 接触伤害
-assert(table.concat(AI.SUBS.ai,',')=='AiEnemyComponents,AiCharacterComponents,AiSensorEyeComponents,SensorEarComponents,SensorDangerComponents')
+-- the tabs: AI设置 (AiEnemy, AiCharacter, the sensor eye again, SensorEar, SensorDanger, Targeting), 接触伤害
+assert(table.concat(AI.SUBS.ai,',')=='AiEnemyComponents,AiCharacterComponents,AiSensorEyeComponents,SensorEarComponents,SensorDangerComponents,TargetingComponents')
 assert(table.concat(AI.SUBS.overlap,',')=='OverlapDamageComponents')
+-- 实体组件 › 炮塔与制导: the sensor ear again, beside the sensor eye (the same fields as AI设置's)
+do local ear=AI.SPECS[#AI.SPECS]
+ assert(table.concat(AI.SUBS.turret,',')=='TurretSensorEarComponents'and ear.TYPE=='SensorEarComponentData'and ear.KEY=='turret_sensor_ear')
+ for _,s in ipairs(require('enemy_components').SPECS)do if s.TYPE=='SensorEarComponentData'then assert(s.FIELDS==ear.FIELDS and s.KEY=='sensor_ear')end end
+end
 local eye=AI.SPECS[3]
 assert(eye.TYPE=='SensorEyeComponentData'and eye.KEY~='sensor_eye'and eye.FIELDS==require('sensor_eye_components').FIELDS,'the same fields as 炮塔与制导')
 local by={}
@@ -22,7 +27,7 @@ for _,s in ipairs(EC.SPECS)do
 end
 local n={};for t,s in pairs(by)do n[t]=#s.FIELDS end
 assert(n.AiEnemyComponentData==193 and n.AiCharacterComponentData==22 and n.SensorEarComponentData==7)
-assert(n.SensorDangerComponentData==3 and n.OverlapDamageComponentData==385)
+assert(n.SensorDangerComponentData==3 and n.OverlapDamageComponentData==385 and n.TargetingComponentData==21)
 assert(by.AiEnemyComponentData.HASH==0x9D0EEFB5 and by.AiCharacterComponentData.HASH==0x5FEF63C4)
 local function at(spec)local o={};for _,f in ipairs(spec.FIELDS)do o[f[2]]=o[f[2]]or f[1]end;return o end
 -- the enemy pages' movement speed (MOD.enemy.SPEEDS) and senses rows land on these members
@@ -35,6 +40,12 @@ assert(ai[688]=='unk_float_0x02B0'and ai[700]=='unk_float_0x02BC'and ai[704]=='u
 local ch=at(by.AiCharacterComponentData)
 assert(ch[0]=='preferred_speed'and ch[4]=='maximum_speed')
 assert(at(by.SensorEarComponentData)[4]=='hearing_multiplier')
+-- suppression: SensorDanger +8 is miss_react (near misses count; the 2024 schema's ignore_stance is gone), its table 4
+-- bytes after the records; Targeting +36 / +40 / +44 the flinch the enemy pages' suppression rows edit
+local dg=at(by.SensorDangerComponentData)
+assert(dg[0]=='danger_max'and dg[4]=='danger_sphere_radius'and dg[8]=='miss_react'and by.SensorDangerComponentData.SLACK==4)
+local tg=at(by.TargetingComponentData)
+assert(by.TargetingComponentData.HASH==0x2C0968D2 and tg[36]=='aim_flinch_multiplier'and tg[40]=='aim_flinch_decrease'and tg[44]=='aim_flinch_max')
 -- a page from a synthetic AiCharacter record: the movement row the enemy page scales is the same field
 local rec=string.pack('<ff',3.5,6)..string.rep('\0',72)
 local KEY=string.pack('<I8',0xD9511E9F6BD62E3F)
@@ -51,4 +62,4 @@ assert(#page.rows==22)
 local first
 for _,r in ipairs(page.rows)do assert(r.label_of()and r.section_of()and r.tip_of());if r.parts[1].field.offset==0 then first=r end end
 assert(first.parts[1].field==enemy_speed and first.label_of()=='偏好速度（米/秒）'and read(enemy_speed)==3.5)
-print('enemy components: ok (610 fields in 5 components)')
+print('enemy components: ok (631 fields in 6 components)')

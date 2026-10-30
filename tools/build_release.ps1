@@ -42,10 +42,12 @@ $files['PRESETS.md'] = In-Root 'offline\PRESETS.md'
 $files['PRELOAD_COMPONENTS.md'] = In-Root 'offline\PRELOAD_COMPONENTS.md'
 $files['PLANET_SETTINGS.md'] = In-Root 'offline\PLANET_SETTINGS.md'
 $files['ENEMY_DATA.md'] = In-Root 'offline\ENEMY_DATA.md'
+$files['UPSTREAM_4.5.1_PORT.md'] = In-Root 'offline\UPSTREAM_4.5.1_PORT.md'
 $files['PLAYER_DATA.md'] = In-Root 'offline\PLAYER_DATA.md'
 $files['SPAWN_EDITOR.md'] = In-Root 'offline\SPAWN_EDITOR.md'
 $files['MODIFIER_ATTACHMENTS.md'] = In-Root 'offline\MODIFIER_ATTACHMENTS.md'
 $files['REFERENCE_NAVIGATION.md'] = In-Root 'offline\REFERENCE_NAVIGATION.md'
+$files['RECORD_NAMES.md'] = In-Root 'offline\RECORD_NAMES.md'
 $files['STRATAGEM_COMPONENTS.md'] = In-Root 'offline\STRATAGEM_COMPONENTS.md'
 $files['DAMAGE_COMPONENTS.md'] = In-Root 'offline\DAMAGE_COMPONENTS.md'
 $files['PROJECTILE_COMPONENTS.md'] = In-Root 'offline\PROJECTILE_COMPONENTS.md'
@@ -102,6 +104,9 @@ $readme = In-Root 'offline\RELEASE_README.txt'
 if (Test-Path -LiteralPath $readme) {
     [IO.File]::WriteAllText((Join-Path $out 'README.txt'), [IO.File]::ReadAllText($readme, $utf8).Replace('{version}', $version), $utf8)
 }
+# the global presets folder beside the exe (the editor keeps preset_library.json there)
+New-Item -ItemType Directory -Force -Path (Join-Path $out 'Presets') | Out-Null
+Copy-Item -LiteralPath (In-Root 'offline\PRESETS_FOLDER_README.txt') -Destination (Join-Path $out 'Presets\README.txt') -Force
 $licenses = @('LuaJIT.txt', 'libsodium.txt') | ForEach-Object { In-Root ('offline\licenses\' + $_) } | Where-Object { Test-Path -LiteralPath $_ }
 if ($licenses.Count -gt 0) {
     $parts = $licenses | ForEach-Object { ([IO.File]::ReadAllText($_, $utf8)).Trim() }

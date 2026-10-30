@@ -1,12 +1,11 @@
 local Library=require('preset_library')
 local V=require('component_view')
+local Global=require('global_preset')
+local I=require('install')
 local M={}
 function M.new(c)
  local ui=c.ui
- local P={scope='game',scopes={{id='game',label={'Game parameters','游戏参数','遊戲參數'}},
-  {id='enemy',label={'Enemy parameters','敌人参数','敵人參數'}},
-  {id='loadout',label={'Saved equipment','存档配装','存檔配裝'}},
-  {id='preload',label={'Preload plans','预载方案','預載方案'}}}}
+ local P={scope='global',scopes={{id='global',label={'Global presets','全局预设','全局預設'}}}}
  local function tx(en,cn)return V.pick(c.lang(),{en,cn,cn})end
  local function say(s)ui.message={text=tostring(s),till=c.now()+7};c.log(tostring(s));ui.version=ui.version+1 end
  local function attempt(fn)
@@ -14,18 +13,75 @@ function M.new(c)
   if not a then say(b or'Preset operation failed');return nil,b end;return a,b
  end
  function P.load_presets()
-  P.library=Library.new({path=c.folder()..'/preset_library.json'})
+  P.directory=c.preset_folder and c.preset_folder()or(c.folder()..'/Presets')
+  I.mkdirs(P.directory)
+  -- one file per preset, named after it (preset_library.lua's folder storage; preset_files.lua: Unicode names)
+  P.library=Library.new({dir=P.directory,log=c.log})
+  local function bring(what,fn,...)   -- an import that must not stop the editor: logged
+   local done,ok,n=pcall(fn,P.library,...)
+   if not(done and ok)then c.log('presets: '..what..' not imported: '..tostring(done and n or ok))
+   elseif n>0 then c.log('presets: '..n..' imported from '..what)end
+  end
+  -- the first global-preset builds kept every preset in one preset_library.json here: split into one file each,
+  -- that file kept under backup\ (so the folder lists the presets only)
+  local single=P.directory..'/preset_library.json'
+  if I.read(single)then
+   local done,ok,n=pcall(P.library.import_library,P.library,single)
+   if done and ok then
+    I.mkdirs(P.directory..'/backup');I.move_file(single,P.directory..'/backup/preset_library (old format).json',9)
+    c.log('presets: '..tostring(n)..' split out of preset_library.json')
+   else c.log('presets: preset_library.json not split: '..tostring(done and n or ok))end
+  end
+  -- the folder used last time (build_release.bat makes a new build folder each time, each with its own
+  -- Presets): its presets come along once. First, so its import markers keep the older sources below from
+  -- adding the same presets again.
+  local last_file=c.folder()..'/presets_folder.txt'
+  local last=I.read(last_file);last=last and last:match('^%s*(.-)%s*$')
+  if last and last~=''and last~=P.directory then
+   bring(last,P.library.import_folder,last)
+   bring(last..'/preset_library.json',P.library.import_library,last..'/preset_library.json')
+  end
+  if last~=P.directory then local f=io.open(last_file,'wb');if f then f:write(P.directory);f:close()end end
+  local migrated,count=P.library:import_library(c.folder()..'/preset_library.json');assert(migrated,count)
   local ok,count=P.library:import_legacy(c.folder(),c.parse_number);assert(ok,count)
+  assert(P.library:globalize())
+  local path=P.directory..'/README.txt'
+  if not I.read(path)then
+   local f=assert(io.open(path,'wb'));assert(f:write('SHODAN Stat Editor 全局预设文件夹\r\n\r\n每个预设是这里的一个文件，以预设名命名（例如 Horde.json、精英.json）。preset_index.json 记录编号与导入标记，请勿删除。\r\n每个预设一次保存全部修改：游戏参数、敌人参数（含敌人生成与全局倍率）、拆毁修改、存档配装和预载方案。\r\n子文件夹就是分组，可在界面中新建分组、移动预设和编辑描述。\r\n分享：把预设文件复制到别人的 Presets 文件夹，重新打开编辑器即可看到。备份：复制整个 Presets 文件夹。\r\n载入只暂存修改；游戏文件与存档仍需点击对应的写入按钮。\r\n'));assert(f:close())
+  end
   c.log('named presets: '..#P.library.document.items..'; imported legacy entries: '..count)
  end
+ function P.open_folder()return c.open_folder and c.open_folder(P.directory)end
  function P.list()
-  local out={};for _,p in ipairs(P.library and P.library:list(P.scope)or{})do out[p.id]=p end;return out
+  local out={};for _,p in ipairs(P.library and P.library:list()or{})do out[p.id]=p end;return out
  end
- function P.full_order()local out={};for _,p in ipairs(P.library and P.library:list(P.scope)or{})do out[#out+1]=p.id end;return out end
+ function P.groups()
+  local out={{id='*',label=tx('All groups','全部分组')},{id='',label=tx('Ungrouped','未分组')}}
+  for _,folder in ipairs(P.library:groups())do if folder~=''then out[#out+1]={id=folder,label=folder}end end;return out
+ end
+ function P.select_group(id)
+  local ok,why=P.finish_rename(true);if not ok then return nil,why end
+  ui.preset_group=id;ui.fpage=1;ui.fslot=nil;ui.preset_menu=nil;ui.confirm=nil
+  ui.preset_tree=nil;ui.preset_detail_scroll=1;ui.preset_description_scroll=1
+  ui.version=ui.version+1;return true
+ end
+ function P.cycle_group(direction)
+  local groups=P.groups();local at=1
+  for i,g in ipairs(groups)do if g.id==(ui.preset_group or'*')then at=i end end
+  return P.select_group(groups[(at-1+(direction=='next'and 1 or-1))%#groups+1].id)
+ end
+ function P.full_order()
+  local out={};for _,p in ipairs(P.library and P.library:list()or{})do
+   if not ui.preset_group or ui.preset_group=='*'or(p.group or'')==ui.preset_group then out[#out+1]=p.id end
+  end;return out
+ end
  function P.chosen()
-  if not P.list()[ui.fslot or 0]then ui.fslot=P.full_order()[1]end;return ui.fslot
+  for _,id in ipairs(P.full_order())do if id==ui.fslot then return id end end
+  ui.fslot=P.full_order()[1];return ui.fslot
  end
  function P.show(n)
+  local p=P.list()[n];if p and ui.preset_group and ui.preset_group~='*'and ui.preset_group~=(p.group or'')then ui.preset_group=p.group or''end
+  if ui.fslot~=n then ui.preset_tree=nil;ui.preset_detail_scroll=1;ui.preset_description_scroll=1 end
   ui.fslot=n;local rows=ui.preset_rows or 27
   for k,id in ipairs(P.full_order())do if id==n then
    if k<ui.fpage then ui.fpage=k elseif k>=ui.fpage+rows then ui.fpage=k-rows+1 end;break
@@ -34,25 +90,29 @@ function M.new(c)
  end
  function P.finish_rename(keep)
   local edit=ui.editing;if not edit then return true end
-  if keep then local ok,why=P.library:rename(edit.n,edit.text);if not ok then say(why);return nil,why end end
+  if keep then
+   local ok,why
+   if edit.kind=='group'then
+    ok,why=P.library:create_group(edit.text)
+    if ok then ui.preset_group=why;ui.fslot=nil;ui.fpage=1 end
+   elseif edit.kind=='description'then ok,why=P.library:metadata(edit.n,'description',edit.text)
+   else ok,why=P.library:rename(edit.n,edit.text)end
+   if not ok then say(why);return nil,why end
+  end
   ui.editing=nil;ui.version=ui.version+1;return true
  end
  function P.select_scope(scope)
   if not Library.SCOPES[scope]then return nil,'Unknown preset category'end
   local ok,why=P.finish_rename(true);if not ok then return nil,why end
-  ui.preset_selected=ui.preset_selected or{};ui.preset_selected[P.scope]=ui.fslot
-  P.scope=scope;ui.fslot=ui.preset_selected[scope];ui.fpage=1;ui.confirm=nil;ui.version=ui.version+1;return true
+  -- Old callers may still name a category. They all address the same global list.
+  P.scope='global';ui.confirm=nil;ui.version=ui.version+1;return true
  end
  function P.capture()
-  if P.scope=='game'or P.scope=='enemy'then return {values=c.values(P.scope=='enemy'),data=P.scope=='game'and c.game_settings()or nil}end
-  if P.scope=='loadout'then
-   local model=rawget(_G,'SHODAN_PLAYER_SAVE_MODEL');if not model then return nil,'存档编辑器不可用。'end
-   local data,why=model:snapshot();if not data then return nil,why end;return {values={},data=data}
-  end
-  local model=rawget(_G,'SHODAN_PRELOAD_MODEL');if not model then return nil,'预载编辑器不可用。'end
-  return {values=c.preload_values and c.preload_values()or{},data=model:snapshot()}
+  return Global.capture(c)
  end
- function P.count(p)
+ -- Stored snapshot entries include unchanged equipment and default preload settings.
+ function P.saved_count(p)
+  if p.scope=='global'then return Global.count(p)end
   if p.scope=='game'or p.scope=='enemy'then
    local count=#p.values
    if p.scope=='game'and p.data then for _,key in ipairs({'stacks','own_off'})do for _ in pairs(p.data[key]or{})do count=count+1 end end end
@@ -64,20 +124,35 @@ function M.new(c)
   else for _,key in ipairs({'edits','arrays','selected','targets'})do for _ in pairs(data[key]or{})do n=n+1 end end end
   return n
  end
+ function P.count(p)
+  local n=0;for _,page in ipairs(P.detail_pages(p))do n=n+page.count end;return n
+ end
  function P.current_count()local ok,value=pcall(P.capture);if not ok or not value then return 0 end;value.scope=P.scope;return P.count(value)end
  function P.can_capture()local ok,value=pcall(P.capture);return ok and value~=nil end
  function P.start_rename(n)
   local p=P.list()[n];if p then ui.editing={n=n,text=p.name,fresh=true};ui.version=ui.version+1 end
  end
+ function P.start_description(n)
+  local p=P.list()[n];if p then ui.editing={n=n,kind='description',text=p.description or'',fresh=false};ui.version=ui.version+1 end
+ end
+ function P.start_group()ui.preset_menu=nil;ui.editing={kind='group',text='',fresh=false};ui.version=ui.version+1 end
+ function P.move_group(id)
+  return attempt(function()
+   local n=P.chosen();if not n then return nil,'No preset selected'end
+   local ok,why=P.library:metadata(n,'group',id);if not ok then return nil,why end
+   ui.preset_menu=nil;ui.preset_group=id;P.show(n);return true
+  end)
+ end
  function P.type_char(char)
   local edit=ui.editing;if not edit then return end
   if char==false then edit.text=edit.fresh and''or edit.text:gsub('[%z\1-\127\194-\244][\128-\191]*$','')
-  else if edit.fresh then edit.text=''end;if #edit.text+#char<=120 then edit.text=edit.text..char end end
+  else if edit.fresh then edit.text=''end;if #edit.text+#char<=(edit.kind=='description'and 4096 or edit.kind=='group'and 240 or 120)then edit.text=edit.text..char end end
   edit.fresh=false;ui.version=ui.version+1
  end
  function P.new_full_preset()
   return attempt(function()
    local payload,why=P.capture();if not payload then return nil,why end
+   payload.group=ui.preset_group~='*'and ui.preset_group or''
    local id;id,why=P.library:create(P.scope,tx('Preset ','预设 ')..P.library.document.next_id,payload)
    if not id then return nil,why end;P.show(id);P.start_rename(id);return id
   end)
@@ -86,20 +161,9 @@ function M.new(c)
   return attempt(function()
    local p=P.list()[n];if not p then return nil,'Preset no longer exists'end
    if not c.enabled()then return nil,'请先在设置中开启修改。'end
-   local ok,why
-   if p.scope=='game'or p.scope=='enemy'then
-    ok,why=c.apply(p)
-   elseif p.scope=='loadout'then
-    local model=rawget(_G,'SHODAN_PLAYER_SAVE_MODEL');if not model then return nil,'存档编辑器不可用。'end
-    ok,why=model:apply_snapshot(p.data)
-   else
-    local model=rawget(_G,'SHODAN_PRELOAD_MODEL');if not model then return nil,'预载编辑器不可用。'end
-    if p.data and p.data.legacy_key then ok,why=model:apply_legacy_preset(p.data.legacy_key,p.data.value)
-    else ok,why=model:apply_snapshot(p.data)end
-    if ok and not(p.data and p.data.legacy_key)then ok,why=c.apply(p)end
-   end
+   local ok,why=Global.apply(c,p)
    if not ok then return nil,why end
-   say(tx('Loaded preset: ','已载入预设：')..p.name..(why and('；'..why)or'')..(p.scope=='loadout'and'；配装暂存，返回配装页点击“写入存档”。'or''))
+   say(tx('Loaded global preset: ','已载入全局预设：')..p.name..(why and('；'..why)or'')..(p.data and p.data.loadout and'；配装已暂存，需另行写入存档。'or''))
    return true
   end)
  end
@@ -113,11 +177,7 @@ function M.new(c)
     if kind=='delete'then ok,why=P.library:delete(n)
     else
      local payload;payload,why=P.capture();if not payload then return nil,why end
-     if p.kind=='patch'and(p.scope=='game'or p.scope=='enemy')then
-      local owners={};for _,v in ipairs(p.values)do owners[v.hash]=true end
-      if p.data and p.data.owner_hash then owners[p.data.owner_hash]=true end
-      local values={};for _,v in ipairs(payload.values)do if owners[v.hash]then values[#values+1]=v end end;payload={values=values,data=p.data}
-     end
+     payload.kind,payload.scope='snapshot','global'
      ok,why=P.library:replace(n,payload)
     end
     if not ok then return nil,why end;say(tx(kind=='delete'and'Deleted preset: 'or'Saved preset: ',kind=='delete'and'已删除预设：'or'已保存预设：')..p.name);return true
@@ -125,33 +185,40 @@ function M.new(c)
   end
   ui.confirm={n=n,kind=kind,till=c.now()+3};ui.version=ui.version+1;return true
  end
+ function P.detail_pages(p)
+  local stamp=tostring(P.library.revision)..':'..c.lang()..':'..tostring(c.detail_version and c.detail_version())
+  if P.detail_stamp~=stamp then P.detail_cache={};P.detail_stamp=stamp end
+  -- Unsaved capture previews have no ID and must never reuse a named preset's cache.
+  if not p.id then return require('preset_details').build(p,c)end
+  if not P.detail_cache[p.id]then P.detail_cache[p.id]=require('preset_details').build(p,c)end
+  return P.detail_cache[p.id]
+ end
+ -- Each preset starts with every main page collapsed. Multiple branches can stay open.
  function P.details(p)
+  local tree=ui.preset_tree
+  if not tree or tree.id~=p.id then tree={id=p.id,pages={},sections={}};ui.preset_tree=tree;ui.preset_detail_scroll=1 end
   local out={}
-  if p.scope=='game'or p.scope=='enemy'then
-   local counts={};for _,v in ipairs(p.values)do counts[v.hash]=(counts[v.hash]or 0)+1 end
-   local keys={};for key in pairs(counts)do keys[#keys+1]=key end;table.sort(keys)
-   for _,hash in ipairs(keys)do local w=c.by_hash[hash];out[#out+1]={label=w and c.tr(w.name)or hash,value=tostring(counts[hash])}end
-   if p.scope=='game'and p.data then
-    for _,entry in ipairs({{'stacks','Passive stacks','护甲被动叠加'},{'own_off','Passive switches','护甲被动开关'}})do
-     local n=0;for _ in pairs(p.data[entry[1]]or{})do n=n+1 end
-     if n>0 then out[#out+1]={label=tx(entry[2],entry[3]),value=tostring(n)}end
-    end
-   end
-  elseif p.scope=='loadout'then
-   local Save=require('player_save');for _,f in ipairs(Save.FIELDS)do local value=(p.data.values or{})[f.key]
-    if value~=nil then out[#out+1]={label=V.pick(c.lang(),f.label),value=tostring(value)}end
-   end
-  elseif p.data and p.data.legacy_key then out[1]={label=tx('Imported preload plan','导入的预载方案'),value=p.data.legacy_key}
-  else
-   for _,entry in ipairs({{'selected','Selected packages','选中的资源包'},{'targets','Load targets','加载目标'},{'edits','Manifest changes','包清单修改'},{'arrays','Package arrays','包数组修改'}})do
-    local n=0;for _ in pairs((p.data or{})[entry[1]]or{})do n=n+1 end
-    out[#out+1]={label=tx(entry[2],entry[3]),value=tostring(n)}
-   end
-   if #(p.values or{})>0 then out[#out+1]={label=tx('Package parameter changes','包参数修改'),value=tostring(#p.values)}end
+  for _,page in ipairs(P.detail_pages(p))do
+   out[#out+1]={kind='page',id=page.id,label=page.label,count=page.count,expanded=tree.pages[page.id],height=32}
+   if tree.pages[page.id]then for _,section in ipairs(page.sections)do if section.count>0 then
+    local key=page.id..'/'..section.id
+    out[#out+1]={kind='section',id=key,label=section.label,count=section.count,expanded=tree.sections[key],height=30}
+    if tree.sections[key]then for _,entry in ipairs(section.rows)do if entry.changed then
+     out[#out+1]={kind='parameter',entry=entry,height=50}
+    end end end
+   end end end
   end
   return out
  end
- function P.file_name()return'preset_library.json'end
+ function P.toggle_detail(kind,id)
+  local p=P.list()[P.chosen()];if not p then return end
+  local rows=P.details(p)
+  for _,entry in ipairs(rows)do if entry.kind==kind and entry.id==id and entry.count>0 then
+   local open=kind=='page'and ui.preset_tree.pages or ui.preset_tree.sections
+   open[id]=not open[id];ui.preset_menu=nil;ui.version=ui.version+1;return true
+  end end
+ end
+ function P.file_name()return P.directory..'/preset_library.json'end
  return P
 end
 return M

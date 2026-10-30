@@ -1,5 +1,6 @@
 -- ExplosionInfo: old decrypted definitions supply known names; current typelib supplies layout.
 local M={TYPE=0x2AEA2592,SIZE=152}
+M.GROUP_ORDER={'basic','damage','radius','shrapnel','status','arc','shake','effects','impact','templates','flags','unknown'}
 M.GROUPS={
  basic={'Identity','标识','識別'},damage={'Damage reference','伤害引用','傷害引用'},
  radius={'Radius and shape','半径与形状','半徑與形狀'},shake={'Camera shake','镜头震动','鏡頭震動'},

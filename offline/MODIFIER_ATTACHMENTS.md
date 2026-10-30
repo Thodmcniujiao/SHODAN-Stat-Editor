@@ -1,6 +1,6 @@
 # 本地环境实体列表与八槽效果 ID 的区别
 
-核对对象：已安装的 01.007.201 类型库、55 个 `data/game/*.dl_bin` 文件，以及 Darctor/Helldivers2_RawData 的 01.007.200 实体差异转储（commit `18ea7f865d0f5b25bd988e4552a6335f3bd2d7df`）。不读写游戏进程，不发送网络请求或 RPC。
+核对对象：已安装的 01.007.201 类型库、55 个 `data/game/*.dl_bin` 文件，以及 [Darctor/Helldivers2_RawData](https://github.com/Darctor/Helldivers2_RawData) 的 01.007.200 实体差异转储（commit `18ea7f865d0f5b25bd988e4552a6335f3bd2d7df`）。不读写游戏进程，不发送网络请求或 RPC。
 
 ## 新界面
 

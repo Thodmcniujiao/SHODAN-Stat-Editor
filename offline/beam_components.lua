@@ -1,5 +1,6 @@
 -- BeamInfo: old decrypted names plus the current 112-byte type-library layout.
 local M={TYPE=0xC5085606,SIZE=112}
+M.GROUP_ORDER={'basic','geometry','damage','collision','explosion','danger','effects','impact','audio','unknown'}
 M.GROUPS={
  basic={'Identity','标识','識別'},geometry={'Beam geometry','激光几何','雷射幾何'},
  damage={'Damage reference','伤害引用','傷害引用'},effects={'Resources and effects','资源与特效','資源與特效'},

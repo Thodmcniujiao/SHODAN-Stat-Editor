@@ -1,5 +1,6 @@
 -- ArcInfo: old decrypted JSON and INI names; current 104-byte layout verified before editing.
 local M={TYPE=0xAFDF0267,SIZE=104}
+M.GROUP_ORDER={'basic','travel','spread','chain','damage','effects','impact','unknown'}
 M.GROUPS={
  basic={'Identity','标识','識別'},travel={'Travel and range','传播与射程','傳播與射程'},
  spread={'Spread','扩散','擴散'},chain={'Chaining','连锁','連鎖'},damage={'Damage reference','伤害引用','傷害引用'},

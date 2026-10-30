@@ -14,14 +14,39 @@ COMP_INFO = {
  'AiCharacterComponentData': ('ai_character', '角色AI', '角色AI', 'AI character'),
  'SensorEarComponentData': ('sensor_ear', '听觉', '聽覺', 'Hearing'),
  'SensorDangerComponentData': ('sensor_danger', '危险感知', '危險感知', 'Danger sense'),
+ 'TargetingComponentData': ('targeting', '瞄准', '瞄準', 'Targeting'),
  'OverlapDamageComponentData': ('overlap_damage', '接触伤害', '接觸傷害', 'Contact damage'),
 }
 SUBOF = {c: ('overlap' if c == 'OverlapDamageComponentData' else 'ai') for c in COMP_INFO}
 MANUAL = {}
-OVERRIDE = {}
+# SensorDanger +8: the 2024 schema had two bools here (miss_react, ignore_stance); this build's record has one byte, 1 on
+# the Helldiver, the Hulks, the tanks, the War Strider and the Vox Engine (checked against the RawData dump): miss_react,
+# as SHODAN Offline Integration found in game (near misses count toward suppression)
+DANGER_NOTE = ('Suppression: how much a unit\'s aim is shaken by fire landing near it. On the Helldiver it is enemy fire that '
+               'shakes your aim; on an enemy, your fire (its aim then drifts by Targeting\'s flinch values).',
+               '压制：落在单位附近的火力会晃动它的准星。绝地潜兵身上是敌人火力晃动你的准星；敌人身上是你的火力（它的准星随后按“瞄准”组件的受惊值偏移）。',
+               '壓制：落在單位附近的火力會晃動它的準星。絕地潛兵身上是敵人火力晃動你的準星；敵人身上是你的火力（它的準星隨後按「瞄準」組件的受驚值偏移）。')
+OVERRIDE = {'SensorDangerComponentData': {
+ 0: dict(note=('How far suppression can build up; 0: none. ' + DANGER_NOTE[0], '压制最多能累积到多少；0：不受压制。' + DANGER_NOTE[1],
+               '壓制最多能累積到多少；0：不受壓制。' + DANGER_NOTE[2])),
+ 4: dict(note=('How close shots must pass to count (m); 0: never.', '子弹要从多近（米）经过才计入；0：从不。', '子彈要從多近（公尺）經過才計入；0：從不。')),
+ 8: dict(en='Near misses count (miss react)', zhs='擦弹计入（miss_react）', zht='擦彈計入（miss_react）',
+         note=('Whether shots that miss but pass close add suppression. The 2024 schema had two switches here (miss_react, '
+               'ignore_stance); this build has one byte, on for the Helldiver, Hulks, tanks, the War Strider and the Vox Engine.',
+               '未命中但擦身而过的子弹是否也累积压制。2024 年结构此处有两个开关（miss_react、ignore_stance）；当前版本只有一个字节，'
+               '绝地潜兵、巨人机甲、坦克、战争行者与 Vox 引擎为开。',
+               '未命中但擦身而過的子彈是否也累積壓制。2024 年結構此處有兩個開關（miss_react、ignore_stance）；目前版本只有一個位元組，'
+               '絕地潛兵、巨人機甲、坦克、戰爭行者與 Vox 引擎為開。')),
+}, 'TargetingComponentData': {
+ 36: dict(note=('How hard suppression throws off its aim; 0: never. (The enemy pages\' Flinch from your fire.)',
+                '压制把它的准星打偏多少；0：从不。（敌人页的“受你火力惊扰”。）', '壓制把它的準星打偏多少；0：從不。（敵人頁的「受你火力驚擾」。）')),
+ 40: dict(note=('How fast a thrown-off aim settles, per second; 0: it never does.', '准星被打偏后每秒恢复多少；0：永不恢复。',
+                '準星被打偏後每秒恢復多少；0：永不恢復。')),
+ 44: dict(note=('The most its aim can be thrown off.', '准星最多能被打偏多少。', '準星最多能被打偏多少。')),
+}}
 # Where the value alignment gave one dump name to two members: the dump's own offset names settle it (AiEnemy
 # +0x264 is the dump's unk_enum_0x0264 before target_share_radius, +0x274 its unk_float_0x0274 before task_marker_node)
-FIX = {'AiEnemyComponentData': {612: 'unk_enum_0x0264', 628: 'unk_float_0x0274',
+FIX = {'SensorDangerComponentData': {8: 'miss_react'}, 'AiEnemyComponentData': {612: 'unk_enum_0x0264', 628: 'unk_float_0x0274',
     # (+0x2B0..+0x2C2: the alignment shifted the dump's unnamed members by one; their names carry their offsets)
     688: 'unk_float_0x02B0', 692: 'unk_float_0x02B4', 696: 'unk_float_0x02B8', 700: 'unk_float_0x02BC',
     704: 'unk_bool_0x02C0', 705: 'unk_bool_0x02C1', 706: 'unk_bool_0x02C2'}}
@@ -38,3 +63,8 @@ tail = re.sub(r"open\(os\.environ\.get\('OUT',.*?\),'w'",
               lambda m: "open(os.environ.get('OUT_ENEMY',os.path.join(HERE,'..','..','offline','enemy_components.lua')),'w'", tail)
 assert 'enemy_components.lua' in tail and 'M.SUBS={ai={},overlap={}}' in tail
 exec(tail)
+# SensorDanger's table: 4 bytes after its records (as the game's stratagem blockers)
+_out = os.environ.get('OUT_ENEMY', os.path.join(HERE, '..', '..', 'offline', 'enemy_components.lua'))
+_s = open(_out, encoding='utf-8').read()
+assert _s.count('HASH=0xC677F538,') == 1
+open(_out, 'w', encoding='utf-8', newline='\n').write(_s.replace('HASH=0xC677F538,', 'HASH=0xC677F538,SLACK=4,'))

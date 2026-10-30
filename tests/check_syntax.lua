@@ -1,4 +1,4 @@
-for _,name in ipairs({'demolition','demolition_panel','demolition_bridge','health_components','drown_components','shield_components','component_view','throwable_components','thrower_components','minefield_components','mine_spawner_components','faction_components','mount_components','inventory_components','sensor_eye_components','turret_components','eagle_components','eagle_spawner_components','weapon_components','stratagem_components','damage_components','projectile_components','explosion_components','arc_components', 'beam_components', 'status_components','entity_catalog','json_data','unit_aliases','entity_assets','host','hostdata','gamedata','install','engine_shim','update'})do
+for _,name in ipairs({'demolition','demolition_panel','demolition_bridge','health_components','drown_components','shield_components','component_view','throwable_components','thrower_components','minefield_components','mine_spawner_components','faction_components','mount_components','inventory_components','sensor_eye_components','turret_components','eagle_components','eagle_spawner_components','weapon_components','stratagem_components','damage_components','projectile_components','explosion_components','arc_components', 'beam_components', 'status_components','entity_catalog','json_data','record_names','unit_aliases','entity_assets','host','hostdata','gamedata','install','engine_shim','update'})do
  assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))
 end
 assert(loadfile(TEST_ROOT..'/src/stat_editor_offline.lua'))
@@ -10,6 +10,12 @@ for _,name in ipairs({'preload_store','preload_io','preload_authoring'})do asser
 assert(loadfile(TEST_ROOT..'/offline/planet_components.lua'))
 assert(loadfile(TEST_ROOT..'/offline/planet_data.lua'))
 for _,name in ipairs({'player_save','player_save_io','player_save_view'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
-for _,name in ipairs({'preset_library','preset_controller','preset_panel','editor_footer'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
+for _,name in ipairs({'preset_library','preset_files','preset_controller','preset_panel','editor_footer'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
 for _,name in ipairs({'modifier_components','modifier_data','mission_components','hellpod_components','spawn_components','enemy_components','ai_components'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
+assert(loadfile(TEST_ROOT..'/offline/typeid_groups.lua'))
+assert(loadfile(TEST_ROOT..'/offline/component_records.lua'))
+assert(loadfile(TEST_ROOT..'/offline/spawn_queue_components.lua'))
+assert(loadfile(TEST_ROOT..'/offline/health_schema.lua'))
+assert(loadfile(TEST_ROOT..'/offline/global_preset.lua'))
+assert(loadfile(TEST_ROOT..'/offline/preset_details.lua'))
 print('PASS: all offline modules and the original panel compile with the bundled LuaJIT')

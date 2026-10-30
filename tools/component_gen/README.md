@@ -1,6 +1,6 @@
 # 组件解析生成器
 
-由游戏类型库与 RawData dump 生成 `offline/weapon_components.lua`（武器类组件的完整字段表）。
+由游戏类型库与 [Darctor/Helldivers2_RawData](https://github.com/Darctor/Helldivers2_RawData) 的 dump 生成 `offline/weapon_components.lua`（武器类组件的完整字段表）。生成文件头部会写明这一来源。
 
 1. 克隆 https://github.com/Darctor/Helldivers2_RawData 到本目录的 `Helldivers2_RawData`（或用环境变量 `RAWDATA` 指定），
    克隆 https://github.com/shalzuth/HelldiversData 到本目录的 `HelldiversData`（或用环境变量 `SHALZUTH` 指定）。

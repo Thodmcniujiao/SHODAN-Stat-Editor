@@ -36,7 +36,7 @@
 | 听觉 | SensorEarComponentData | 7 | 187 |
 | 危险感知 | SensorDangerComponentData | 3 | 191 |
 
-“实体组件”新增“接触伤害”子页：OverlapDamageComponentData，385 个字段，64 个实体。每个实体 8 个伤害区域，包括击退、撞击伤害、拆毁强度、激活速度、忽略的实体等。
+“实体组件 › 生命与拆毁”新增“接触伤害”标签：OverlapDamageComponentData，385 个字段，64 个实体。每个实体 8 个伤害区域，包括击退、撞击伤害、拆毁强度、激活速度、忽略的实体等。
 
 以上字段与敌人页、倍率页共用同一组字段，改一处另一处同步。
 

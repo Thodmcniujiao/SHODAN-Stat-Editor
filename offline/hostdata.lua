@@ -170,7 +170,8 @@ local function changes(f)
         -- CharacterName is exclusively enums, localization IDs and a one-byte flag.
         -- Integer IDs may have float-looking bits; never change them as a checksum salt.
         local PC=require('preload_components')
-        for _,h in ipairs(G.headers(f.p,f.n))do if h.type==0x7655097B or PC.ENTITY_TYPES[h.type]then
+        local queues=require('spawn_queue_components').TYPES
+          for _,h in ipairs(G.headers(f.p,f.n))do if h.type==0x7655097B or h.type==require('health_schema').HASH or PC.ENTITY_TYPES[h.type]or queues[h.type]then
             local first,last=h.at+24,h.at+24+h.size-1
             for off=first-first%4,last-last%4,4 do nonfloats[off]=true end
         end end

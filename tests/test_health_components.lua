@@ -1,10 +1,21 @@
 -- Reuse the authenticated-data/editor startup of the demolition integration test.
 local f=assert(io.open(TEST_ROOT..'/tests/test_editor_demolition_sync.lua','rb'));local source=f:read('*a');f:close()
 local start=assert(source:match('^(.-)local weapon=assert'), 'editor startup fixture changed')
+start=start:gsub('SHODAN_DEMOLITION_BRIDGE=bridge','SHODAN_DEMOLITION_BRIDGE=bridge;SHODAN_COMPONENT_CATALOG_SOURCE=model',1)
 local checks=[==[
 local health=assert(state.health_components());assert(#health.pages>100)
+-- 人物数据: Avatar, Health and Faction, then (where the game has them) danger sense, melee strikes and every weapon's
+-- sway, each a collapsed component (the Armory's component view)
+local player=assert(E.weapons_in('Helldiver')[1],'helldiver page missing')
+assert(player.player and player.component_groups and #player.component_groups>=3)
+assert(player.component_groups[1].type=='AvatarComponentData'and player.component_groups[2].type=='HealthComponentData')
+assert(#player.rows==#player.component_groups and player.rows[1].collapsed_component)
+E.ui.expanded_components[player.hash..':AvatarComponentData']=true
+player.sync_rows('AvatarComponentData')
+assert(#player.rows>100)
 local enemy=assert(E.by_hash.F79CD8BB654397DF,'Alpha Commander missing')
 local page=assert(health.by_entity.F79CD8BB654397DF,'Alpha Commander Health view missing')
+page.ensure_rows()
 assert(page.by_id.health.field==enemy.by_id.health.field,'both pages must reuse the identical field')
 local kind=enemy.by_id.health.field.kind
 for _,view in ipairs(health.pages)do for _,row in ipairs(view.rows)do for _,p in ipairs(row.parts)do
@@ -37,6 +48,7 @@ for _,view in ipairs(health.pages)do
  local p=view.by_id.health;if p and not p.health_owner then unknown=view;break end
 end
 assert(unknown,'expected an entity beyond the original catalog')
+unknown.ensure_rows()
 E.ui.weapon=unknown;local p=unknown.by_id.health;local original_value=E.row_value(p.row)
 E.change(p.row,0,false,original_value+10);assert(E.row_value(p.row)==original_value+10)
 assert(E.save_config());assert(read(I.home..'/config.txt'):find(unknown.hash..' health ',1,true))
@@ -48,7 +60,7 @@ end
 open('HealthComponents');assert(not state.component_view())
 E.ui.search.text='F79CD8BB654397DF';local results=E.weapons_in('?search');assert(#results==1 and results[1]==page)
 open('DemolitionComponents');assert(state.component_view()=='demolition')
-local tabs=state.component_tabs();assert(#tabs==11 and tabs[10].label=='Health and demolition'and tabs[10].selected)
+local tabs=state.component_tabs();assert(#tabs==8 and tabs[7].label=='Health and demolition'and tabs[7].selected)
 E.click('cat:HealthComponents')
 assert(E.ui.tab=='HealthComponents'and not state.component_view(),'demolition -> Health navigation failed')
 state.nav_open('enemies',1)
