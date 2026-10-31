@@ -10,6 +10,7 @@ local shim = require('engine_shim')
 local G = require('gamedata')
 local D = require('hostdata')
 local I = require('install')
+local F = require('preset_files')
 local U = require('update')
 local Demo = require('demolition')
 local DemoPanel = require('demolition_panel')
@@ -41,6 +42,9 @@ local BACK = { 255, 12, 15, 19 }
 local RED = { 255, 255, 72, 60 }   -- the Enemy Editor's (editor.lua's red)
 local GOLD, WHITE, MUTED, WARN, GOOD = { 255, 255, 213, 0 }, { 255, 238, 242, 246 }, { 255, 153, 171, 184 },
                                         { 255, 255, 150, 60 }, { 255, 120, 220, 140 }
+-- This fork's own release (CHANGELOG.md: "v0.0.8 · Thodmc Reorganized"): the window title shows it instead of the
+-- panel's version and the upstream dev commit, then the build's stamp.
+local FORK_VERSION = '0.0.8'
 
 local function centred(text, y, size, c)
     shim.text(text, (shim.w - shim.text_width(text, size)) / 2, y, size, c)
@@ -85,6 +89,17 @@ local function main()
     screen({ 'SHODAN Stat Editor Offline', 'Looking for Helldivers 2...' })
     local exe_dir = here:gsub('[/\\]app[/\\]$', ''):gsub('[/\\]$', '')
     if not rawget(_G,'SHODAN_PRESET_DIRECTORY')then rawset(_G,'SHODAN_PRESET_DIRECTORY',exe_dir..'/Presets')end
+    -- Portable name pack: <exe>/Names/EntityNames and <exe>/Names/TypeIdNames.
+    -- It wins over %LOCALAPPDATA%; the app-data folders stay the fallback for
+    -- old installs and for users who keep editing their own names.
+    local names_dir = exe_dir .. '/Names'
+    local names_entity_dir = names_dir .. '/EntityNames'
+    local names_typeid_dir = names_dir .. '/TypeIdNames'
+    local entity_names = F.list(names_entity_dir)
+    local typeid_names = F.list(names_typeid_dir)
+    if #entity_names > 0 or #typeid_names > 0 then
+        rawset(_G, 'SHODAN_NAMES_DIRECTORY', names_dir)
+    end
     local game = I.find_game(exe_dir)
     if not game then
         fatal('Helldivers 2 was not found.\n\nWrite the path of its folder (the one holding "data") into\n'
@@ -94,9 +109,11 @@ local function main()
     log('hash search: ' .. (G.native and 'native, every core' or 'Lua (shodan_hash.dll not found)'))
     screen({ 'SHODAN Stat Editor Offline', 'Reading the game\'s data files...' })
     shim.pump()
-    local originals, ours, problems, count = I.originals(game)
+    local originals, ours, problems, count, installed = I.originals(game)
     if count == 0 then fatal('No game data files in ' .. game) end
     for _, p in ipairs(D.load(game, originals)) do problems[#problems + 1] = p end
+    local installed_values=require('installed_values').new(D.files,installed,log)
+    rawset(_G,'SHODAN_INSTALLED_VALUES',installed_values)
     -- The new authoring model retains serialized snapshots. The process-wide table
     -- scanner must never mistake those immutable Lua strings for writable host tables.
     local live_headers = {}
@@ -143,7 +160,7 @@ local function main()
     if rawget(_G, 'SHODAN_OFFLINE_LANG') == nil then rawset(_G, 'SHODAN_OFFLINE_LANG', primary == 0x04 and ((sub == 2 or sub == 4) and 'zh-Hans' or 'zh-Hant')
                                       or primary == 0x19 and 'ru' or nil) end
     stingray = shim.engine()
-    -- 杂项与设置 › 修改器设置: the text's size and the resolution drawn at, set by the panel
+    -- Bottom-right Settings: the text's size and the resolution drawn at, set by the panel
     -- (font: a factor of the text's size; height: the resolution drawn at, pixels, 0 = the window's; to_canvas: a client
     -- point -> the panel's pixel, nil beside it)
     rawset(_G, 'SHODAN_DISPLAY', { apply = function(font, height) return shim.set_display(font, height) end,
@@ -158,10 +175,10 @@ local function main()
     local state = rawget(_G, 'ShodanStatEditor')
     if type(state) ~= 'table' then fatal('Stat Editor did not start (no state).') end
     local build = U.build(here)   -- app/build.txt: version, commit, channel, dev
-    local dev = build.dev or (build.channel == 'dev' and build.commit and build.commit:sub(1, 7))
-    shim.set_title('SHODAN Stat Editor Offline v' .. tostring(state.version)
-                   .. (dev and ' dev ' .. dev or '') .. ' | Entity Components'
-                   .. (build.built and ' | build ' .. build.built or ''))   -- (build_release.bat: when it was packed)
+    -- The window's title: this fork's own release (CHANGELOG.md), not the panel's version or the upstream dev commit,
+    -- then when it was packed. build_release.bat stamps that.
+    shim.set_title('SHODAN Stat Editor Offline ' .. FORK_VERSION .. ' Reorganized by Thodmc'
+                   .. (build.built and ' build ' .. build.built or ''))
     -- the host's own text in the panel's language, drawn with its font
     local function tr(text) return type(state.tr) == 'function' and state.tr(text) or text end
     if type(state.lang) == 'function' then shim.lang = state.lang end
@@ -181,7 +198,8 @@ local function main()
         rawset(_G,'SHODAN_COMPONENT_NAMES',demolition_model.names)
         I.mkdirs(I.home)
         rawset(_G,'SHODAN_COMPONENT_CATALOG_SOURCE',{entities=demolition_model.entities,schemas=demolition_model.schemas,
-            names=demolition_model.names,config_path=I.home..'/entity_catalog.json',default_path=here..'entity_catalog.default.json'})
+            names=demolition_model.names,config_path=I.home..'/entity_catalog.json',default_path=here..'entity_catalog.default.json',
+            names_folder=#entity_names>0 and names_entity_dir or nil})
         demolition = DemoPanel.new(demolition_model,{path=I.home .. '/entity_demolition.txt',lang=shim.lang,tr=tr,
             component_tabs=function()return type(state.component_tabs)=='function'and state.component_tabs()or{}end,
             open_component_sub=function(sub)state.nav_open('components',sub)end,
@@ -355,8 +373,8 @@ local function main()
             shim.flush()
             shim.text(t.label, t.x0 + t.pad, (t.y0 + t.y1) / 2 + t.size * 0.35, t.size, c, true)
         end
-        if workspace~='editor'then
-            shim.text('SHODAN Stat Editor',30*(bar.sx or s),31*s,17*s,MUTED,true)
+        if workspace~='editor'then   -- (the app's name, with this fork's author after it: the preset and settings workspaces)
+            shim.text('SHODAN Stat Editor Reorganized by Thodmc',30*(bar.sx or s),31*s,17*s,MUTED,true)
         end
         for _, b in ipairs(bar.buttons) do
             local hovered = bar.hover == b.key and not bar.busy
@@ -377,12 +395,15 @@ local function main()
                       (b.gold or active)and GOLD or WHITE)
         end
         -- Busy operations paint without a panel tick; refresh the reserved status line directly.
-        if bar.busy or bar.message then
+        if bar.busy or (bar.message and not (type(state.panel_message) == 'function' and state.panel_message())) then
             local value,tone=status();value=tr(value)
-            local x,limit=48*(bar.sx or s),shim.w-96*(bar.sx or s)
-            shim.fill(46*(bar.sx or s),992*s,shim.w-46*(bar.sx or s),1024*s,BACK)
+            local sx = bar.sx or s
+            local left = workspace == 'presets' and 48 * sx or 304 * sx
+            local fill_left = workspace == 'presets' and 46 * sx or 302 * sx
+            local limit = shim.w - left - 48 * sx
+            shim.fill(fill_left,992*s,shim.w-46*sx,1024*s,BACK)
             local size=14*s;while size>9*s and shim.text_width(value,size)>limit do size=size-.5 end
-            shim.text(value,x,1009*s,size,tone)
+            shim.text(value,left,1009*s,size,tone)
         end
     end
 
@@ -513,10 +534,12 @@ local function main()
             local enabled=type(state.entity_demolition_enabled)~='function'or state.entity_demolition_enabled()
             local ok,why=pcall(function()
                 if enabled then
+                    -- Payload hashes are ordinary stratagem fields. Only the user's explicit
+                    -- preload plan may change package manifests or environment package arrays.
                     preload_model:apply_arrays(changes,D,demolition_model and demolition_model.schemas or{})
                     local report
                     asset_writes,report=preload_io:prepare(preload_model,asset_writes,asset_aliases)
-                    log(string.format('preload: %d package resources prepared; generated, not live verified',#report))
+                    log(string.format('preload: %d package resources prepared',#report))
                 end
             end)
             if not ok then
@@ -589,6 +612,8 @@ local function main()
         if not recorded then log('entity assets remain in recoverable pending ownership: '..tostring(record_why))end
         log(string.format('entity resource patches installed: %d source triads',#asset_report))
         for name, data in pairs(writes) do ours[name] = data ~= originals[name] end
+        installed_values:update(writes)
+        if state.installed_committed then state.installed_committed()end
         if recorded then remember_preload()end
         bar.base = state.writes
         log(string.format('installed: %d changed, %d back to the original', made, back))
@@ -606,7 +631,6 @@ local function main()
         end
         local writes = {}
         for name, mine in pairs(ours) do if mine then writes[name] = originals[name] end end
-        if not next(writes) and not next(EntityAssets.owned()) then say('The game\'s own files are already in place.', GOOD); return end
         busy('Restoring the game\'s files...')
         local names = {}
         for name in pairs(writes) do names[#names + 1] = name end
@@ -618,6 +642,8 @@ local function main()
         bar.busy = nil
         if not done then asset_transaction:rollback();say('Not restored: ' .. tostring(why), WARN); return end
         local committed=asset_transaction:commit()
+        installed_values:update(writes)
+        if state.installed_committed then state.installed_committed()end
         if committed then os.remove(preload_marker);preload_applied=nil end
         -- files another tool changed since: left as they are (theirs now); files another mod had changed before
         -- this editor: back to that mod's version, which Steam's file check replaces (issue #90)
@@ -627,9 +653,25 @@ local function main()
             if writes[name] and D.modded[name] then modded = modded + 1 end
         end
         for _, name in ipairs(why) do log('restore skipped ' .. name .. ': another tool changed it since') end
-        bar.base = nil
+        busy('Reloading the restored game files...')
+        local reloaded,reload_why=state.reload_after_restore(function()
+            local latest,latest_ours,problems,_,current=I.originals(game)
+            if #problems>0 then return nil,table.concat(problems,'; ')end
+            local ok,err=D.reload(game,latest);if not ok then return nil,err end
+            originals,ours=latest,latest_ours
+            installed_values=require('installed_values').new(D.files,current,log)
+            rawset(_G,'SHODAN_INSTALLED_VALUES',installed_values)
+            Physics.reset()
+            return true
+        end)
+        bar.busy=nil;bar.base=state.writes
+        if not reloaded then
+            log('restored files, but reload failed: '..tostring(reload_why))
+            say('Files restored, but the editor could not reload: '..tostring(reload_why),WARN);return
+        end
+        bar.restore_reloading=true;bar.restore_modded=modded
         log('restored the originals')
-        say('The game\'s files are back as they were before this editor. Your values stay saved here (Install puts them in again).'
+        say('The game\'s original files are restored. Reloading editor values.'
             .. (modded > 0 and string.format(' %d of them still hold another mod\'s changes: Steam\'s "Verify integrity of game files" puts back the game\'s own.', modded) or ''), GOOD)
     end
 
@@ -693,6 +735,15 @@ local function main()
         end
         sync_component_page()
         last = now
+        if bar.restore_reloading and state.phase=='ready'then
+            bar.restore_reloading=nil;bar.base=state.writes
+            say('Original files restored and editor values reloaded.'
+                ..((bar.restore_modded or 0)>0 and string.format(' %d files still hold another mod\'s changes.',bar.restore_modded)or''),GOOD)
+            log('restored data reloaded')
+        elseif bar.restore_reloading and state.phase=='gave_up'then
+            bar.restore_reloading=nil
+            say('Files restored, but the editor could not reload: '..tostring(state.status),WARN)
+        end
         -- moved onto another screen: sized for that one; another language: the pages' names again
         if bar.h ~= shim.h or bar.w ~= shim.w or bar.lang ~= shim.lang() then layout() end
         if state.phase == 'ready' and not said_ready then
@@ -714,6 +765,11 @@ local function main()
             if I.game_running() then say('Helldivers 2 is running: you can edit, but close it before you Install.', WARN) end
             local updated = U.cleanup()
             if updated then say('Updated to ' .. updated .. '.', GOOD) end
+        end
+        -- Settings > Clear all cached changes: the buffers hold the files' values again, so nothing is waiting to be
+        -- installed (the panel counts the clears: see state.cache_cleared)
+        if bar.cache_cleared ~= state.cache_cleared then
+            bar.cache_cleared, bar.base = state.cache_cleared, state.writes
         end
         -- updates: asked at start, and again when Settings > Update channel changes
         local channel = type(state.update_channel) == 'function' and state.update_channel() or 'releases'
@@ -796,6 +852,12 @@ local function main()
     -- the editor saves its values a moment after a change
     local stop = clock() + 1.5
     while clock() < stop do update(0.05); shim.sleep(20) end
+    -- Settings > Clear the cache on close: the changes the editor kept are dropped now (its presets and the game's
+    -- files are left alone). The last save above is why this comes after it: it writes the cleared state.
+    if type(state.host_closing) == 'function' then
+        local ok, why = pcall(state.host_closing)
+        if not ok then log('closing: ' .. tostring(why)) end
+    end
     if bar.restart then
         local go = true
         if go and not U.launch(bar.restart) then

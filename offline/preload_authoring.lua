@@ -118,25 +118,57 @@ function M.bind(P,c,model)
  c.by_hash[p.hash]=p;P.pages.PreloadExtra={p}
  p.note_of=function()return tx('Select donors, choose destinations, preview, then Install. Generated plans still need an in-game loading test.',
   '选择额外包和加载目标，预览后点击写入游戏。文件生成成功与游戏实际加载分别验证。')end
+ local META_EXCLUDES={
+  ['9BA626AFA44A3AA3']=true,['27AC818A499D96C3']=true,['63C55BA06CAB156C']=true,['1D2C52383671800D']=true,
+  ['20CC4FEF83325A91']=true,['3DB6CC80506006B6']=true,['14F82D6C9ABE6924']=true,['7ED1329C5DB7C175']=true,
+  ['7F01751A964576D5']=true,['8AE6CE65D31075AF']=true,['78D74F5DBBF50F36']=true,['F937F484779E7191']=true,
+ }
+ local function is_exclude_pkg(h,pkg)
+  return META_EXCLUDES[h]or(pkg and pkg.path and(pkg.path=='packages/boot'or pkg.path:find('_excludes',1,true)~=nil))
+ end
  local function filtered(pattern)
-  local out={};local query=pattern or(c.query and c.query()or''):lower()
-  for h,pkg in pairs(model.catalog)do
-   local hay=(h..' '..pkg.path):lower();local found=true
-   for word in query:gmatch('%S+')do if not hay:find(word,1,true)then found=false;break end end
-   if found then out[#out+1]=h end
+  local out={}
+  if pattern=='all_content'then
+   for h,pkg in pairs(model.catalog)do if not is_exclude_pkg(h,pkg)then out[#out+1]=h end end
+   table.sort(out);return out
+  elseif pattern=='units'then
+   for h,pkg in pairs(model.catalog)do
+    if not is_exclude_pkg(h,pkg)and(pkg.entity_kind or pkg.path:find('^packages/generated/loadout/')
+       or pkg.path=='packages/content/bugs'or pkg.path=='packages/content/cyborgs'or pkg.path=='packages/content/illuminate'
+       or pkg.path:find('^packages/content/effects_'))then
+     out[#out+1]=h
+    end
+   end
+   table.sort(out);return out
+  elseif pattern=='bug'or pattern=='cyborg'or pattern=='illuminate'then
+   for h,pkg in pairs(model.catalog)do
+    if not is_exclude_pkg(h,pkg)and(pkg.faction==pattern or(pkg.path:find('^packages/content/')and pkg.path:lower():find(pattern,1,true)))then
+     out[#out+1]=h
+    end
+   end
+   table.sort(out);return out
   end
-  return out
+  local query=(pattern or(c.query and c.query()or'')):lower()
+  for h,pkg in pairs(model.catalog)do
+   if not is_exclude_pkg(h,pkg)then
+    local hay=(h..' '..pkg.path..' '..(pkg.label or'')..' '..(pkg.faction or'')):lower();local found=true
+    for word in query:gmatch('%S+')do if not hay:find(word,1,true)then found=false;break end end
+    if found then out[#out+1]=h end
+   end
+  end
+  table.sort(out);return out
  end
  local refresh
  refresh=function()
   p.rows={}
-  local mode=row(p,'merge_mode','Apply manifest merge (off = array edits only)','应用包清单合并（关闭则仅写数组修改）');mode.storage='flag'
+  local mode=row(p,'merge_mode','Apply manifest merge (off = array edits only)','应用包清单合并与全局环境预载（关闭则仅写手动数组修改）');mode.storage='flag'
   mode.custom_value=function(default)return(default or model.cfg.merge_enabled~=false)and 1 or 0 end
   mode.custom_change=function(v)return model:mutate(function()model.cfg.merge_enabled=v>=.5 end)end
   mode.custom_reset=function()return model:mutate(function()model.cfg.merge_enabled=true end)end
-  action(p,'all','Select every package','选中所有包',function()return model:select_many(S.keys(model.catalog),true)end,refresh)
+  action(p,'units','Select all creature & weapon/stratagem packages','选中全部生物与武器战备包（推荐）',function()return model:select_many(filtered('units'),true)end,refresh)
+  action(p,'all','Select every package','选中所有包',function()return model:select_many(filtered('all_content'),true)end,refresh)
   action(p,'filter','Select packages matching search','选中搜索框匹配的包',function()return model:select_many(filtered(),true)end,refresh)
-  for _,g in ipairs({{'bug','Terminid packages (named)','虫族包（已知名称）'},{'cyborg','Automaton packages (named)','机器人包（已知名称）'},{'illuminate','Illuminate packages (named)','光能者包（已知名称）'}})do
+  for _,g in ipairs({{'bug','Terminid packages (units & effects)','虫族包（全部生物与特效）'},{'cyborg','Automaton packages (units & effects)','机器人包（全部生物与特效）'},{'illuminate','Illuminate packages (units & effects)','光能者包（全部生物与特效）'}})do
    action(p,'group_'..g[1],g[2],g[3],function()return model:select_many(filtered(g[1]),true)end,refresh)
   end
   action(p,'clear','Clear selection','清空选包',function()return model:select_many(S.keys(model.cfg.selected),false)end,refresh)

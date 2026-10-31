@@ -40,7 +40,7 @@
 ## AI 与接触伤害组件
 
 - `python gen_enemy.py`：生成 `offline/enemy_components.lua`，包含 AiEnemy、AiCharacter、SensorEar、SensorDanger 和 OverlapDamage 五个组件。
-- `offline/ai_components.lua` 把它们和视觉组件 `sensor_eye_components.lua` 放进标签页：前四个和视觉放在“敌人设置 › AI设置”，OverlapDamage 放在“实体组件 › 接触伤害”。
+- `offline/ai_components.lua` 把它们和视觉组件 `sensor_eye_components.lua` 放进标签页：AiEnemy、AiCharacter、SensorEye、SensorEar 放在“生物设置 › AI设置”，SensorDanger 与 Targeting 放在“生物设置 › 生物组件”，OverlapDamage 放在“实体组件 › 接触伤害”。
 - 字段名来自 RawData dump，按全部实体的数值对齐。
 - 两处数值对齐出错，已按 dump 名字里自带的偏移在 `FIX` 中改正：
   - AiEnemy +0x264～+0x274：同一个名字被分给了两个成员；
@@ -51,3 +51,13 @@
 ## 战备与载具相关组件
 
 `python -X utf8 gen_stratagem_entities.py` 使用同一组 `COMPONENT_GEN_WORK`、`RAWDATA`、`SHALZUTH` 环境变量生成 `offline/stratagem_entity_specs.lua`：包含当前 272 类键值实体组件的记录大小和类型名称，以及 10 类载具、背包、制导等组件的命名字段。动态数组、字符串／指针和暂不支持的原始类型由运行时反射作为只读描述符显示；生成器不会把这些指针槽生成为可编辑字段。运行时 `stratagem_entity_editor.lua` 使用当前类型库补齐其他关联组件的内联字段并检查记录布局。
+
+## 生物组件
+
+`python -X utf8 gen_creature.py` 生成 `offline/creature_component_specs.lua`，包含 Unit、HitReact、StatusEffectReceiver、Locomotion、Rotation、MeleeAttack、DamageZoneShield、StatusEffectVolume、UnitCustomization、CharacterVoice 共 10 类、11244 个内联字段。Avatar 已由人物数据完整提供，不重复生成。环境变量和名称对齐来源与上面相同；同名字段以记录偏移补充保存 ID，动态数组和指针槽跳过。Locomotion、Rotation 的键值数组尾部有 4 字节对齐。
+
+`offline/creature_components.lua` 负责导航和严格布局检查。9 类进入生物组件，复用 SensorDanger、Targeting 后共 11 个标签；CharacterVoice 放在人物数据。`tests/test_creature_components.lua` 核对当前类型库的布局、字段存储类型、边界与重叠，并按类型哈希确认生物组件与 AI设置没有重复；`tests/test_creature_browser.lua` 用实际游戏表验证导航归属、人物 Avatar 保留、语音修改与重置、实体归属、延迟建行、压制字段同步和原生界面，并导出已命名组件入口清单。
+
+## 保留保存 ID 的参考名称补充
+
+`python -X utf8 gen_reference_names.py` 用 `COMPONENT_GEN_WORK` 的类型库与 `SHALZUTH` 的组件结构生成 `offline/reference_component_names.lua`。只使用完整结构类型顺序匹配和唯一具名结构／枚举哈希锚点，不使用原始类型的 LCS 推测。运行时 `component_names.lua` 在布局指纹吻合时补充未知标签，保留旧 ID、字段类型与数字范围，供已有视图和通用实体反射共用。参考库缺失时生成器报错，避免静默遗漏。详见 `offline/COMPONENT_FIELD_NAMES.md`；覆盖报告默认写入 `COMPONENT_GEN_WORK/reference-names-audit.json`，运行时已有视图的覆盖与兼容性由 `tests/test_component_names.lua` 核对。

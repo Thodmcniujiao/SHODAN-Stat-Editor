@@ -1,6 +1,7 @@
 -- Shared entity directory and declarative, reloadable naming/classification.
 local D=require('demolition');local J=require('json_data');local I=require('install');local N=require('entity_names');local IDs=require('name_ids')
 local C={};C.__index=C
+local Work=require('startup_work')
 local here=(debug.getinfo(1,'S').source:match('^@(.*[/\\])')or'./')
 -- the component pages, in order; the kinds with views of their own (c[kind]: health_ / drown_ / shield_components)
 local KINDS={'health','demolition','drown','shield','throwable','thrower','minefield','mine_spawner','faction','mount','inventory','sensor_eye','turret','eagle','eagle_spawner'}
@@ -12,9 +13,12 @@ local SLOT={health='HealthComponents',demolition='DemolitionComponents',drown='D
 -- the kinds built by component_view.lua (their pages: component_view = kind)
 local GENERIC={throwable=true,thrower=true,minefield=true,mine_spawner=true,faction=true,mount=true,inventory=true,
  sensor_eye=true,turret=true,eagle=true,eagle_spawner=true}
--- kinds a build adds (c.extra_kinds: { kind, slot }, e.g. the generated weapon components): their placeholder pages (an
--- entity without the component) are made the first time the kind is opened, not for every kind at start
-local LAZY={}
+-- Component kinds added by a build share the same deferred placeholder scheme.
+local function available(self,r,kind)
+ if kind=='demolition'then return r.destruction~=nil and r.destruction.index~=nil end
+ local view=VIEW[kind]and self.context[kind]
+ return view~=nil and r.kind=='entity'and view.by_entity[r.hash]~=nil
+end
 local function dh(s)local h=5381;for i=1,#s do h=(h*33+s:byte(i))%4294967296 end;return(h-5381)%4294967296 end
 local function label(v,lang)return type(v)=='table'and(v[lang]or v.en or v['zh-Hans']or next(v)and select(2,next(v)))or v end
 local function text_name(v)
@@ -71,6 +75,7 @@ local function collect(c)
  if metadata.entities and metadata.schemas then
   local groups=D.entity_blocks(metadata.entities)
   for _,b in ipairs(groups)do
+   Work.checkpoint()
    local schema=metadata.schemas[b.type]
    if schema and #schema.members==2 then
     local map,array=schema.members[1],schema.members[2];local row=metadata.schemas[array.type]
@@ -179,17 +184,20 @@ end
 function C.build(c)
  for k,v in pairs(c.extra_views or{})do if c[k]==nil then c[k]=v end end
  for _,e in ipairs(c.extra_kinds or{})do
-  if not VIEW[e.kind]then KINDS[#KINDS+1]=e.kind;VIEW[e.kind]=true;SLOT[e.kind]=e.slot;GENERIC[e.kind]=true;LAZY[e.kind]=true end
+  if not VIEW[e.kind]then KINDS[#KINDS+1]=e.kind;VIEW[e.kind]=true;SLOT[e.kind]=e.slot;GENERIC[e.kind]=true end
  end
  local self=setmetatable({context=c,records=collect(c),views={},by_entity={},all_views={},revision=0,lazy={}},C)
  local function lazy_index(t,kind)if self.lazy[kind]then self:ensure(kind);return rawget(t,kind)end end
  setmetatable(self.views,{__index=lazy_index});setmetatable(self.by_entity,{__index=lazy_index})
  for _,kind in ipairs(KINDS)do
-  if LAZY[kind]then self.lazy[kind]=true else rawset(self.views,kind,{});rawset(self.by_entity,kind,{})end
+  -- Destruction pages own old saved values; all other kinds already have their
+  -- real component pages registered. Gray placeholders can wait until selection.
+  if kind~='demolition'then self.lazy[kind]=true else rawset(self.views,kind,{});rawset(self.by_entity,kind,{})end
  end
  local meta=c.metadata or{};self.path=meta.config_path or(I.home..'/entity_catalog.json')
  self.default_path=meta.default_path or(here..'entity_catalog.default.json')
  for _,r in ipairs(self.records)do
+  Work.checkpoint()
   for _,kind in ipairs(KINDS)do
    if not self.lazy[kind]then make(self,c,r,kind)end
   end
@@ -204,7 +212,8 @@ function C.build(c)
  self.config=t;self:refresh(true)
  self.folder=meta.names_folder or(self.path:match('^(.*)[/\\]')..'/EntityNames')
  local R=require('record_names')
- if not R.loaded then pcall(R.load,self.path:match('^(.*)[/\\]'))end
+ local names_dir=rawget(_G,'SHODAN_NAMES_DIRECTORY')
+ if not R.loaded then pcall(R.load,self.path:match('^(.*)[/\\]'),names_dir)end
  t.hash_names=R.hash_names
  local named,folder_config=pcall(self.config_error and N.load or N.open,self.folder,t,self.records)
  if named then self.config=folder_config;self.config_error=nil;self:refresh(true)else self.config_error=folder_config end
@@ -217,6 +226,7 @@ end
 function C:refresh(force)
  local lang=self.context.lang();if not force and self.language==lang then return end;self.language=lang;self.cache={}
  for _,r in ipairs(self.records)do
+  Work.checkpoint()
   local item=self.config.entities[r.id]or self.config.entities[r.hash]or{}
   local category=item.category
   if not category then for _,rule in ipairs(self.config.rules)do if matches(r,rule)then category=rule.category;break end end end
@@ -227,7 +237,7 @@ function C:refresh(force)
   for _,kind in ipairs(KINDS)do
    local page=not self.lazy[kind]and self.by_entity[kind][r.id]
    if page then page.name=r.name;page.category=r.category end
-   if kind=='demolition'then for _,row in ipairs(page.rows)do
+   if kind=='demolition'and page then for _,row in ipairs(page.rows)do
     row.section=self:localized('Entry ','破坏记录 ')..(row.demolition_level+1)
     if row.demolition_inherited then row.note=self:localized('Direct hits inherit Normal unless overridden','未单独覆盖时，直击阈值继承普通命中')end
    end end
@@ -238,7 +248,7 @@ end
 function C:reload()
  local ok,t=pcall(N.open,self.folder,self.config,self.records)
  if not ok then self.config_error=t;return nil,t end
- self.config=t;self.config_error=nil;self:refresh(true);self:export_index();return true
+ self.config=t;self.config_error=nil;self:refresh(true);self:export_index(true);return true
 end
 function C:list(kind,category,show_missing,search,tr)
  self:refresh();local words={};for word in (search or''):lower():gmatch('%S+')do words[#words+1]=word end
@@ -265,25 +275,43 @@ function C:categories()
  self:refresh();local out={{id='all',name=self:localized('All categories','全部分类')}}
  for _,c in ipairs(self.config.categories)do out[#out+1]={id=c.id,name=label(c.name,self.language)}end;return out
 end
-function C:export_index()
+function C:export_index(force)
+ local path=self.path:match('%.json$')and self.path:gsub('%.json$','.index.json')or(self.path..'.index.json')
+ local stamp_path=path..'.stamp'
+ -- Hash the actual exported inputs, including all membership flags. No game-file
+ -- offsets or stale decoded data are reused by this cache.
+ local fingerprint={'entity-index-v2',table.concat(KINDS,':')}
+ for _,r in ipairs(self.records)do
+  Work.checkpoint()
+  local components={};for typ in pairs(r.components)do components[#components+1]=string.format('%08X',typ)end;table.sort(components)
+  for _,value in ipairs({r.id,r.hash,r.kind,r.name,r.path,r.category,table.concat(components,',')})do
+   fingerprint[#fingerprint+1]=#value..':'..value
+  end
+  local flags={};for _,kind in ipairs(KINDS)do flags[#flags+1]=available(self,r,kind)and'1'or'0'end
+  fingerprint[#fingerprint+1]=table.concat(flags)
+ end
+ local signature=D.hex(D.hash_resource(table.concat(fingerprint,'|')))
+ if not force and I.read(stamp_path)==signature then
+  local current=io.open(path,'rb');if current then local size=current:seek('end');current:close();if size and size>0 then return false end end
+ end
  local rows=J.array()
  for _,r in ipairs(self.records)do
+  Work.checkpoint()
   local components=J.array();for typ in pairs(r.components)do components[#components+1]=string.format('%08X',typ)end;table.sort(components)
   rows[#rows+1]={id=r.id,hash=r.hash,kind=r.kind,name=r.name,path=r.path,category=r.category,components=components,
   }
   for _,kind in ipairs(KINDS)do
-   local has
-   if self.lazy[kind]then   -- (a kind not opened yet: from its own view, without making its pages)
-    local v=self.context[kind];has=v~=nil and r.kind=='entity'and v.by_entity[r.hash]~=nil
-   else has=self.by_entity[kind][r.id].has_component end
-   rows[#rows][kind]=has and true or false
+   rows[#rows][kind]=available(self,r,kind)and true or false
   end
  end
- local path=self.path:match('%.json$')and self.path:gsub('%.json$','.index.json')or(self.path..'.index.json')
  local f=io.open(path..'.new','wb')
  if f then
   local ok=f:write(J.encode({version=1,entities=rows}));f:close()
-  if ok then I.move_file(path..'.new',path,9)end
+  if ok and I.move_file(path..'.new',path,9)~=0 then
+   local stamp=io.open(stamp_path..'.new','wb')
+   if stamp then local saved=stamp:write(signature);stamp:close();if saved then I.move_file(stamp_path..'.new',stamp_path,9)end end
+   return true
+  end
  end
 end
 return C

@@ -6,7 +6,7 @@
 #   3. 检测：正在运行的编辑器进程（含没有窗口的残留进程），桌面 / 开始菜单 / 项目根目录里指向
 #      “SHODAN Stat Editor Offline.exe”的快捷方式，以及它们指向的那份是否与当前源码一致
 # 由项目根目录的 build_release.bat 调用。参数：-NoShortcut 只打包，不改快捷方式；
-#   -Dev <commit>  标记为来自该上游开发提交（写进 build.txt 的 dev=，窗口标题显示 “v<版本> dev <commit>”）；省略时读 offline\dev_baseline.txt。
+#   -Dev <commit>  标记为来自该上游开发提交（写进 build.txt 的 dev=，只作记录：窗口标题显示本 fork 的 0.0.8 与打包时间）；省略时读 offline\dev_baseline.txt。
 param([switch]$NoShortcut, [string]$Dev = '')
 
 $ErrorActionPreference = 'Stop'
@@ -44,6 +44,10 @@ $files['PRESETS.md'] = In-Root 'offline\PRESETS.md'
 $files['PRELOAD_COMPONENTS.md'] = In-Root 'offline\PRELOAD_COMPONENTS.md'
 $files['PLANET_SETTINGS.md'] = In-Root 'offline\PLANET_SETTINGS.md'
 $files['ENEMY_DATA.md'] = In-Root 'offline\ENEMY_DATA.md'
+$files['CREATURE_COMPONENT_AUDIT.md'] = In-Root 'offline\CREATURE_COMPONENT_AUDIT.md'
+$files['COMPONENT_FIELD_NAMES.md'] = In-Root 'offline\COMPONENT_FIELD_NAMES.md'
+$files['STARTUP_PERFORMANCE.md'] = In-Root 'offline\STARTUP_PERFORMANCE.md'
+$files['REFERENCE_NAMES_LICENSE.txt'] = In-Root 'offline\REFERENCE_NAMES_LICENSE.txt'
 $files['UPSTREAM_4.5.1_PORT.md'] = In-Root 'offline\UPSTREAM_4.5.1_PORT.md'
 $files['PLAYER_DATA.md'] = In-Root 'offline\PLAYER_DATA.md'
 $files['SPAWN_EDITOR.md'] = In-Root 'offline\SPAWN_EDITOR.md'
@@ -58,6 +62,20 @@ $files['ARC_COMPONENTS.md'] = In-Root 'offline\ARC_COMPONENTS.md'
 $files['BEAM_COMPONENTS.md'] = In-Root 'offline\BEAM_COMPONENTS.md'
 $files['ENTITY_CATALOG_API.md'] = In-Root 'offline\ENTITY_CATALOG_API.md'
 $files['ENTITY_CATALOG_SCHEMA.json'] = In-Root 'offline\entity_catalog.schema.json'
+$files['LICENSE'] = In-Root 'LICENSE'
+$files['docs\README.md'] = In-Root 'offline\RELEASE_DOCS.md'
+# Keep the portable root focused on starting the editor and editing user data.
+# Keep all reference documents together so their existing relative links still work.
+foreach ($k in @($files.Keys)) {
+    $folder = ''
+    if ($k -notmatch '[/\\]' -and ($k -like '*.md' -or $k -eq 'ENTITY_CATALOG_SCHEMA.json')) { $folder = 'docs' }
+    if ($k -in @('LICENSE', 'REFERENCE_NAMES_LICENSE.txt')) { $folder = 'licenses' }
+    if ($folder) {
+        $source = $files[$k]
+        $files.Remove($k)
+        $files[$folder + '\' + $k] = $source
+    }
+}
 
 $missing = @()
 foreach ($k in $files.Keys) {
@@ -82,6 +100,8 @@ Say ('打包 v' + $version + ' -> ' + $out) 'Cyan'
 $devBlock = '(?s)[ \t]*--\[\[DEV\]\].*?--\[\[/DEV\]\][^\n]*\n'
 foreach ($k in $files.Keys) {
     $dst = Join-Path $out $k
+    $parent = Split-Path -Parent $dst
+    if (-not (Test-Path -LiteralPath $parent)) { New-Item -ItemType Directory -Force -Path $parent | Out-Null }
     if ($k -like 'app\*.lua' -and $k -ne 'app\stat_editor.lua') {
         $text = [IO.File]::ReadAllText($files[$k], $utf8)
         $text = [regex]::Replace($text, $devBlock, '')
@@ -116,11 +136,17 @@ if (Test-Path -LiteralPath $readme) {
 # the global presets folder beside the exe (the editor keeps preset_library.json there)
 New-Item -ItemType Directory -Force -Path (Join-Path $out 'Presets') | Out-Null
 Copy-Item -LiteralPath (In-Root 'offline\PRESETS_FOLDER_README.txt') -Destination (Join-Path $out 'Presets\README.txt') -Force
+# the portable planning-name pack beside the exe (Names\EntityNames, Names\TypeIdNames)
+$namesSrc = In-Root 'offline\Names'
+if (-not (Test-Path -LiteralPath $namesSrc -PathType Container)) { Fail '缺少 offline\Names（便携包策划名）' }
+Copy-Item -LiteralPath $namesSrc -Destination (Join-Path $out 'Names') -Recurse -Force
+$nameFiles = @(Get-ChildItem -LiteralPath (Join-Path $out 'Names') -Recurse -File -Filter '*.json')
+if ($nameFiles.Count -eq 0) { Fail 'Names 文件夹里没有 JSON' }
 $licenses = @('LuaJIT.txt', 'libsodium.txt') | ForEach-Object { In-Root ('offline\licenses\' + $_) } | Where-Object { Test-Path -LiteralPath $_ }
 if ($licenses.Count -gt 0) {
     $parts = $licenses | ForEach-Object { ([IO.File]::ReadAllText($_, $utf8)).Trim() }
     $notices = ($parts -join ("`n`n" + ('=' * 79) + "`n`n")) + "`n"
-    [IO.File]::WriteAllText((Join-Path $out 'THIRD-PARTY-NOTICES.txt'), $notices.Replace("`r`n", "`n").Replace("`n", "`r`n"), $utf8)
+    [IO.File]::WriteAllText((Join-Path $out 'licenses\THIRD-PARTY-NOTICES.txt'), $notices.Replace("`r`n", "`n").Replace("`n", "`r`n"), $utf8)
 }
 
 # 校验：每个文件都在且不为空；面板代码与源码逐字节一致
@@ -219,4 +245,4 @@ foreach ($place in $places) {
 }
 if ($found -eq 0) { Say '没有找到指向编辑器的快捷方式。' }
 Say ''
-Say ('完成。请用项目根目录的“' + $top + '.lnk”启动；窗口标题会显示“build ' + $stamp + '”，最后统一为“Reorganized by Thodmc”。') 'Cyan'
+Say ('完成。请用项目根目录的“' + $top + '.lnk”启动；窗口标题会显示“SHODAN Stat Editor Offline 0.0.8 Reorganized by Thodmc build ' + $stamp + '”。') 'Cyan'

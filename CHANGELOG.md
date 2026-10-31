@@ -42,6 +42,7 @@ game's own back.
 
 **Stratagems**
 
+- **Payload edits**: removed payload-driven automatic preload into global, stratagem and environment packages. Explicit preload plans remain independent; the next Install removes obsolete owned payload-preload patches and restores environment data that is no longer requested.
 - **Stratagem editing**: a new Armory sub-page, with tabs for stratagems and mechas.
 - **Items per drop** in a new Hellpod section, so one pod can drop two weapons or packs; 2 puts a
   second one on the pod's other side.
@@ -114,7 +115,12 @@ now.
 - Tips wrap by the width of their translation.
 - **Start the game** and **Close the game** in the footer: Steam starts it; closing ends
   `helldivers2.exe`, and asks for a second click within 4 seconds.
-- Version **4.5.1**, and the window title shows `dev 4794aee`, the upstream build this one follows.
+- **Clear all changes** in Settings (the old Reset all values, now one button with the cache
+  switch on its row) drops what the editor keeps between runs — values, passive stacks, preloads,
+  demolition, loadout edits, names and descriptions — without touching the presets or the game's
+  files; **Clear the cache on close** does it at every close (off: kept, as before).
+- The window title shows this fork's version **0.0.8 Reorganized by Thodmc** and when it was
+  packed; the panel's own number stays 4.5.1, following upstream `dev 4794aee`.
 
 **Fixes**
 
@@ -203,16 +209,20 @@ instead of a fixed list.
 
 **面板**
 
+- 删除杂项与预载里的“修改器设置”分页；字体大小和界面分辨率移到右下角“设置”，保留直接输入、增减、重置与自动分辨率。
 - **生命与拆毁**：生命、拆毁、溺水、护盾、接触伤害与阵营合并为一页，各占一个分页。
 - **实体组件**：新增装备与交互组件（58 与 327 个字段），瞄准组件进入 AI 设置；每条序列化记录都有自己的页面，无论是否有哈希指向它。
 - 搜索：**\*** 按钮只显示改动项，覆盖所有页面，含名称与描述。
 - “自上次写入以来的改动”仅在字节或保存值真的变化时计数。
 - 悬停提示按译文宽度换行。
 - 底部的**启动游戏**与**关闭游戏进程**：Steam 启动；关闭会结束 `helldivers2.exe`，需在 4 秒内再点一次确认。
-- 版本号 **4.5.1**，窗口标题显示 `dev 4794aee`，即本版跟随的上游构建。
+- 设置里的**清除所有修改**（原“重置全部数值”，现在与“关闭时清除”开关同一行）：丢掉编辑器跨启动保存的改动（数值、被动堆叠、预载、拆毁、装备栏、名称与描述），不动预设、不动游戏文件；**每次关闭后清除修改器缓存**开关开启后，每次关闭都自动清除（默认关：和以前一样保留）。
+- 窗口标题显示本 fork 的版本 **0.0.8 Reorganized by Thodmc** 与打包时间；面板内部版本仍是 4.5.1，跟随上游 `dev 4794aee`。
 
 **修复**
 
+- 恢复游戏原始文件成功后立即重读游戏数据并重建页面，清除旧的待写入改动；例如生命读数由 99999 更新为 125，无需重启修改器。恢复失败时保留当前编辑状态。
+- 开启关闭时清缓存后，重启会从已写入的游戏文件读回数值（例如生命 99999），不会只显示原始备份的 125；未写入改动仍会丢弃，原始重置值保留。
 - 值为 `FFFFFFFF`（none/-1）时不再以 `bad argument #1 to 'abs'` 中断比较。
 - 只读游戏文件可以替换；失败时会说明是被拒绝还是被占用，并恢复原文件。
 - 换过射弹后，附件“重置”使用了错误的基准值。

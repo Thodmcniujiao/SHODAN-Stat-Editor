@@ -1,0 +1,74 @@
+{
+  "version": 1,
+  "source": {
+    "file": "交互式ID表.xlsx",
+    "sha256": "ee6b41331b4e1bc1e97ef744088ed8e75f5e4fbdb212ff4ea8f33d10ba2dd698"
+  },
+  "generated": "2026-10-30T17:43:56+00:00",
+  "policy": "full replacement from 交互式ID表.xlsx; direct table names + forward reference propagation + existing names; unreferenced TypeIDs keep an empty planning name; no reverse fan-out",
+  "entities": {
+    "groups": 7,
+    "entries": 3465,
+    "table_rows": 438,
+    "named_rows": 404,
+    "unknown_rows": 34,
+    "names_changed": 206,
+    "control_chars_cleaned": 0
+  },
+  "typeids": {
+    "projectile": {
+      "entries": 355,
+      "named": 324,
+      "direct": 200,
+      "existing": 123,
+      "propagated": 1
+    },
+    "arc": {
+      "entries": 16,
+      "named": 9,
+      "direct": 9,
+      "existing": 0,
+      "propagated": 0
+    },
+    "beam": {
+      "entries": 30,
+      "named": 18,
+      "direct": 18,
+      "existing": 0,
+      "propagated": 0
+    },
+    "damage": {
+      "entries": 661,
+      "named": 425,
+      "direct": 18,
+      "existing": 0,
+      "propagated": 407
+    },
+    "explosion": {
+      "entries": 424,
+      "named": 208,
+      "direct": 48,
+      "existing": 134,
+      "propagated": 26
+    },
+    "status": {
+      "entries": 73,
+      "named": 73,
+      "direct": 73,
+      "existing": 0,
+      "propagated": 0
+    },
+    "bombardment": {
+      "entries": 24,
+      "named": 24
+    },
+    "eagle": {
+      "entries": 12,
+      "named": 12
+    },
+    "stratagem": {
+      "entries": 153,
+      "named": 153
+    }
+  }
+}

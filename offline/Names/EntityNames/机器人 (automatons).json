@@ -1,0 +1,512 @@
+{
+  "entities": [
+    {
+      "hash": "0x0002BA767DF856F3",
+      "kind": "entity",
+      "name": "Marauder"
+    },
+    {
+      "hash": "0x014814C021721D41",
+      "kind": "entity",
+      "name": "Hive mind: Automatons · 15 min · 014814C0"
+    },
+    {
+      "hash": "0x09FE0BE51A23396C",
+      "kind": "entity",
+      "name": "惑乱者（女）"
+    },
+    {
+      "hash": "0x0CE050AB214FEC85",
+      "kind": "entity",
+      "name": "Hive mind: Automatons · 40 min · 0CE050AB"
+    },
+    {
+      "hash": "0x137988CEA16458F7",
+      "kind": "entity",
+      "name": "Hulk Bruiser"
+    },
+    {
+      "hash": "0x16023E554FEE830E",
+      "kind": "entity",
+      "name": "坦克 轻机枪"
+    },
+    {
+      "hash": "0x1897BDD32105D2DC",
+      "kind": "entity",
+      "name": "Hulk Scorcher · 2"
+    },
+    {
+      "hash": "0x1E66EE1F6F7FD00E",
+      "kind": "entity",
+      "name": "Hulk Obliterator"
+    },
+    {
+      "hash": "0x215CE160A17BE4CD",
+      "kind": "entity",
+      "name": "Commissar · 2"
+    },
+    {
+      "hash": "0x22CC0ED4CEB9CB68",
+      "kind": "entity",
+      "name": "Fabricator · 2"
+    },
+    {
+      "hash": "0x23C85E970FB46685",
+      "kind": "entity",
+      "name": "Stratagem Jammer"
+    },
+    {
+      "hash": "0x257D805CAA7E10C0",
+      "kind": "entity",
+      "name": "Trooper (Shotgun)"
+    },
+    {
+      "hash": "0x282EB766C1FFA6A1",
+      "kind": "entity",
+      "name": "Gunship"
+    },
+    {
+      "hash": "0x298C464F7F4261E3",
+      "kind": "entity",
+      "name": "Command bunker (Side)"
+    },
+    {
+      "hash": "0x2C1A7790C435FD67",
+      "kind": "entity",
+      "name": "机器人 营地机枪"
+    },
+    {
+      "hash": "0x2CF3488C4845F8BD",
+      "kind": "entity",
+      "name": "机器人 加农炮塔"
+    },
+    {
+      "hash": "0x30CF04B2EC8C9BD4",
+      "kind": "entity",
+      "name": "Scout Raider"
+    },
+    {
+      "hash": "0x30F2DEE2333F227A",
+      "kind": "entity",
+      "name": "Factory Strider · 2"
+    },
+    {
+      "hash": "0x31BAE74D2F064D8D",
+      "kind": "entity",
+      "name": "Tank"
+    },
+    {
+      "hash": "0x33296F9C47993942",
+      "kind": "entity",
+      "name": "Hive mind: Automatons · 12 min · 33296F9C"
+    },
+    {
+      "hash": "0x33B3E0CE8D179EEC",
+      "kind": "entity",
+      "name": "士兵背包 (机器人, 背包)"
+    },
+    {
+      "hash": "0x3E0537D606438FEA",
+      "kind": "entity",
+      "name": "Hulk Scorcher · 1"
+    },
+    {
+      "hash": "0x4019623142351CB6",
+      "kind": "entity",
+      "name": "Trooper (Tier 1) · 2"
+    },
+    {
+      "hash": "0x4232EE48E2CFD24E",
+      "kind": "entity",
+      "name": "Bulk Fabricator"
+    },
+    {
+      "hash": "0x426B3DF007BE9F18",
+      "kind": "entity",
+      "name": "机枪奇袭者的喷射背包 (机器人, 背包)"
+    },
+    {
+      "hash": "0x43EC60F66E7E046B",
+      "kind": "entity",
+      "name": "Chemical Backpack"
+    },
+    {
+      "hash": "0x485C04E03CCC969E",
+      "kind": "entity",
+      "name": "Command bunker (Top)"
+    },
+    {
+      "hash": "0x49674794A165EDA8",
+      "kind": "entity",
+      "name": "碎裂坦克 炮塔"
+    },
+    {
+      "hash": "0x4FB8EB356AC8553E",
+      "kind": "entity",
+      "name": "Fabricator · 5"
+    },
+    {
+      "hash": "0x5158E582FBEB26BD",
+      "kind": "entity",
+      "name": "Fabricator · 1"
+    },
+    {
+      "hash": "0x52FAE7EAF5BCEE64",
+      "kind": "entity",
+      "name": "Squad queue 11 · Automatons · Male Agitator (original template)"
+    },
+    {
+      "hash": "0x53D8919D7B8ABD67",
+      "kind": "entity",
+      "name": "Annihilator Tank"
+    },
+    {
+      "hash": "0x54E107DACF6929CB",
+      "kind": "entity",
+      "name": "Berserker (Iron fleet)"
+    },
+    {
+      "hash": "0x57EED0EAC346CD9D",
+      "kind": "entity",
+      "name": "Devastator (Base) · 3"
+    },
+    {
+      "hash": "0x58B2B86C11369241",
+      "kind": "entity",
+      "name": "Incendiary MG Devastator"
+    },
+    {
+      "hash": "0x5D142C3A73EBC634",
+      "kind": "entity",
+      "name": "铁幕坦克 炮塔"
+    },
+    {
+      "hash": "0x61D99052540F61A3",
+      "kind": "entity",
+      "name": "Ammunition Stockpile"
+    },
+    {
+      "hash": "0x62222CF70F4598EF",
+      "kind": "entity",
+      "name": "Squad queue 8 · Automatons · Trooper MK3 (original template)"
+    },
+    {
+      "hash": "0x63DF3D07B7424588",
+      "kind": "entity",
+      "name": "Barrager Tank"
+    },
+    {
+      "hash": "0x64BA5F030B114EC1",
+      "kind": "entity",
+      "name": "Raider · 2"
+    },
+    {
+      "hash": "0x6DAB2EADF5D8B692",
+      "kind": "entity",
+      "name": "Hulk Firebomber"
+    },
+    {
+      "hash": "0x6E499C5C95B019FC",
+      "kind": "entity",
+      "name": "Command Bunker"
+    },
+    {
+      "hash": "0x746A7F3BEDA32699",
+      "kind": "entity",
+      "name": "激进先锋（男）"
+    },
+    {
+      "hash": "0x7B48CACDBACB3881",
+      "kind": "entity",
+      "name": "Trooper (Elite)"
+    },
+    {
+      "hash": "0x7ECE5304F868F6B3",
+      "kind": "entity",
+      "name": "Trooper (Base) · 1"
+    },
+    {
+      "hash": "0x81E5971C653D4A98",
+      "kind": "entity",
+      "name": "Squad queue 10 · Automatons · Trooper MK3 (original template)"
+    },
+    {
+      "hash": "0x82A87AD8D595B2BA",
+      "kind": "entity",
+      "name": "Pyro Trooper"
+    },
+    {
+      "hash": "0x843D18D4B5512B63",
+      "kind": "entity",
+      "name": "移动工厂 连发加农炮"
+    },
+    {
+      "hash": "0x856E9710E45E760F",
+      "kind": "entity",
+      "name": "Assault Raider"
+    },
+    {
+      "hash": "0x8FB47DD28B398CF7",
+      "kind": "entity",
+      "name": "湮灭坦克 加农炮塔"
+    },
+    {
+      "hash": "0x8FC2784308E9BA99",
+      "kind": "entity",
+      "name": "Hulk flag · 1"
+    },
+    {
+      "hash": "0x9647B00CC3A9D36F",
+      "kind": "entity",
+      "name": "火箭蹂躏者"
+    },
+    {
+      "hash": "0x96BA14C9EBB49CE1",
+      "kind": "entity",
+      "name": "Hulk"
+    },
+    {
+      "hash": "0x99CB7F36F9A951F9",
+      "kind": "entity",
+      "name": "Fleet ship"
+    },
+    {
+      "hash": "0x9BA2E41C218B41FF",
+      "kind": "entity",
+      "name": "Hive mind: Automatons · 40 min · 9BA2E41C"
+    },
+    {
+      "hash": "0x9D8827FED763650E",
+      "kind": "entity",
+      "name": "惑乱者（男）"
+    },
+    {
+      "hash": "0x9F57782F00E6ED20",
+      "kind": "entity",
+      "name": "Trooper (Tier 1) · 1"
+    },
+    {
+      "hash": "0xA1A7B76B29088843",
+      "kind": "entity",
+      "name": "Fabricator · 4"
+    },
+    {
+      "hash": "0xA6A68D8AF177F3A1",
+      "kind": "entity",
+      "name": "Berserker (Base) · 1"
+    },
+    {
+      "hash": "0xA71AAFD82C6EBC92",
+      "kind": "entity",
+      "name": "Commissar · 1"
+    },
+    {
+      "hash": "0xA8AE6952B375EF6C",
+      "kind": "entity",
+      "name": "cyborg_gunship_spawner"
+    },
+    {
+      "hash": "0xA98F8B559C7993D8",
+      "kind": "entity",
+      "name": "机器人 营地重机枪"
+    },
+    {
+      "hash": "0xABDB2E2A0479D8CA",
+      "kind": "entity",
+      "name": "机器人 加农炮塔 MK2"
+    },
+    {
+      "hash": "0xAE63E525853D7044",
+      "kind": "entity",
+      "name": "Devastator (Base) · 2"
+    },
+    {
+      "hash": "0xAEAEF7A1851E6C9D",
+      "kind": "entity",
+      "name": "机器人 防空炮塔"
+    },
+    {
+      "hash": "0xAF0F9B3A163787A5",
+      "kind": "entity",
+      "name": "Trooper (Base) · 2"
+    },
+    {
+      "hash": "0xB5DBC0C240C921AD",
+      "kind": "entity",
+      "name": "Berserker (Base) · 2"
+    },
+    {
+      "hash": "0xB8580CAC32214FC0",
+      "kind": "entity",
+      "name": "坦克 加农炮塔"
+    },
+    {
+      "hash": "0xB92435FBF60F0748",
+      "kind": "entity",
+      "name": "Heavy Devastator · 1"
+    },
+    {
+      "hash": "0xB940C889D77F8219",
+      "kind": "entity",
+      "name": "中尉背包(机器人, 背包)"
+    },
+    {
+      "hash": "0xB971B1141E1CBFAC",
+      "kind": "entity",
+      "name": "Stratagem Scrambler (convoy)"
+    },
+    {
+      "hash": "0xBC242702FB46B7E7",
+      "kind": "entity",
+      "name": "噪轰引擎"
+    },
+    {
+      "hash": "0xBE743B2FAA3A6E26",
+      "kind": "entity",
+      "name": "Devastator (Base) · 1"
+    },
+    {
+      "hash": "0xC2B9EB21B06F8378",
+      "kind": "entity",
+      "name": "Hulk flag · 2"
+    },
+    {
+      "hash": "0xC626D2BB495A202D",
+      "kind": "entity",
+      "name": "Devastator (Iron fleet)"
+    },
+    {
+      "hash": "0xC6449FFD9EA3779C",
+      "kind": "entity",
+      "name": "Shredder Tank"
+    },
+    {
+      "hash": "0xC9BCCCB0A54A82A4",
+      "kind": "entity",
+      "name": "火箭蹂躏者 MK3 （炽灼部队）"
+    },
+    {
+      "hash": "0xCBB1BA3366009C3A",
+      "kind": "entity",
+      "name": "激进先锋（女）"
+    },
+    {
+      "hash": "0xCD28A27A79BE53D5",
+      "kind": "entity",
+      "name": "指挥碉堡 碉堡重机枪"
+    },
+    {
+      "hash": "0xD37E8D120D2836E3",
+      "kind": "entity",
+      "name": "Factory Strider · 1"
+    },
+    {
+      "hash": "0xD5792F6856B06BA4",
+      "kind": "entity",
+      "name": "Berserker (Base) · 3"
+    },
+    {
+      "hash": "0xD668CED717879428",
+      "kind": "entity",
+      "name": "Squad queue 9 · Automatons · Trooper MK3 (original template)"
+    },
+    {
+      "hash": "0xD7E44D5D0D5A7066",
+      "kind": "entity",
+      "name": "Squad queue 12 · Automatons · Trooper MK3 (original template)"
+    },
+    {
+      "hash": "0xD84FFC32A6E640A8",
+      "kind": "entity",
+      "name": "Automaton Dropship"
+    },
+    {
+      "hash": "0xD8CBC4A807A6D035",
+      "kind": "entity",
+      "name": "Brawler"
+    },
+    {
+      "hash": "0xDB90077E76FAA025",
+      "kind": "entity",
+      "name": "Dropship"
+    },
+    {
+      "hash": "0xE0353177F1329573",
+      "kind": "entity",
+      "name": "Conflagration Devastator"
+    },
+    {
+      "hash": "0xE074A822F551274F",
+      "kind": "entity",
+      "name": "Hive mind: Automatons · 15 min · E074A822"
+    },
+    {
+      "hash": "0xE2E62FDD39407FE3",
+      "kind": "entity",
+      "name": "步兵/蹂躏者 喷气背包 (机器人, 背包)"
+    },
+    {
+      "hash": "0xE2E6E77DCC99A1CB",
+      "kind": "entity",
+      "name": "Grinder"
+    },
+    {
+      "hash": "0xE683D2CA5618D74A",
+      "kind": "entity",
+      "name": "Raider · 1"
+    },
+    {
+      "hash": "0xEF570293245A17C2",
+      "kind": "entity",
+      "name": "战争纵步者"
+    },
+    {
+      "hash": "0xF0B98FB953B13960",
+      "kind": "entity",
+      "name": "Fabricator · 3"
+    },
+    {
+      "hash": "0xF66D0BAD8693779A",
+      "kind": "entity",
+      "name": "火箭蹂躏者 MK2"
+    },
+    {
+      "hash": "0xF8131632AA867107",
+      "kind": "entity",
+      "name": "Scout Strider"
+    },
+    {
+      "hash": "0xF8B5A81A86D5D4EB",
+      "kind": "entity",
+      "name": "Heavy Devastator · 2"
+    },
+    {
+      "hash": "0xF96257FCAE258CAA",
+      "kind": "entity",
+      "name": "Heavy Devastator shield · 1"
+    },
+    {
+      "hash": "0xFB9937035D652C43",
+      "kind": "entity",
+      "name": "Trooper (Scout walker rider)"
+    },
+    {
+      "hash": "0xFEB484EE972469F7",
+      "kind": "entity",
+      "name": "Heavy Devastator shield · 2"
+    },
+    {
+      "hash": "0xFF5CC825B9571052",
+      "kind": "entity",
+      "name": "机器人 迫击炮塔"
+    }
+  ],
+  "group": {
+    "en": "Automatons",
+    "zh-Hans": "机器人",
+    "zh-Hant": "機器人"
+  },
+  "id": "automatons",
+  "order": 20,
+  "version": 1
+}

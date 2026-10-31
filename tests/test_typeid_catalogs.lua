@@ -73,10 +73,11 @@ for i,row in ipairs(barrage.rows)do if row.parts==shot.row.parts then position=i
 assert(position and E.MOD.references.type_of(shot.row)=='projectile_id')
 E.click('value:'..position);E.click('value:'..position)
 assert(E.ui.tab=='RecProjectile'and E.ui.weapon.id==E.row_value(shot.row),'index page reference navigation failed')
--- Current numeric component names win, with old hash names available as fallbacks.
+-- TypeID names stay local to their numeric table; entity hashes do not override them.
 R.ensure();R.by.bombardment=R.by.bombardment or{}
+R.by.bombardment['19']=nil -- exercise fallback even when the portable pack already names this index
 local key=barrage.component_keys[1];local hex=string.format('%08X%08X',tonumber(ffi.cast('const uint32_t *',key)[1]),tonumber(ffi.cast('const uint32_t *',key)[0]))
-R.by.bombardment[hex]='Legacy component name';assert(R.name_of(barrage)=='Legacy component name')
+R.by.bombardment[hex]='Legacy component name';assert(R.name_of(barrage)~='Legacy component name')
 R.by.bombardment['19']='Component index custom name';assert(R.name_of(barrage)=='Component index custom name')
 E.ui.tab='Orbital';E.ui.search.text='Component index custom name'
 local results=E.weapons_in('?search');assert(#results==1 and results[1]==barrage);E.ui.search.text=''

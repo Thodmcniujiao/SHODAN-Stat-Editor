@@ -1,12 +1,17 @@
 -- Read-only preview of the saved payload, grouped by the editor's own navigation.
 local V=require('component_view')
 local J=require('json_data')
+local U=require('stratagem_components')
 local M={}
 local function keys(t)local out={};for k in pairs(t or{})do out[#out+1]=k end;table.sort(out,function(a,b)return tostring(a)<tostring(b)end);return out end
 local function value(v)
  if v==nil then return '?'end
  if type(v)=='table'then return J.encode(v)end
- if type(v)=='number'then return string.format('%.9g',v)end
+ if type(v)=='number'then
+  if math.abs(v)==3.4028234663852886e38 then return v<0 and'-FLT_MAX'or'FLT_MAX'end
+  if v%1==0 and math.abs(v)<=9007199254740992 then return string.format('%.0f',v)end
+  return string.format('%.9g',v)
+ end
  return tostring(v)
 end
 function M.build(p,c)
@@ -32,17 +37,61 @@ function M.build(p,c)
  end
  local function add(tab,entity,label,id,saved,baseline,changed)
   local page,section=destination(tab)
-  if changed==nil then changed=baseline==nil or type(saved)~='number'or type(baseline)~='number'or math.abs(saved-baseline)>1e-4 end
+  if changed==nil then changed=baseline==nil or type(saved)~='number'or type(baseline)~='number'or saved~=baseline end
   section.rows[#section.rows+1]={entity=entity,label=label,id=id,value=value(saved),baseline=baseline~=nil and value(baseline)or nil,changed=changed}
   if changed then page.count=page.count+1;section.count=section.count+1 end
  end
+ local saved_by,seen_u64={},{}
  for _,v in ipairs(p.values or{})do
-  local w=c.by_hash[v.hash];local part=w and w.by_id[v.id];local row=part and part.row
+  saved_by[v.hash]=saved_by[v.hash]or{}
+  saved_by[v.hash][v.id]=v.value
+ end
+ for _,v in ipairs(p.values or{})do
+  local w=c.by_hash[v.hash]
+  if w and w.ensure_rows then w.ensure_rows()end
+  local part=w and w.by_id[v.id]
+  if not part and w and w.component_groups then
+   for _,g in ipairs(w.component_groups)do
+    if g.load then g.load()end
+    part=w.by_id[v.id];if part then break end
+   end
+  end
+  local row=part and part.row
   local label=row and(row.label_of and row.label_of()or c.tr(row.label))or v.id
   local entity=w and(w.name_of and w.name_of()or c.tr(w.name))or v.hash
   local tab=w and c.tab_of and c.tab_of(w)or'Unavailable'
-  local baseline=c.default_value and c.default_value(v.hash,v.id)
-  add(tab,entity,label,v.id,v.value,baseline)
+  local id_lo,id_hi,key_id
+  if row and row.hash64 and #row.parts==2 then
+   id_lo,id_hi=row.parts[1].id,row.parts[2].id
+   key_id=row.id or id_lo:gsub('_lo$','')
+  else
+   local stem=type(v.id)=='string'and(v.id:match('^(.*)_lo$')or v.id:match('^(.*)_hi$'))
+   if stem then
+    local blo=c.default_value and c.default_value(v.hash,stem..'_lo')
+    local bhi=c.default_value and c.default_value(v.hash,stem..'_hi')
+    local map=saved_by[v.hash]or{}
+    if (blo~=nil and bhi~=nil)or(map[stem..'_lo']~=nil and map[stem..'_hi']~=nil)then
+     id_lo,id_hi,key_id=stem..'_lo',stem..'_hi',stem
+    end
+   end
+  end
+  if id_lo and id_hi then
+   local ukey=v.hash..':'..key_id
+   if not seen_u64[ukey]then
+    seen_u64[ukey]=true
+    local blo=c.default_value and c.default_value(v.hash,id_lo)
+    local bhi=c.default_value and c.default_value(v.hash,id_hi)
+    local map=saved_by[v.hash]or{}
+    local clo=map[id_lo]~=nil and map[id_lo]or blo
+    local chi=map[id_hi]~=nil and map[id_hi]or bhi
+    local saved_str=(type(clo)=='number'and type(chi)=='number')and U.u64_text(math.floor(clo+.5),math.floor(chi+.5))or value(v.value)
+    local base_str=(type(blo)=='number'and type(bhi)=='number')and U.u64_text(math.floor(blo+.5),math.floor(bhi+.5))or nil
+    add(tab,entity,label,key_id,saved_str,base_str,base_str==nil or saved_str~=base_str)
+   end
+  else
+   local baseline=c.default_value and c.default_value(v.hash,v.id)
+   add(tab,entity,label,v.id,v.value,baseline)
+  end
  end
  local d=p.data or{}
  local game=p.scope=='game'and d or d.game or{}
@@ -76,7 +125,11 @@ function M.build(p,c)
  local live_preload=rawget(_G,'SHODAN_PRELOAD_MODEL')
  local function package_name(hash)
   local entry=live_preload and live_preload.catalog and live_preload.catalog[hash]
-  return entry and entry.path or hash
+  if entry then
+   if entry.path and entry.path~=''then return entry.path end
+   if entry.label and entry.label~=''then return entry.label..' (0x'..hash..')'end
+  end
+  return '0x'..hash
  end
  for _,key in ipairs({'selected','targets'})do for _,hash in ipairs(keys(preload[key]))do
   local baseline=key=='targets'and hash=='18235E0C9EC0E636'

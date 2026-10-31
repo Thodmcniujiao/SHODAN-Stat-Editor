@@ -1,0 +1,1872 @@
+{
+  "entities": [
+    {
+      "hash": "0x006E44327BB953FE",
+      "kind": "entity",
+      "name": "GL-15 驱逐者（主武器，模型）"
+    },
+    {
+      "hash": "0x0080869506299773",
+      "kind": "entity",
+      "name": "G-23 眩晕弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x019544309FAC4508",
+      "kind": "entity",
+      "name": "drone_mg_mk2"
+    },
+    {
+      "hash": "0x027DEC442CC26A90",
+      "kind": "entity",
+      "name": "P-44 迷雾（副武器，模型）"
+    },
+    {
+      "hash": "0x02EECD0B1FA49630",
+      "kind": "entity",
+      "name": "GL-21 榴弹发射器 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x03C74D93700C884D",
+      "kind": "entity",
+      "name": "drilling_charge"
+    },
+    {
+      "hash": "0x03E67A19B07C6523",
+      "kind": "entity",
+      "name": "R-63 勤勉 (主武器, 模型)"
+    },
+    {
+      "hash": "0x03F31CAF3A7D8F4E",
+      "kind": "entity",
+      "name": "G-142 烟花术 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x0416984F4922757B",
+      "kind": "entity",
+      "name": "G-4 毒气榴弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x04653AB33F3FFB44",
+      "kind": "entity",
+      "name": "G-10 燃烧弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x056DE1C5E21E723E",
+      "kind": "entity",
+      "name": "minigun_backpack"
+    },
+    {
+      "hash": "0x05D8D8C073B9D502",
+      "kind": "entity",
+      "name": "SG-8P 等离子\"制裁者\" (主武器, 模型)"
+    },
+    {
+      "hash": "0x05E4E5C2DB6E44A2",
+      "kind": "entity",
+      "name": "P-2 和平制造者 (副武器, 模型)"
+    },
+    {
+      "hash": "0x0736BEE2D6328726",
+      "kind": "entity",
+      "name": "EXO-51 伐木者外骨骼 喷火器"
+    },
+    {
+      "hash": "0x075B19B068FB1045",
+      "kind": "entity",
+      "name": "G-7 菠萝 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x076DD5D4F4360204",
+      "kind": "entity",
+      "name": "ARC-12 雷霆 (主武器, 模型)"
+    },
+    {
+      "hash": "0x0800B8C12FF96A8E",
+      "kind": "entity",
+      "name": "weapon_rack_cover"
+    },
+    {
+      "hash": "0x0807AEA5217E4767",
+      "kind": "entity",
+      "name": "SMG-72 暴击斗士 (主武器, 模型)"
+    },
+    {
+      "hash": "0x0807D288AD22601B",
+      "kind": "entity",
+      "name": "weapon_rack_drone_mg"
+    },
+    {
+      "hash": "0x085C1EDB038EC24E",
+      "kind": "entity",
+      "name": "M-102 快速侦查载具 车载重机枪"
+    },
+    {
+      "hash": "0x08F6089289C83D22",
+      "kind": "entity",
+      "name": "EXO-45 爱国者外骨骼 加特林机枪"
+    },
+    {
+      "hash": "0x09183066C4EBCE28",
+      "kind": "entity",
+      "name": "weapon_rack_directional_energy_shield"
+    },
+    {
+      "hash": "0x0949EEB3DC920324",
+      "kind": "entity",
+      "name": "sniper_rifle_duo_backpack"
+    },
+    {
+      "hash": "0x0A03761D50BA5121",
+      "kind": "entity",
+      "name": "EXO-49 解放者 手臂 右手 MK2"
+    },
+    {
+      "hash": "0x0A55E504092B981D",
+      "kind": "entity",
+      "name": "medic_backpack"
+    },
+    {
+      "hash": "0x0A60397B7409995E",
+      "kind": "entity",
+      "name": "weapon_rack_faf_missile_launcher_helghast"
+    },
+    {
+      "hash": "0x0AC9CDDBE8C64851",
+      "kind": "entity",
+      "name": "weapon_rack_c4_charge_backpack"
+    },
+    {
+      "hash": "0x0B882808C6F498E8",
+      "kind": "entity",
+      "name": "P-35 思想改造 (副武器, 模型)"
+    },
+    {
+      "hash": "0x0BD0F9D59048E9D1",
+      "kind": "entity",
+      "name": "飞鹰快速打击"
+    },
+    {
+      "hash": "0x0C8257D1C0255593",
+      "kind": "entity",
+      "name": "expandable_cover_grenade_launcher"
+    },
+    {
+      "hash": "0x0DC7A18342B62BEC",
+      "kind": "entity",
+      "name": "weapon_rack_lat_oneshot"
+    },
+    {
+      "hash": "0x0E8C2515261E0325",
+      "kind": "entity",
+      "name": "飞鹰火箭发射器（左边，模型）"
+    },
+    {
+      "hash": "0x0E977C49DB7604F9",
+      "kind": "entity",
+      "name": "E/MG-101 重机枪部署支架"
+    },
+    {
+      "hash": "0x0E9D35CD5C0217C2",
+      "kind": "entity",
+      "name": "weapon_rack_jammed_pinata_empty"
+    },
+    {
+      "hash": "0x0F83639AB8C86165",
+      "kind": "entity",
+      "name": "R-2 修正 (主武器, 模型)"
+    },
+    {
+      "hash": "0x0FD8B759412815DD",
+      "kind": "entity",
+      "name": "weapon_rack_heavy_mg"
+    },
+    {
+      "hash": "0x10155010236D34E3",
+      "kind": "entity",
+      "name": "shuttle_gunship_cutscene"
+    },
+    {
+      "hash": "0x11C27D3BABB38956",
+      "kind": "entity",
+      "name": "MG-43 机枪 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x12C8D71AC3897A5C",
+      "kind": "entity",
+      "name": "energy_shield_backpack"
+    },
+    {
+      "hash": "0x130574E0FFFE0058",
+      "kind": "entity",
+      "name": "地面全地形采集钻机 油罐"
+    },
+    {
+      "hash": "0x14368DC8784220B0",
+      "kind": "entity",
+      "name": "TED-63 炸药 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x14D5D4506056C7A4",
+      "kind": "entity",
+      "name": "P-33 制导手枪 (副武器, 模型)"
+    },
+    {
+      "hash": "0x16474112801385B6",
+      "kind": "entity",
+      "name": "tank"
+    },
+    {
+      "hash": "0x17C5D12D8D5DEE2C",
+      "kind": "entity",
+      "name": "EXO-51 伐木者外骨骼 反坦克炮"
+    },
+    {
+      "hash": "0x186EA95DE7306B1A",
+      "kind": "entity",
+      "name": "SMG-203 英勇无畏 (主武器, 模型)"
+    },
+    {
+      "hash": "0x18F11A4E18192CFE",
+      "kind": "entity",
+      "name": "shuttle_transport_personnel"
+    },
+    {
+      "hash": "0x1A437158E1B8D2A1",
+      "kind": "entity",
+      "name": "P-113 裁决 (副武器, 模型)"
+    },
+    {
+      "hash": "0x1ABBFF60D26BA391",
+      "kind": "entity",
+      "name": "R/40-K 高能精确射手步枪 (主武器, 模型)"
+    },
+    {
+      "hash": "0x1B3BCADABC7EF8D6",
+      "kind": "entity",
+      "name": "飞鹰烟雾"
+    },
+    {
+      "hash": "0x1B9AC59697006337",
+      "kind": "entity",
+      "name": "G/SH-39 盾雷 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x1FF81C46CC79FD34",
+      "kind": "entity",
+      "name": "电磁冲击波手榴弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x20225DEE487C9F5F",
+      "kind": "entity",
+      "name": "weapon_rack_grenade_launcher"
+    },
+    {
+      "hash": "0x20AAFC3A504D2E5F",
+      "kind": "entity",
+      "name": "weapon_rack_expendable_napalm_launcher"
+    },
+    {
+      "hash": "0x2152D5147B0AC418",
+      "kind": "entity",
+      "name": "MG-206 重机枪 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x23A60681DD4383EC",
+      "kind": "entity",
+      "name": "飞鹰机枪扫射"
+    },
+    {
+      "hash": "0x255EBC5767D7CEEC",
+      "kind": "entity",
+      "name": "drone_mg_backpack"
+    },
+    {
+      "hash": "0x25A2FD037B6ED25C",
+      "kind": "entity",
+      "name": "mine_launcher_tank"
+    },
+    {
+      "hash": "0x25AA2FD4643CF4EE",
+      "kind": "entity",
+      "name": "FAF-14 飞矛 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x263817187B7CE092",
+      "kind": "entity",
+      "name": "AX/AR-23 护卫犬MK2 武器 (轻穿)"
+    },
+    {
+      "hash": "0x26E40437EA275296",
+      "kind": "entity",
+      "name": "RL-77 空爆火箭弹发射器 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x27BB558C893383CC",
+      "kind": "entity",
+      "name": "飞鹰凝固汽油弹"
+    },
+    {
+      "hash": "0x27EE1ED8F6FB6356",
+      "kind": "entity",
+      "name": "LAS-5 长柄镰 (主武器, 模型)"
+    },
+    {
+      "hash": "0x295BEB26DC4F8FF1",
+      "kind": "entity",
+      "name": "LAS-17 双刃镰刀 (主武器, 模型)"
+    },
+    {
+      "hash": "0x2968DEBA6D6C2F09",
+      "kind": "entity",
+      "name": "G-11 铁蒺藜 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x299C0D3DFD2F0994",
+      "kind": "entity",
+      "name": "A/GM-17 瓦斯迫击哨戒炮"
+    },
+    {
+      "hash": "0x29AE906EA485A7FA",
+      "kind": "entity",
+      "name": "expandable_cover"
+    },
+    {
+      "hash": "0x2A18F81C44A26771",
+      "kind": "entity",
+      "name": "c4_charge_backpack"
+    },
+    {
+      "hash": "0x2A275BB78BB20148",
+      "kind": "entity",
+      "name": "飞鹰掠过"
+    },
+    {
+      "hash": "0x2AB2507588D54B8B",
+      "kind": "entity",
+      "name": "weapon_rack_ballistic_shield_small"
+    },
+    {
+      "hash": "0x2B11C9E4980EC479",
+      "kind": "entity",
+      "name": "E/AT-12固定反坦克炮"
+    },
+    {
+      "hash": "0x2B28E17FFED05F7C",
+      "kind": "entity",
+      "name": "SG-22 游击兵 (副武器, 模型)"
+    },
+    {
+      "hash": "0x2BECC6299FA6BD20",
+      "kind": "entity",
+      "name": "weapon_rack_laser_rifle_ion"
+    },
+    {
+      "hash": "0x2C66C201B2543D2C",
+      "kind": "entity",
+      "name": "AX/LAS-5 漫游车（武器）"
+    },
+    {
+      "hash": "0x2D398D1EC35E0838",
+      "kind": "entity",
+      "name": "G-50寻踪者 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x2D85BFE3D8717FE5",
+      "kind": "entity",
+      "name": "frv_flamer"
+    },
+    {
+      "hash": "0x2E9D0BDC48B09E60",
+      "kind": "entity",
+      "name": "RS-422 磁轨炮 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x2EA01CB1676ACA29",
+      "kind": "entity",
+      "name": "飞鹰空袭"
+    },
+    {
+      "hash": "0x2F67BF9C4F560C02",
+      "kind": "entity",
+      "name": "weapon_rack_grenade_launcher_tactical"
+    },
+    {
+      "hash": "0x30061F91AF477F5E",
+      "kind": "entity",
+      "name": "PLAS-39 加速步枪 (主武器, 模型)"
+    },
+    {
+      "hash": "0x3015626AA69F8D4D",
+      "kind": "entity",
+      "name": "drone_flamethrower_backpack"
+    },
+    {
+      "hash": "0x31400A6A3003E29C",
+      "kind": "entity",
+      "name": "weapon_rack_ammo_backpack"
+    },
+    {
+      "hash": "0x31C4DD88C1450282",
+      "kind": "entity",
+      "name": "weapon_rack_lightmachinegun"
+    },
+    {
+      "hash": "0x32C7063B4BCC4208",
+      "kind": "entity",
+      "name": "EXO-49 解放者 手臂 左手 MK2"
+    },
+    {
+      "hash": "0x3575AABC5F1F9326",
+      "kind": "entity",
+      "name": "P-19 救世主 (副武器, 模型)"
+    },
+    {
+      "hash": "0x35A61296619CC47E",
+      "kind": "entity",
+      "name": "LAS-99 类星体加农炮 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x35DBF54F016F3624",
+      "kind": "entity",
+      "name": "combat_walker_breacher"
+    },
+    {
+      "hash": "0x37079568DC86E9C6",
+      "kind": "entity",
+      "name": "A/MLS-4X 火箭哨戒炮"
+    },
+    {
+      "hash": "0x37CDE43876BA26BB",
+      "kind": "entity",
+      "name": "A/MG-43 哨戒机枪"
+    },
+    {
+      "hash": "0x3828E2051AA9E897",
+      "kind": "entity",
+      "name": "S-11 矛枪 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x397792815583DA29",
+      "kind": "entity",
+      "name": "飞鹰110火箭巢"
+    },
+    {
+      "hash": "0x39AB99895147A3BF",
+      "kind": "entity",
+      "name": "FLAM-40 火焰喷射器 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x3A061009AA31E9CB",
+      "kind": "entity",
+      "name": "TD-110 风暴漩涡 烟雾弹发射器"
+    },
+    {
+      "hash": "0x3A50B58B0553056A",
+      "kind": "entity",
+      "name": "weapon_rack_ballistic_shield"
+    },
+    {
+      "hash": "0x3B8D16C646A729A8",
+      "kind": "entity",
+      "name": "health_pack"
+    },
+    {
+      "hash": "0x3C86E871923F3970",
+      "kind": "entity",
+      "name": "LAS-13 三叉戟 (主武器, 模型)"
+    },
+    {
+      "hash": "0x3CB772E481DBE9F8",
+      "kind": "entity",
+      "name": "helldiver_dummy_rts"
+    },
+    {
+      "hash": "0x3F70E3503A3293F9",
+      "kind": "entity",
+      "name": "shuttle_tanker"
+    },
+    {
+      "hash": "0x3F8734AEC15B82AD",
+      "kind": "entity",
+      "name": "shuttle"
+    },
+    {
+      "hash": "0x3F92BA65EF65CCA9",
+      "kind": "entity",
+      "name": "P-72 迅击 (副武器, 模型)"
+    },
+    {
+      "hash": "0x3FA94F58F596BC0B",
+      "kind": "entity",
+      "name": "G-109 海胆 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x41436D438139F786",
+      "kind": "entity",
+      "name": "weapon_rack_drone_flamethrower"
+    },
+    {
+      "hash": "0x416D053372C4E433",
+      "kind": "entity",
+      "name": "LAS-58 猛爪 (副武器, 模型)"
+    },
+    {
+      "hash": "0x41EAC4A03987FAA0",
+      "kind": "entity",
+      "name": "SG-8 制裁者 (主武器, 模型)"
+    },
+    {
+      "hash": "0x41F2DEF484634B59",
+      "kind": "entity",
+      "name": "R-40 视界者（主武器，模型）"
+    },
+    {
+      "hash": "0x423FF97D57AB04F5",
+      "kind": "entity",
+      "name": "oil_rig"
+    },
+    {
+      "hash": "0x43A58CB89CFA197C",
+      "kind": "entity",
+      "name": "M-1000 重装机枪 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x43CB1033961A2276",
+      "kind": "entity",
+      "name": "AR-23P 穿甲\"解放者\" (主武器, 模型)"
+    },
+    {
+      "hash": "0x43EB1C3C1A1860E0",
+      "kind": "entity",
+      "name": "heavy_flamethrower_backpack"
+    },
+    {
+      "hash": "0x444880F62CA7EAE8",
+      "kind": "entity",
+      "name": "M-104 炽热型快速侦察载具 喷火器"
+    },
+    {
+      "hash": "0x44FD108C1BA32019",
+      "kind": "entity",
+      "name": "weapon_rack_remote_explosives"
+    },
+    {
+      "hash": "0x46183B50961D1328",
+      "kind": "entity",
+      "name": "SG-225 破裂者 (主武器, 模型)"
+    },
+    {
+      "hash": "0x46333FC9E3D4BD34",
+      "kind": "entity",
+      "name": "G-48 千兆级榴弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x46B9E3BE0AE9972E",
+      "kind": "entity",
+      "name": "weapon_rack_plasma_blaster"
+    },
+    {
+      "hash": "0x4821CF7AAFEA1419",
+      "kind": "entity",
+      "name": "hellpod_ship"
+    },
+    {
+      "hash": "0x486522867199D7F3",
+      "kind": "entity",
+      "name": "飞鹰火箭发射器（右边，模型）"
+    },
+    {
+      "hash": "0x49119612EB284A48",
+      "kind": "entity",
+      "name": "ammo_box"
+    },
+    {
+      "hash": "0x4A2ABCE4F440FEC1",
+      "kind": "entity",
+      "name": "飞鹰火箭发射器（旧模型）"
+    },
+    {
+      "hash": "0x4B071633584E4594",
+      "kind": "entity",
+      "name": "drone_stun"
+    },
+    {
+      "hash": "0x4BA41B6F9F405CC2",
+      "kind": "entity",
+      "name": "StA-11 冲锋枪 (主武器, 模型)"
+    },
+    {
+      "hash": "0x4C786785C79D44E7",
+      "kind": "entity",
+      "name": "R-63CS 反狙击\"勤勉\" (主武器, 模型)"
+    },
+    {
+      "hash": "0x4C7E4680FF843A1B",
+      "kind": "entity",
+      "name": "weapon_rack_displacement_backpack"
+    },
+    {
+      "hash": "0x4CE9EAB785A79B7B",
+      "kind": "entity",
+      "name": "G-6 破片弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x4CF9D9B3F6813F52",
+      "kind": "entity",
+      "name": "weapon_rack_arc_thrower"
+    },
+    {
+      "hash": "0x4D1C334D294DFA97",
+      "kind": "entity",
+      "name": "Helldiver"
+    },
+    {
+      "hash": "0x4D58C77087B774C5",
+      "kind": "entity",
+      "name": "M6C 特种作战手枪 (副武器, 模型)"
+    },
+    {
+      "hash": "0x4DBD74F49C8FFC13",
+      "kind": "entity",
+      "name": "MA5C 突击步枪 (主武器, 模型)"
+    },
+    {
+      "hash": "0x4E310B1FE4C52B52",
+      "kind": "entity",
+      "name": "SG-20 止息 (主武器, 模型)"
+    },
+    {
+      "hash": "0x4E4A613EB9BF5C24",
+      "kind": "entity",
+      "name": "SMG-37 防卫者 (主武器, 模型)"
+    },
+    {
+      "hash": "0x4E52F730432CDB1E",
+      "kind": "entity",
+      "name": "weapon_rack_energy_weapon_shark"
+    },
+    {
+      "hash": "0x4EF9A47109239A58",
+      "kind": "entity",
+      "name": "ammo_backpack"
+    },
+    {
+      "hash": "0x4F749E2EE26F532D",
+      "kind": "entity",
+      "name": "SG-8S 重炮手 (主武器, 模型)"
+    },
+    {
+      "hash": "0x4FB0F8C02F55C82B",
+      "kind": "entity",
+      "name": "FLAM-66 火炬手 (主武器, 模型)"
+    },
+    {
+      "hash": "0x5052EC6A928CCF1A",
+      "kind": "entity",
+      "name": "ammo_rack"
+    },
+    {
+      "hash": "0x51A0812E3BCE2D74",
+      "kind": "entity",
+      "name": "A/M-12 高爆迫击炮"
+    },
+    {
+      "hash": "0x51F50D6321F52F3D",
+      "kind": "entity",
+      "name": "B/MD C4背包 引爆器 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x52CDBFBACA3CB397",
+      "kind": "entity",
+      "name": "CQC-30 眩晕短棍 (副武器, 模型)"
+    },
+    {
+      "hash": "0x52DCE8A110418742",
+      "kind": "entity",
+      "name": "weapon_rack_hoverpack_backpack"
+    },
+    {
+      "hash": "0x52E4334E6A128CAF",
+      "kind": "entity",
+      "name": "GP-31 榴弹手枪 (副武器, 模型)"
+    },
+    {
+      "hash": "0x5429EE4183CC2C2F",
+      "kind": "entity",
+      "name": "weapon_rack_machinegun_expendable"
+    },
+    {
+      "hash": "0x56070F36CFFFA8A8",
+      "kind": "entity",
+      "name": "A/LAS-98 激光哨戒炮"
+    },
+    {
+      "hash": "0x57F27CBD5B71B0CB",
+      "kind": "entity",
+      "name": "A/G-16 加特林哨戒炮MK4 (已展开, 敌对阵营, 无限子弹)"
+    },
+    {
+      "hash": "0x583ECDE0D7718126",
+      "kind": "entity",
+      "name": "hellpod"
+    },
+    {
+      "hash": "0x5990123D142B16CB",
+      "kind": "entity",
+      "name": "MLS-4X 突击兵 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x59C5CA839449B379",
+      "kind": "entity",
+      "name": "jumppack_backpack"
+    },
+    {
+      "hash": "0x5BEEC97F4C7F4AE9",
+      "kind": "entity",
+      "name": "drone_laser_rifle"
+    },
+    {
+      "hash": "0x5C14F27759DD3BE0",
+      "kind": "entity",
+      "name": "G-8 焚身 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x5C92DDDE79C3317C",
+      "kind": "entity",
+      "name": "eagle_rocket_pod_mk2"
+    },
+    {
+      "hash": "0x5CAF553BA7EA1429",
+      "kind": "entity",
+      "name": "weapon_rack_harpoon_gun"
+    },
+    {
+      "hash": "0x5DE8FD02A05B4B0A",
+      "kind": "entity",
+      "name": "G-3 烟雾弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x5EBAEA70C0D060B9",
+      "kind": "entity",
+      "name": "SG-225SP 千发百中\"破裂者\" (主武器, 模型)"
+    },
+    {
+      "hash": "0x5EC80F4F1CDB66CF",
+      "kind": "entity",
+      "name": "hover_backpack"
+    },
+    {
+      "hash": "0x5F3EC9BDA2BD8553",
+      "kind": "entity",
+      "name": "CQC-20 破门锤 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x5F41C4DCABE95421",
+      "kind": "entity",
+      "name": "weapon_rack_automatic_cannon"
+    },
+    {
+      "hash": "0x5F9AEAC72B738298",
+      "kind": "entity",
+      "name": "ballistic_shield_backpack_small"
+    },
+    {
+      "hash": "0x5FECAB819F96A3E8",
+      "kind": "entity",
+      "name": "BR-14 审判者 (主武器, 模型)"
+    },
+    {
+      "hash": "0x6002622114037024",
+      "kind": "entity",
+      "name": "破片手榴弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x61353DF120F27732",
+      "kind": "entity",
+      "name": "weapon_rack_jumppack_backpack"
+    },
+    {
+      "hash": "0x6293CAF0559BACF6",
+      "kind": "entity",
+      "name": "sos_beacon"
+    },
+    {
+      "hash": "0x65489809A8181B96",
+      "kind": "entity",
+      "name": "EXO-55 Breakthrough Exosuit: Left arm"
+    },
+    {
+      "hash": "0x65CD4325BA23F3C6",
+      "kind": "entity",
+      "name": "AX/FLAM-75 热狗（武器）"
+    },
+    {
+      "hash": "0x67AC082FF6D142F3",
+      "kind": "entity",
+      "name": "weapon_rack_laser_pulse_cannon"
+    },
+    {
+      "hash": "0x693028644D27FFEF",
+      "kind": "entity",
+      "name": "gas_mine"
+    },
+    {
+      "hash": "0x6B11FC757618C57E",
+      "kind": "entity",
+      "name": "G-12 高爆弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x6B6E7FE1B931393C",
+      "kind": "entity",
+      "name": "weapon_rack_darkfluid_backpack"
+    },
+    {
+      "hash": "0x6CFCC7F8801A0266",
+      "kind": "entity",
+      "name": "40-K 热熔枪(支援武器, 模型)"
+    },
+    {
+      "hash": "0x6D5E37A8AD1FAC2B",
+      "kind": "entity",
+      "name": "hellpod_ship_launcher_master"
+    },
+    {
+      "hash": "0x708EA298C82093D0",
+      "kind": "entity",
+      "name": "AR-59 消音器 (主武器, 模型)"
+    },
+    {
+      "hash": "0x72170A55A1F37FF1",
+      "kind": "entity",
+      "name": "DBS-2 双重自由 (主武器, 模型)"
+    },
+    {
+      "hash": "0x72DB04413D4AB0F0",
+      "kind": "entity",
+      "name": "weapon_rack_drone_stun"
+    },
+    {
+      "hash": "0x736EDD2093900042",
+      "kind": "entity",
+      "name": "hellpod_extraction_beacon"
+    },
+    {
+      "hash": "0x73B63D637973C7A4",
+      "kind": "entity",
+      "name": "weapon_rack_minigun"
+    },
+    {
+      "hash": "0x73D84EAAE8C75342",
+      "kind": "entity",
+      "name": "LAS-44 新星（模型）"
+    },
+    {
+      "hash": "0x73F8498BFFDCF415",
+      "kind": "entity",
+      "name": "hellpod_payload"
+    },
+    {
+      "hash": "0x74599E56F72F9D7E",
+      "kind": "entity",
+      "name": "A/ARC-3 特斯拉塔"
+    },
+    {
+      "hash": "0x75816077C139C850",
+      "kind": "entity",
+      "name": "CQC-5 战斗短柄斧 (副武器, 模型)"
+    },
+    {
+      "hash": "0x75BE82ED8592A6B3",
+      "kind": "entity",
+      "name": "shuttle_transport"
+    },
+    {
+      "hash": "0x7617642765AC38C7",
+      "kind": "entity",
+      "name": "EAT-411 荡平者 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x7686544F539BB9B7",
+      "kind": "entity",
+      "name": "G-16 冲击弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x77BB9410010B0F6E",
+      "kind": "entity",
+      "name": "weapon_rack_sniper_rifle_duo"
+    },
+    {
+      "hash": "0x77C52E494527AA8A",
+      "kind": "entity",
+      "name": "weapon_rack_hellbomb_backpack"
+    },
+    {
+      "hash": "0x78A8185F63A70795",
+      "kind": "entity",
+      "name": "B/FLAM-80 焚燃者 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x792D5D2A340FD6E6",
+      "kind": "entity",
+      "name": "CQC-42 砍刀 (副武器, 模型)"
+    },
+    {
+      "hash": "0x7956C174E9FAEFE0",
+      "kind": "entity",
+      "name": "drone_base"
+    },
+    {
+      "hash": "0x79CCFFD281E3F3A9",
+      "kind": "entity",
+      "name": "ammo_box_discoverable_01"
+    },
+    {
+      "hash": "0x79E4B3D2DA5E45E3",
+      "kind": "entity",
+      "name": "combat_walker"
+    },
+    {
+      "hash": "0x7B06196E90154C88",
+      "kind": "entity",
+      "name": "LAS-7 匕首 (副武器, 模型)"
+    },
+    {
+      "hash": "0x7B0F8449CA9D2DA0",
+      "kind": "entity",
+      "name": "shuttle_dropship"
+    },
+    {
+      "hash": "0x7B2326F6FD9C8069",
+      "kind": "entity",
+      "name": "combat_walker_lumberer"
+    },
+    {
+      "hash": "0x7B75E5132FFD4CA6",
+      "kind": "entity",
+      "name": "R-2124 宪法 (主武器, 模型)"
+    },
+    {
+      "hash": "0x7E1F76163C667E4B",
+      "kind": "entity",
+      "name": "CQC-72 堑壕工具 (副武器, 模型)"
+    },
+    {
+      "hash": "0x7E3145A5BAA4B948",
+      "kind": "entity",
+      "name": "LAS-22 切变 (主武器, 模型)"
+    },
+    {
+      "hash": "0x7FA006885812A756",
+      "kind": "entity",
+      "name": "weapon_rack_melee_chainsaw_greatsword"
+    },
+    {
+      "hash": "0x7FF0FD4572F5996F",
+      "kind": "entity",
+      "name": "A/G-16 加特林哨戒炮MK2 (已展开)"
+    },
+    {
+      "hash": "0x80932FA0ED6901D3",
+      "kind": "entity",
+      "name": "EAT-17 消耗性反坦克武器 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x80F1A156D9FA1E36",
+      "kind": "entity",
+      "name": "JAR-5 主宰 (主武器, 模型)"
+    },
+    {
+      "hash": "0x820CC3BAFE962858",
+      "kind": "entity",
+      "name": "A/FLAM-40 火焰喷射哨戒炮"
+    },
+    {
+      "hash": "0x824B7E0C4C879EB5",
+      "kind": "entity",
+      "name": "EXO-45 爱国者外骨骼 火箭发射器"
+    },
+    {
+      "hash": "0x8365609B35EF6672",
+      "kind": "entity",
+      "name": "鹈鹕 40mm 穿甲高爆机炮"
+    },
+    {
+      "hash": "0x84354339522C932D",
+      "kind": "entity",
+      "name": "AR-2 野狼 (主武器, 模型)"
+    },
+    {
+      "hash": "0x8645F167B3C813A2",
+      "kind": "entity",
+      "name": "LAS-16 镰刀 (主武器, 模型)"
+    },
+    {
+      "hash": "0x8726D02AEAF98E86",
+      "kind": "entity",
+      "name": "backpack_base"
+    },
+    {
+      "hash": "0x87A8A187B6FD68FD",
+      "kind": "entity",
+      "name": "P-34 爆破者（射弹）"
+    },
+    {
+      "hash": "0x88C2D09AD85A7C9F",
+      "kind": "entity",
+      "name": "GL-28 弹链式榴弹发射器 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x891ADA7D553B69DB",
+      "kind": "entity",
+      "name": "weapon_rack_sniper_rifle"
+    },
+    {
+      "hash": "0x89C5493E08CA4207",
+      "kind": "entity",
+      "name": "APW-1 反器材步枪 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x89CFD784797A7621",
+      "kind": "entity",
+      "name": "weapon_rack_cover_small_cube"
+    },
+    {
+      "hash": "0x8A307BD1811A5FE9",
+      "kind": "entity",
+      "name": "SMG/FLAM-34 司炉者 (主武器, 模型)"
+    },
+    {
+      "hash": "0x8A9E543022C18092",
+      "kind": "entity",
+      "name": "weapon_rack_expendable_massive_rocket_launcher"
+    },
+    {
+      "hash": "0x8AFF7F0793A5BCED",
+      "kind": "entity",
+      "name": "TD-110 风暴漩涡 垂发单元火箭"
+    },
+    {
+      "hash": "0x8D3D52A3B2F19402",
+      "kind": "entity",
+      "name": "P-4 参议员 (副武器, 模型)"
+    },
+    {
+      "hash": "0x8DB8B823889324F9",
+      "kind": "entity",
+      "name": "weapon_rack_melee_sledge_hammer"
+    },
+    {
+      "hash": "0x8E325C933E55BF62",
+      "kind": "entity",
+      "name": "G-60 反坦克追踪雷（投掷物，模型）"
+    },
+    {
+      "hash": "0x8EC3026B5F2E579A",
+      "kind": "entity",
+      "name": "faf_missile_launcher_backpack"
+    },
+    {
+      "hash": "0x90DDC374F4E3D756",
+      "kind": "entity",
+      "name": "M90A 霰弹枪 (主武器, 模型)"
+    },
+    {
+      "hash": "0x94BD931B5FB4EE95",
+      "kind": "entity",
+      "name": "SMG-32 训斥 (主武器, 模型)"
+    },
+    {
+      "hash": "0x94C5114EBA59AA21",
+      "kind": "entity",
+      "name": "weapon_rack_machinegun"
+    },
+    {
+      "hash": "0x9571CA51F0DAF35B",
+      "kind": "entity",
+      "name": "MP-98 骑士 (主武器, 模型)"
+    },
+    {
+      "hash": "0x96615499993B1E16",
+      "kind": "entity",
+      "name": "weapon_rack_support_backpack"
+    },
+    {
+      "hash": "0x967ED15E0BAE363B",
+      "kind": "entity",
+      "name": "ballistic_shield_backpack"
+    },
+    {
+      "hash": "0x968211C0033DCE64",
+      "kind": "entity",
+      "name": "AR-23 解放者 (主武器, 模型)"
+    },
+    {
+      "hash": "0x96DE9CD50F7306E6",
+      "kind": "entity",
+      "name": "ARC-3 电弧发射器 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x96DFC6542AA22980",
+      "kind": "entity",
+      "name": "recoilless_rifle_backpack"
+    },
+    {
+      "hash": "0x979E9BC6D48D1FC6",
+      "kind": "entity",
+      "name": "drone_flamethrower"
+    },
+    {
+      "hash": "0x97AF34FBF093409C",
+      "kind": "entity",
+      "name": "grenade_box_discoverable_01"
+    },
+    {
+      "hash": "0x9ACE8638421ABC8E",
+      "kind": "entity",
+      "name": "bomb_backpack"
+    },
+    {
+      "hash": "0x9B2140378640432E",
+      "kind": "entity",
+      "name": "frv_supply"
+    },
+    {
+      "hash": "0x9B75217D8312DD67",
+      "kind": "entity",
+      "name": "B/MD C4 背包（C4实体）"
+    },
+    {
+      "hash": "0x9D4F7CB4EB34515D",
+      "kind": "entity",
+      "name": "飞鹰集束炸弹"
+    },
+    {
+      "hash": "0x9DE2C3A3C9A6353E",
+      "kind": "entity",
+      "name": "weapon_rack_shoulder_mounted_camera"
+    },
+    {
+      "hash": "0x9E83637BB077E782",
+      "kind": "entity",
+      "name": "M-103 Supply FRV: Rack"
+    },
+    {
+      "hash": "0x9EB160830321BFD6",
+      "kind": "entity",
+      "name": "GP-20 最后通牒 (副武器, 模型)"
+    },
+    {
+      "hash": "0x9F80D67A12A7E40F",
+      "kind": "entity",
+      "name": "GR-8 无后座力炮 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xA0532C3616528CBF",
+      "kind": "entity",
+      "name": "AX/ARC-3 K9（武器）"
+    },
+    {
+      "hash": "0xA0E691598F32932F",
+      "kind": "entity",
+      "name": "weapon_rack_laser_guided_missile_launcher"
+    },
+    {
+      "hash": "0xA0FF2F9A0CA6992A",
+      "kind": "entity",
+      "name": "drone_mg"
+    },
+    {
+      "hash": "0xA1470A4DAB237264",
+      "kind": "entity",
+      "name": "smart_pistol_missile_projectile"
+    },
+    {
+      "hash": "0xA20683199DFC19E8",
+      "kind": "entity",
+      "name": "TM-1 诱饵地雷 (投掷物, 模型)"
+    },
+    {
+      "hash": "0xA32621E3BDE13379",
+      "kind": "entity",
+      "name": "AX/AR-23 护卫犬 武器 (AR-23P)"
+    },
+    {
+      "hash": "0xA4E796F84801B40A",
+      "kind": "entity",
+      "name": "directional_energy_shield_backpack"
+    },
+    {
+      "hash": "0xA526DC7D89FF696D",
+      "kind": "entity",
+      "name": "combat_walker_missile"
+    },
+    {
+      "hash": "0xA6A735ACCB4A327F",
+      "kind": "entity",
+      "name": "M-105 盟友 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xA6A8273F408D0309",
+      "kind": "entity",
+      "name": "weapon_rack_jammed_pinata_tutorial"
+    },
+    {
+      "hash": "0xA7EE1EBF58FCDF1F",
+      "kind": "entity",
+      "name": "AR-23A 卡宾\"解放者\" (主武器, 模型)"
+    },
+    {
+      "hash": "0xA8A91EB54892B6B2",
+      "kind": "entity",
+      "name": "AR-11 仲裁者（主武器，模型）"
+    },
+    {
+      "hash": "0xA8CFFB316F0B5C5F",
+      "kind": "entity",
+      "name": "AC-8 机炮 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xA94913CA014F7579",
+      "kind": "entity",
+      "name": "supply_box"
+    },
+    {
+      "hash": "0xA955C4EA6F6D4203",
+      "kind": "entity",
+      "name": "AR/GL-21 幺二 (主武器, 模型)"
+    },
+    {
+      "hash": "0xA970CBA66FBEAA11",
+      "kind": "entity",
+      "name": "E/MG-101 重机枪部署支架MK2"
+    },
+    {
+      "hash": "0xA9982969137F3D77",
+      "kind": "entity",
+      "name": "mine_launcher_gas"
+    },
+    {
+      "hash": "0xAA69A60D74A3EC54",
+      "kind": "entity",
+      "name": "PLAS-15 忠诚者 (副武器, 模型)"
+    },
+    {
+      "hash": "0xACC611541CD839DB",
+      "kind": "entity",
+      "name": "landingzone_beacon"
+    },
+    {
+      "hash": "0xAE38F34B101315DD",
+      "kind": "entity",
+      "name": "sos_beacon"
+    },
+    {
+      "hash": "0xAF04113302F5621D",
+      "kind": "entity",
+      "name": "health_pack_rack"
+    },
+    {
+      "hash": "0xAF9B683CCB6DDC02",
+      "kind": "entity",
+      "name": "drone_laser_rifle_backpack"
+    },
+    {
+      "hash": "0xB0C9FAF4AF8903F9",
+      "kind": "entity",
+      "name": "tank_storm"
+    },
+    {
+      "hash": "0xB0F1B354BA1D38D8",
+      "kind": "entity",
+      "name": "CQC-1 唯一真旗 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xB16C9D490AA59B77",
+      "kind": "entity",
+      "name": "MGX-42 子弹风暴 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xB2053A1838092F8B",
+      "kind": "entity",
+      "name": "A/M-23 电磁冲击波迫击哨戒炮"
+    },
+    {
+      "hash": "0xB2B5E0D185605F9E",
+      "kind": "entity",
+      "name": "EAT-700 消耗性凝固汽油弹 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xB3F6EC87073AAFEC",
+      "kind": "entity",
+      "name": "weapon_rack_medic_backpack"
+    },
+    {
+      "hash": "0xB49756795D9B0E68",
+      "kind": "entity",
+      "name": "displacement_backpack"
+    },
+    {
+      "hash": "0xB4CA4C5B922F7965",
+      "kind": "entity",
+      "name": "health_pack_discoverable_01"
+    },
+    {
+      "hash": "0xB52BEAAE4F85C391",
+      "kind": "entity",
+      "name": "weapon_rack"
+    },
+    {
+      "hash": "0xB56FA3F5510000AB",
+      "kind": "entity",
+      "name": "directional_energy_shield"
+    },
+    {
+      "hash": "0xB62620AE2CD89F49",
+      "kind": "entity",
+      "name": "weapon_rack_railgun"
+    },
+    {
+      "hash": "0xB6AFF2195568767F",
+      "kind": "entity",
+      "name": "R-36 爆裂铳 (主武器, 模型)"
+    },
+    {
+      "hash": "0xB729A2BA153BCAED",
+      "kind": "entity",
+      "name": "AX/TX-13 腐息（武器）"
+    },
+    {
+      "hash": "0xB7791DA91F13488C",
+      "kind": "entity",
+      "name": "weapon_rack_belt_fed_grenade_launcher"
+    },
+    {
+      "hash": "0xB80951732A5F58F4",
+      "kind": "entity",
+      "name": "AR-23L 解放者传承（主武器，模型）"
+    },
+    {
+      "hash": "0xB814EECE17533BC4",
+      "kind": "entity",
+      "name": "AMW-20 尖峰（武器，模型）"
+    },
+    {
+      "hash": "0xB8FEB0CC191C1EF3",
+      "kind": "entity",
+      "name": "faf_missile_launcher_helghast_backpack"
+    },
+    {
+      "hash": "0xB9BAF571FC8F9959",
+      "kind": "entity",
+      "name": "drone_gas_projector"
+    },
+    {
+      "hash": "0xBB4B15B588F974FD",
+      "kind": "entity",
+      "name": "belt_fed_grenade_launcher_backpack"
+    },
+    {
+      "hash": "0xBBD57DF3E5B15ED8",
+      "kind": "entity",
+      "name": "weapon_rack_chem_gun"
+    },
+    {
+      "hash": "0xBC29613666DF696B",
+      "kind": "entity",
+      "name": "AR-32 安抚者 (主武器, 模型)"
+    },
+    {
+      "hash": "0xBCC2177439D231BE",
+      "kind": "entity",
+      "name": "Punisher fire of liberty"
+    },
+    {
+      "hash": "0xBDE1F2534280300D",
+      "kind": "entity",
+      "name": "P-41 巡查者 (副武器, 模型)"
+    },
+    {
+      "hash": "0xBE70EE0D8D44028E",
+      "kind": "entity",
+      "name": "M7S 冲锋枪 (主武器, 模型)"
+    },
+    {
+      "hash": "0xBF32E12923A9A252",
+      "kind": "entity",
+      "name": "mine_launcher_incendiary"
+    },
+    {
+      "hash": "0xBF4167FD26917AB1",
+      "kind": "entity",
+      "name": "EXO-49 解放者 手臂"
+    },
+    {
+      "hash": "0xBF4CFD2AEABFB5A4",
+      "kind": "entity",
+      "name": "CQC-9 除叶工具 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xBFFCB4CD971A8EDA",
+      "kind": "entity",
+      "name": "drone_gas_projector_backpack"
+    },
+    {
+      "hash": "0xC0B4502E67C7C867",
+      "kind": "entity",
+      "name": "G-11 铁蒺藜 地雷（投掷物，模型）"
+    },
+    {
+      "hash": "0xC12A34F375BD5A87",
+      "kind": "entity",
+      "name": "SG-225IE 高燃\"破裂者\" (主武器, 模型)"
+    },
+    {
+      "hash": "0xC18C1301580FA0C4",
+      "kind": "entity",
+      "name": "weapon_rack_spire_sterilizer"
+    },
+    {
+      "hash": "0xC25DC40EDE0E2D16",
+      "kind": "entity",
+      "name": "地面全地形采集钻机 重机枪炮塔"
+    },
+    {
+      "hash": "0xC28DA712B12E3DFA",
+      "kind": "entity",
+      "name": "guard_dog_stun_backpack"
+    },
+    {
+      "hash": "0xC2D449ECF7FACAB1",
+      "kind": "entity",
+      "name": "combat_walker_obsidian"
+    },
+    {
+      "hash": "0xC3C08690ED4ADF33",
+      "kind": "entity",
+      "name": "eagle_missile_mk2"
+    },
+    {
+      "hash": "0xC57F85252B7D853B",
+      "kind": "entity",
+      "name": "weapon_rack_faf_missile_launcher"
+    },
+    {
+      "hash": "0xC5C05FCB5747C799",
+      "kind": "entity",
+      "name": "G-123 铝热弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0xC6A87C428FD3C7A3",
+      "kind": "entity",
+      "name": "hellbomb"
+    },
+    {
+      "hash": "0xC734373E4B3E1DF7",
+      "kind": "entity",
+      "name": "helldiver_dummy"
+    },
+    {
+      "hash": "0xC780BCD79547DA0F",
+      "kind": "entity",
+      "name": "P-69 否决者 (副武器, 模型)"
+    },
+    {
+      "hash": "0xC85F576D5E086147",
+      "kind": "entity",
+      "name": "LAS-12 钗(主武器, 模型)"
+    },
+    {
+      "hash": "0xC87555EED1E9F092",
+      "kind": "entity",
+      "name": "weapon_rack_expendable_machinegun"
+    },
+    {
+      "hash": "0xC8F9A2233048B836",
+      "kind": "entity",
+      "name": "tank_restock_carryable"
+    },
+    {
+      "hash": "0xC91FB921947AD273",
+      "kind": "entity",
+      "name": "G/SH-39 Shield"
+    },
+    {
+      "hash": "0xCA4F3FC268F449D5",
+      "kind": "entity",
+      "name": "weapon_rack_heavy_flamethrower"
+    },
+    {
+      "hash": "0xCA6E81E2B3E22B18",
+      "kind": "entity",
+      "name": "weapon_rack_air_burst_rocket_launcher"
+    },
+    {
+      "hash": "0xCC102A849E8930EF",
+      "kind": "entity",
+      "name": "ammo_support_discoverable_box_01"
+    },
+    {
+      "hash": "0xCC21C7FFD3EBEFB9",
+      "kind": "entity",
+      "name": "frv"
+    },
+    {
+      "hash": "0xCC786F6491FE7E65",
+      "kind": "entity",
+      "name": "StA-X3 W.A.S.P.发射器 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xCDF28BE026BB7D84",
+      "kind": "entity",
+      "name": "StA-52 突击步枪 (主武器, 模型)"
+    },
+    {
+      "hash": "0xCE063AA33D95A812",
+      "kind": "entity",
+      "name": "AR-61 肉锤 (主武器, 模型)"
+    },
+    {
+      "hash": "0xCE2A6CC6652237FF",
+      "kind": "entity",
+      "name": "eagle_bomb_rack"
+    },
+    {
+      "hash": "0xCF5F176E0E322BE1",
+      "kind": "entity",
+      "name": "AR-23C 震荡\"解放者\" (主武器, 模型)"
+    },
+    {
+      "hash": "0xCF8934FF6567A42D",
+      "kind": "entity",
+      "name": "P-92 法令 (副武器, 模型)"
+    },
+    {
+      "hash": "0xD00A26BA08786344",
+      "kind": "entity",
+      "name": "weapon_rack_carry_data"
+    },
+    {
+      "hash": "0xD23393AF036CC727",
+      "kind": "entity",
+      "name": "weapon_rack_tank_restock"
+    },
+    {
+      "hash": "0xD323DE60855898AC",
+      "kind": "entity",
+      "name": "SG-451 野炊 (主武器, 模型)"
+    },
+    {
+      "hash": "0xD336BA1CAD16769F",
+      "kind": "entity",
+      "name": "装甲运兵车 炮塔"
+    },
+    {
+      "hash": "0xD54B9505C0F72873",
+      "kind": "entity",
+      "name": "LAS-98 激光大炮 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xD58AE6A04EDB10DE",
+      "kind": "entity",
+      "name": "TD-110 风暴漩涡 双联加特林机枪"
+    },
+    {
+      "hash": "0xD6B1FB05B9109353",
+      "kind": "entity",
+      "name": "P-11 治疗剂手枪 (副武器, 模型)"
+    },
+    {
+      "hash": "0xD8E278355CF29EF4",
+      "kind": "entity",
+      "name": "weapon_rack_drone_gas_projector"
+    },
+    {
+      "hash": "0xDAB81B0D80B511C7",
+      "kind": "entity",
+      "name": "G-89 烟幕 (投掷物, 模型)"
+    },
+    {
+      "hash": "0xDB922A7AFC42894B",
+      "kind": "entity",
+      "name": "G-31 电弧 (投掷物, 模型)"
+    },
+    {
+      "hash": "0xDBB286AD7ED9DF96",
+      "kind": "entity",
+      "name": "飞鹰毒气空袭"
+    },
+    {
+      "hash": "0xDBB6C961C59FADC1",
+      "kind": "entity",
+      "name": "P/40K 爆弹手枪（副武器，模型）"
+    },
+    {
+      "hash": "0xDC0B7C25253A8255",
+      "kind": "entity",
+      "name": "helldiver_dummy_shouting"
+    },
+    {
+      "hash": "0xDCD1C835407EF7BA",
+      "kind": "entity",
+      "name": "SG-97 扫荡者 (主武器, 模型)"
+    },
+    {
+      "hash": "0xDDDB2910FF2B24E9",
+      "kind": "entity",
+      "name": "MS-11 单兵导弹发射井（导弹）"
+    },
+    {
+      "hash": "0xDDEE9646723E09D3",
+      "kind": "entity",
+      "name": "weapon_rack_recoilless_rifle"
+    },
+    {
+      "hash": "0xDE18775FA447A9BF",
+      "kind": "entity",
+      "name": "weapon_rack_mini_missile_silo"
+    },
+    {
+      "hash": "0xDE6F09BC8EAEBE27",
+      "kind": "entity",
+      "name": "weapon_rack_drone_laser_rifle"
+    },
+    {
+      "hash": "0xDF51FE8D62F294BE",
+      "kind": "entity",
+      "name": "EXO-55 突破外骨骼 霰弹枪"
+    },
+    {
+      "hash": "0xDFBB9A0D8FA27D85",
+      "kind": "entity",
+      "name": "飞鹰空对空导弹"
+    },
+    {
+      "hash": "0xE3B6AEDD07FCB464",
+      "kind": "entity",
+      "name": "CQC-19 眩晕长矛 (副武器, 模型)"
+    },
+    {
+      "hash": "0xE44B691DC039A505",
+      "kind": "entity",
+      "name": "飞鹰500KG炸弹"
+    },
+    {
+      "hash": "0xE49A5AE078AAD407",
+      "kind": "entity",
+      "name": "incendiary_mine"
+    },
+    {
+      "hash": "0xE5796355A8FD67E0",
+      "kind": "entity",
+      "name": "R-4 鬣狗 (主武器, 模型)"
+    },
+    {
+      "hash": "0xE58163E71928D3E2",
+      "kind": "entity",
+      "name": "hellpod_initial_spawn"
+    },
+    {
+      "hash": "0xE5F64DCC3BFE9DD1",
+      "kind": "entity",
+      "name": "EXO-49 解放者外骨骼 手臂 MK2 (左手)"
+    },
+    {
+      "hash": "0xE60AE045E0090F4C",
+      "kind": "entity",
+      "name": "automatic_cannon_backpack"
+    },
+    {
+      "hash": "0xE6D932BE83729076",
+      "kind": "entity",
+      "name": "R-6 鹰眼 (主武器, 模型)"
+    },
+    {
+      "hash": "0xE75CD68E858A12AC",
+      "kind": "entity",
+      "name": "air_burst_rocket_backpack"
+    },
+    {
+      "hash": "0xE85E623F93F96FB3",
+      "kind": "entity",
+      "name": "CQC-72 堑壕工具 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xE86BAA795FA4E457",
+      "kind": "entity",
+      "name": "weapon_rack_drone_assault_rifle"
+    },
+    {
+      "hash": "0xE88A5AA58ABB9D81",
+      "kind": "entity",
+      "name": "drone_assault_rifle_backpack"
+    },
+    {
+      "hash": "0xE8D5F49AD7780E54",
+      "kind": "entity",
+      "name": "PLAS-45 纪元 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xE90F771A36FB441E",
+      "kind": "entity",
+      "name": "weapon_rack_flamethrower"
+    },
+    {
+      "hash": "0xE91F569C2AD8AF01",
+      "kind": "entity",
+      "name": "P-34 爆破者（副武器，模型）"
+    },
+    {
+      "hash": "0xE9CD1D0D118886AF",
+      "kind": "entity",
+      "name": "frv_superearth"
+    },
+    {
+      "hash": "0xEA534432474985A0",
+      "kind": "entity",
+      "name": "weapon_rack_jammed_pinata"
+    },
+    {
+      "hash": "0xEB725C39FC38B87C",
+      "kind": "entity",
+      "name": "G-13 燃烧冲击弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0xEB95609DCBAD53FE",
+      "kind": "entity",
+      "name": "weapon_rack_melee_flag"
+    },
+    {
+      "hash": "0xEBB32D4A2A4154B6",
+      "kind": "entity",
+      "name": "eagle_missile"
+    },
+    {
+      "hash": "0xED13DDC480EC6910",
+      "kind": "entity",
+      "name": "energy_shield"
+    },
+    {
+      "hash": "0xEE4C107B941AB7F4",
+      "kind": "entity",
+      "name": "G/40K 热熔地雷（投掷物，模型）"
+    },
+    {
+      "hash": "0xEE89CC10D80B6AFB",
+      "kind": "entity",
+      "name": "contact_mine"
+    },
+    {
+      "hash": "0xEEA5E3CEF1E12C14",
+      "kind": "entity",
+      "name": "PLAS-1 焦土 (主武器, 模型)"
+    },
+    {
+      "hash": "0xEF3A4136B21592CB",
+      "kind": "entity",
+      "name": "shuttle_gunship"
+    },
+    {
+      "hash": "0xEF85D6CF58E31D70",
+      "kind": "entity",
+      "name": "A/G-16 加特林哨戒炮"
+    },
+    {
+      "hash": "0xEF9EB729A9D6D849",
+      "kind": "entity",
+      "name": "hellpod_reinforce"
+    },
+    {
+      "hash": "0xF00C349422E8E320",
+      "kind": "entity",
+      "name": "mine_launcher"
+    },
+    {
+      "hash": "0xF0338468DCDB6A6C",
+      "kind": "entity",
+      "name": "R-72 审查官 (主武器, 模型)"
+    },
+    {
+      "hash": "0xF49227A0630A3F7F",
+      "kind": "entity",
+      "name": "CB-9 爆燃弩 (主武器, 模型)"
+    },
+    {
+      "hash": "0xF5C67AED5CB5ACA0",
+      "kind": "entity",
+      "name": "ballistic_shield_backpack_mk2"
+    },
+    {
+      "hash": "0xF6F7C7D65537A580",
+      "kind": "entity",
+      "name": "weapon_base"
+    },
+    {
+      "hash": "0xF7B35A9C5AE340B6",
+      "kind": "entity",
+      "name": "K-2 Throwing Knife"
+    },
+    {
+      "hash": "0xF88D61A8FE1E0766",
+      "kind": "entity",
+      "name": "weapon_rack_energy_shield"
+    },
+    {
+      "hash": "0xF992CE97577C8A7F",
+      "kind": "entity",
+      "name": "VG-70 变数 (主武器, 模型)"
+    },
+    {
+      "hash": "0xF99FBDAFEAF3D006",
+      "kind": "entity",
+      "name": "frv_flamer_fuel_tank"
+    },
+    {
+      "hash": "0xF9D5219640D65EF9",
+      "kind": "entity",
+      "name": "drone_assault_rifle"
+    },
+    {
+      "hash": "0xFB3A19078694708A",
+      "kind": "entity",
+      "name": "PLAS-101 净化者 (主武器, 模型)"
+    },
+    {
+      "hash": "0xFCD8A6E67EAC635A",
+      "kind": "entity",
+      "name": "CQC-2 军刀 (副武器, 模型)"
+    },
+    {
+      "hash": "0xFCE722B5EF57E4B6",
+      "kind": "entity",
+      "name": "飞鹰机炮（模型，废案）"
+    },
+    {
+      "hash": "0xFDE262593307CA2F",
+      "kind": "entity",
+      "name": "weapon_rack_laser_cannon"
+    },
+    {
+      "hash": "0xFE3B29B2CFA63F9B",
+      "kind": "entity",
+      "name": "GL-52 缓和使者 (支援武器, 模型)"
+    },
+    {
+      "hash": "0xFF9878576A4C543B",
+      "kind": "entity",
+      "name": "EXO-49 解放者外骨骼 手臂 (右手)"
+    },
+    {
+      "hash": "0x861E970F512B7BED",
+      "kind": "unit",
+      "name": "hellbomb_defunct"
+    }
+  ],
+  "group": {
+    "en": "Helldivers / equipment",
+    "zh-Hans": "潜兵与装备",
+    "zh-Hant": "潛兵與裝備"
+  },
+  "id": "helldivers",
+  "order": 50,
+  "version": 1
+}

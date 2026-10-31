@@ -58,6 +58,12 @@ function M.setup(store, index, log)
 end
 
 -- the files the panel changed: { { name = raw, type = raw, main, gpu, stream } }
+function M.reset()
+    for id,f in pairs(M.files or{})do
+        local original=M.original[id]
+        if M.buffer and original then ffi.copy(M.buffer+f.at,original.main,f.size)end
+    end
+end
 function M.changed()
     local out = {}
     for id, f in pairs(M.files or {}) do

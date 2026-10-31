@@ -13,7 +13,8 @@ assert(#H.load(TEST_GAME,original)==0)
 local checks=[==[
 local C=E.MOD.preload
 local slots={'PreloadGlobal','PreloadLoadout','PreloadEnemy','PreloadWorld','PreloadCatalog','PreloadHotjoin'}
-local misc=E.MOD.nav.page('misc');assert(table.concat(misc.subs[3].tabs,',')=='PreloadExtra,'..table.concat(slots,','))
+local misc=E.MOD.nav.page('misc');local _,preload_index=E.MOD.nav.locate('PreloadExtra')
+assert(table.concat(misc.subs[preload_index].tabs,',')=='PreloadExtra,'..table.concat(slots,','))
 local entity_count,editable=0,0
 for _,slot in ipairs(slots)do
  local list=E.weapons_in(slot);assert(#list>0,slot..' empty');print(slot,#list)
@@ -130,7 +131,7 @@ gdi.SelectObject(S.dc,dib);S.bits=ffi.cast('uint32_t *',bits[0]);gdi.SetBkMode(S
 for _,lang in ipairs({'zh-Hans','en'})do
  E.settings.lang=lang;S.lang=function()return E.settings.lang end
  for _,slot in ipairs(slots)do
-  local nav,k=E.MOD.nav.locate(slot);assert(nav.id=='misc'and k==4)
+  local nav,k=E.MOD.nav.locate(slot);assert(nav.id=='misc'and nav.subs[k].tabs[1]=='PreloadExtra')
   state.nav_open(nav.id,k);E.click('cat:'..slot)
   if slot=='PreloadLoadout'then
    for _,p in ipairs(E.weapons_in(slot))do if p.entity_hash then E.select_weapon(p);break end end
@@ -139,7 +140,8 @@ for _,lang in ipairs({'zh-Hans','en'})do
   S.paint_guis({255,12,15,19});S.save_bmp(TEST_WORK..'/'..slot..'-'..lang..'.bmp')
  end
 end
-state.nav_open('misc',4);E.click('cat:PreloadCatalog');E.ui.search.text='global_resources'
+local _,preload_sub=E.MOD.nav.locate('PreloadCatalog')
+state.nav_open('misc',preload_sub);E.click('cat:PreloadCatalog');E.ui.search.text='global_resources'
 local found=E.weapons_in('?search');assert(#found==1 and found[1].name=='packages/content/global_resources')
 E.ui.search.text=''
 for _,p in ipairs(E.weapons_in('PreloadHotjoin'))do for _,r in ipairs(p.rows)do assert(r.empty and #r.parts==0)end end

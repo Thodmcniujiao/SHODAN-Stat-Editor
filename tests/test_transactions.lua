@@ -53,4 +53,13 @@ end
 local blocked,reason=I.write_files(game,{[name]='blocked'},{[name]='readonly original'})
 assert(not blocked and reason:find('in use by another program',1,true)and reason:find('restored',1,true))
 assert(I.read(target)=='readonly original');I.move_file=actual_move
+-- A rejected buffer reload must keep the complete previous editing session alive.
+local H=require('hostdata');local G=require('gamedata')
+write(game..'/game.dll','test DLL data')
+local previous={sentinel={p=G.alloc(16)}};previous.sentinel.p[0]=171
+local previous_modded={sentinel=true};H.files,H.modded=previous,previous_modded
+local loaded,load_error=H.reload(game,{['generated_invalid.dl_bin']='not a sealed game file'})
+assert(not loaded and load_error and H.files==previous and H.modded==previous_modded)
+assert(previous.sentinel.p[0]==171,'failed reload freed the active buffer')
+G.free(previous.sentinel.p);H.files,H.modded={},{}
 print('PASS: partial-write rollback, coordinated asset rollback, install/restore and foreign-file protection')

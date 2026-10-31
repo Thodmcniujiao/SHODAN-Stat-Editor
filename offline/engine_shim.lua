@@ -81,7 +81,7 @@ local M = { window = nil, w = 0, h = 0, title = 'SHODAN Stat Editor Offline Reor
 local function window_title(text)
     text = tostring(text or M.title)
     local suffix = 'Reorganized by Thodmc'
-    return text:sub(-#suffix) == suffix and text or text .. ' ' .. suffix
+    return text:find(suffix, 1, true) and text or text .. ' ' .. suffix
 end
 
 -- UTF-8 -> zero-ended UTF-16, and its length without the zero
@@ -153,7 +153,7 @@ local STYLE = 0x00CF0000   -- WS_OVERLAPPEDWINDOW: a caption, a frame to drag to
 -- the first client for a work area (left, top, right, bottom) and a frame `extra_h` tall: as tall as it allows (at
 -- most 1350 px), panel-shaped. The window can then be dragged to any size or maximized: the panel fills it (its
 -- layout stretches to the window's shape, its text keeps its proportions).
--- M.display (杂项与设置 › 修改器设置, applied by M.set_display): font, the text's size (1 = as drawn); height, the
+-- M.display (bottom-right Settings, applied by M.set_display): font, the text's size (1 = as drawn); height, the
 -- resolution drawn at (the back buffer's height in pixels, its width the panel's shape; 0 = the window's own).
 M.display = { font = 1, height = 0 }
 local function client_for(work, extra_h)

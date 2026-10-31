@@ -15,8 +15,9 @@ local schema=model.schemas[C.FONT];local old=schema.size;schema.size=104
 assert(not C.font_layout(model.schemas));schema.size=old
 local chars=E.weapons_in('CharacterNameFields');local fonts=E.weapons_in('FontStyleFields')
 assert(#chars==91,#chars);assert(#fonts==6,#fonts)
-local misc=E.MOD.nav.page('misc');assert(misc.subs[5].name[2]=='其他已解析字段')
-assert(table.concat(misc.subs[5].tabs,',')=='CharacterNameFields,FontStyleFields,IdentityRpcInfo')
+local misc=E.MOD.nav.page('misc');local _,parsed_sub=E.MOD.nav.locate('CharacterNameFields')
+assert(misc.subs[parsed_sub].name[2]=='其他已解析字段')
+assert(table.concat(misc.subs[parsed_sub].tabs,',')=='CharacterNameFields,FontStyleFields,IdentityRpcInfo')
 local count=0
 for _,p in ipairs(chars)do
  assert(#p.rows==4 and E.by_hash[p.hash]==p)
@@ -86,7 +87,7 @@ E.reset_weapon(p);TEST_PRESETS_HELPER.load(E,p,1)
 assert(E.row_value(style)==1069547521 and E.row_value(size)==33.25);E.reset_weapon(p)
 assert(#H.diff()==0)
 local function open(tab)
- local page,k=E.MOD.nav.locate(tab);assert(page.id=='misc'and k==2)
+ local page,k=E.MOD.nav.locate(tab);assert(page.id=='misc'and k==parsed_sub)
  state.nav_open(page.id,k);E.click('cat:'..tab)
 end
 open('CharacterNameFields');E.select_weapon(main);E.ui.search.text='4D1C334D294DFA97'

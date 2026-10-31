@@ -8,6 +8,7 @@
 -- Same field objects as the original pages (no duplicate value store): a field an original page already has keeps
 -- saving under that page's config entry (health_owner, as on the Health page).
 local D=require('demolition')
+local Work=require('startup_work')
 local M={}
 local HASH=4294967295
 M.HASH=HASH
@@ -140,6 +141,7 @@ function M.build(spec,c)
   if c.log then c.log(spec.KEY..': incompatible layout: '..tostring(why))end
   return out
  end
+ if full then require('component_names').apply(spec,c.schemas,c.kind)end
  if c.log then
   c.log(spec.KEY..': all '..#spec.FIELDS..' fields'..(full and' (type library layout matches)'
    or(' -- the type library differs, check before editing: '..tostring(why))))
@@ -173,6 +175,7 @@ function M.build(spec,c)
  for key,at in pairs(c.table.index)do keys[#keys+1]=key;users[at]=(users[at]or 0)+1 end
  table.sort(keys,function(a,b)return D.hex(a)<D.hex(b)end)
  for _,key in ipairs(keys)do
+  Work.checkpoint()
   local at=c.table.index[key];local entity=D.hex(key)
   local path=(c.names or{})[entity]or''
   local name=(spec.NAMES and spec.NAMES[entity])or names[key]or(path~=''and path:match('([^/]+)$'))or entity
@@ -186,6 +189,7 @@ function M.build(spec,c)
    page.component_offset,page.shared_count,page.field_keys=at,users[at],page.field_keys or{}
   end
   page.catalog_hint=spec.CATEGORIES and spec.CATEGORIES[entity]
+  page.component_kind_hash,page.component_size=c.kind,spec.SIZE
   page.note=spec.TYPE..' · '..entity..' · '..users[at]..' entity reference(s) to this record'
   local short=not full and tostring(why):gsub(' %(.*$','')or nil
   page.note_of=function()
@@ -207,6 +211,7 @@ function M.build(spec,c)
   -- saved values is applied (page.ensure_rows, called by the editor)
   local function fill()
   for _,s in ipairs(spec.FIELDS)do
+   if s.n and s.n%128==0 then Work.checkpoint()end
    local x=s[9]or{}
    do
     local field,off,storage,group,r=s[1],at+s[2],s[3],s[4],s[8]
@@ -285,6 +290,9 @@ function M.build(spec,c)
        lines[#lines+1]=table.concat(list,'; ')
       end
       if x.note then lines[#lines+1]=pick(lang(),x.note)end
+      if x.resolved_name then
+       for _,line in ipairs(require('component_names').tip(x,lang()))do lines[#lines+1]=line end
+      end
       if x.shal then
        lines[#lines+1]=pick(lang(),x.inferred and{
         'Name from the 2024 schemas (shalzuth/HelldiversData), paired with the current type library by member order: check before relying on it.',
@@ -295,7 +303,7 @@ function M.build(spec,c)
         '名稱取自 2024 年資料（shalzuth/HelldiversData），該結構與當前類型庫逐成員一致。'})
       end
       if x.desc then lines[#lines+1]=pick(lang(),{'2024 description: ','2024 年说明：','2024 年說明：'})..x.desc end
-      if field:find('unk_')then
+      if field:find('unk_')and not x.resolved_name then
        lines[#lines+1]=pick(lang(),{'Meaning unknown; position and type checked against the type library.',
         '含义尚未确认；位置与类型已按类型库核对。','含義尚未確認；位置與類型已按類型庫核對。'})
       end

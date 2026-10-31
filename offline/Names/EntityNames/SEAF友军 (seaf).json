@@ -1,0 +1,97 @@
+{
+  "entities": [
+    {
+      "hash": "0x14453B8FCB040099",
+      "kind": "entity",
+      "name": "SEAF Medic · 1"
+    },
+    {
+      "hash": "0x4903F9E6760E3F45",
+      "kind": "entity",
+      "name": "Squad queue 17 · SEAF · SEAF Support Payload (original template)"
+    },
+    {
+      "hash": "0x548136F66F5C9B5C",
+      "kind": "entity",
+      "name": "SEAF Soldier · 4"
+    },
+    {
+      "hash": "0x5CF84155E60C6E4D",
+      "kind": "entity",
+      "name": "mechanical_bughole_scavenger"
+    },
+    {
+      "hash": "0x688949109126ECE4",
+      "kind": "entity",
+      "name": "mechanical_bughole"
+    },
+    {
+      "hash": "0x6B22AE8E5F669D4F",
+      "kind": "entity",
+      "name": "SEAF Soldier · 2"
+    },
+    {
+      "hash": "0x6FB1E73E00A84329",
+      "kind": "entity",
+      "name": "SEAF Medic · 2"
+    },
+    {
+      "hash": "0x75F7E96AF7DCD303",
+      "kind": "entity",
+      "name": "SEAF Soldier · 1"
+    },
+    {
+      "hash": "0x78DABC7344E50234",
+      "kind": "entity",
+      "name": "SEAF Leader · 2"
+    },
+    {
+      "hash": "0x9F282D94217FB325",
+      "kind": "entity",
+      "name": "Squad queue 18 · SEAF · Civilian (original template)"
+    },
+    {
+      "hash": "0xA00331F24DEEF2EE",
+      "kind": "entity",
+      "name": "SEAF Soldier · 3"
+    },
+    {
+      "hash": "0xA6DCC225E1263606",
+      "kind": "entity",
+      "name": "SEAF Specialist · 2"
+    },
+    {
+      "hash": "0xBCFC57848F206106",
+      "kind": "entity",
+      "name": "SEAF Leader · 1"
+    },
+    {
+      "hash": "0xBFB5C88D557595D8",
+      "kind": "entity",
+      "name": "SEAF Specialist · 1"
+    },
+    {
+      "hash": "0xC47287D738BE91C3",
+      "kind": "entity",
+      "name": "SEAF Medic · 3"
+    },
+    {
+      "hash": "0xD640CAE581319611",
+      "kind": "entity",
+      "name": "Squad queue 20 · SEAF · SEAF Support Payload (original template)"
+    },
+    {
+      "hash": "0xF07387A45784EF39",
+      "kind": "entity",
+      "name": "Squad queue 19 · SEAF · Civilian MK3 (original template)"
+    }
+  ],
+  "group": {
+    "en": "SEAF",
+    "zh-Hans": "SEAF友军",
+    "zh-Hant": "SEAF友軍"
+  },
+  "id": "seaf",
+  "order": 40,
+  "version": 1
+}

@@ -1,0 +1,522 @@
+{
+  "entities": [
+    {
+      "hash": "0x019610DFE2E4AB79",
+      "kind": "entity",
+      "name": "cha_hive_lord_shard_f_02"
+    },
+    {
+      "hash": "0x02D5059345A56C4A",
+      "kind": "entity",
+      "name": "Squad queue 7 · Terminids · Shrieker (original template)"
+    },
+    {
+      "hash": "0x06D3C4720E642FC1",
+      "kind": "entity",
+      "name": "Egg"
+    },
+    {
+      "hash": "0x095686275A113614",
+      "kind": "entity",
+      "name": "Shrieker Nest"
+    },
+    {
+      "hash": "0x09CD7FC0BA3FFCF4",
+      "kind": "entity",
+      "name": "cha_hive_lord_r_mandible"
+    },
+    {
+      "hash": "0x0A2BBB5DD1DC065F",
+      "kind": "entity",
+      "name": "cha_hive_lord_r_leg"
+    },
+    {
+      "hash": "0x0AB7B92B131C228C",
+      "kind": "entity",
+      "name": "Rupture Charger"
+    },
+    {
+      "hash": "0x0DF874E208040D2F",
+      "kind": "entity",
+      "name": "bug_spawner_base"
+    },
+    {
+      "hash": "0x0E5F20CAB6E2EA5D",
+      "kind": "entity",
+      "name": "Hive mind: Terminids · 15 min · 0E5F20CA"
+    },
+    {
+      "hash": "0x0FA5F7BBD6D08FB2",
+      "kind": "entity",
+      "name": "Spawner · Bug Hole Smoke MK1"
+    },
+    {
+      "hash": "0x10081ACEF6163EF6",
+      "kind": "entity",
+      "name": "Bile Warrior"
+    },
+    {
+      "hash": "0x15031543894C3F3C",
+      "kind": "entity",
+      "name": "Spore Spewer · 3"
+    },
+    {
+      "hash": "0x1614F01ADE1AAC64",
+      "kind": "entity",
+      "name": "cha_hive_lord_shard_b_03"
+    },
+    {
+      "hash": "0x1A7FCDFF98C664B0",
+      "kind": "entity",
+      "name": "Charger"
+    },
+    {
+      "hash": "0x1BA59502F840B82D",
+      "kind": "entity",
+      "name": "Squad queue 2 · Terminids · Warrior MK2 (original template)"
+    },
+    {
+      "hash": "0x1F0A91729C0004E0",
+      "kind": "entity",
+      "name": "Spore Burst Hunter"
+    },
+    {
+      "hash": "0x2EE781A5B42E9904",
+      "kind": "entity",
+      "name": "Hive mind: Terminids · 15 min · 2EE781A5"
+    },
+    {
+      "hash": "0x32541FC4EC7C9CDC",
+      "kind": "entity",
+      "name": "Warrior (Tier 2) · 1"
+    },
+    {
+      "hash": "0x36AA99CCE5E60146",
+      "kind": "entity",
+      "name": "Bile Spewer (Base)"
+    },
+    {
+      "hash": "0x36CC8EAD2BB18D78",
+      "kind": "entity",
+      "name": "bug_spawner_hiveguard"
+    },
+    {
+      "hash": "0x3A2CEF12ED32A088",
+      "kind": "entity",
+      "name": "bug_spawner_bile_titan"
+    },
+    {
+      "hash": "0x3AFF5FD7D5450B99",
+      "kind": "entity",
+      "name": "Charger Behemoth · 1"
+    },
+    {
+      "hash": "0x3C723D945CE18211",
+      "kind": "entity",
+      "name": "Squad queue 3 · Terminids · Scavenger MK2 (original template)"
+    },
+    {
+      "hash": "0x3D0E03E2D574E1CA",
+      "kind": "entity",
+      "name": "Hunter (Base) · 2"
+    },
+    {
+      "hash": "0x3D75B189BF969EC0",
+      "kind": "entity",
+      "name": "cha_hive_lord_shard_f_03"
+    },
+    {
+      "hash": "0x44FD712DDCA794B9",
+      "kind": "entity",
+      "name": "Hive mind: Terminids · 12 min · 44FD712D"
+    },
+    {
+      "hash": "0x46CF997E8C93B1F8",
+      "kind": "entity",
+      "name": "Squad queue 5 · Terminids · Scavenger MK2 (original template)"
+    },
+    {
+      "hash": "0x4776A1CF3F19A13B",
+      "kind": "entity",
+      "name": "bug_spawner_stalker"
+    },
+    {
+      "hash": "0x480445A33039CE5E",
+      "kind": "entity",
+      "name": "Egg cluster · 1"
+    },
+    {
+      "hash": "0x4CC4094DB9EB3DDC",
+      "kind": "entity",
+      "name": "cha_hive_lord_back_shell"
+    },
+    {
+      "hash": "0x4E97FB073BDC7A4B",
+      "kind": "entity",
+      "name": "Warrior (Base) · 3"
+    },
+    {
+      "hash": "0x51EEA86BF6997E4E",
+      "kind": "entity",
+      "name": "Scavenger (Base) · 2"
+    },
+    {
+      "hash": "0x5CA832447445C0BA",
+      "kind": "entity",
+      "name": "Hunter (Tier 2)"
+    },
+    {
+      "hash": "0x6021E22338333D88",
+      "kind": "entity",
+      "name": "Nursing Spewer · 2"
+    },
+    {
+      "hash": "0x64090088502435DD",
+      "kind": "entity",
+      "name": "Shrieker · 1"
+    },
+    {
+      "hash": "0x662A7907531B45E5",
+      "kind": "entity",
+      "name": "cha_boomer_defiler"
+    },
+    {
+      "hash": "0x672F7DA17F3BA34A",
+      "kind": "entity",
+      "name": "Impaler (Tentacle)"
+    },
+    {
+      "hash": "0x6B202392F4AB605E",
+      "kind": "entity",
+      "name": "Spore Charger"
+    },
+    {
+      "hash": "0x6DEBBD868ED1EEBF",
+      "kind": "entity",
+      "name": "Squad queue 6 · Terminids · Predator Stalker (original template)"
+    },
+    {
+      "hash": "0x704476220F0BD7B6",
+      "kind": "entity",
+      "name": "Squad queue 1 · Terminids · Caustic Spitter (original template)"
+    },
+    {
+      "hash": "0x728421351D440EBC",
+      "kind": "entity",
+      "name": "Spore Burst Warrior"
+    },
+    {
+      "hash": "0x72A83E49CED6DB3D",
+      "kind": "entity",
+      "name": "腐蚀吐沫虫"
+    },
+    {
+      "hash": "0x7E4C6B45BCC45C3F",
+      "kind": "entity",
+      "name": "bug_spawner_warrior_captive"
+    },
+    {
+      "hash": "0x84B4FD5378D79D27",
+      "kind": "entity",
+      "name": "Hive mind: Terminids · 40 min · 84B4FD53"
+    },
+    {
+      "hash": "0x86F2A2D347C70074",
+      "kind": "entity",
+      "name": "cha_hive_lord_l_mandible"
+    },
+    {
+      "hash": "0x883401AF2A98A5F6",
+      "kind": "entity",
+      "name": "Predator Hunter"
+    },
+    {
+      "hash": "0x8901F188DB366B4B",
+      "kind": "entity",
+      "name": "bug_spawner_scavenger"
+    },
+    {
+      "hash": "0x8AB62629DB3D6AC8",
+      "kind": "entity",
+      "name": "cha_scavenger_defiler"
+    },
+    {
+      "hash": "0x8C31B749759CBD61",
+      "kind": "entity",
+      "name": "bug_spawner_warrior"
+    },
+    {
+      "hash": "0x8FF0A839830A7692",
+      "kind": "entity",
+      "name": "Scavenger (Base) · 1"
+    },
+    {
+      "hash": "0x909BFFB60C2236F0",
+      "kind": "entity",
+      "name": "cha_hive_lord_shard_f_01"
+    },
+    {
+      "hash": "0x960B48A421A3FAAA",
+      "kind": "entity",
+      "name": "Dragonroach"
+    },
+    {
+      "hash": "0x97DD3178E9F0AB70",
+      "kind": "entity",
+      "name": "bug_spawner_prowler"
+    },
+    {
+      "hash": "0x9A8A3AAE287B230C",
+      "kind": "entity",
+      "name": "Scavenger (Base) · 3"
+    },
+    {
+      "hash": "0x9B58C95349D051F9",
+      "kind": "entity",
+      "name": "bug_spawner_spitter"
+    },
+    {
+      "hash": "0x9D8632A79C2D9789",
+      "kind": "entity",
+      "name": "bug_spawner_warrior_tutorial"
+    },
+    {
+      "hash": "0x9E2E17F2CCCCAFDD",
+      "kind": "entity",
+      "name": "吐酸泰坦"
+    },
+    {
+      "hash": "0x9EA89CEEA6F8E766",
+      "kind": "entity",
+      "name": "Larva Container"
+    },
+    {
+      "hash": "0xA05BD1EC67B3AC4C",
+      "kind": "entity",
+      "name": "Charger Behemoth · 2"
+    },
+    {
+      "hash": "0xA1F37BF2A40FBDE4",
+      "kind": "entity",
+      "name": "Hive Guard"
+    },
+    {
+      "hash": "0xA3130B1126344EFD",
+      "kind": "entity",
+      "name": "Spawner · Bug Hole Smoke MK2"
+    },
+    {
+      "hash": "0xA35207C6F2150806",
+      "kind": "entity",
+      "name": "Rupture Warrior"
+    },
+    {
+      "hash": "0xA381A11C07D3EB94",
+      "kind": "entity",
+      "name": "Rupture Spewer"
+    },
+    {
+      "hash": "0xA5B106BA5D813094",
+      "kind": "entity",
+      "name": "cha_hive_lord_l_leg"
+    },
+    {
+      "hash": "0xAA28CAF964D05500",
+      "kind": "entity",
+      "name": "Spore Spewer · 1"
+    },
+    {
+      "hash": "0xAAB438596F5E8FD9",
+      "kind": "entity",
+      "name": "Pouncer"
+    },
+    {
+      "hash": "0xAE8666D603EE51FF",
+      "kind": "entity",
+      "name": "Egg cluster · 2"
+    },
+    {
+      "hash": "0xAFC719AF96F10DC3",
+      "kind": "entity",
+      "name": "Infested Tower"
+    },
+    {
+      "hash": "0xB0109EC48A38D9A1",
+      "kind": "entity",
+      "name": "cha_hive_lord_front_shell"
+    },
+    {
+      "hash": "0xB2A6FA1E4284C7E6",
+      "kind": "entity",
+      "name": "Warrior (Tier 2) · 2"
+    },
+    {
+      "hash": "0xB6A181ADCF547AEB",
+      "kind": "entity",
+      "name": "bug_spawner_warrior_ceiling"
+    },
+    {
+      "hash": "0xBC2AF8548C6D5E06",
+      "kind": "entity",
+      "name": "bug_spawner_hunter"
+    },
+    {
+      "hash": "0xBE39E313A1E46BB9",
+      "kind": "entity",
+      "name": "Warrior (Base) · 2"
+    },
+    {
+      "hash": "0xBF908A82B8E787AC",
+      "kind": "entity",
+      "name": "TCS support · 1"
+    },
+    {
+      "hash": "0xC3D9B291BD97B935",
+      "kind": "entity",
+      "name": "TCS support · 2"
+    },
+    {
+      "hash": "0xC4FEEC77882AE03E",
+      "kind": "entity",
+      "name": "Blocking rock"
+    },
+    {
+      "hash": "0xCBDDB06FA202B2A4",
+      "kind": "entity",
+      "name": "cha_hive_lord_shard_b_02"
+    },
+    {
+      "hash": "0xCC7022FDD172089B",
+      "kind": "entity",
+      "name": "Nursing Spewer · 1"
+    },
+    {
+      "hash": "0xCCAE5264ACD591B7",
+      "kind": "entity",
+      "name": "Bile Spewer (Tier 2)"
+    },
+    {
+      "hash": "0xCED70B42C32CBED1",
+      "kind": "entity",
+      "name": "钻地喷涌虫 酸液投掷物"
+    },
+    {
+      "hash": "0xD337A7BFDA8F4B10",
+      "kind": "entity",
+      "name": "Hive mind: Terminids · 40 min · D337A7BF"
+    },
+    {
+      "hash": "0xD465D9C7F77A07CB",
+      "kind": "entity",
+      "name": "Hive Lord"
+    },
+    {
+      "hash": "0xD47AFFEE94BD098F",
+      "kind": "entity",
+      "name": "Hive mind: Terminids · 40 min · D47AFFEE"
+    },
+    {
+      "hash": "0xD522FD4748D443A5",
+      "kind": "entity",
+      "name": "Brood Commander"
+    },
+    {
+      "hash": "0xD666AA61D804D311",
+      "kind": "entity",
+      "name": "bug_spawner_scavenger_captive"
+    },
+    {
+      "hash": "0xD9511E9F6BD62E3F",
+      "kind": "entity",
+      "name": "Hunter (Base) · 1"
+    },
+    {
+      "hash": "0xDB964631BE1CF501",
+      "kind": "entity",
+      "name": "Spore Burst Scavenger"
+    },
+    {
+      "hash": "0xDC901B71A3A73B9A",
+      "kind": "entity",
+      "name": "Spore Lung"
+    },
+    {
+      "hash": "0xDCF8E74212FBEE3B",
+      "kind": "entity",
+      "name": "Impaler (Base)"
+    },
+    {
+      "hash": "0xDF3C4F91E298BFA4",
+      "kind": "entity",
+      "name": "Hive Breaker Drill"
+    },
+    {
+      "hash": "0xDFBACBD977A948DC",
+      "kind": "entity",
+      "name": "Scavenger (Tier 1 captive)"
+    },
+    {
+      "hash": "0xE02E6BD34B606A85",
+      "kind": "entity",
+      "name": "Spore Spewer · 2"
+    },
+    {
+      "hash": "0xE2262DC92FA7A896",
+      "kind": "entity",
+      "name": "Hive mind: Terminids · 40 min · E2262DC9"
+    },
+    {
+      "hash": "0xEACEE39FA017B495",
+      "kind": "entity",
+      "name": "Warrior (Base) · 1"
+    },
+    {
+      "hash": "0xEF04CB84D097A497",
+      "kind": "entity",
+      "name": "孢子泰坦"
+    },
+    {
+      "hash": "0xF0B26FA9258128D3",
+      "kind": "entity",
+      "name": "Shrieker · 2"
+    },
+    {
+      "hash": "0xF540CA9D9D4A422E",
+      "kind": "entity",
+      "name": "Stalker"
+    },
+    {
+      "hash": "0xF78BF0FF5C62140D",
+      "kind": "entity",
+      "name": "bug_spawner_boomer"
+    },
+    {
+      "hash": "0xF79CD8BB654397DF",
+      "kind": "entity",
+      "name": "Alpha Commander"
+    },
+    {
+      "hash": "0xFA2A4B5CB212B99B",
+      "kind": "entity",
+      "name": "Squad queue 4 · Terminids · Rupture Charger (original template)"
+    },
+    {
+      "hash": "0xFD5247653C897803",
+      "kind": "entity",
+      "name": "cha_charger_bull_mission"
+    },
+    {
+      "hash": "0xFECADA76A501AF4C",
+      "kind": "entity",
+      "name": "cha_hive_lord_shard_b_01"
+    }
+  ],
+  "group": {
+    "en": "Terminids",
+    "zh-Hans": "虫族",
+    "zh-Hant": "蟲族"
+  },
+  "id": "terminids",
+  "order": 10,
+  "version": 1
+}

@@ -121,15 +121,24 @@ local function save(t,names)
  local path=M.paths and M.paths[t]or(M.folder..'/'..t..'.json')
  write(path,J.encode({version=1,type=t,names=names},true,index_less))
 end
-function M.load(dir)
+function M.load(dir,names_dir)
  local previous,previous_count,previous_paths=M.by,M.count,M.paths
+ local app_dir=assert(dir)
+ -- Portable package: <exe>/Names/TypeIdNames wins over %LOCALAPPDATA%.
+ -- An empty/missing package folder keeps the old app-data behaviour.
+ local use_pack=names_dir and #F.list(names_dir..'/TypeIdNames')>0
+ if not use_pack then names_dir=nil end
+ M.names_dir=names_dir
  -- Import old JSON/TXT once. Keep the originals intact, and keep hash names separate from local indices.
- M.read_legacy(dir);M.hash_names={};local legacy=M.by
+ if use_pack then M.read_legacy(nil) else M.read_legacy(app_dir) end
+ M.hash_names={};local legacy=M.by
  local ordered={};for t in pairs(legacy)do ordered[#ordered+1]=t end;table.sort(ordered)
  for _,t in ipairs(ordered)do for id,name in pairs(legacy[t])do
   if not IDs.index(id)then local h=IDs.hex(id);if h and not M.hash_names[h]then M.hash_names[h]=name end end
  end end
- M.folder=assert(dir)..'/TypeIdNames';assert(F.mkdir(M.folder),'Cannot create '..M.folder)
+ M.folder=use_pack and(names_dir..'/TypeIdNames')or(app_dir..'/TypeIdNames')
+ M.dir=app_dir
+ assert(F.mkdir(M.folder),'Cannot create '..M.folder)
  local paths={};for _,p in ipairs(F.list(M.folder))do if p:lower():match('%.json$')then paths[#paths+1]=p end end
  if #paths==0 and #M.errors>0 then return M.count,M.errors end
  if #paths==0 then
@@ -190,9 +199,9 @@ function M.seed(t,entries)
  if changed then save(t,names);M.by[t]=names end
  M.count=0;for _,list in pairs(M.by)do for _ in pairs(list)do M.count=M.count+1 end end
 end
-function M.reload(dir)
+function M.reload(dir,names_dir)
  local old,oldcount=M.by,M.count
- local count,errors=M.load(dir or M.dir)
+ local count,errors=M.load(dir or M.dir,names_dir or M.names_dir)
  if #errors>0 then M.by,M.count=old,oldcount;return oldcount,errors end
  return count,errors
 end

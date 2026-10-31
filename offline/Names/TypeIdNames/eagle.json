@@ -1,0 +1,18 @@
+{
+  "names": {
+    "0": "(Not Used) Additional Strafing Runs",
+    "1": "Eagle Airstrike",
+    "2": "Eagle Smoke Strike",
+    "3": "Eagle 500kg Bomb",
+    "4": "Eagle Cluster Bomb",
+    "5": "Eagle Fly BY",
+    "6": "Eagle Gas Airstrike",
+    "7": "EagleComponentData",
+    "8": "(Not Used) Air-TO-Air Missles",
+    "9": "Eagle Napalm Airstrike",
+    "10": "Eagle 110mm Rocket Pods",
+    "11": "EagleComponentData"
+  },
+  "type": "eagle",
+  "version": 1
+}

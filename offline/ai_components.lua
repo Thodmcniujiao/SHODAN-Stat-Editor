@@ -1,6 +1,7 @@
--- 敌人设置 › AI设置: the enemies' AI and senses components in full, one tab each (component browser, every entity
+-- 生物设置 › AI设置: the enemies' AI and senses components in full, one tab each (component browser, every entity
 -- with the component): AiEnemy, AiCharacter (offline/enemy_components.lua), the sensor eye (the same fields as
--- 实体组件 › 炮塔与制导's 视觉传感 tab: offline/sensor_eye_components.lua), SensorEar, SensorDanger, Targeting. 生命与拆毁 › 接触伤害:
+-- 实体组件 › 炮塔与制导's 视觉传感 tab: offline/sensor_eye_components.lua), SensorEar. SensorDanger and Targeting are
+-- shown under 生物组件 while retaining their original specs. 生命与拆毁 › 接触伤害:
 -- OverlapDamage. The enemy pages' movement speed and senses rows are these fields, so a change on one shows on the
 -- other.
 local EC=require('enemy_components')
@@ -22,6 +23,9 @@ ear.SUB='turret'
 for _,s in ipairs({by.AiEnemyComponentData,by.AiCharacterComponentData,eye,by.SensorEarComponentData,
   by.SensorDangerComponentData,by.TargetingComponentData,by.OverlapDamageComponentData,ear})do
  M.SPECS[#M.SPECS+1]=s
- local t=M.SUBS[s.SUB];t[#t+1]=s.SLOT
+ -- Suppression sense and targeting live under Creature components; keep their spec identities for old configs.
+ if s.TYPE~='SensorDangerComponentData'and s.TYPE~='TargetingComponentData'then
+  local t=M.SUBS[s.SUB];t[#t+1]=s.SLOT
+ end
 end
 return M

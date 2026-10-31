@@ -51,7 +51,7 @@ local function u32(b,o)
 end
 function M.hash_input(text)
  text=tostring(text):match('^%s*(.-)%s*$')
- local h=text:match('^0[xX](%x+)$')
+ local h=text:match('^0[xX](%x+)$')or(#text==16 and text:find('[a-fA-F]')and text:match('^%x+$'))
  if not h then for hash,p in pairs(DATA.catalog)do if p.path~=''and p.path==text then h=hash;break end end end
  if h and #h<=16 then
   h=string.rep('0',16-#h)..h
@@ -195,7 +195,7 @@ function M.build(c)
    local lo,hi=c.read(row.parts[1].field),c.read(row.parts[2].field)
    local h=lo and hi and string.format('%08X%08X',hi,lo)or''
    local pkg=DATA.catalog[h]
-   return pkg and(pkg.path~=''and pkg.path or'0x'..h)or h=='0000000000000000'and tx({'None','无','無'})or('0x'..h)
+   return pkg and(pkg.path~=''and pkg.path or(pkg.label and(pkg.label..' (0x'..h..')'))or'0x'..h)or h=='0000000000000000'and tx({'None','无','無'})or('0x'..h)
   end
   row.tip_of=function()local lines=old and old()or{};lines[#lines+1]=name();return lines end
   local info=readonly(p,row.id..'_resolved',{'Package path','资源包路径','資源包路徑'},name,row.section)
@@ -203,12 +203,31 @@ function M.build(c)
   if row.section_of then info.section_of=row.section_of end
   p.search=p.search..' '..name()
  end
+ M.entity_packages={}
  for _,spec in ipairs(M.SPECS)do
   if V.check_layout(spec,c.schemas,spec.HASH)and M.check_layout(typehash(spec.TYPE:gsub('Data$','')),c.schemas)then
    local view=V.build(spec,{table=c.tables[spec.HASH],kind=spec.HASH,weapons=c.weapons,by_hash=c.by_hash,
     field_at=c.field_at,read=c.read,add_row=c.add_row,default_of=c.default_of,schemas=c.schemas,names=c.names,lang=c.lang,log=c.log})
    for _,p in ipairs(view.pages)do
     p.preload_parameters=true;p.preload_order=1;p.search=p.name..' '..p.entity_hash
+    local epath=(c.names or{})[p.entity_hash]or''
+    local fac=epath:find('fac_bugs')and'bug'or epath:find('fac_cyborgs')and'cyborg'or epath:find('fac_illuminate')and'illuminate'
+     or(epath:find('fac_helldivers')or epath:find('seaf'))and'seaf'or nil
+    local pkgs={}
+    for _,fid in ipairs({'package','dependant_package'})do
+     local part=p.by_id[fid..'_lo']
+     local r=part and part.row
+     local lo,hi=r and c.read(r.parts[1].field),r and c.read(r.parts[2].field)
+     local ph=lo and hi and string.format('%08X%08X',hi,lo)
+     if ph and ph~='0000000000000000'and DATA.catalog[ph]then
+      pkgs[#pkgs+1]=ph
+      local pkg=DATA.catalog[ph]
+      pkg.entity_kind=pkg.entity_kind or spec.KEY
+      pkg.faction=pkg.faction or fac
+      if not pkg.label and p.name~=p.entity_hash then pkg.label=p.name end
+     end
+    end
+    if #pkgs>0 then M.entity_packages[p.entity_hash]=pkgs end
     local original={};for _,r in ipairs(p.rows)do original[#original+1]=r end;p.rows={}
     for _,r in ipairs(original)do p.rows[#p.rows+1]=r;if r.id=='package'or r.id=='dependant_package'then package_row(p,r)end end
     if p.name==p.entity_hash then
@@ -229,6 +248,7 @@ function M.build(c)
   if M.check_layout(r.hash,c.schemas)then
    local lists=r.hash==0x30EB6399 and c.stratagem_groups or(c.kinds[r.hash]and c.kinds[r.hash].list)or{}
    for _,kind in ipairs(lists)do
+  require('startup_work').checkpoint()
     local t=c.tables[kind];local b=c.bytes(kind);local addr=t.copies[1]+24
     local idx,why=M.parse(b,r.hash,addr)
     if idx and(#idx.fields>0 or #idx.arrays>0)then
@@ -269,12 +289,13 @@ function M.build(c)
   elseif c.log then c.log('preload: schema mismatch '..r.name)end
  end
  for h,pkg in pairs(DATA.catalog)do
-  local name=pkg.path~=''and pkg.path or'0x'..h
+  require('startup_work').checkpoint()
+  local name=pkg.path~=''and pkg.path or(pkg.label and(pkg.label..' [0x'..h..']'))or'0x'..h
   local p=page(name,'PreloadCatalog',h)
   p.note_of=function()return DATA.build..' · '..tx({'Package descriptor snapshot (read-only).','资源包描述符快照（只读）。','資源包描述符快照（唯讀）。'})end
   readonly(p,'hash','package hash','0x'..h);readonly(p,'decimal','package hash (decimal)',M.hash_input('0x'..h));readonly(p,'path','package path',name)
   readonly(p,'archive','archive',table.concat(pkg.archives,', '))
-  p.search=p.search..' '..h
+  p.search=p.search..' '..h..' '..(pkg.label or'')..' '..(pkg.faction or'')
   local manifest=DATA.manifests[pkg.path]
   if manifest then
    readonly(p,'resources',{'Manifest entries','清单条目数','清單項目數'},tostring(manifest.entries))

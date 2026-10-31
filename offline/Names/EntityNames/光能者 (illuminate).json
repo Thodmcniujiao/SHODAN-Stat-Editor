@@ -1,0 +1,282 @@
+{
+  "entities": [
+    {
+      "hash": "0x0883366204E1CCC5",
+      "kind": "entity",
+      "name": "凝视者"
+    },
+    {
+      "hash": "0x08E6FFC2474287BD",
+      "kind": "entity",
+      "name": "Xenobite Ardent"
+    },
+    {
+      "hash": "0x0ADC9F9173AD8E1D",
+      "kind": "entity",
+      "name": "Voteless (V2)"
+    },
+    {
+      "hash": "0x0CF9B9B95EDFEF81",
+      "kind": "entity",
+      "name": "崇高监视者 等离子步枪"
+    },
+    {
+      "hash": "0x1448D494665D01A0",
+      "kind": "entity",
+      "name": "凝视者 MK2"
+    },
+    {
+      "hash": "0x1449EB0752E0476E",
+      "kind": "entity",
+      "name": "Landed ship door shield"
+    },
+    {
+      "hash": "0x19E18B46EC55D94A",
+      "kind": "entity",
+      "name": "Stingray"
+    },
+    {
+      "hash": "0x20B9C7734DAEAD65",
+      "kind": "entity",
+      "name": "Veracitor"
+    },
+    {
+      "hash": "0x212710DA2E8366F5",
+      "kind": "entity",
+      "name": "新月监视者 直射武器"
+    },
+    {
+      "hash": "0x252C22DE9FBE9801",
+      "kind": "entity",
+      "name": "Hive mind: Illuminate · 15 min · 252C22DE"
+    },
+    {
+      "hash": "0x258BD988CD66C94B",
+      "kind": "entity",
+      "name": "helmetguy_cleaver"
+    },
+    {
+      "hash": "0x2AD2E055DAD21F6E",
+      "kind": "entity",
+      "name": "Warp Ship (invasion)"
+    },
+    {
+      "hash": "0x3478839C3C9B6646",
+      "kind": "entity",
+      "name": "Cognitive Disruptor"
+    },
+    {
+      "hash": "0x392C6D2A6B9934FF",
+      "kind": "entity",
+      "name": "Hive mind: Illuminate · 40 min · 392C6D2A"
+    },
+    {
+      "hash": "0x3EE143AFDE448A59",
+      "kind": "entity",
+      "name": "Squad queue 16 · Illuminate · Voteless Light (original template)"
+    },
+    {
+      "hash": "0x3F868B515FC33402",
+      "kind": "entity",
+      "name": "Hive mind: Illuminate · 40 min · 3F868B51"
+    },
+    {
+      "hash": "0x44458A2C52B002FB",
+      "kind": "entity",
+      "name": "Voteless (V3)"
+    },
+    {
+      "hash": "0x453FE22C634EB30F",
+      "kind": "entity",
+      "name": "Gatekeeper"
+    },
+    {
+      "hash": "0x4E342031A9D5C4F9",
+      "kind": "entity",
+      "name": "利维坦 激光炮"
+    },
+    {
+      "hash": "0x604A794EC45BB820",
+      "kind": "entity",
+      "name": "Elevated Overseer"
+    },
+    {
+      "hash": "0x67DC32DCA4F02D33",
+      "kind": "entity",
+      "name": "Fleshmob"
+    },
+    {
+      "hash": "0x68053EAE33FFA084",
+      "kind": "entity",
+      "name": "Hijack Tech Hub Nexus Machine"
+    },
+    {
+      "hash": "0x705362AD578943F6",
+      "kind": "entity",
+      "name": "新月监视者 曲射武器"
+    },
+    {
+      "hash": "0x74DF12368C8F2B4A",
+      "kind": "entity",
+      "name": "Hive mind: Illuminate · 40 min · 74DF1236"
+    },
+    {
+      "hash": "0x74E2285C01DA4F71",
+      "kind": "entity",
+      "name": "Warp Ship"
+    },
+    {
+      "hash": "0x78E1497571012C47",
+      "kind": "entity",
+      "name": "Voteless (Base)"
+    },
+    {
+      "hash": "0x7ACB4BD753B71DE0",
+      "kind": "entity",
+      "name": "利维坦 激光炮 右"
+    },
+    {
+      "hash": "0x7D6CFDB4F41AD1C1",
+      "kind": "entity",
+      "name": "Hive mind: Illuminate · 15 min · 7D6CFDB4"
+    },
+    {
+      "hash": "0x7DF314C744F0D935",
+      "kind": "entity",
+      "name": "Warp Gateway"
+    },
+    {
+      "hash": "0x905809A4C28D8A45",
+      "kind": "entity",
+      "name": "Crusher"
+    },
+    {
+      "hash": "0x965EAE5A51ACDD4A",
+      "kind": "entity",
+      "name": "Harvester · 1"
+    },
+    {
+      "hash": "0x9C29C4145042AB3A",
+      "kind": "entity",
+      "name": "Squad queue 15 · Illuminate · Voteless Light (original template)"
+    },
+    {
+      "hash": "0x9C7EF47A463D5327",
+      "kind": "entity",
+      "name": "监视者 等离子法杖"
+    },
+    {
+      "hash": "0xA8B999A49716BF41",
+      "kind": "entity",
+      "name": "il_spawner_guy_staff"
+    },
+    {
+      "hash": "0xAC60E78435098C9D",
+      "kind": "entity",
+      "name": "Watcher"
+    },
+    {
+      "hash": "0xAF8529D541954E88",
+      "kind": "entity",
+      "name": "Leviathan bomb"
+    },
+    {
+      "hash": "0xB3C9CDB79DC17937",
+      "kind": "entity",
+      "name": "Grounded Warp Ship"
+    },
+    {
+      "hash": "0xB451E82DEA028938",
+      "kind": "entity",
+      "name": "Hive mind: Illuminate · 12 min · B451E82D"
+    },
+    {
+      "hash": "0xB73763FFBAD566CB",
+      "kind": "entity",
+      "name": "Squad queue 13 · Illuminate · Voteless Light (original template)"
+    },
+    {
+      "hash": "0xB837E88CD0777B5D",
+      "kind": "entity",
+      "name": "Squad queue 14 · Illuminate · Voteless Light (original template)"
+    },
+    {
+      "hash": "0xBAF9DBD86B22270A",
+      "kind": "entity",
+      "name": "Overship"
+    },
+    {
+      "hash": "0xBB2984B9B83EBFD1",
+      "kind": "entity",
+      "name": "Harvester objective"
+    },
+    {
+      "hash": "0xC0DF2A134BD15AD5",
+      "kind": "entity",
+      "name": "Shield forcefield (Outcast)"
+    },
+    {
+      "hash": "0xC222E5F15E289E85",
+      "kind": "entity",
+      "name": "崇高监视者 手榴弹"
+    },
+    {
+      "hash": "0xCC188F0C80505C6C",
+      "kind": "entity",
+      "name": "Wretch"
+    },
+    {
+      "hash": "0xD63FCBFF0851B7AF",
+      "kind": "entity",
+      "name": "Harvester · 2"
+    },
+    {
+      "hash": "0xDA40BB347C7447F2",
+      "kind": "entity",
+      "name": "Overseer (Base)"
+    },
+    {
+      "hash": "0xDAC7D53FE0749F5F",
+      "kind": "entity",
+      "name": "Shield forcefield (Hexagon)"
+    },
+    {
+      "hash": "0xDAEA9141FE4B3E52",
+      "kind": "entity",
+      "name": "illuminate_adept_circle"
+    },
+    {
+      "hash": "0xE8F19A0AA958E46D",
+      "kind": "entity",
+      "name": "Crescent Overseer"
+    },
+    {
+      "hash": "0xF1610AC48CDC5240",
+      "kind": "entity",
+      "name": "Overseer (Fake)"
+    },
+    {
+      "hash": "0xF196069E7E14C497",
+      "kind": "entity",
+      "name": "利维坦 激光炮 左"
+    },
+    {
+      "hash": "0xF22D027B37BEF107",
+      "kind": "entity",
+      "name": "Leviathan"
+    },
+    {
+      "hash": "0xFDFADE29AE5FE1D0",
+      "kind": "entity",
+      "name": "光能族爆炸筒"
+    }
+  ],
+  "group": {
+    "en": "Illuminate",
+    "zh-Hans": "光能者",
+    "zh-Hant": "光能者"
+  },
+  "id": "illuminate",
+  "order": 30,
+  "version": 1
+}

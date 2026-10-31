@@ -189,7 +189,7 @@ function Store:read(name, offset, n)
             s = chunk(path, c)
             -- a few chunks kept (the directory, then the files near each other are read in turn)
             self.cached[#self.cached + 1] = key; self.cache[key] = s
-            if #self.cached > 24 then self.cache[table.remove(self.cached, 1)] = nil end
+            if #self.cached > 128 then self.cache[table.remove(self.cached, 1)] = nil end
         end
         out[#out + 1], have, i = s, have + #s, i + 1
     end

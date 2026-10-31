@@ -233,14 +233,14 @@ end
 -- name -> sealed original for every generated_*.dl_bin, and which of them are ours now (written by an install).
 -- A game file that is not ours is the original, and replaces a kept one that differs (the game was updated).
 function M.originals(game)
-    local list, out, ours, problems = load_list(), {}, {}, {}
+    local list, out, ours, problems, installed = load_list(), {}, {}, {}, {}
     local names = M.list_files(game, 'generated_*.dl_bin')
     local changed = false
     for _, name in ipairs(names) do
         local current = read(game .. '/' .. name)
         local kept = read(M.originals_dir .. '/' .. name)
         if current and list[name] and list[name][hash_of(current)] then
-            if kept then out[name], ours[name] = kept, true
+            if kept then out[name], ours[name], installed[name] = kept, true, current
             else problems[#problems + 1] = name .. ': written by an earlier install, and its original is gone' end
         elseif current then
             out[name] = current
@@ -249,7 +249,7 @@ function M.originals(game)
         end
     end
     if changed then save_list(list) end
-    return out, ours, problems, #names
+    return out, ours, problems, #names, installed
 end
 
 -- ---------------------------------------------------------------- writing

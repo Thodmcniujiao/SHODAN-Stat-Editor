@@ -56,6 +56,12 @@ local function field_at(k,off,st,lim)local key=k..':'..off..':'..st;fields[key]=
 local function read(f)
  local o=f.offset+1;local st=f.storage
  if st=='u8'then return b:byte(o)end
+ if jit then
+  local ffi=require('ffi');local bytes=b:sub(o,o+3);assert(#bytes==4,'synthetic field outside its record')
+  local value=ffi.new(st=='f32'and'float[1]'or'uint32_t[1]');ffi.copy(value,bytes,4)
+  local x=tonumber(value[0])
+  return x==x and x or nil
+ end
  if st=='f32'then local x=string.unpack('<f',b,o);return x==x and x or nil end
  return string.unpack('<I4',b,o)
 end

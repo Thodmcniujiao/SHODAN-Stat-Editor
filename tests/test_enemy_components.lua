@@ -11,7 +11,9 @@ local V=require('component_view')
 local EC=require('enemy_components')
 local AI=require('ai_components')
 -- the tabs: AI设置 (AiEnemy, AiCharacter, the sensor eye again, SensorEar, SensorDanger, Targeting), 接触伤害
-assert(table.concat(AI.SUBS.ai,',')=='AiEnemyComponents,AiCharacterComponents,AiSensorEyeComponents,SensorEarComponents,SensorDangerComponents,TargetingComponents')
+assert(table.concat(AI.SUBS.ai,',')=='AiEnemyComponents,AiCharacterComponents,AiSensorEyeComponents,SensorEarComponents')
+local Creature=require('creature_components')
+assert(Creature.SUBS.creature[2]=='SensorDangerComponents'and Creature.SUBS.creature[3]=='TargetingComponents')
 assert(table.concat(AI.SUBS.overlap,',')=='OverlapDamageComponents')
 -- 实体组件 › 炮塔与制导: the sensor ear again, beside the sensor eye (the same fields as AI设置's)
 do local ear=AI.SPECS[#AI.SPECS]
@@ -47,11 +49,17 @@ assert(dg[0]=='danger_max'and dg[4]=='danger_sphere_radius'and dg[8]=='miss_reac
 local tg=at(by.TargetingComponentData)
 assert(by.TargetingComponentData.HASH==0x2C0968D2 and tg[36]=='aim_flinch_multiplier'and tg[40]=='aim_flinch_decrease'and tg[44]=='aim_flinch_max')
 -- a page from a synthetic AiCharacter record: the movement row the enemy page scales is the same field
-local rec=string.pack('<ff',3.5,6)..string.rep('\0',72)
-local KEY=string.pack('<I8',0xD9511E9F6BD62E3F)
+local ffi=jit and require('ffi')
+local rec=(ffi and ffi.string(ffi.new('float[2]',{3.5,6}),8)or string.pack('<ff',3.5,6))..string.rep('\0',72)
+local KEY=string.char(0x3F,0x2E,0xD6,0x6B,0x9F,0x1E,0x51,0xD9)
 local fields={}
 local function field_at(k,off,st,lim)local bit=st:match('^bit(%d)$');local key=k..':'..off..(bit and(':'..st)or'');fields[key]=fields[key]or{kind=k,offset=off,storage=bit and'flag'or st,limit=lim,key=key,users={}};return fields[key]end
-local function read(f)local o=f.offset+1;if f.storage=='f32'then return(string.unpack('<f',rec,o))end;if f.storage=='flag'or f.storage=='u8'then return rec:byte(o)end;return(string.unpack('<I4',rec,o))end
+local function read(f)
+ local o=f.offset+1
+ if f.storage=='flag'or f.storage=='u8' then return rec:byte(o)end
+ if ffi then return tonumber(ffi.cast(f.storage=='f32'and'const float *'or'const uint32_t *',ffi.cast('const uint8_t *',rec)+f.offset)[0])end
+ return(string.unpack(f.storage=='f32'and'<f'or'<I4',rec,o))
+end
 local function add_row(w,sec,id,label,st,parts)local r={section=sec,id=id,label=label,storage=st,parts=parts};w.rows[#w.rows+1]=r;for _,p in ipairs(parts)do w.by_id[p.id]=p;p.field.users[#p.field.users+1]=w end;return r end
 local enemy_speed=field_at(0x5FEF63C4,0,'f32',1000)   -- (the enemy page's 移动速度 part, made first)
 local page={hash='x',rows={},by_id={},field_keys={}}

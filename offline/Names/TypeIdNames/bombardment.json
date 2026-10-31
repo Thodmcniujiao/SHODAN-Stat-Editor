@@ -1,0 +1,30 @@
+{
+  "names": {
+    "0": "BombardmentType",
+    "1": "BombardmentType",
+    "2": "BombardmentType",
+    "3": "BombardmentType",
+    "4": "BombardmentType",
+    "5": "BombardmentType",
+    "6": "BombardmentType",
+    "7": "BombardmentType",
+    "8": "BombardmentType",
+    "9": "Orbital 380mm HE Barrage",
+    "10": "BombardmentType",
+    "11": "Orbital Gas Strike",
+    "12": "Orbital Gatling Barrage",
+    "13": "BombardmentType",
+    "14": "Orbital Napalm Barrage",
+    "15": "BombardmentType",
+    "16": "Orbital Precision Strike",
+    "17": "Orbital Airburst Strike",
+    "18": "Orbital Smoke Strike",
+    "19": "Orbital 120mm HE Barrage",
+    "20": "Orbital EMS Strike",
+    "21": "Orbital Walking Barrage",
+    "22": "Walking Barrage Smoke",
+    "23": "BombardmentType"
+  },
+  "type": "bombardment",
+  "version": 1
+}

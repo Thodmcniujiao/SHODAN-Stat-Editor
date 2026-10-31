@@ -1,4 +1,32 @@
-# 敌人设置：敌人编辑、AI设置
+# 生物设置：敌人编辑、AI设置、生物组件
+
+顶部“敌人设置”更名为“生物设置”，保留内部页面 ID 和原有配置。子页依次为敌人编辑、AI设置、刷怪编辑器、生物组件、敌人替换器。
+
+## 生物组件
+
+“生物组件”位于“敌人替换器”左侧，共 11 个标签。单位、压制感知和瞄准与压制排在最前面。
+
+| 标签 | 组件 | 内联字段 | 当前加载实体 |
+| --- | --- | ---: | ---: |
+| 单位 | UnitComponentData | 33 | 1719 |
+| 压制感知 | SensorDangerComponentData | 3 | 191 |
+| 瞄准与压制 | TargetingComponentData | 21 | 297 |
+| 硬直反应 | HitReactComponentData | 1224 | 196 |
+| 状态接收 | StatusEffectReceiverComponentData | 7162 | 329 |
+| 移动运动 | LocomotionComponentData | 1172 | 206 |
+| 转向旋转 | RotationComponentData | 80 | 226 |
+| 近战攻击 | MeleeAttackComponentData | 4 | 167 |
+| 部位护盾 | DamageZoneShieldComponentData | 1248 | 6 |
+| 状态区域 | StatusEffectVolumeComponentData | 185 | 8 |
+| 单位自定义 | UnitCustomizationComponentData | 135 | 96 |
+
+Avatar 的全部参数沿用“人物数据 → 人物数据”，不另设“角色控制”入口。CharacterVoice 的 1 个内联字段、3 个实体移至“人物数据 → 角色语音”。
+
+数量以本次安装的游戏类型库、实体数据为准。字段按实体自身的组件记录读取，延迟建立编辑行；动态数组和指针描述符不会成为可编辑整数。未知字段保留类型和偏移，不把推断名称当作已确认名称。Locomotion、Rotation 的键值数组包含 4 字节尾部对齐，解析时单独计入。
+
+敌人编辑中的“受你火力影响的瞄准抖动”来自 Targeting +36，“射击生效范围”来自 SensorDanger +4。两者不属于 Unit。原来的压制相关入口从 AI设置移到生物组件，和原敌人编辑页共享字段，修改、星号、重置和预设仍互通。
+
+生物组件中新增 9 类完整组件视图，共 11243 个内联字段；压制相关两个组件沿用原解析。按类型哈希逐一核对，这 11 类与 AI设置中的 AiEnemy、AiCharacter、SensorEye、SensorEar 均不重复；移动、硬直等相关功能的不同组件保留各自入口。其余已解析组件的入口核查见 [CREATURE_COMPONENT_AUDIT.md](CREATURE_COMPONENT_AUDIT.md)。
 
 ## 敌人编辑
 
@@ -34,7 +62,8 @@
 | 角色AI | AiCharacterComponentData（速度、群聚、转向控制、感知包围盒） | 22 | 201 |
 | 视觉 | SensorEyeComponentData（与“实体组件 › 炮塔与制导”的视觉传感是同一组字段） | 11 | 315 |
 | 听觉 | SensorEarComponentData | 7 | 187 |
-| 危险感知 | SensorDangerComponentData | 3 | 191 |
+
+SensorDanger、Targeting 已移至“生物组件”；AI设置保留敌人AI、角色AI、视觉、听觉四个标签。
 
 “实体组件 › 生命与拆毁”新增“接触伤害”标签：OverlapDamageComponentData，385 个字段，64 个实体。每个实体 8 个伤害区域，包括击退、撞击伤害、拆毁强度、激活速度、忽略的实体等。
 

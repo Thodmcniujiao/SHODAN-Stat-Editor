@@ -28,3 +28,14 @@ __pycache__/
 *.log
 *.tmp
 *.pdb
+# Local review notes, workbook inputs and conversion backups (not application sources)
+/exports/
+/CHANGELOG.prev-draft.md
+/DEV_BUILD_4794aee_REVIEW.md
+/NUMERIC_LIMITS_FIX.md
+/PRE_RELEASE_4794AEE_CORE_CANDIDATE.patch
+/PRE_RELEASE_4794AEE_PORT_REVIEW.md
+/UPSTREAM_4.5.1_REVIEW.md
+*.xlsx
+*.xlsm
+*.dmp

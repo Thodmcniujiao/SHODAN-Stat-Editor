@@ -323,6 +323,7 @@ function M.build(c)
   for k,e in ipairs(moved)do p.rows[first+k-1]=e[3]end
  end
  local function build_record(slot,type_name,root,kind,b,address,identity,record_pos,metadata)
+  require('startup_work').checkpoint()
   local ok,plan=pcall(M.plan,b,root,address)
   if not ok then if c.log then c.log('planet: '..type_name..' rejected: '..tostring(plan))end;return end
   for _,group in ipairs(plan.groups)do

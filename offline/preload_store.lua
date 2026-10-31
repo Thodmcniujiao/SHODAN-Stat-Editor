@@ -48,6 +48,46 @@ local function unique(entries)
   if not seen[k]then seen[k]=true;out[#out+1]={type=e.type,name=e.name}end
  end;return out
 end
+M.unique=unique
+local META_EXCLUDES={
+ ['9BA626AFA44A3AA3']=true,['27AC818A499D96C3']=true,['63C55BA06CAB156C']=true,['1D2C52383671800D']=true,
+ ['20CC4FEF83325A91']=true,['3DB6CC80506006B6']=true,['14F82D6C9ABE6924']=true,['7ED1329C5DB7C175']=true,
+ ['7F01751A964576D5']=true,['8AE6CE65D31075AF']=true,['78D74F5DBBF50F36']=true,['F937F484779E7191']=true,
+}
+M.META_EXCLUDES=META_EXCLUDES
+function M.is_exclude(h,pkg)
+ return META_EXCLUDES[h]or(pkg and pkg.path and(pkg.path=='packages/boot'or pkg.path:find('_excludes',1,true)~=nil))
+end
+function M:effective_selected()
+ local raw_list={}
+ for h in pairs(self.cfg.selected or{})do
+  if self.catalog[h]and not M.is_exclude(h,self.catalog[h])then raw_list[#raw_list+1]=h end
+ end
+ table.sort(raw_list)
+ local out,seen={},{}
+ local function add(h)
+  if h and self.catalog[h]and not M.is_exclude(h,self.catalog[h])and not seen[h]then
+   seen[h]=true;out[#out+1]=h
+  end
+ end
+ for _,h in ipairs(raw_list)do
+  local pkg=self.catalog[h]
+  if pkg and(pkg.entity_kind=='enemy_package'or pkg.path=='packages/content/bugs'or pkg.path=='packages/content/cyborgs'
+     or pkg.path=='packages/content/illuminate'or pkg.path:find('^packages/content/effects_'))then
+   add(h)
+  end
+ end
+ for _,h in ipairs(raw_list)do
+  local pkg=self.catalog[h]
+  if pkg and(pkg.entity_kind=='loadout_package'or pkg.path:find('^packages/generated/loadout/'))then
+   add(h)
+  end
+ end
+ if #raw_list<=600 then
+  for _,h in ipairs(raw_list)do add(h)end
+ end
+ return out
+end
 function M.new(options)
  local cfg={version=1,edits={},selected={},targets={['18235E0C9EC0E636']=true},arrays={},presets={}}
  local saved=I.read(options.path or'')
@@ -226,7 +266,8 @@ function M:apply_legacy_preset(key,saved)
 end
 -- Append array data inside its original LDLD block; old offsets stay valid and no other block is repointed.
 function M:apply_arrays(changes,H,schemas)
- local groups={};for key,edit in pairs(self.cfg.arrays)do
+ local groups,covered={},{ }
+ for key,edit in pairs(self.cfg.arrays)do
   local s=edit.spec;assert(self.arrays[key],'saved array unavailable in this game build: '..key)
   for _,field in ipairs({'file','root','ordinal','offset','domain'})do assert(s[field]==self.arrays[key].spec[field],'saved array source differs from the verified source')end
   assert(type(edit.values)=='table'and #edit.values<=100000,'invalid array length')
@@ -234,6 +275,27 @@ function M:apply_arrays(changes,H,schemas)
   if s.domain=='modifier_entity'then assert(require('modifier_assignments').check_array(s,schemas),'modifier attachment layout changed')
   else assert(require('preload_components').check_layout(s.root,schemas),'array layout changed')end
   groups[s.file]=groups[s.file]or{};groups[s.file][#groups[s.file]+1]=edit
+  covered[key]=edit
+ end
+ if self.cfg.merge_enabled~=false then
+  local donors=self:effective_selected()
+  if #donors>0 and schemas and require('preload_components').check_layout(0x68E17506,schemas)then
+   for key,reg in pairs(self.arrays)do
+    local s=reg.spec
+    if s.file=='generated_environment_settings.dl_bin'and s.root==0x68E17506 then
+     local base=covered[key]and covered[key].values or reg.baseline
+     local combined,seen={},{}
+     for _,v in ipairs(base)do if not seen[v]then seen[v]=true;combined[#combined+1]=v end end
+     for _,v in ipairs(donors)do if not seen[v]then seen[v]=true;combined[#combined+1]=v end end
+     if covered[key]then
+      covered[key].values=combined
+     else
+      local auto_edit={spec=copy(s),expected=copy(reg.baseline),values=combined}
+      groups[s.file]=groups[s.file]or{};groups[s.file][#groups[s.file]+1]=auto_edit
+     end
+    end
+   end
+  end
  end
  for file,edits in pairs(groups)do
   local change;for _,c in ipairs(changes)do if c.name==file then change=c end end

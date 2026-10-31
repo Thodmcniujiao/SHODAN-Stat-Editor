@@ -22,6 +22,12 @@ for name in sorted(os.listdir(HERE)):
         files['app/' + name] = os.path.join(HERE, name)
 files['app/entity_names.tsv'] = os.path.join(HERE, 'entity_names.tsv')
 files['app/entity_catalog.default.json'] = os.path.join(HERE, 'entity_catalog.default.json')
+# Portable planning-name pack beside the exe (Names/EntityNames, Names/TypeIdNames).
+NAMES = os.path.join(HERE, 'Names')
+for root, _dirs, names in os.walk(NAMES):
+    for name in names:
+        src = os.path.join(root, name)
+        files[os.path.relpath(src, HERE).replace(os.sep, '/')] = src
 files['LICENSE'] = os.path.join(HERE, '..', 'LICENSE')
 files['ENTITY_DEMOLITION.md'] = os.path.join(HERE, 'ENTITY_DEMOLITION.md')
 files['ENTITY_COMPONENTS.md'] = os.path.join(HERE, 'ENTITY_COMPONENTS.md')
@@ -33,6 +39,10 @@ files['PRESETS.md'] = os.path.join(HERE, 'PRESETS.md')
 files['PRELOAD_COMPONENTS.md'] = os.path.join(HERE, 'PRELOAD_COMPONENTS.md')
 files['PLANET_SETTINGS.md'] = os.path.join(HERE, 'PLANET_SETTINGS.md')
 files['ENEMY_DATA.md'] = os.path.join(HERE, 'ENEMY_DATA.md')
+files['CREATURE_COMPONENT_AUDIT.md'] = os.path.join(HERE, 'CREATURE_COMPONENT_AUDIT.md')
+files['COMPONENT_FIELD_NAMES.md'] = os.path.join(HERE, 'COMPONENT_FIELD_NAMES.md')
+files['STARTUP_PERFORMANCE.md'] = os.path.join(HERE, 'STARTUP_PERFORMANCE.md')
+files['REFERENCE_NAMES_LICENSE.txt'] = os.path.join(HERE, 'REFERENCE_NAMES_LICENSE.txt')
 files['UPSTREAM_4.5.1_PORT.md'] = os.path.join(HERE, 'UPSTREAM_4.5.1_PORT.md')
 files['PLAYER_DATA.md'] = os.path.join(HERE, 'PLAYER_DATA.md')
 files['SPAWN_EDITOR.md'] = os.path.join(HERE, 'SPAWN_EDITOR.md')
@@ -47,6 +57,13 @@ files['ARC_COMPONENTS.md'] = os.path.join(HERE, 'ARC_COMPONENTS.md')
 files['BEAM_COMPONENTS.md'] = os.path.join(HERE, 'BEAM_COMPONENTS.md')
 files['ENTITY_CATALOG_API.md'] = os.path.join(HERE, 'ENTITY_CATALOG_API.md')
 files['ENTITY_CATALOG_SCHEMA.json'] = os.path.join(HERE, 'entity_catalog.schema.json')
+# Match build_release.ps1: docs stay together to preserve sibling document links.
+files = {
+    ('docs/' + arc if '/' not in arc and (arc.endswith('.md') or arc == 'ENTITY_CATALOG_SCHEMA.json')
+     else 'licenses/' + arc if arc in ('LICENSE', 'REFERENCE_NAMES_LICENSE.txt') else arc): src
+    for arc, src in files.items()
+}
+files['docs/README.md'] = os.path.join(HERE, 'RELEASE_DOCS.md')
 DEV = re.compile(r'[ \t]*--\[\[DEV\]\].*?--\[\[/DEV\]\][^\n]*\n', re.S)   # test hooks: not in the package
 VERSION = re.search(r"version = '([\d.]+)'", open(PANEL, encoding='utf-8').read()).group(1)
 readme = open(os.path.join(HERE, 'RELEASE_README.txt'), encoding='utf-8').read()
@@ -86,5 +103,5 @@ with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     z.write(os.path.join(HERE, 'PRESETS_FOLDER_README.txt'), TOP + '/Presets/README.txt')
     z.writestr(TOP + '/app/build.txt', build_txt)
     notices = [open(os.path.join(HERE, 'licenses', n), encoding='utf-8').read().strip() for n in ('LuaJIT.txt', 'libsodium.txt')]
-    z.writestr(TOP + '/THIRD-PARTY-NOTICES.txt', ('\n\n' + '=' * 79 + '\n\n').join(notices).replace('\n', '\r\n') + '\r\n')
+    z.writestr(TOP + '/licenses/THIRD-PARTY-NOTICES.txt', ('\n\n' + '=' * 79 + '\n\n').join(notices).replace('\n', '\r\n') + '\r\n')
 print(out, os.path.getsize(out) // 1024, 'KB;', build_txt.replace('\n', ' '))

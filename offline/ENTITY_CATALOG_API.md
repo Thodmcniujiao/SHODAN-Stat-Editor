@@ -2,7 +2,7 @@
 
 实体路径哈希是静态全局标识。实体组件列表使用同一份 `EntityNames` 文件夹：一个 JSON 是一个实体组，组内每项有 `hash` 和 `name`。列表中的分类直接来自这些组文件。
 
-名称文件夹位于编辑器数据目录，通常为 `%LOCALAPPDATA%\SHODAN\StatEditor\EntityNames`；以界面“打开JSON文件夹”打开的位置为准。
+名称文件夹位于编辑器数据目录，通常为 `%LOCALAPPDATA%\SHODAN\StatEditor\EntityNames`；以界面“打开JSON文件夹”打开的位置为准。便携版优先读取 exe 旁边的 `Names\EntityNames`（随包分发）；该文件夹不存在时才回退到 `%LOCALAPPDATA%`。
 
 ## 操作
 
@@ -37,7 +37,7 @@
 
 ## 迁移与未分类
 
-首次使用时，编辑器将原 `entity_catalog.json` 的分类规则和名称展开成各个组 JSON；原文件保留。旧 `record_names.json` / `.txt` 中的长实体哈希策划名也导入实体组。迁移完成后，请编辑新文件夹中的 JSON。
+首次使用时，编辑器将原 `entity_catalog.json` 的分类规则和名称展开成各个组 JSON；原文件保留。旧 `record_names.json` / `.txt` 中的长实体哈希策划名也导入实体组。迁移完成后，请编辑新文件夹中的 JSON。便携版存在 exe 旁的 `Names\EntityNames` 时直接读取该文件夹，不会把 app data 的旧文件导入包内。
 
 `未分类.json` 使用固定 `id: "other"`。尚未分类的实体，以及游戏更新中新发现的哈希，写入这里。将其条目移到其他组文件即可分类。加载不会覆盖已有组的策划名。
 

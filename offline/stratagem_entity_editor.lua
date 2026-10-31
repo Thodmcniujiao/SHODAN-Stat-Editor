@@ -3,6 +3,7 @@
 local D=require('demolition')
 local V=require('component_view')
 local Data=require('stratagem_entity_specs')
+local Work=require('startup_work')
 local M={}
 local MAX=4294967295
 local function type_hash(name)local h=5381;for i=1,#name do h=(h*33+name:byte(i))%4294967296 end;return(h-5381)%4294967296 end
@@ -46,6 +47,7 @@ function M.reflect(root,schemas)
   COMPONENT={root[3],root[3],root[3]},GROUPS={{'fields','Component fields','组件字段','組件欄位'}},FIELDS={},STRICT=true}
  local descriptors,refs={},{}
  local function walk(typ,base,path,depth)
+  Work.checkpoint()
   assert(depth<32,'component struct nesting exceeds 32')
   for _,m in ipairs(schemas[typ].members)do
    local off=base+m.offset;local id=path..string.format('field_%04X',m.offset)
@@ -99,6 +101,7 @@ function M.attach(c)
  local entities,record_users={},{}
  for _,root in ipairs(Data.ROOTS)do
   local t=c.tables[root[1]];local schema=schemas[root[1]]
+  Work.checkpoint()
   if t and schema and schema.members[2]and schemas[schema.members[2].type]and schemas[schema.members[2].type].size==root[2]then
    roots[#roots+1]=root;by_kind[root[1]]=root
    record_users[root[1]]={}
@@ -281,7 +284,7 @@ function M.attach(c)
     end
     for _,row in ipairs(raw_rows(raw))do for _,part in ipairs(row.parts or{})do
      local v,d=c.read(part.field),c.default_of(part.field)
-     if v~=nil and d~=nil and math.abs(v-d)>1e-4 then return true end
+     if v~=nil and d~=nil and v~=d then return true end
     end end
     return false
    end

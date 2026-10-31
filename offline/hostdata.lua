@@ -94,6 +94,21 @@ function M.load(folder, originals)
     return problems
 end
 
+-- Replace every host buffer only after the complete reload validates. The panel
+-- stops using its old table addresses before the next update/rescan.
+function M.reload(folder, originals)
+    local previous,modded=M.files,M.modded
+    M.files,M.modded={},{}
+    local ok,problems=pcall(M.load,folder,originals)
+    if not ok or #problems>0 then
+        for _,file in pairs(M.files)do G.free(file.p)end
+        M.files,M.modded=previous,modded
+        return nil,ok and table.concat(problems,'; ')or tostring(problems)
+    end
+    for _,file in pairs(previous)do G.free(file.p)end
+    return true
+end
+
 function M.relocate()
     local tiers = {}   -- demolition tier type -> its template's address
     for _, f in pairs(M.files) do
@@ -165,15 +180,15 @@ local function changes(f)
     -- A uint64 hash can have a low/high half that happens to look like f32. Never use those bits
     -- as a variable hash-correction salt. Known resource-bearing records only offer actual float members.
     local stratagem_floats
-    local nonfloats={}
+    local nonfloats, nonfloat_ranges = {}, {}
     if f.name=='generated_entities.dl_bin'then
         -- CharacterName is exclusively enums, localization IDs and a one-byte flag.
         -- Integer IDs may have float-looking bits; never change them as a checksum salt.
         local PC=require('preload_components')
         local queues=require('spawn_queue_components').TYPES
-          for _,h in ipairs(G.headers(f.p,f.n))do if h.type==0x7655097B or h.type==require('health_schema').HASH or PC.ENTITY_TYPES[h.type]or queues[h.type]then
-            local first,last=h.at+24,h.at+24+h.size-1
-            for off=first-first%4,last-last%4,4 do nonfloats[off]=true end
+        local h_hash=require('health_schema').HASH
+        for _,h in ipairs(G.headers(f.p,f.n))do if h.type==0x7655097B or h.type==h_hash or PC.ENTITY_TYPES[h.type]or queues[h.type]then
+            nonfloat_ranges[#nonfloat_ranges+1]={h.at+24,h.at+24+h.size-1}
         end end
     end
     -- Package hash halves are integers even when their bits resemble a float.
@@ -184,6 +199,11 @@ local function changes(f)
             for byte=P+off,P+off+3 do nonfloats[byte-byte%4]=true end
         end
     end end
+    for _,r in ipairs(nonfloat_ranges)do
+        for o in pairs(words)do
+            if o>=r[1]-r[1]%4 and o<=r[2]-r[2]%4 then nonfloats[o]=true end
+        end
+    end
     if f.name=='generated_stratagem_settings.dl_bin'then
         stratagem_floats={}
         for _,h in ipairs(G.headers(f.p,f.n))do if h.type==0x30EB6399 then
@@ -483,8 +503,8 @@ function M.build(change, log)
     -- a one-table file whose changes hold no float to vary (whole numbers, zeros): nothing in it may vary for the
     -- hash correction, so its table grows by 16 zero bytes after everything it holds (the game reads only what
     -- its offsets name; grown tables load, as stacked passives do), and those vary instead
-    local hs = G.headers(change.plain, change.n)
-    if #change.floats == 0 and #hs == 1 and hs[1].at + 24 + hs[1].size == change.n then
+    local hs = not change.demolition_schemas and G.headers(change.plain, change.n) or nil
+    if hs and #change.floats == 0 and #hs == 1 and hs[1].at + 24 + hs[1].size == change.n then
         local n = change.n
         local salt = n + (8 - n % 8) % 8                -- a word of its own (the native search needs the words whole)
         local grown = G.alloc(salt + 16)               -- (zeroed)

@@ -1,0 +1,6451 @@
+{
+  "entities": [
+    {
+      "hash": "0x000C21CD9F8A2F16",
+      "kind": "entity",
+      "name": "000C21CD9F8A2F16"
+    },
+    {
+      "hash": "0x003A0E88900DE274",
+      "kind": "entity",
+      "name": "003A0E88900DE274"
+    },
+    {
+      "hash": "0x0040C16BD48573E2",
+      "kind": "entity",
+      "name": "0040C16BD48573E2"
+    },
+    {
+      "hash": "0x007069A81CEB9672",
+      "kind": "entity",
+      "name": "007069A81CEB9672"
+    },
+    {
+      "hash": "0x007DC01A4C3E0CBA",
+      "kind": "entity",
+      "name": "007DC01A4C3E0CBA"
+    },
+    {
+      "hash": "0x01240F5BEE3EABD7",
+      "kind": "entity",
+      "name": "cha_soldier_ship_leave_screen"
+    },
+    {
+      "hash": "0x0158E1E47C059B69",
+      "kind": "entity",
+      "name": "gen_prospecting_drill"
+    },
+    {
+      "hash": "0x016789E642E961C8",
+      "kind": "entity",
+      "name": "016789E642E961C8"
+    },
+    {
+      "hash": "0x0191688EDE2A90E9",
+      "kind": "entity",
+      "name": "0191688EDE2A90E9"
+    },
+    {
+      "hash": "0x019F988FA225DD1C",
+      "kind": "entity",
+      "name": "escape_pod"
+    },
+    {
+      "hash": "0x01A88312C8889D5F",
+      "kind": "entity",
+      "name": "cy_obj_asset_hack_turrets_terminal"
+    },
+    {
+      "hash": "0x01C05D4AFFFCEE0A",
+      "kind": "entity",
+      "name": "01C05D4AFFFCEE0A"
+    },
+    {
+      "hash": "0x01F7CBD8F74FFCAE",
+      "kind": "entity",
+      "name": "landing_zone_no_lights"
+    },
+    {
+      "hash": "0x01FFBFA7671EDFAD",
+      "kind": "entity",
+      "name": "01FFBFA7671EDFAD"
+    },
+    {
+      "hash": "0x02016F98826CC83C",
+      "kind": "entity",
+      "name": "hangar_diagonal_elevator_01"
+    },
+    {
+      "hash": "0x021EAECF4CA267DC",
+      "kind": "entity",
+      "name": "cha_seaf_civ"
+    },
+    {
+      "hash": "0x02B1860AA7EF2E95",
+      "kind": "entity",
+      "name": "02B1860AA7EF2E95"
+    },
+    {
+      "hash": "0x02CD7321CD8445F5",
+      "kind": "entity",
+      "name": "AR/GL-21 幺二 下挂榴弹发射器"
+    },
+    {
+      "hash": "0x02D9D0AD53CEB9DF",
+      "kind": "entity",
+      "name": "02D9D0AD53CEB9DF"
+    },
+    {
+      "hash": "0x02FEDA34A8766B78",
+      "kind": "entity",
+      "name": "poi_text_moor_crashed_ship_01_02"
+    },
+    {
+      "hash": "0x03271411D3D0BAB9",
+      "kind": "entity",
+      "name": "SEAF的治疗手枪"
+    },
+    {
+      "hash": "0x03544419135A9935",
+      "kind": "entity",
+      "name": "se_destroyer_supportcannon_missile_launcher"
+    },
+    {
+      "hash": "0x03C9D49A1A9FE7E5",
+      "kind": "entity",
+      "name": "poi_text_hidden_storage_01_02"
+    },
+    {
+      "hash": "0x04044E407FAD30BA",
+      "kind": "entity",
+      "name": "04044E407FAD30BA"
+    },
+    {
+      "hash": "0x04C99523A808EF90",
+      "kind": "entity",
+      "name": "A/G-16 加特林哨戒炮MK2.1 (已展开, 带AI)"
+    },
+    {
+      "hash": "0x050A141871A97091",
+      "kind": "entity",
+      "name": "050A141871A97091"
+    },
+    {
+      "hash": "0x051C3196A0192D33",
+      "kind": "entity",
+      "name": "毒瘴喷涌虫 吐酸器"
+    },
+    {
+      "hash": "0x051DA4B57216A005",
+      "kind": "entity",
+      "name": "051DA4B57216A005"
+    },
+    {
+      "hash": "0x057FC0A150FE6284",
+      "kind": "entity",
+      "name": "057FC0A150FE6284"
+    },
+    {
+      "hash": "0x05F3C83A91075766",
+      "kind": "entity",
+      "name": "轨道毒气攻击"
+    },
+    {
+      "hash": "0x06BEDDF9A0AFF885",
+      "kind": "entity",
+      "name": "il_upload_data"
+    },
+    {
+      "hash": "0x070BC8D3E18BB8F9",
+      "kind": "entity",
+      "name": "蹂躏者 标准武器"
+    },
+    {
+      "hash": "0x0722B3A72ADE6CB1",
+      "kind": "entity",
+      "name": "tcs_main_tower"
+    },
+    {
+      "hash": "0x073270650F859DD0",
+      "kind": "entity",
+      "name": "bug_darkfluid_backpack"
+    },
+    {
+      "hash": "0x0754CE7BFED7C43A",
+      "kind": "entity",
+      "name": "il_mothership_tentacles_vista"
+    },
+    {
+      "hash": "0x07ABC11F4596A788",
+      "kind": "entity",
+      "name": "07ABC11F4596A788"
+    },
+    {
+      "hash": "0x07EE32FA5790E83E",
+      "kind": "entity",
+      "name": "07EE32FA5790E83E"
+    },
+    {
+      "hash": "0x0801B6B3C5D12EBC",
+      "kind": "entity",
+      "name": "0801B6B3C5D12EBC"
+    },
+    {
+      "hash": "0x082B860EA4C96C3F",
+      "kind": "entity",
+      "name": "082B860EA4C96C3F"
+    },
+    {
+      "hash": "0x083A53EE31175EF5",
+      "kind": "entity",
+      "name": "il_obj_asset_waterfall"
+    },
+    {
+      "hash": "0x08886D27A6F6DB8C",
+      "kind": "entity",
+      "name": "Fusion Smelter Beam"
+    },
+    {
+      "hash": "0x089833D2880D9E06",
+      "kind": "entity",
+      "name": "089833D2880D9E06"
+    },
+    {
+      "hash": "0x089D35DB35ABA008",
+      "kind": "entity",
+      "name": "089D35DB35ABA008"
+    },
+    {
+      "hash": "0x08D58CB1BF65F7A9",
+      "kind": "entity",
+      "name": "轨道游走烟雾火力网"
+    },
+    {
+      "hash": "0x0906BFB8C0A1EF4D",
+      "kind": "entity",
+      "name": "0906BFB8C0A1EF4D"
+    },
+    {
+      "hash": "0x0965AAEBA7CCBCA8",
+      "kind": "entity",
+      "name": "0965AAEBA7CCBCA8"
+    },
+    {
+      "hash": "0x09DFB04B2E578BC3",
+      "kind": "entity",
+      "name": "09DFB04B2E578BC3"
+    },
+    {
+      "hash": "0x09F0FA5A99510465",
+      "kind": "entity",
+      "name": "trigger_box"
+    },
+    {
+      "hash": "0x0A12D5A29CDF2D40",
+      "kind": "entity",
+      "name": "0A12D5A29CDF2D40"
+    },
+    {
+      "hash": "0x0A2018058EDB27F4",
+      "kind": "entity",
+      "name": "gen_armory_button"
+    },
+    {
+      "hash": "0x0A4128EC27AB1BF6",
+      "kind": "entity",
+      "name": "0A4128EC27AB1BF6"
+    },
+    {
+      "hash": "0x0A5B544A219919D5",
+      "kind": "entity",
+      "name": "assembly_site_control_room_light_01"
+    },
+    {
+      "hash": "0x0ABED3586E397289",
+      "kind": "entity",
+      "name": "super_earth_cache"
+    },
+    {
+      "hash": "0x0AD48CA95A35E86F",
+      "kind": "entity",
+      "name": "0AD48CA95A35E86F"
+    },
+    {
+      "hash": "0x0B52672CC600377F",
+      "kind": "entity",
+      "name": "0B52672CC600377F"
+    },
+    {
+      "hash": "0x0BCE5532D5D5E3EB",
+      "kind": "entity",
+      "name": "cha_deckofficer_m_01"
+    },
+    {
+      "hash": "0x0C6567F9E37920E1",
+      "kind": "entity",
+      "name": "0C6567F9E37920E1"
+    },
+    {
+      "hash": "0x0CB88D6A7F37D19E",
+      "kind": "entity",
+      "name": "cy_refinery_speakers"
+    },
+    {
+      "hash": "0x0CB8BE290AB4EA63",
+      "kind": "entity",
+      "name": "flag_wall_01"
+    },
+    {
+      "hash": "0x0CDEF2E4D8AE6FF0",
+      "kind": "entity",
+      "name": "poi_text_habs_plantationbox_6m_01"
+    },
+    {
+      "hash": "0x0CE2AF8C2AAF1380",
+      "kind": "entity",
+      "name": "cy_destroy_stratagem_blocker"
+    },
+    {
+      "hash": "0x0CEDB9E2AAAA3A19",
+      "kind": "entity",
+      "name": "0CEDB9E2AAAA3A19"
+    },
+    {
+      "hash": "0x0CF57C6DF0C34755",
+      "kind": "entity",
+      "name": "0CF57C6DF0C34755"
+    },
+    {
+      "hash": "0x0D382AE7FFEA9D45",
+      "kind": "entity",
+      "name": "光能族电塔 电弧发射器"
+    },
+    {
+      "hash": "0x0D5F7E2EEB4F7B67",
+      "kind": "entity",
+      "name": "deploy_flag_area_marker"
+    },
+    {
+      "hash": "0x0DB407EDE5603524",
+      "kind": "entity",
+      "name": "烈火蹂躏者 龙息霰弹枪"
+    },
+    {
+      "hash": "0x0DC150BA1C40B66F",
+      "kind": "entity",
+      "name": "poster_ministry_expansion_01"
+    },
+    {
+      "hash": "0x0DC7C43C021B6E30",
+      "kind": "entity",
+      "name": "0DC7C43C021B6E30"
+    },
+    {
+      "hash": "0x0DC9084E50C051F3",
+      "kind": "entity",
+      "name": "0DC9084E50C051F3"
+    },
+    {
+      "hash": "0x0E1C051FF9F3B1A4",
+      "kind": "entity",
+      "name": "0E1C051FF9F3B1A4"
+    },
+    {
+      "hash": "0x0E37A0FA0A978620",
+      "kind": "entity",
+      "name": "0E37A0FA0A978620"
+    },
+    {
+      "hash": "0x0E88F182E83A4275",
+      "kind": "entity",
+      "name": "0E88F182E83A4275"
+    },
+    {
+      "hash": "0x0EE4ED3265A99AA1",
+      "kind": "entity",
+      "name": "blue_corp_tool_rack_01"
+    },
+    {
+      "hash": "0x0F19B7B633E9AA3C",
+      "kind": "entity",
+      "name": "0F19B7B633E9AA3C"
+    },
+    {
+      "hash": "0x0F1A0189B327C5CB",
+      "kind": "entity",
+      "name": "0F1A0189B327C5CB"
+    },
+    {
+      "hash": "0x0F2E5BDA70844F2C",
+      "kind": "entity",
+      "name": "0F2E5BDA70844F2C"
+    },
+    {
+      "hash": "0x0F7DD2C2990A6341",
+      "kind": "entity",
+      "name": "0F7DD2C2990A6341"
+    },
+    {
+      "hash": "0x1014E07127BEA3C6",
+      "kind": "entity",
+      "name": "1014E07127BEA3C6"
+    },
+    {
+      "hash": "0x1070E80ECD2D5DB6",
+      "kind": "entity",
+      "name": "rocket_walkway"
+    },
+    {
+      "hash": "0x108E360280DFEE8D",
+      "kind": "entity",
+      "name": "108E360280DFEE8D"
+    },
+    {
+      "hash": "0x10AE57E692F67509",
+      "kind": "entity",
+      "name": "tcs_main_tower_02"
+    },
+    {
+      "hash": "0x10DBAC386BE5B0FC",
+      "kind": "entity",
+      "name": "10DBAC386BE5B0FC"
+    },
+    {
+      "hash": "0x10E44156F08786EF",
+      "kind": "entity",
+      "name": "10E44156F08786EF"
+    },
+    {
+      "hash": "0x111BEED56922BF4C",
+      "kind": "entity",
+      "name": "111BEED56922BF4C"
+    },
+    {
+      "hash": "0x11332832C10681BC",
+      "kind": "entity",
+      "name": "11332832C10681BC"
+    },
+    {
+      "hash": "0x1188110AD42CEE1D",
+      "kind": "entity",
+      "name": "cyborg_siege_engine_sarcophagus_right_door"
+    },
+    {
+      "hash": "0x12447E81DB664A05",
+      "kind": "entity",
+      "name": "truth_transmitter_tower_terminal"
+    },
+    {
+      "hash": "0x1262CD07B196AAC3",
+      "kind": "entity",
+      "name": "1262CD07B196AAC3"
+    },
+    {
+      "hash": "0x12738F0C0C22B686",
+      "kind": "entity",
+      "name": "cryo_rocket"
+    },
+    {
+      "hash": "0x12AE0D71D49ECED3",
+      "kind": "entity",
+      "name": "12AE0D71D49ECED3"
+    },
+    {
+      "hash": "0x12E2418C38E19DF3",
+      "kind": "entity",
+      "name": "12E2418C38E19DF3"
+    },
+    {
+      "hash": "0x1312B769F47256D9",
+      "kind": "entity",
+      "name": "地对空导弹发射器 MK2"
+    },
+    {
+      "hash": "0x142637570A721CB9",
+      "kind": "entity",
+      "name": "cy_orbital_cannon_ammo_dispenser"
+    },
+    {
+      "hash": "0x147BD99513726F88",
+      "kind": "entity",
+      "name": "147BD99513726F88"
+    },
+    {
+      "hash": "0x14CC0DB942F6D7F2",
+      "kind": "entity",
+      "name": "14CC0DB942F6D7F2"
+    },
+    {
+      "hash": "0x1556FE9780D5D52D",
+      "kind": "entity",
+      "name": "1556FE9780D5D52D"
+    },
+    {
+      "hash": "0x1597AF7289E1BE93",
+      "kind": "entity",
+      "name": "1597AF7289E1BE93"
+    },
+    {
+      "hash": "0x15E2A2B11BA78C5A",
+      "kind": "entity",
+      "name": "15E2A2B11BA78C5A"
+    },
+    {
+      "hash": "0x15F629C9818CC8C1",
+      "kind": "entity",
+      "name": "15F629C9818CC8C1"
+    },
+    {
+      "hash": "0x162256BD224F6265",
+      "kind": "entity",
+      "name": "objective_filling_station_terminal"
+    },
+    {
+      "hash": "0x168A831D60E9F93A",
+      "kind": "entity",
+      "name": "168A831D60E9F93A"
+    },
+    {
+      "hash": "0x1696219FA2ED001A",
+      "kind": "entity",
+      "name": "1696219FA2ED001A"
+    },
+    {
+      "hash": "0x16AF6DA0F46DCBCB",
+      "kind": "entity",
+      "name": "16AF6DA0F46DCBCB"
+    },
+    {
+      "hash": "0x16D7BA33ED511664",
+      "kind": "entity",
+      "name": "objective_control_tower_terminal"
+    },
+    {
+      "hash": "0x16E54BC6CB126E0E",
+      "kind": "entity",
+      "name": "tcs_support_pillar_01_static"
+    },
+    {
+      "hash": "0x16F397CA5F51F271",
+      "kind": "entity",
+      "name": "16F397CA5F51F271"
+    },
+    {
+      "hash": "0x171A3384477F9618",
+      "kind": "entity",
+      "name": "tcs_02_button"
+    },
+    {
+      "hash": "0x172A65BE8DA21B7F",
+      "kind": "entity",
+      "name": "172A65BE8DA21B7F"
+    },
+    {
+      "hash": "0x177863EFEC0C9807",
+      "kind": "entity",
+      "name": "177863EFEC0C9807"
+    },
+    {
+      "hash": "0x178183C8C74C6EBA",
+      "kind": "entity",
+      "name": "bug_tcs_02_destroy_eggs"
+    },
+    {
+      "hash": "0x18298FB0708CFA26",
+      "kind": "entity",
+      "name": "18298FB0708CFA26"
+    },
+    {
+      "hash": "0x186E14D733C00DFA",
+      "kind": "entity",
+      "name": "186E14D733C00DFA"
+    },
+    {
+      "hash": "0x19569B64CF2E3EF7",
+      "kind": "entity",
+      "name": "19569B64CF2E3EF7"
+    },
+    {
+      "hash": "0x19806B4FB83FDF7C",
+      "kind": "entity",
+      "name": "突入者 武器"
+    },
+    {
+      "hash": "0x1980D92B619FF5FE",
+      "kind": "entity",
+      "name": "E/MG-101 重机枪部署支架 (激光)"
+    },
+    {
+      "hash": "0x198963A10C921EF1",
+      "kind": "entity",
+      "name": "198963A10C921EF1"
+    },
+    {
+      "hash": "0x19A6BB8EEA30C564",
+      "kind": "entity",
+      "name": "19A6BB8EEA30C564"
+    },
+    {
+      "hash": "0x19E8FAFC7C914346",
+      "kind": "entity",
+      "name": "19E8FAFC7C914346"
+    },
+    {
+      "hash": "0x19F385DF772D83F1",
+      "kind": "entity",
+      "name": "19F385DF772D83F1"
+    },
+    {
+      "hash": "0x1A3B52A4D3F166F7",
+      "kind": "entity",
+      "name": "il_city_cannon_terminal"
+    },
+    {
+      "hash": "0x1A4323835B84CEA7",
+      "kind": "entity",
+      "name": "1A4323835B84CEA7"
+    },
+    {
+      "hash": "0x1A5ED54B8DD6191D",
+      "kind": "entity",
+      "name": "1A5ED54B8DD6191D"
+    },
+    {
+      "hash": "0x1A6A265DD3C07402",
+      "kind": "entity",
+      "name": "1A6A265DD3C07402"
+    },
+    {
+      "hash": "0x1AB4186A06C84078",
+      "kind": "entity",
+      "name": "explosive_gas_chimney"
+    },
+    {
+      "hash": "0x1B00BCA55E364292",
+      "kind": "entity",
+      "name": "1B00BCA55E364292"
+    },
+    {
+      "hash": "0x1B255FEF5EC0CBD8",
+      "kind": "entity",
+      "name": "1B255FEF5EC0CBD8"
+    },
+    {
+      "hash": "0x1B5B9AC4F96B36E5",
+      "kind": "entity",
+      "name": "1B5B9AC4F96B36E5"
+    },
+    {
+      "hash": "0x1B633762874A709A",
+      "kind": "entity",
+      "name": "capital_defense_pillar"
+    },
+    {
+      "hash": "0x1BC495D8ED769DD7",
+      "kind": "entity",
+      "name": "1BC495D8ED769DD7"
+    },
+    {
+      "hash": "0x1BC68AC40FC9B672",
+      "kind": "entity",
+      "name": "Quantum Staff"
+    },
+    {
+      "hash": "0x1C2360811101BCCE",
+      "kind": "entity",
+      "name": "cy_obj_asset_cooling_pipe"
+    },
+    {
+      "hash": "0x1C437B727105B7FD",
+      "kind": "entity",
+      "name": "流星风暴（实体）"
+    },
+    {
+      "hash": "0x1C6981CA2FB69508",
+      "kind": "entity",
+      "name": "移动工厂 加特林 MK4"
+    },
+    {
+      "hash": "0x1C85E96747BA9A04",
+      "kind": "entity",
+      "name": "1C85E96747BA9A04"
+    },
+    {
+      "hash": "0x1C8764D62E12925A",
+      "kind": "entity",
+      "name": "1C8764D62E12925A"
+    },
+    {
+      "hash": "0x1C9D1066C4CC40BB",
+      "kind": "entity",
+      "name": "bug_retrieve_larva"
+    },
+    {
+      "hash": "0x1CCC1838CF7137C4",
+      "kind": "entity",
+      "name": "1CCC1838CF7137C4"
+    },
+    {
+      "hash": "0x1D2AE78E0354C855",
+      "kind": "entity",
+      "name": "重型蹂躏者 燃烧机枪"
+    },
+    {
+      "hash": "0x1D42A8677882F1CD",
+      "kind": "entity",
+      "name": "cha_helm_m_01"
+    },
+    {
+      "hash": "0x1D4595328B92326A",
+      "kind": "entity",
+      "name": "1D4595328B92326A"
+    },
+    {
+      "hash": "0x1D5943301A29C940",
+      "kind": "entity",
+      "name": "GL-21 榴弹发射器 MK2（模型）"
+    },
+    {
+      "hash": "0x1D5A74B58432D320",
+      "kind": "entity",
+      "name": "1D5A74B58432D320"
+    },
+    {
+      "hash": "0x1D72EBD1A6916E67",
+      "kind": "entity",
+      "name": "assembly_site_crank"
+    },
+    {
+      "hash": "0x1D8D9AA0502F866E",
+      "kind": "entity",
+      "name": "掠食追猎虫 吐酸器"
+    },
+    {
+      "hash": "0x1DB272DDA55199E0",
+      "kind": "entity",
+      "name": "media_drone"
+    },
+    {
+      "hash": "0x1DE1795C754CD4FC",
+      "kind": "entity",
+      "name": "1DE1795C754CD4FC"
+    },
+    {
+      "hash": "0x1DE4D19A5AB9730F",
+      "kind": "entity",
+      "name": "1DE4D19A5AB9730F"
+    },
+    {
+      "hash": "0x1DEE6E9D697483B6",
+      "kind": "entity",
+      "name": "1DEE6E9D697483B6"
+    },
+    {
+      "hash": "0x1E08DF45110C6B9A",
+      "kind": "entity",
+      "name": "1E08DF45110C6B9A"
+    },
+    {
+      "hash": "0x1E52E53218BD5B55",
+      "kind": "entity",
+      "name": "1E52E53218BD5B55"
+    },
+    {
+      "hash": "0x1E592FE6DAED807F",
+      "kind": "entity",
+      "name": "cha_mec_f_02"
+    },
+    {
+      "hash": "0x1E69542777DA57F6",
+      "kind": "entity",
+      "name": "il_obj_asset_waterfall_short"
+    },
+    {
+      "hash": "0x1E9EF7C13506DCBC",
+      "kind": "entity",
+      "name": "1E9EF7C13506DCBC"
+    },
+    {
+      "hash": "0x1EAD9F7191BFC50A",
+      "kind": "entity",
+      "name": "cha_admiral_m"
+    },
+    {
+      "hash": "0x1ECFF70CB9EBC39D",
+      "kind": "entity",
+      "name": "1ECFF70CB9EBC39D"
+    },
+    {
+      "hash": "0x1F3BBA04DC7D12BF",
+      "kind": "entity",
+      "name": "1F3BBA04DC7D12BF"
+    },
+    {
+      "hash": "0x1F693CEED4394ED8",
+      "kind": "entity",
+      "name": "1F693CEED4394ED8"
+    },
+    {
+      "hash": "0x1FA1F596769225C2",
+      "kind": "entity",
+      "name": "TD-220 堡垒MKXVI 主炮 mk2"
+    },
+    {
+      "hash": "0x1FAF4DF4AEB0C3C7",
+      "kind": "entity",
+      "name": "refinery_alarmlight"
+    },
+    {
+      "hash": "0x1FCE01BC5C92B368",
+      "kind": "entity",
+      "name": "大型异界风暴（实体）"
+    },
+    {
+      "hash": "0x206AC4AFF536B8FF",
+      "kind": "entity",
+      "name": "communications_relay"
+    },
+    {
+      "hash": "0x20835096ABA4BB3D",
+      "kind": "entity",
+      "name": "shuttle_escape_entrance"
+    },
+    {
+      "hash": "0x2125DAABD423506E",
+      "kind": "entity",
+      "name": "2125DAABD423506E"
+    },
+    {
+      "hash": "0x212735F3D90BCA64",
+      "kind": "entity",
+      "name": "212735F3D90BCA64"
+    },
+    {
+      "hash": "0x2129C7C57E74222D",
+      "kind": "entity",
+      "name": "poster_sign_grand_opening"
+    },
+    {
+      "hash": "0x212DA298CE7311FA",
+      "kind": "entity",
+      "name": "door_01"
+    },
+    {
+      "hash": "0x213134EB68A4E8CB",
+      "kind": "entity",
+      "name": "poi_text_cy_explosive_battery_01"
+    },
+    {
+      "hash": "0x217C82164BD80A13",
+      "kind": "entity",
+      "name": "cache_interactable_box"
+    },
+    {
+      "hash": "0x235066518AF02220",
+      "kind": "entity",
+      "name": "flag_hanging_01"
+    },
+    {
+      "hash": "0x24510E7B16B5F7A5",
+      "kind": "entity",
+      "name": "E/MG-101 重机枪部署支架 (磁轨炮)"
+    },
+    {
+      "hash": "0x2451CC4278897014",
+      "kind": "entity",
+      "name": "tut_intro_mission_segment_fake_objective"
+    },
+    {
+      "hash": "0x245BEB86AFF0A12F",
+      "kind": "entity",
+      "name": "245BEB86AFF0A12F"
+    },
+    {
+      "hash": "0x245F7D8792CD23E5",
+      "kind": "entity",
+      "name": "military_uplink_drop_off"
+    },
+    {
+      "hash": "0x24A8654D67AB8B50",
+      "kind": "entity",
+      "name": "24A8654D67AB8B50"
+    },
+    {
+      "hash": "0x24ACA2B4D15D2E2F",
+      "kind": "entity",
+      "name": "power_generator"
+    },
+    {
+      "hash": "0x24E38A39D487DAF9",
+      "kind": "entity",
+      "name": "gate_light_01"
+    },
+    {
+      "hash": "0x257DCB695ACDB926",
+      "kind": "entity",
+      "name": "ship_hub_stratagem_armory"
+    },
+    {
+      "hash": "0x257F31120A261B6E",
+      "kind": "entity",
+      "name": "257F31120A261B6E"
+    },
+    {
+      "hash": "0x258BB1AD169BBC7D",
+      "kind": "entity",
+      "name": "gate_01"
+    },
+    {
+      "hash": "0x25C5B9818EF934E3",
+      "kind": "entity",
+      "name": "25C5B9818EF934E3"
+    },
+    {
+      "hash": "0x25E8642A54DC51F6",
+      "kind": "entity",
+      "name": "25E8642A54DC51F6"
+    },
+    {
+      "hash": "0x262351741C53FF0C",
+      "kind": "entity",
+      "name": "凝视者 尖塔"
+    },
+    {
+      "hash": "0x2658ACDD88BFC286",
+      "kind": "entity",
+      "name": "2658ACDD88BFC286"
+    },
+    {
+      "hash": "0x2670E0047B2EB409",
+      "kind": "entity",
+      "name": "cy_detector_tower"
+    },
+    {
+      "hash": "0x26BDDF070C31B275",
+      "kind": "entity",
+      "name": "26BDDF070C31B275"
+    },
+    {
+      "hash": "0x26E0A60293E0D0F3",
+      "kind": "entity",
+      "name": "26E0A60293E0D0F3"
+    },
+    {
+      "hash": "0x26EC3EB07A42C439",
+      "kind": "entity",
+      "name": "26EC3EB07A42C439"
+    },
+    {
+      "hash": "0x27080697D055CB24",
+      "kind": "entity",
+      "name": "27080697D055CB24"
+    },
+    {
+      "hash": "0x271210083A29459F",
+      "kind": "entity",
+      "name": "bug_tcs_01"
+    },
+    {
+      "hash": "0x271567F38F9CEDFD",
+      "kind": "entity",
+      "name": "Septic Breath"
+    },
+    {
+      "hash": "0x2738EE928ED09452",
+      "kind": "entity",
+      "name": "2738EE928ED09452"
+    },
+    {
+      "hash": "0x2778F620A6E414AF",
+      "kind": "entity",
+      "name": "il_obj_asset_weather_device_core"
+    },
+    {
+      "hash": "0x27A6AF7AFAD648BA",
+      "kind": "entity",
+      "name": "cy_chemicals"
+    },
+    {
+      "hash": "0x2862C5AFC2E837BA",
+      "kind": "entity",
+      "name": "2862C5AFC2E837BA"
+    },
+    {
+      "hash": "0x2881D184E08BF120",
+      "kind": "entity",
+      "name": "火山喷发（实体）"
+    },
+    {
+      "hash": "0x289872C1D27BE41E",
+      "kind": "entity",
+      "name": "289872C1D27BE41E"
+    },
+    {
+      "hash": "0x29171C54040B2EAD",
+      "kind": "entity",
+      "name": "il_flesh_labs"
+    },
+    {
+      "hash": "0x294EDA665270AC42",
+      "kind": "entity",
+      "name": "research_bio_sample_01"
+    },
+    {
+      "hash": "0x297434E9E8A4CD5A",
+      "kind": "entity",
+      "name": "御门者 等离子狙击 （左）"
+    },
+    {
+      "hash": "0x29A3242E44CAC643",
+      "kind": "entity",
+      "name": "29A3242E44CAC643"
+    },
+    {
+      "hash": "0x29D0A1DFB5FD811F",
+      "kind": "entity",
+      "name": "29D0A1DFB5FD811F"
+    },
+    {
+      "hash": "0x2A12104F2853AE16",
+      "kind": "entity",
+      "name": "2A12104F2853AE16"
+    },
+    {
+      "hash": "0x2A346BF4552997E2",
+      "kind": "entity",
+      "name": "侦察纵步 重机枪"
+    },
+    {
+      "hash": "0x2A53405CC20DEB39",
+      "kind": "entity",
+      "name": "2A53405CC20DEB39"
+    },
+    {
+      "hash": "0x2ACB27102212AE91",
+      "kind": "entity",
+      "name": "galactic_campaign_interact_point"
+    },
+    {
+      "hash": "0x2ADE442313B5B7B3",
+      "kind": "entity",
+      "name": "2ADE442313B5B7B3"
+    },
+    {
+      "hash": "0x2AE2A97C7E7A6332",
+      "kind": "entity",
+      "name": "2AE2A97C7E7A6332"
+    },
+    {
+      "hash": "0x2B09C5CC8F46B23B",
+      "kind": "entity",
+      "name": "Cannon Turret"
+    },
+    {
+      "hash": "0x2B0F5AB2FD7D4C8A",
+      "kind": "entity",
+      "name": "2B0F5AB2FD7D4C8A"
+    },
+    {
+      "hash": "0x2B3C367B280F4094",
+      "kind": "entity",
+      "name": "Electric Shock"
+    },
+    {
+      "hash": "0x2B581BBB45DA1225",
+      "kind": "entity",
+      "name": "objective_oil_pickup_terminal"
+    },
+    {
+      "hash": "0x2B5D3186EE3A4A84",
+      "kind": "entity",
+      "name": "bug_egg_super_sample_01"
+    },
+    {
+      "hash": "0x2B6B66449798DEF2",
+      "kind": "entity",
+      "name": "2B6B66449798DEF2"
+    },
+    {
+      "hash": "0x2C98051AA75837E9",
+      "kind": "entity",
+      "name": "2C98051AA75837E9"
+    },
+    {
+      "hash": "0x2CF637F920E10546",
+      "kind": "entity",
+      "name": "2CF637F920E10546"
+    },
+    {
+      "hash": "0x2D0F893BDF4329CE",
+      "kind": "entity",
+      "name": "2D0F893BDF4329CE"
+    },
+    {
+      "hash": "0x2D1636F2EE8A6306",
+      "kind": "entity",
+      "name": "conscript_melee_claw"
+    },
+    {
+      "hash": "0x2D20A78B282C365A",
+      "kind": "entity",
+      "name": "2D20A78B282C365A"
+    },
+    {
+      "hash": "0x2D3BC1683A54298D",
+      "kind": "entity",
+      "name": "2D3BC1683A54298D"
+    },
+    {
+      "hash": "0x2D3BD00B1ED411B1",
+      "kind": "entity",
+      "name": "轨道120MM高爆弹火力网"
+    },
+    {
+      "hash": "0x2D6028470C21188B",
+      "kind": "entity",
+      "name": "2D6028470C21188B"
+    },
+    {
+      "hash": "0x2D62A25F36C08F33",
+      "kind": "entity",
+      "name": "炮艇 机枪"
+    },
+    {
+      "hash": "0x2DE164C0302AB49B",
+      "kind": "entity",
+      "name": "stab_machine"
+    },
+    {
+      "hash": "0x2DF751DCA50B96EA",
+      "kind": "entity",
+      "name": "2DF751DCA50B96EA"
+    },
+    {
+      "hash": "0x2E44433824DAB24C",
+      "kind": "entity",
+      "name": "oil_tank"
+    },
+    {
+      "hash": "0x2E50AFA6A4208994",
+      "kind": "entity",
+      "name": "2E50AFA6A4208994"
+    },
+    {
+      "hash": "0x2EA6052258D11234",
+      "kind": "entity",
+      "name": "gen_button"
+    },
+    {
+      "hash": "0x2EC9CD598E31930F",
+      "kind": "entity",
+      "name": "2EC9CD598E31930F"
+    },
+    {
+      "hash": "0x2ED3696E12A14D4C",
+      "kind": "entity",
+      "name": "重型蹂躏者 机枪"
+    },
+    {
+      "hash": "0x2F257B91037AC421",
+      "kind": "entity",
+      "name": "轨道加特林火力网"
+    },
+    {
+      "hash": "0x2F394D3F3119A005",
+      "kind": "entity",
+      "name": "2F394D3F3119A005"
+    },
+    {
+      "hash": "0x2F66DE5B9C9BA08E",
+      "kind": "entity",
+      "name": "city_car"
+    },
+    {
+      "hash": "0x2F859214EF1D23D5",
+      "kind": "entity",
+      "name": "il_obj_asset_water_plane"
+    },
+    {
+      "hash": "0x2FE38A4B0199F645",
+      "kind": "entity",
+      "name": "2FE38A4B0199F645"
+    },
+    {
+      "hash": "0x30212B6E5858AEEF",
+      "kind": "entity",
+      "name": "exploration_reward_generic"
+    },
+    {
+      "hash": "0x304C3124208291E9",
+      "kind": "entity",
+      "name": "304C3124208291E9"
+    },
+    {
+      "hash": "0x304FA1254DB601FF",
+      "kind": "entity",
+      "name": "304FA1254DB601FF"
+    },
+    {
+      "hash": "0x3053C8737CFA7D78",
+      "kind": "entity",
+      "name": "poi_text_botremains_01_01"
+    },
+    {
+      "hash": "0x30561E488BC9D528",
+      "kind": "entity",
+      "name": "poi_text_bug_research_01_01"
+    },
+    {
+      "hash": "0x306330CB08A0E094",
+      "kind": "entity",
+      "name": "306330CB08A0E094"
+    },
+    {
+      "hash": "0x307E09E7698881BA",
+      "kind": "entity",
+      "name": "research_sample_01"
+    },
+    {
+      "hash": "0x309F7E645A8D2B56",
+      "kind": "entity",
+      "name": "309F7E645A8D2B56"
+    },
+    {
+      "hash": "0x30CBE90A76CFC5D0",
+      "kind": "entity",
+      "name": "30CBE90A76CFC5D0"
+    },
+    {
+      "hash": "0x30FBC4FD513C35E9",
+      "kind": "entity",
+      "name": "30FBC4FD513C35E9"
+    },
+    {
+      "hash": "0x317B2C0E4D10E293",
+      "kind": "entity",
+      "name": "cy_obj_asset_hack_turrets_dropoff"
+    },
+    {
+      "hash": "0x319388D1D8ACB8F3",
+      "kind": "entity",
+      "name": "bug_tcs_01_terminal"
+    },
+    {
+      "hash": "0x31A7EA446FD15B8D",
+      "kind": "entity",
+      "name": "31A7EA446FD15B8D"
+    },
+    {
+      "hash": "0x31F83513289E17A8",
+      "kind": "entity",
+      "name": "31F83513289E17A8"
+    },
+    {
+      "hash": "0x322C952877CF0AA5",
+      "kind": "entity",
+      "name": "322C952877CF0AA5"
+    },
+    {
+      "hash": "0x3231BD912357A9E1",
+      "kind": "entity",
+      "name": "3231BD912357A9E1"
+    },
+    {
+      "hash": "0x3251906A5F85C2FD",
+      "kind": "entity",
+      "name": "debug_store_screen"
+    },
+    {
+      "hash": "0x32890A67670C5224",
+      "kind": "entity",
+      "name": "Disintigration Beam"
+    },
+    {
+      "hash": "0x32CDEADA234FB8DF",
+      "kind": "entity",
+      "name": "cha_lieutenant_suppressor_jumppack"
+    },
+    {
+      "hash": "0x3357EEBB0184FDEE",
+      "kind": "entity",
+      "name": "SEAF的AR-23 解放者"
+    },
+    {
+      "hash": "0x336AFDB6F784F639",
+      "kind": "entity",
+      "name": "il_spawner_shield"
+    },
+    {
+      "hash": "0x33735A1A8A91C544",
+      "kind": "entity",
+      "name": "33735A1A8A91C544"
+    },
+    {
+      "hash": "0x33CB06B89BE208DA",
+      "kind": "entity",
+      "name": "cryo_pod"
+    },
+    {
+      "hash": "0x33F2BCDAE3A12592",
+      "kind": "entity",
+      "name": "carry_data_stratagem"
+    },
+    {
+      "hash": "0x3412D2CBC53C5216",
+      "kind": "entity",
+      "name": "3412D2CBC53C5216"
+    },
+    {
+      "hash": "0x341AF8820251A624",
+      "kind": "entity",
+      "name": "cha_seaf_city_civ_5"
+    },
+    {
+      "hash": "0x345AC393DD820704",
+      "kind": "entity",
+      "name": "Electric Shock"
+    },
+    {
+      "hash": "0x346C42FD9C915904",
+      "kind": "entity",
+      "name": "objective_orbital_cannon_terminal"
+    },
+    {
+      "hash": "0x34DA42A01BDC971A",
+      "kind": "entity",
+      "name": "34DA42A01BDC971A"
+    },
+    {
+      "hash": "0x34DFD23365472E9E",
+      "kind": "entity",
+      "name": "34DFD23365472E9E"
+    },
+    {
+      "hash": "0x34E309B57FA80FD1",
+      "kind": "entity",
+      "name": "34E309B57FA80FD1"
+    },
+    {
+      "hash": "0x35286B3019E74508",
+      "kind": "entity",
+      "name": "35286B3019E74508"
+    },
+    {
+      "hash": "0x353C5D1070126899",
+      "kind": "entity",
+      "name": "cha_seaf_city_civ_3"
+    },
+    {
+      "hash": "0x356DE4A7808EF3E3",
+      "kind": "entity",
+      "name": "噪轰引擎 加特林机枪（右）"
+    },
+    {
+      "hash": "0x35B5AF8B1E859540",
+      "kind": "entity",
+      "name": "35B5AF8B1E859540"
+    },
+    {
+      "hash": "0x35F50DEC0EC647C6",
+      "kind": "entity",
+      "name": "35F50DEC0EC647C6"
+    },
+    {
+      "hash": "0x36390775D61159EB",
+      "kind": "entity",
+      "name": "湮灭坦克 加农炮塔 同轴机枪"
+    },
+    {
+      "hash": "0x366CDA2340C6EF29",
+      "kind": "entity",
+      "name": "extract_civilians_rescue_point"
+    },
+    {
+      "hash": "0x3698D7382672D30D",
+      "kind": "entity",
+      "name": "3698D7382672D30D"
+    },
+    {
+      "hash": "0x36A33B4369C7582C",
+      "kind": "entity",
+      "name": "36A33B4369C7582C"
+    },
+    {
+      "hash": "0x36C5E772F8A3B9D3",
+      "kind": "entity",
+      "name": "36C5E772F8A3B9D3"
+    },
+    {
+      "hash": "0x36CD2FC85AA74957",
+      "kind": "entity",
+      "name": "36CD2FC85AA74957"
+    },
+    {
+      "hash": "0x36F834F532B877AA",
+      "kind": "entity",
+      "name": "36F834F532B877AA"
+    },
+    {
+      "hash": "0x37171D7536D2298B",
+      "kind": "entity",
+      "name": "37171D7536D2298B"
+    },
+    {
+      "hash": "0x372481E910C05A76",
+      "kind": "entity",
+      "name": "战术摄像机（模型）"
+    },
+    {
+      "hash": "0x378E7C132579F0EB",
+      "kind": "entity",
+      "name": "378E7C132579F0EB"
+    },
+    {
+      "hash": "0x37BACD53809F3A77",
+      "kind": "entity",
+      "name": "37BACD53809F3A77"
+    },
+    {
+      "hash": "0x37EB67CB7ACE7410",
+      "kind": "entity",
+      "name": "cy_energy_core_station"
+    },
+    {
+      "hash": "0x37EF28E51C6C1716",
+      "kind": "entity",
+      "name": "37EF28E51C6C1716"
+    },
+    {
+      "hash": "0x3811FF0B5167B507",
+      "kind": "entity",
+      "name": "central_core_hole_plug_nav"
+    },
+    {
+      "hash": "0x3853EC50C6BF2363",
+      "kind": "entity",
+      "name": "3853EC50C6BF2363"
+    },
+    {
+      "hash": "0x387F271C7F49614F",
+      "kind": "entity",
+      "name": "387F271C7F49614F"
+    },
+    {
+      "hash": "0x38ACA665AB1D872D",
+      "kind": "entity",
+      "name": "cha_tutorial_bot_store"
+    },
+    {
+      "hash": "0x38CB9C758E07BC58",
+      "kind": "entity",
+      "name": "机炮模型背包 (生成立即爆炸)"
+    },
+    {
+      "hash": "0x38DE0B9E090AA55D",
+      "kind": "entity",
+      "name": "power_generator_button"
+    },
+    {
+      "hash": "0x390E6B3D2F26BD70",
+      "kind": "entity",
+      "name": "移动工厂 加特林 MK2（左）"
+    },
+    {
+      "hash": "0x39114412B91C5FB8",
+      "kind": "entity",
+      "name": "39114412B91C5FB8"
+    },
+    {
+      "hash": "0x391B91D13E08250F",
+      "kind": "entity",
+      "name": "391B91D13E08250F"
+    },
+    {
+      "hash": "0x394069CD4AB53421",
+      "kind": "entity",
+      "name": "il_obj_asset_water_temple_well_lid"
+    },
+    {
+      "hash": "0x397D857D17D57455",
+      "kind": "entity",
+      "name": "397D857D17D57455"
+    },
+    {
+      "hash": "0x397FB7E4883AF100",
+      "kind": "entity",
+      "name": "397FB7E4883AF100"
+    },
+    {
+      "hash": "0x39FF099AF9A96F1B",
+      "kind": "entity",
+      "name": "vending_machine_democracy_01"
+    },
+    {
+      "hash": "0x3A28A51BAA029E1A",
+      "kind": "entity",
+      "name": "oil_pump_active"
+    },
+    {
+      "hash": "0x3AADE0806542AF22",
+      "kind": "entity",
+      "name": "gen_raise_flag"
+    },
+    {
+      "hash": "0x3AAFBA89B53B0F63",
+      "kind": "entity",
+      "name": "移动工厂 加特林 MK1（右）"
+    },
+    {
+      "hash": "0x3AE1F60C5EFD2B43",
+      "kind": "entity",
+      "name": "3AE1F60C5EFD2B43"
+    },
+    {
+      "hash": "0x3AECC8FDA93F1E41",
+      "kind": "entity",
+      "name": "3AECC8FDA93F1E41"
+    },
+    {
+      "hash": "0x3AF4F9FEC023432D",
+      "kind": "entity",
+      "name": "3AF4F9FEC023432D"
+    },
+    {
+      "hash": "0x3B49715551E4CCF1",
+      "kind": "entity",
+      "name": "3B49715551E4CCF1"
+    },
+    {
+      "hash": "0x3BA8FB6F560B926F",
+      "kind": "entity",
+      "name": "3BA8FB6F560B926F"
+    },
+    {
+      "hash": "0x3BDEDF634F477FA5",
+      "kind": "entity",
+      "name": "Quantum Staff"
+    },
+    {
+      "hash": "0x3C1B8C1273F27629",
+      "kind": "entity",
+      "name": "3C1B8C1273F27629"
+    },
+    {
+      "hash": "0x3C7F77F1A7467349",
+      "kind": "entity",
+      "name": "霸王虫 吐酸器 MK2"
+    },
+    {
+      "hash": "0x3CAABAD4D5C09D33",
+      "kind": "entity",
+      "name": "helldiver_dummy"
+    },
+    {
+      "hash": "0x3CD2C72C8A6A23C0",
+      "kind": "entity",
+      "name": "3CD2C72C8A6A23C0"
+    },
+    {
+      "hash": "0x3CE56937E0BD28BD",
+      "kind": "entity",
+      "name": "cy_factory_world_gate_icon"
+    },
+    {
+      "hash": "0x3D11A855D20B5B40",
+      "kind": "entity",
+      "name": "轨道照明弹"
+    },
+    {
+      "hash": "0x3D2FE75B0DC50142",
+      "kind": "entity",
+      "name": "御门者 等离子狙击 （右）"
+    },
+    {
+      "hash": "0x3D4970D1C4E640EE",
+      "kind": "entity",
+      "name": "AX/AR-23 护卫犬MK3 武器 (轻穿)"
+    },
+    {
+      "hash": "0x3DB9B2F914145DDA",
+      "kind": "entity",
+      "name": "3DB9B2F914145DDA"
+    },
+    {
+      "hash": "0x3DE2415EA33B6897",
+      "kind": "entity",
+      "name": "black_box_01"
+    },
+    {
+      "hash": "0x3E099DDF97ACF85F",
+      "kind": "entity",
+      "name": "3E099DDF97ACF85F"
+    },
+    {
+      "hash": "0x3E18DC4B87A9D376",
+      "kind": "entity",
+      "name": "cha_soldier_ship"
+    },
+    {
+      "hash": "0x3E3A31261A124454",
+      "kind": "entity",
+      "name": "EXO-49 解放者外骨骼 手臂 MK3 (右手)"
+    },
+    {
+      "hash": "0x3E811E7F968C4D81",
+      "kind": "entity",
+      "name": "Fusion Carbine"
+    },
+    {
+      "hash": "0x3E9409D42D895300",
+      "kind": "entity",
+      "name": "hellpod_delivery_system_hellpod"
+    },
+    {
+      "hash": "0x3E94F6F1CA022D9E",
+      "kind": "entity",
+      "name": "tut_intro_mission_segment_bug_pit"
+    },
+    {
+      "hash": "0x3E993C23A25E6B88",
+      "kind": "entity",
+      "name": "cyborg_carry_data"
+    },
+    {
+      "hash": "0x3EC790806D0B0540",
+      "kind": "entity",
+      "name": "3EC790806D0B0540"
+    },
+    {
+      "hash": "0x3F2C34C69CFC94B2",
+      "kind": "entity",
+      "name": "3F2C34C69CFC94B2"
+    },
+    {
+      "hash": "0x3F7C3FAB59DEA80E",
+      "kind": "entity",
+      "name": "3F7C3FAB59DEA80E"
+    },
+    {
+      "hash": "0x3F8B37A78C3164B9",
+      "kind": "entity",
+      "name": "3F8B37A78C3164B9"
+    },
+    {
+      "hash": "0x3F905A4BB80DAF42",
+      "kind": "entity",
+      "name": "3F905A4BB80DAF42"
+    },
+    {
+      "hash": "0x3FFD31BCC5C2368A",
+      "kind": "entity",
+      "name": "3FFD31BCC5C2368A"
+    },
+    {
+      "hash": "0x4012166966A9E6E9",
+      "kind": "entity",
+      "name": "seaf_shell"
+    },
+    {
+      "hash": "0x40C8E651DD98BAC3",
+      "kind": "entity",
+      "name": "40C8E651DD98BAC3"
+    },
+    {
+      "hash": "0x40E49AAFE69E37AC",
+      "kind": "entity",
+      "name": "poi_text_smugglers_02"
+    },
+    {
+      "hash": "0x411C4FD07740A7DD",
+      "kind": "entity",
+      "name": "411C4FD07740A7DD"
+    },
+    {
+      "hash": "0x41540E9573DD5E46",
+      "kind": "entity",
+      "name": "41540E9573DD5E46"
+    },
+    {
+      "hash": "0x421157C11E97DDA5",
+      "kind": "entity",
+      "name": "gen_investigate_research_station"
+    },
+    {
+      "hash": "0x424036E9F7DE9A1E",
+      "kind": "entity",
+      "name": "cy_obj_asset_cooling_valve"
+    },
+    {
+      "hash": "0x4264A63154886321",
+      "kind": "entity",
+      "name": "hellpod_delivery_system"
+    },
+    {
+      "hash": "0x42786DC1DD1EACAD",
+      "kind": "entity",
+      "name": "icbm_rocket"
+    },
+    {
+      "hash": "0x42EBF22EB01A4A39",
+      "kind": "entity",
+      "name": "敌人轨道轰炸（实体）"
+    },
+    {
+      "hash": "0x42FA556EC81A4709",
+      "kind": "entity",
+      "name": "tcs_support_damageable_03"
+    },
+    {
+      "hash": "0x4304EC9E57151FD3",
+      "kind": "entity",
+      "name": "4304EC9E57151FD3"
+    },
+    {
+      "hash": "0x439F9E65C18567DA",
+      "kind": "entity",
+      "name": "TD-220 堡垒MKXVI 同轴重机枪 mk2"
+    },
+    {
+      "hash": "0x43A2EDA0FAC0729F",
+      "kind": "entity",
+      "name": "deploy_flag_area_marker_tut_intro"
+    },
+    {
+      "hash": "0x43C1270C7B467D79",
+      "kind": "entity",
+      "name": "cy_kill"
+    },
+    {
+      "hash": "0x43EE4F76228B2597",
+      "kind": "entity",
+      "name": "43EE4F76228B2597"
+    },
+    {
+      "hash": "0x441C1CA987BD0059",
+      "kind": "entity",
+      "name": "bug_assassinate_commander"
+    },
+    {
+      "hash": "0x4446E7312B401E69",
+      "kind": "entity",
+      "name": "4446E7312B401E69"
+    },
+    {
+      "hash": "0x44748FFC63F78A72",
+      "kind": "entity",
+      "name": "44748FFC63F78A72"
+    },
+    {
+      "hash": "0x44D72A2C4D5F0507",
+      "kind": "entity",
+      "name": "cha_per_f_01"
+    },
+    {
+      "hash": "0x4542EA2278D8458A",
+      "kind": "entity",
+      "name": "utilities_speakers_01"
+    },
+    {
+      "hash": "0x459DD5EB8C68C63F",
+      "kind": "entity",
+      "name": "cy_factory_world_access_point_icon"
+    },
+    {
+      "hash": "0x45CE72D84DACB753",
+      "kind": "entity",
+      "name": "45CE72D84DACB753"
+    },
+    {
+      "hash": "0x45D6A4D47AA233A1",
+      "kind": "entity",
+      "name": "poi_text_crashedbomb_01_02"
+    },
+    {
+      "hash": "0x45F1AF49E3C6D25E",
+      "kind": "entity",
+      "name": "bug_central_core"
+    },
+    {
+      "hash": "0x460576BBDCF770D0",
+      "kind": "entity",
+      "name": "armory_generator"
+    },
+    {
+      "hash": "0x464475E5BF423598",
+      "kind": "entity",
+      "name": "il_module_shield_large"
+    },
+    {
+      "hash": "0x4676BD9A16D3AC28",
+      "kind": "entity",
+      "name": "cha_per_f_04"
+    },
+    {
+      "hash": "0x46918A7483D70F3E",
+      "kind": "entity",
+      "name": "46918A7483D70F3E"
+    },
+    {
+      "hash": "0x46F50507603729F3",
+      "kind": "entity",
+      "name": "46F50507603729F3"
+    },
+    {
+      "hash": "0x4747668D063EEC06",
+      "kind": "entity",
+      "name": "4747668D063EEC06"
+    },
+    {
+      "hash": "0x4763C852D8ECEE35",
+      "kind": "entity",
+      "name": "Disintigration Beam"
+    },
+    {
+      "hash": "0x47A282584F49B90B",
+      "kind": "entity",
+      "name": "bridge_hologram_map_01"
+    },
+    {
+      "hash": "0x47A41BBE2472F761",
+      "kind": "entity",
+      "name": "47A41BBE2472F761"
+    },
+    {
+      "hash": "0x47BDE17A0FAADB00",
+      "kind": "entity",
+      "name": "47BDE17A0FAADB00"
+    },
+    {
+      "hash": "0x4828E14AEE6FA2CA",
+      "kind": "entity",
+      "name": "4828E14AEE6FA2CA"
+    },
+    {
+      "hash": "0x482D0662F8264483",
+      "kind": "entity",
+      "name": "482D0662F8264483"
+    },
+    {
+      "hash": "0x4859509E729D9B91",
+      "kind": "entity",
+      "name": "4859509E729D9B91"
+    },
+    {
+      "hash": "0x4877735FC84C0623",
+      "kind": "entity",
+      "name": "4877735FC84C0623"
+    },
+    {
+      "hash": "0x48C2ED6C5B1529A0",
+      "kind": "entity",
+      "name": "48C2ED6C5B1529A0"
+    },
+    {
+      "hash": "0x48C91E42B9F16512",
+      "kind": "entity",
+      "name": "移动工厂 加特林 MK3"
+    },
+    {
+      "hash": "0x491E961533AFFC15",
+      "kind": "entity",
+      "name": "cha_mec_m_01"
+    },
+    {
+      "hash": "0x4923715619149543",
+      "kind": "entity",
+      "name": "gen_extract_civilians"
+    },
+    {
+      "hash": "0x4932CBF33CD47EF9",
+      "kind": "entity",
+      "name": "4932CBF33CD47EF9"
+    },
+    {
+      "hash": "0x495435D51F47411F",
+      "kind": "entity",
+      "name": "惑乱者 手榴弹"
+    },
+    {
+      "hash": "0x495D7B884DE6CE4E",
+      "kind": "entity",
+      "name": "495D7B884DE6CE4E"
+    },
+    {
+      "hash": "0x49ABD28C0AC9DDCE",
+      "kind": "entity",
+      "name": "Fusion Carbine"
+    },
+    {
+      "hash": "0x49CA5D54405276F4",
+      "kind": "entity",
+      "name": "49CA5D54405276F4"
+    },
+    {
+      "hash": "0x49DB325243365CFE",
+      "kind": "entity",
+      "name": "door_light"
+    },
+    {
+      "hash": "0x49DB5BB02E8695D7",
+      "kind": "entity",
+      "name": "cy_hack_refinery"
+    },
+    {
+      "hash": "0x4A1E3050743501DE",
+      "kind": "entity",
+      "name": "bunker_cache"
+    },
+    {
+      "hash": "0x4A22AB401172524E",
+      "kind": "entity",
+      "name": "4A22AB401172524E"
+    },
+    {
+      "hash": "0x4A2E86C250F86364",
+      "kind": "entity",
+      "name": "tcs_button"
+    },
+    {
+      "hash": "0x4A2F7E9A9C47C202",
+      "kind": "entity",
+      "name": "4A2F7E9A9C47C202"
+    },
+    {
+      "hash": "0x4A358AF62B7FF5FB",
+      "kind": "entity",
+      "name": "cy_orbital_cannon_ammo_dropoff"
+    },
+    {
+      "hash": "0x4A3E722B5A865E38",
+      "kind": "entity",
+      "name": "4A3E722B5A865E38"
+    },
+    {
+      "hash": "0x4A7A2960A3B95B15",
+      "kind": "entity",
+      "name": "4A7A2960A3B95B15"
+    },
+    {
+      "hash": "0x4ABCF54464695EFA",
+      "kind": "entity",
+      "name": "cha_seaf_city_civ"
+    },
+    {
+      "hash": "0x4AF45D1EF89781AC",
+      "kind": "entity",
+      "name": "4AF45D1EF89781AC"
+    },
+    {
+      "hash": "0x4B6217D8636CF66B",
+      "kind": "entity",
+      "name": "4B6217D8636CF66B"
+    },
+    {
+      "hash": "0x4BAC90C3B06A45D2",
+      "kind": "entity",
+      "name": "bug_tcs_02"
+    },
+    {
+      "hash": "0x4BCEFDF2F42A3F22",
+      "kind": "entity",
+      "name": "4BCEFDF2F42A3F22"
+    },
+    {
+      "hash": "0x4BDDDA563444264A",
+      "kind": "entity",
+      "name": "vista_primordial_volcano"
+    },
+    {
+      "hash": "0x4C182656063F121A",
+      "kind": "entity",
+      "name": "control_tower_delivery_drop_off"
+    },
+    {
+      "hash": "0x4C38E682FF5E76B4",
+      "kind": "entity",
+      "name": "4C38E682FF5E76B4"
+    },
+    {
+      "hash": "0x4C63119F69165321",
+      "kind": "entity",
+      "name": "4C63119F69165321"
+    },
+    {
+      "hash": "0x4C7E5EC4D0D1BB11",
+      "kind": "entity",
+      "name": "4C7E5EC4D0D1BB11"
+    },
+    {
+      "hash": "0x4CDE8B230AA4EAB0",
+      "kind": "entity",
+      "name": "Eagle Storm - Napalm"
+    },
+    {
+      "hash": "0x4D16EF88BAD73642",
+      "kind": "entity",
+      "name": "4D16EF88BAD73642"
+    },
+    {
+      "hash": "0x4D19A06B81FA744A",
+      "kind": "entity",
+      "name": "cha_seaf_city_civ_2"
+    },
+    {
+      "hash": "0x4D4017549585CB8E",
+      "kind": "entity",
+      "name": "4D4017549585CB8E"
+    },
+    {
+      "hash": "0x4D4793E8C8108CFE",
+      "kind": "entity",
+      "name": "4D4793E8C8108CFE"
+    },
+    {
+      "hash": "0x4D5FD3FBBA0C6B72",
+      "kind": "entity",
+      "name": "cy_assembly_site_terminal_small"
+    },
+    {
+      "hash": "0x4D61156DD350A82B",
+      "kind": "entity",
+      "name": "Fusion Autocannon"
+    },
+    {
+      "hash": "0x4D6701191DD4EA6F",
+      "kind": "entity",
+      "name": "4D6701191DD4EA6F"
+    },
+    {
+      "hash": "0x4D6812AA405E986D",
+      "kind": "entity",
+      "name": "4D6812AA405E986D"
+    },
+    {
+      "hash": "0x4D932C1A70E6FD82",
+      "kind": "entity",
+      "name": "il_obj_asset_water_temple_well"
+    },
+    {
+      "hash": "0x4DB6725732CF4D5C",
+      "kind": "entity",
+      "name": "4DB6725732CF4D5C"
+    },
+    {
+      "hash": "0x4DCECBEE5317BB79",
+      "kind": "entity",
+      "name": "4DCECBEE5317BB79"
+    },
+    {
+      "hash": "0x4DCFDB97188ADF15",
+      "kind": "entity",
+      "name": "4DCFDB97188ADF15"
+    },
+    {
+      "hash": "0x4DF41F84668D07FB",
+      "kind": "entity",
+      "name": "M-103 补给型快速侦察载具 解放者炮塔"
+    },
+    {
+      "hash": "0x4E09B1CECE3725A0",
+      "kind": "entity",
+      "name": "4E09B1CECE3725A0"
+    },
+    {
+      "hash": "0x4E69B56270226250",
+      "kind": "entity",
+      "name": "cha_servicetech_f_01"
+    },
+    {
+      "hash": "0x4E73A8887EAAE660",
+      "kind": "entity",
+      "name": "4E73A8887EAAE660"
+    },
+    {
+      "hash": "0x4E955C87DBD3BDD5",
+      "kind": "entity",
+      "name": "4E955C87DBD3BDD5"
+    },
+    {
+      "hash": "0x4EC39827B643FC3D",
+      "kind": "entity",
+      "name": "4EC39827B643FC3D"
+    },
+    {
+      "hash": "0x4EF91C49CE1ECD81",
+      "kind": "entity",
+      "name": "poi_text_helldiver_statue_01"
+    },
+    {
+      "hash": "0x4EFCB7E844BE9E93",
+      "kind": "entity",
+      "name": "research_tech_sample_01"
+    },
+    {
+      "hash": "0x4F44BBCEA1AE0AFE",
+      "kind": "entity",
+      "name": "cctv_camera"
+    },
+    {
+      "hash": "0x4F5E8FE3EA112D90",
+      "kind": "entity",
+      "name": "4F5E8FE3EA112D90"
+    },
+    {
+      "hash": "0x4F8A477E577AABA9",
+      "kind": "entity",
+      "name": "开发者工具 物理枪 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x4FB6077F1597691D",
+      "kind": "entity",
+      "name": "soldier_chainsaw"
+    },
+    {
+      "hash": "0x4FF156949BE08FCB",
+      "kind": "entity",
+      "name": "4FF156949BE08FCB"
+    },
+    {
+      "hash": "0x4FFC322CA8F8ECF8",
+      "kind": "entity",
+      "name": "deploy_flag_area_marker_bot_base"
+    },
+    {
+      "hash": "0x5016EE397FDCFB6C",
+      "kind": "entity",
+      "name": "bug_sample_01"
+    },
+    {
+      "hash": "0x505B4A5EB5E1B6F6",
+      "kind": "entity",
+      "name": "il_mothership_shield"
+    },
+    {
+      "hash": "0x5063C5B89B408A5E",
+      "kind": "entity",
+      "name": "5063C5B89B408A5E"
+    },
+    {
+      "hash": "0x50AAFA80A3E6DB04",
+      "kind": "entity",
+      "name": "Fusion Repeater"
+    },
+    {
+      "hash": "0x50E1812357227BFA",
+      "kind": "entity",
+      "name": "50E1812357227BFA"
+    },
+    {
+      "hash": "0x50EAA638DD4C7794",
+      "kind": "entity",
+      "name": "50EAA638DD4C7794"
+    },
+    {
+      "hash": "0x51170DF9D5400B87",
+      "kind": "entity",
+      "name": "51170DF9D5400B87"
+    },
+    {
+      "hash": "0x513786CEDDD5AB41",
+      "kind": "entity",
+      "name": "cy_assembly_site_speakers"
+    },
+    {
+      "hash": "0x514C01B99E4E9BDA",
+      "kind": "entity",
+      "name": "514C01B99E4E9BDA"
+    },
+    {
+      "hash": "0x516E4FA1D2AE46AE",
+      "kind": "entity",
+      "name": "516E4FA1D2AE46AE"
+    },
+    {
+      "hash": "0x516F3417A6537BF8",
+      "kind": "entity",
+      "name": "516F3417A6537BF8"
+    },
+    {
+      "hash": "0x519F853A450C9581",
+      "kind": "entity",
+      "name": "519F853A450C9581"
+    },
+    {
+      "hash": "0x51C6132EC1D10E7E",
+      "kind": "entity",
+      "name": "坦克 加特林"
+    },
+    {
+      "hash": "0x52018DEB9AB6827E",
+      "kind": "entity",
+      "name": "cha_conscript_jetpack_standard"
+    },
+    {
+      "hash": "0x52071F49263415E4",
+      "kind": "entity",
+      "name": "SG-88 中折式霰弹枪 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x526A3C003F2EA8DD",
+      "kind": "entity",
+      "name": "cha_firsup_m_01"
+    },
+    {
+      "hash": "0x527470C9D5F2B3C7",
+      "kind": "entity",
+      "name": "527470C9D5F2B3C7"
+    },
+    {
+      "hash": "0x5293B9A2D9398DDE",
+      "kind": "entity",
+      "name": "gen_oilpump"
+    },
+    {
+      "hash": "0x529DFE4C4C881324",
+      "kind": "entity",
+      "name": "抚育喷涌虫 吐酸器"
+    },
+    {
+      "hash": "0x52B7F9E280503F1D",
+      "kind": "entity",
+      "name": "52B7F9E280503F1D"
+    },
+    {
+      "hash": "0x52CB5CF2AC96CA39",
+      "kind": "entity",
+      "name": "sprint_room_terminal"
+    },
+    {
+      "hash": "0x52D52230745B66A0",
+      "kind": "entity",
+      "name": "52D52230745B66A0"
+    },
+    {
+      "hash": "0x5336583C1F8BA745",
+      "kind": "entity",
+      "name": "cyborg_command_bunker_spawner"
+    },
+    {
+      "hash": "0x534000F7801EA508",
+      "kind": "entity",
+      "name": "collect_data_drop_off"
+    },
+    {
+      "hash": "0x5351B2FBCC7F7D46",
+      "kind": "entity",
+      "name": "5351B2FBCC7F7D46"
+    },
+    {
+      "hash": "0x5367951CD4DA72D9",
+      "kind": "entity",
+      "name": "cryo_chamber"
+    },
+    {
+      "hash": "0x537601CE3C545AFC",
+      "kind": "entity",
+      "name": "poi_text_tablet_mail_01"
+    },
+    {
+      "hash": "0x53B6BE175F62AE1F",
+      "kind": "entity",
+      "name": "53B6BE175F62AE1F"
+    },
+    {
+      "hash": "0x541E4FB19053D6B0",
+      "kind": "entity",
+      "name": "541E4FB19053D6B0"
+    },
+    {
+      "hash": "0x542A14BA4D755F4E",
+      "kind": "entity",
+      "name": "objective_radar_station_terminal"
+    },
+    {
+      "hash": "0x543A9F643D8EC7AC",
+      "kind": "entity",
+      "name": "543A9F643D8EC7AC"
+    },
+    {
+      "hash": "0x543AD246BCB333D4",
+      "kind": "entity",
+      "name": "激进先锋 能量霰弹枪"
+    },
+    {
+      "hash": "0x5449813A9B155530",
+      "kind": "entity",
+      "name": "5449813A9B155530"
+    },
+    {
+      "hash": "0x548D74E38CBC7D30",
+      "kind": "entity",
+      "name": "habs_lamp_wall_01"
+    },
+    {
+      "hash": "0x54B66A0D35FDF785",
+      "kind": "entity",
+      "name": "cy_extract_organic_soup_terminal"
+    },
+    {
+      "hash": "0x54D86057F5DACFB9",
+      "kind": "entity",
+      "name": "A/AC-8 自动哨戒炮"
+    },
+    {
+      "hash": "0x5543580361A72C39",
+      "kind": "entity",
+      "name": "5543580361A72C39"
+    },
+    {
+      "hash": "0x556023470F587F5C",
+      "kind": "entity",
+      "name": "556023470F587F5C"
+    },
+    {
+      "hash": "0x557EA199F0713919",
+      "kind": "entity",
+      "name": "557EA199F0713919"
+    },
+    {
+      "hash": "0x55B67E7B5382A238",
+      "kind": "entity",
+      "name": "poi_text_battlefield_medium_01"
+    },
+    {
+      "hash": "0x55E3DD57D2A2EB35",
+      "kind": "entity",
+      "name": "55E3DD57D2A2EB35"
+    },
+    {
+      "hash": "0x55F3747B8C27AEF6",
+      "kind": "entity",
+      "name": "轨道电磁冲击波攻击"
+    },
+    {
+      "hash": "0x55FF5142981119AD",
+      "kind": "entity",
+      "name": "55FF5142981119AD"
+    },
+    {
+      "hash": "0x566076565486F3B8",
+      "kind": "entity",
+      "name": "566076565486F3B8"
+    },
+    {
+      "hash": "0x5684D928C9AB00D1",
+      "kind": "entity",
+      "name": "5684D928C9AB00D1"
+    },
+    {
+      "hash": "0x5685A37D54BD51CE",
+      "kind": "entity",
+      "name": "5685A37D54BD51CE"
+    },
+    {
+      "hash": "0x570D1E0A855E8199",
+      "kind": "entity",
+      "name": "gen_retrieve_codes"
+    },
+    {
+      "hash": "0x5726276FED2241B3",
+      "kind": "entity",
+      "name": "cy_orbital_cannon_ammo_carry"
+    },
+    {
+      "hash": "0x5727C125BD88D82C",
+      "kind": "entity",
+      "name": "5727C125BD88D82C"
+    },
+    {
+      "hash": "0x57330F2285CAE2CF",
+      "kind": "entity",
+      "name": "57330F2285CAE2CF"
+    },
+    {
+      "hash": "0x574D028263CB630A",
+      "kind": "entity",
+      "name": "cache_button"
+    },
+    {
+      "hash": "0x57AE621A7B7A227A",
+      "kind": "entity",
+      "name": "57AE621A7B7A227A"
+    },
+    {
+      "hash": "0x57DB57121F3E7ED2",
+      "kind": "entity",
+      "name": "truth_transmitter_tower_screen_03"
+    },
+    {
+      "hash": "0x57F11209295752B5",
+      "kind": "entity",
+      "name": "火焰喷射器背包 (机器人, 背包)"
+    },
+    {
+      "hash": "0x58326CCE1B42F58B",
+      "kind": "entity",
+      "name": "bug_tcs_01_terminal_screen_c"
+    },
+    {
+      "hash": "0x5852B7D2F865966C",
+      "kind": "entity",
+      "name": "non_objective_oil_pump_animated"
+    },
+    {
+      "hash": "0x587878FB76F4B9B1",
+      "kind": "entity",
+      "name": "SEAF的MG-43 机枪"
+    },
+    {
+      "hash": "0x58D8B921F121A14F",
+      "kind": "entity",
+      "name": "il_investigate_crashed_harvester"
+    },
+    {
+      "hash": "0x591591518B422406",
+      "kind": "entity",
+      "name": "591591518B422406"
+    },
+    {
+      "hash": "0x59A0CE2762F49C7A",
+      "kind": "entity",
+      "name": "tut_intro_mission"
+    },
+    {
+      "hash": "0x59B105A809064464",
+      "kind": "entity",
+      "name": "il_mothership_tentacles"
+    },
+    {
+      "hash": "0x5A14BF4098BF4259",
+      "kind": "entity",
+      "name": "5A14BF4098BF4259"
+    },
+    {
+      "hash": "0x5A6672168EAF4994",
+      "kind": "entity",
+      "name": "ship_hub_character_customization"
+    },
+    {
+      "hash": "0x5A66F069A783B350",
+      "kind": "entity",
+      "name": "5A66F069A783B350"
+    },
+    {
+      "hash": "0x5AF886D80A9FB7B7",
+      "kind": "entity",
+      "name": "5AF886D80A9FB7B7"
+    },
+    {
+      "hash": "0x5B390845A8E3FC29",
+      "kind": "entity",
+      "name": "mannequin"
+    },
+    {
+      "hash": "0x5B48BDD33A4CE6A4",
+      "kind": "entity",
+      "name": "auto_night_light"
+    },
+    {
+      "hash": "0x5B596A4D21BC91A3",
+      "kind": "entity",
+      "name": "巨型者 机枪"
+    },
+    {
+      "hash": "0x5BB3FE84CF222678",
+      "kind": "entity",
+      "name": "bug_tcs_01_terminal_screen_a"
+    },
+    {
+      "hash": "0x5C54E81A4AAA31FC",
+      "kind": "entity",
+      "name": "SEAF的EAT-17"
+    },
+    {
+      "hash": "0x5C9B80235E57B43B",
+      "kind": "entity",
+      "name": "5C9B80235E57B43B"
+    },
+    {
+      "hash": "0x5CA062D2FA1F76B9",
+      "kind": "entity",
+      "name": "5CA062D2FA1F76B9"
+    },
+    {
+      "hash": "0x5D62CB3ED22E1ECC",
+      "kind": "entity",
+      "name": "vending_machine_freedom_01"
+    },
+    {
+      "hash": "0x5D96918BA0FF1CD5",
+      "kind": "entity",
+      "name": "5D96918BA0FF1CD5"
+    },
+    {
+      "hash": "0x5DD541B7F0C21AEA",
+      "kind": "entity",
+      "name": "5DD541B7F0C21AEA"
+    },
+    {
+      "hash": "0x5EC2CC1E3E84FC76",
+      "kind": "entity",
+      "name": "tut_intro_mission_segment_stim"
+    },
+    {
+      "hash": "0x5F348D68D3848478",
+      "kind": "entity",
+      "name": "5F348D68D3848478"
+    },
+    {
+      "hash": "0x5FAD42DF0A24C7ED",
+      "kind": "entity",
+      "name": "respawn_point_hellpod"
+    },
+    {
+      "hash": "0x5FC0C53098B1B220",
+      "kind": "entity",
+      "name": "5FC0C53098B1B220"
+    },
+    {
+      "hash": "0x5FC53B7B1D8A13FD",
+      "kind": "entity",
+      "name": "5FC53B7B1D8A13FD"
+    },
+    {
+      "hash": "0x60544E51EE260967",
+      "kind": "entity",
+      "name": "il_city_cannon"
+    },
+    {
+      "hash": "0x606043CAC59312EC",
+      "kind": "entity",
+      "name": "bug_assassinate_chargers"
+    },
+    {
+      "hash": "0x60778A2CFFB6E47F",
+      "kind": "entity",
+      "name": "60778A2CFFB6E47F"
+    },
+    {
+      "hash": "0x60CF8192A5FDA029",
+      "kind": "entity",
+      "name": "60CF8192A5FDA029"
+    },
+    {
+      "hash": "0x60D609348E381C11",
+      "kind": "entity",
+      "name": "60D609348E381C11"
+    },
+    {
+      "hash": "0x60D98D3BA6CF9D7E",
+      "kind": "entity",
+      "name": "poster_sign_infestation"
+    },
+    {
+      "hash": "0x611BA777783B08A2",
+      "kind": "entity",
+      "name": "噪轰引擎 速射加农炮"
+    },
+    {
+      "hash": "0x61EFB2D6A167F285",
+      "kind": "entity",
+      "name": "cha_mec_f_03"
+    },
+    {
+      "hash": "0x62187D58C3D2AD52",
+      "kind": "entity",
+      "name": "poi_text_grave_01_01"
+    },
+    {
+      "hash": "0x6254C5205E22E0A6",
+      "kind": "entity",
+      "name": "6254C5205E22E0A6"
+    },
+    {
+      "hash": "0x6290E1DEBC0D884B",
+      "kind": "entity",
+      "name": "生化人的手榴弹 (投掷物, 模型)"
+    },
+    {
+      "hash": "0x62928899DAC02979",
+      "kind": "entity",
+      "name": "62928899DAC02979"
+    },
+    {
+      "hash": "0x62D2C45A8B9703CC",
+      "kind": "entity",
+      "name": "objective_colony_relay"
+    },
+    {
+      "hash": "0x6403797EB4E18638",
+      "kind": "entity",
+      "name": "bug_assassinate_striders"
+    },
+    {
+      "hash": "0x6409A568CEB88B23",
+      "kind": "entity",
+      "name": "gen_radar_station"
+    },
+    {
+      "hash": "0x641B469CBD1F5BD0",
+      "kind": "entity",
+      "name": "641B469CBD1F5BD0"
+    },
+    {
+      "hash": "0x64270E30412D499E",
+      "kind": "entity",
+      "name": "64270E30412D499E"
+    },
+    {
+      "hash": "0x64401291FCB4C36E",
+      "kind": "entity",
+      "name": "smuggler_cache"
+    },
+    {
+      "hash": "0x6454186A40F772F0",
+      "kind": "entity",
+      "name": "6454186A40F772F0"
+    },
+    {
+      "hash": "0x646F5AEBDFF603CB",
+      "kind": "entity",
+      "name": "il_delivery_dropoff_blackbox"
+    },
+    {
+      "hash": "0x64B49B9D8A445266",
+      "kind": "entity",
+      "name": "bio_sample_01"
+    },
+    {
+      "hash": "0x6518266A4837F788",
+      "kind": "entity",
+      "name": "6518266A4837F788"
+    },
+    {
+      "hash": "0x65E32BB540563928",
+      "kind": "entity",
+      "name": "cyborg_alarmlight"
+    },
+    {
+      "hash": "0x663FD31B0949A8E8",
+      "kind": "entity",
+      "name": "663FD31B0949A8E8"
+    },
+    {
+      "hash": "0x6673329331F2FDCD",
+      "kind": "entity",
+      "name": "teleporter"
+    },
+    {
+      "hash": "0x6727A996BDD09B07",
+      "kind": "entity",
+      "name": "6727A996BDD09B07"
+    },
+    {
+      "hash": "0x67381F685E9B69A8",
+      "kind": "entity",
+      "name": "惑乱者 能量炮"
+    },
+    {
+      "hash": "0x674FB0849F8A1140",
+      "kind": "entity",
+      "name": "674FB0849F8A1140"
+    },
+    {
+      "hash": "0x6757E4C554FEA738",
+      "kind": "entity",
+      "name": "6757E4C554FEA738"
+    },
+    {
+      "hash": "0x679F894F27554146",
+      "kind": "entity",
+      "name": "679F894F27554146"
+    },
+    {
+      "hash": "0x682871578A4E98EB",
+      "kind": "entity",
+      "name": "cy_control_tower"
+    },
+    {
+      "hash": "0x6838D8C197CC9C78",
+      "kind": "entity",
+      "name": "cy_orbital_cannon"
+    },
+    {
+      "hash": "0x684284354532CC0E",
+      "kind": "entity",
+      "name": "684284354532CC0E"
+    },
+    {
+      "hash": "0x6845B56D77E61B9F",
+      "kind": "entity",
+      "name": "objective_military_uplink_terminal"
+    },
+    {
+      "hash": "0x684F974294035FE8",
+      "kind": "entity",
+      "name": "684F974294035FE8"
+    },
+    {
+      "hash": "0x685337C9CCF0E45C",
+      "kind": "entity",
+      "name": "hellpod_launcher"
+    },
+    {
+      "hash": "0x68A34D32A1025F04",
+      "kind": "entity",
+      "name": "68A34D32A1025F04"
+    },
+    {
+      "hash": "0x68BA814FF35BF19C",
+      "kind": "entity",
+      "name": "机器人小兵 机枪"
+    },
+    {
+      "hash": "0x68BFAC3C8A03BB83",
+      "kind": "entity",
+      "name": "objective_stratagem_blocker_terminal"
+    },
+    {
+      "hash": "0x68E485BB9FDD8DF4",
+      "kind": "entity",
+      "name": "68E485BB9FDD8DF4"
+    },
+    {
+      "hash": "0x6912E950F63021A8",
+      "kind": "entity",
+      "name": "6912E950F63021A8"
+    },
+    {
+      "hash": "0x694C059E2BAB805E",
+      "kind": "entity",
+      "name": "cha_deckofficer_f_01"
+    },
+    {
+      "hash": "0x6A404B8474B98693",
+      "kind": "entity",
+      "name": "6A404B8474B98693"
+    },
+    {
+      "hash": "0x6A7A54D5FB3A6D17",
+      "kind": "entity",
+      "name": "移动工厂 加特林 MK5"
+    },
+    {
+      "hash": "0x6AEDB9B461451130",
+      "kind": "entity",
+      "name": "6AEDB9B461451130"
+    },
+    {
+      "hash": "0x6B09879E8677752D",
+      "kind": "entity",
+      "name": "cha_seaf_city_civ_4"
+    },
+    {
+      "hash": "0x6B5D00CD9AB8CB74",
+      "kind": "entity",
+      "name": "6B5D00CD9AB8CB74"
+    },
+    {
+      "hash": "0x6B72305013C2833F",
+      "kind": "entity",
+      "name": "6B72305013C2833F"
+    },
+    {
+      "hash": "0x6B7EE87FB2EC6455",
+      "kind": "entity",
+      "name": "6B7EE87FB2EC6455"
+    },
+    {
+      "hash": "0x6BCC9BECD1716045",
+      "kind": "entity",
+      "name": "6BCC9BECD1716045"
+    },
+    {
+      "hash": "0x6BF1164EA3829A23",
+      "kind": "entity",
+      "name": "6BF1164EA3829A23"
+    },
+    {
+      "hash": "0x6C2350AF73D4D79D",
+      "kind": "entity",
+      "name": "6C2350AF73D4D79D"
+    },
+    {
+      "hash": "0x6C53E829B8EB85B8",
+      "kind": "entity",
+      "name": "6C53E829B8EB85B8"
+    },
+    {
+      "hash": "0x6C62E2E25E084083",
+      "kind": "entity",
+      "name": "seaf_gun_ammo"
+    },
+    {
+      "hash": "0x6CA79E26239FBE09",
+      "kind": "entity",
+      "name": "6CA79E26239FBE09"
+    },
+    {
+      "hash": "0x6D4EDDDAF1D1F443",
+      "kind": "entity",
+      "name": "6D4EDDDAF1D1F443"
+    },
+    {
+      "hash": "0x6D8EA5B6C648025F",
+      "kind": "entity",
+      "name": "6D8EA5B6C648025F"
+    },
+    {
+      "hash": "0x6DB0CACE51C8A0ED",
+      "kind": "entity",
+      "name": "Liberator"
+    },
+    {
+      "hash": "0x6DB870D59730EE07",
+      "kind": "entity",
+      "name": "cy_obj_asset_cooling_pipe_medium"
+    },
+    {
+      "hash": "0x6DC9F65AF69783BD",
+      "kind": "entity",
+      "name": "objective_oil_pump_valve"
+    },
+    {
+      "hash": "0x6EE6B14CEC32392D",
+      "kind": "entity",
+      "name": "6EE6B14CEC32392D"
+    },
+    {
+      "hash": "0x6F91BC8002875E76",
+      "kind": "entity",
+      "name": "腐蚀喷涌虫 吐酸器"
+    },
+    {
+      "hash": "0x6FDCD0D7F8EAF267",
+      "kind": "entity",
+      "name": "tcs_support_pillar"
+    },
+    {
+      "hash": "0x700E9500E95541BF",
+      "kind": "entity",
+      "name": "tech_sample_01"
+    },
+    {
+      "hash": "0x701001CA06674A0E",
+      "kind": "entity",
+      "name": "701001CA06674A0E"
+    },
+    {
+      "hash": "0x70297863A00F38E5",
+      "kind": "entity",
+      "name": "70297863A00F38E5"
+    },
+    {
+      "hash": "0x705B0136A9A9D73A",
+      "kind": "entity",
+      "name": "warhead_01"
+    },
+    {
+      "hash": "0x7155C283B8EAD469",
+      "kind": "entity",
+      "name": "poi_text_hidden_storage_01"
+    },
+    {
+      "hash": "0x717420DDA1C70177",
+      "kind": "entity",
+      "name": "717420DDA1C70177"
+    },
+    {
+      "hash": "0x71B285B6D2B161C9",
+      "kind": "entity",
+      "name": "机器人小兵 激光炮"
+    },
+    {
+      "hash": "0x71FE5184823CE5D0",
+      "kind": "entity",
+      "name": "il_retrieve_artifact"
+    },
+    {
+      "hash": "0x7234AE282B5D733C",
+      "kind": "entity",
+      "name": "7234AE282B5D733C"
+    },
+    {
+      "hash": "0x728C6638078B7DB3",
+      "kind": "entity",
+      "name": "tut_intro_mission_segment_sprint_corridor"
+    },
+    {
+      "hash": "0x732AEF8A79F36E61",
+      "kind": "entity",
+      "name": "星球轰炸 轨道EMS攻击（实体）"
+    },
+    {
+      "hash": "0x73681FFD58FA1A90",
+      "kind": "entity",
+      "name": "重新补给上的解放者炮塔 (强化资源)"
+    },
+    {
+      "hash": "0x73B1A41147D20018",
+      "kind": "entity",
+      "name": "73B1A41147D20018"
+    },
+    {
+      "hash": "0x7441B048B94491FC",
+      "kind": "entity",
+      "name": "7441B048B94491FC"
+    },
+    {
+      "hash": "0x746D2B8351FD20E0",
+      "kind": "entity",
+      "name": "746D2B8351FD20E0"
+    },
+    {
+      "hash": "0x747FD11505196C41",
+      "kind": "entity",
+      "name": "cy_neutralize_cannon"
+    },
+    {
+      "hash": "0x7484787C0B61A8B1",
+      "kind": "entity",
+      "name": "poi_text_colony_sign_01"
+    },
+    {
+      "hash": "0x74F33BD19068A439",
+      "kind": "entity",
+      "name": "74F33BD19068A439"
+    },
+    {
+      "hash": "0x753ED56D9C4E504C",
+      "kind": "entity",
+      "name": "753ED56D9C4E504C"
+    },
+    {
+      "hash": "0x7548CBD5883F81A2",
+      "kind": "entity",
+      "name": "7548CBD5883F81A2"
+    },
+    {
+      "hash": "0x757B2E488F6397E3",
+      "kind": "entity",
+      "name": "757B2E488F6397E3"
+    },
+    {
+      "hash": "0x75AEE08718EC14B2",
+      "kind": "entity",
+      "name": "75AEE08718EC14B2"
+    },
+    {
+      "hash": "0x75B131DC1DDC02D5",
+      "kind": "entity",
+      "name": "轨道空爆攻击"
+    },
+    {
+      "hash": "0x75EBC9D685E2DB66",
+      "kind": "entity",
+      "name": "75EBC9D685E2DB66"
+    },
+    {
+      "hash": "0x761A6DDE6E582B2C",
+      "kind": "entity",
+      "name": "761A6DDE6E582B2C"
+    },
+    {
+      "hash": "0x7624C278C9AF905B",
+      "kind": "entity",
+      "name": "7624C278C9AF905B"
+    },
+    {
+      "hash": "0x762F993BF3D76258",
+      "kind": "entity",
+      "name": "762F993BF3D76258"
+    },
+    {
+      "hash": "0x766CDED49527726B",
+      "kind": "entity",
+      "name": "766CDED49527726B"
+    },
+    {
+      "hash": "0x766DC6E859CA0D36",
+      "kind": "entity",
+      "name": "poi_text_search_light_ground"
+    },
+    {
+      "hash": "0x766E7B3BDF79452F",
+      "kind": "entity",
+      "name": "766E7B3BDF79452F"
+    },
+    {
+      "hash": "0x767977BD472A62DA",
+      "kind": "entity",
+      "name": "腐蚀喷涌虫 迫击炮"
+    },
+    {
+      "hash": "0x768B40E51053966F",
+      "kind": "entity",
+      "name": "768B40E51053966F"
+    },
+    {
+      "hash": "0x769533B3827352B5",
+      "kind": "entity",
+      "name": "bug_intel_sample_01"
+    },
+    {
+      "hash": "0x76D67F32E48FDF51",
+      "kind": "entity",
+      "name": "gen_oil_pickup"
+    },
+    {
+      "hash": "0x76E9644BCD3F341B",
+      "kind": "entity",
+      "name": "蟑龙 吐火攻击"
+    },
+    {
+      "hash": "0x776A8FD06099E43C",
+      "kind": "entity",
+      "name": "cha_scienceadvisor_f"
+    },
+    {
+      "hash": "0x7839BE4EDE24B92D",
+      "kind": "entity",
+      "name": "7839BE4EDE24B92D"
+    },
+    {
+      "hash": "0x7862870BC9822EEB",
+      "kind": "entity",
+      "name": "7862870BC9822EEB"
+    },
+    {
+      "hash": "0x788864E7623B9FDB",
+      "kind": "entity",
+      "name": "robotics_module_hellpods"
+    },
+    {
+      "hash": "0x78CB81F25BB119BE",
+      "kind": "entity",
+      "name": "78CB81F25BB119BE"
+    },
+    {
+      "hash": "0x78EF98C6AC737B8C",
+      "kind": "entity",
+      "name": "78EF98C6AC737B8C"
+    },
+    {
+      "hash": "0x79EB2092EBE7CDDC",
+      "kind": "entity",
+      "name": "79EB2092EBE7CDDC"
+    },
+    {
+      "hash": "0x7A1354DDF3DDEF98",
+      "kind": "entity",
+      "name": "7A1354DDF3DDEF98"
+    },
+    {
+      "hash": "0x7A2794A583CDAE40",
+      "kind": "entity",
+      "name": "hellpod_warning_light"
+    },
+    {
+      "hash": "0x7A34CA4FAC19FD19",
+      "kind": "entity",
+      "name": "poi_text_driving_accident_01_01"
+    },
+    {
+      "hash": "0x7A378A57D56C78DD",
+      "kind": "entity",
+      "name": "7A378A57D56C78DD"
+    },
+    {
+      "hash": "0x7A8C67E5F79896E0",
+      "kind": "entity",
+      "name": "7A8C67E5F79896E0"
+    },
+    {
+      "hash": "0x7AD3DA5BB13CE5F5",
+      "kind": "entity",
+      "name": "7AD3DA5BB13CE5F5"
+    },
+    {
+      "hash": "0x7AE1C94D5140B8DC",
+      "kind": "entity",
+      "name": "cy_shutdown_grinder"
+    },
+    {
+      "hash": "0x7AEA362425E4D5F8",
+      "kind": "entity",
+      "name": "7AEA362425E4D5F8"
+    },
+    {
+      "hash": "0x7B343A7110BAD388",
+      "kind": "entity",
+      "name": "cy_destroy_gunship"
+    },
+    {
+      "hash": "0x7B7065399142AA51",
+      "kind": "entity",
+      "name": "7B7065399142AA51"
+    },
+    {
+      "hash": "0x7BA82053EF4784F3",
+      "kind": "entity",
+      "name": "7BA82053EF4784F3"
+    },
+    {
+      "hash": "0x7BAFBDB8D21D7D2A",
+      "kind": "entity",
+      "name": "7BAFBDB8D21D7D2A"
+    },
+    {
+      "hash": "0x7BB71C5F8ADDE161",
+      "kind": "entity",
+      "name": "7BB71C5F8ADDE161"
+    },
+    {
+      "hash": "0x7BDAA1BB44C3EE1C",
+      "kind": "entity",
+      "name": "bug_stratagem_blocker"
+    },
+    {
+      "hash": "0x7BE639D03AC3F356",
+      "kind": "entity",
+      "name": "icbm_silo_tutorial"
+    },
+    {
+      "hash": "0x7C2107D3FF9B70EB",
+      "kind": "entity",
+      "name": "Phase-Beam"
+    },
+    {
+      "hash": "0x7C81DE10F0023D08",
+      "kind": "entity",
+      "name": "7C81DE10F0023D08"
+    },
+    {
+      "hash": "0x7C9455FCEF107E41",
+      "kind": "entity",
+      "name": "7C9455FCEF107E41"
+    },
+    {
+      "hash": "0x7CA1B74B22C2EB9C",
+      "kind": "entity",
+      "name": "il_sarcophagus"
+    },
+    {
+      "hash": "0x7CAE1BE9DBD3A56D",
+      "kind": "entity",
+      "name": "medic_backpack"
+    },
+    {
+      "hash": "0x7D7A67390B67381F",
+      "kind": "entity",
+      "name": "il_module_shield_small"
+    },
+    {
+      "hash": "0x7D8876EA6F29B7F6",
+      "kind": "entity",
+      "name": "landing_zone"
+    },
+    {
+      "hash": "0x7D8B9FF05DB4A6E3",
+      "kind": "entity",
+      "name": "tut_intro_mission_segment_zoo_1"
+    },
+    {
+      "hash": "0x7D9517E3CF9FE980",
+      "kind": "entity",
+      "name": "7D9517E3CF9FE980"
+    },
+    {
+      "hash": "0x7DAEB0CBA0065A5D",
+      "kind": "entity",
+      "name": "7DAEB0CBA0065A5D"
+    },
+    {
+      "hash": "0x7DCC9046106458EC",
+      "kind": "entity",
+      "name": "7DCC9046106458EC"
+    },
+    {
+      "hash": "0x7DD5E2D449A66D12",
+      "kind": "entity",
+      "name": "7DD5E2D449A66D12"
+    },
+    {
+      "hash": "0x7DEB6FAAB1224BF7",
+      "kind": "entity",
+      "name": "7DEB6FAAB1224BF7"
+    },
+    {
+      "hash": "0x7E4876D0DBF9C981",
+      "kind": "entity",
+      "name": "objective_colony_relay_terminal"
+    },
+    {
+      "hash": "0x7EA558204D0FFC29",
+      "kind": "entity",
+      "name": "7EA558204D0FFC29"
+    },
+    {
+      "hash": "0x7EDB03B20533E185",
+      "kind": "entity",
+      "name": "7EDB03B20533E185"
+    },
+    {
+      "hash": "0x7F16540FA91B4D13",
+      "kind": "entity",
+      "name": "7F16540FA91B4D13"
+    },
+    {
+      "hash": "0x7F6E4F4455D4A6C2",
+      "kind": "entity",
+      "name": "drone_camera"
+    },
+    {
+      "hash": "0x7FB7C586A872D2A2",
+      "kind": "entity",
+      "name": "7FB7C586A872D2A2"
+    },
+    {
+      "hash": "0x7FC2499B08FB4F7A",
+      "kind": "entity",
+      "name": "tut_intro_mission_segment_zoo_3"
+    },
+    {
+      "hash": "0x8051BBE5543B1597",
+      "kind": "entity",
+      "name": "8051BBE5543B1597"
+    },
+    {
+      "hash": "0x8053DA4358971392",
+      "kind": "entity",
+      "name": "8053DA4358971392"
+    },
+    {
+      "hash": "0x807BCE3D0564219B",
+      "kind": "entity",
+      "name": "deploy_flag_area_marker_bug_hive"
+    },
+    {
+      "hash": "0x80F026DABC63FC49",
+      "kind": "entity",
+      "name": "80F026DABC63FC49"
+    },
+    {
+      "hash": "0x811F2FBCBC10DE85",
+      "kind": "entity",
+      "name": "811F2FBCBC10DE85"
+    },
+    {
+      "hash": "0x813BB39E92860DCD",
+      "kind": "entity",
+      "name": "813BB39E92860DCD"
+    },
+    {
+      "hash": "0x8156ECB5359E0F17",
+      "kind": "entity",
+      "name": "8156ECB5359E0F17"
+    },
+    {
+      "hash": "0x817EAE3634BD5DB1",
+      "kind": "entity",
+      "name": "817EAE3634BD5DB1"
+    },
+    {
+      "hash": "0x818603ED54533506",
+      "kind": "entity",
+      "name": "818603ED54533506"
+    },
+    {
+      "hash": "0x81A827B78F077BEC",
+      "kind": "entity",
+      "name": "cache_button_left"
+    },
+    {
+      "hash": "0x8208EA6CB095BE54",
+      "kind": "entity",
+      "name": "mineral_sample_01"
+    },
+    {
+      "hash": "0x821D035AA47E3E75",
+      "kind": "entity",
+      "name": "EXO-45 爱国者 火箭发射器 MK2"
+    },
+    {
+      "hash": "0x826643D4EAF3B508",
+      "kind": "entity",
+      "name": "826643D4EAF3B508"
+    },
+    {
+      "hash": "0x8277427609373DDD",
+      "kind": "entity",
+      "name": "8277427609373DDD"
+    },
+    {
+      "hash": "0x827ABF4C60DABDE3",
+      "kind": "entity",
+      "name": "827ABF4C60DABDE3"
+    },
+    {
+      "hash": "0x82B4FBEBF0F9D41C",
+      "kind": "entity",
+      "name": "异界风暴（实体）"
+    },
+    {
+      "hash": "0x8372619B2702D743",
+      "kind": "entity",
+      "name": "战争纵步 加农炮（左）"
+    },
+    {
+      "hash": "0x8379B174FA1FE9F0",
+      "kind": "entity",
+      "name": "se_intel_sample_01"
+    },
+    {
+      "hash": "0x840590F468D65A1B",
+      "kind": "entity",
+      "name": "840590F468D65A1B"
+    },
+    {
+      "hash": "0x84089F05F2BD8A6C",
+      "kind": "entity",
+      "name": "84089F05F2BD8A6C"
+    },
+    {
+      "hash": "0x8424786AD292815B",
+      "kind": "entity",
+      "name": "8424786AD292815B"
+    },
+    {
+      "hash": "0x844B077BEA19A72D",
+      "kind": "entity",
+      "name": "gen_military_uplink"
+    },
+    {
+      "hash": "0x845D8B05E75995B2",
+      "kind": "entity",
+      "name": "poster_propaganda_03"
+    },
+    {
+      "hash": "0x847A06CA8885C6AB",
+      "kind": "entity",
+      "name": "847A06CA8885C6AB"
+    },
+    {
+      "hash": "0x848F726BA177863F",
+      "kind": "entity",
+      "name": "848F726BA177863F"
+    },
+    {
+      "hash": "0x84E683468C0BCA1A",
+      "kind": "entity",
+      "name": "84E683468C0BCA1A"
+    },
+    {
+      "hash": "0x84EA7CFC98B30FF8",
+      "kind": "entity",
+      "name": "cy_assassinate_fabricator"
+    },
+    {
+      "hash": "0x84EAD7B4800CC90B",
+      "kind": "entity",
+      "name": "84EAD7B4800CC90B"
+    },
+    {
+      "hash": "0x84F256FBF7B0BCC1",
+      "kind": "entity",
+      "name": "84F256FBF7B0BCC1"
+    },
+    {
+      "hash": "0x85398737F8957865",
+      "kind": "entity",
+      "name": "85398737F8957865"
+    },
+    {
+      "hash": "0x85D4BA84DB7D27E5",
+      "kind": "entity",
+      "name": "85D4BA84DB7D27E5"
+    },
+    {
+      "hash": "0x85DCE14563448A5F",
+      "kind": "entity",
+      "name": "85DCE14563448A5F"
+    },
+    {
+      "hash": "0x8606F6D72D99F013",
+      "kind": "entity",
+      "name": "8606F6D72D99F013"
+    },
+    {
+      "hash": "0x8633FF89EF4F6788",
+      "kind": "entity",
+      "name": "A/AC-8 自动哨戒炮MK2（焦土射弹）"
+    },
+    {
+      "hash": "0x864342E94C8DDAF5",
+      "kind": "entity",
+      "name": "864342E94C8DDAF5"
+    },
+    {
+      "hash": "0x8661CA5CF58D8162",
+      "kind": "entity",
+      "name": "8661CA5CF58D8162"
+    },
+    {
+      "hash": "0x867FFD3B4EA22E05",
+      "kind": "entity",
+      "name": "cy_obj_asset_cooling_pipe_assembly_site"
+    },
+    {
+      "hash": "0x86DBDB83634F153C",
+      "kind": "entity",
+      "name": "DSS Eagle Storm"
+    },
+    {
+      "hash": "0x86F3CB87D97942B4",
+      "kind": "entity",
+      "name": "plant_sample_01"
+    },
+    {
+      "hash": "0x873EDCB81AE4A796",
+      "kind": "entity",
+      "name": "873EDCB81AE4A796"
+    },
+    {
+      "hash": "0x87AF43127FCD2F13",
+      "kind": "entity",
+      "name": "87AF43127FCD2F13"
+    },
+    {
+      "hash": "0x87B80042C0F7FC96",
+      "kind": "entity",
+      "name": "87B80042C0F7FC96"
+    },
+    {
+      "hash": "0x87BC4CB718589902",
+      "kind": "entity",
+      "name": "87BC4CB718589902"
+    },
+    {
+      "hash": "0x87D139E9D5BA2A27",
+      "kind": "entity",
+      "name": "cy_orbital_cannon"
+    },
+    {
+      "hash": "0x87D6654DADF3C41D",
+      "kind": "entity",
+      "name": "87D6654DADF3C41D"
+    },
+    {
+      "hash": "0x87F3B48D9D744885",
+      "kind": "entity",
+      "name": "Hive mind: None · 40 min · 87F3B48D"
+    },
+    {
+      "hash": "0x87F46B6D12BB016A",
+      "kind": "entity",
+      "name": "A/G-16 加特林哨戒炮MK3 (已展开)"
+    },
+    {
+      "hash": "0x880036C07ADE9A39",
+      "kind": "entity",
+      "name": "880036C07ADE9A39"
+    },
+    {
+      "hash": "0x880624A07A163265",
+      "kind": "entity",
+      "name": "880624A07A163265"
+    },
+    {
+      "hash": "0x880807A3AE512F8F",
+      "kind": "entity",
+      "name": "叛徒火力网"
+    },
+    {
+      "hash": "0x888536AE851DCA05",
+      "kind": "entity",
+      "name": "upload_data_interact_common"
+    },
+    {
+      "hash": "0x888EAAFD58C03C75",
+      "kind": "entity",
+      "name": "cargo_car"
+    },
+    {
+      "hash": "0x88F61AFFF48AC8A4",
+      "kind": "entity",
+      "name": "TX-41 灭菌器 (支援武器, 模型)"
+    },
+    {
+      "hash": "0x88F6A9874ADBBD97",
+      "kind": "entity",
+      "name": "88F6A9874ADBBD97"
+    },
+    {
+      "hash": "0x89434EF21C0626A8",
+      "kind": "entity",
+      "name": "89434EF21C0626A8"
+    },
+    {
+      "hash": "0x899A786E65345060",
+      "kind": "entity",
+      "name": "poi_text_moor_crashed_ship_01_03"
+    },
+    {
+      "hash": "0x8A012BD4AD0EF39E",
+      "kind": "entity",
+      "name": "8A012BD4AD0EF39E"
+    },
+    {
+      "hash": "0x8A379F37C5C96C1D",
+      "kind": "entity",
+      "name": "8A379F37C5C96C1D"
+    },
+    {
+      "hash": "0x8A4DE24951A1726D",
+      "kind": "entity",
+      "name": "巨型抹煞者 火箭发射器"
+    },
+    {
+      "hash": "0x8A50B60B22186B9B",
+      "kind": "entity",
+      "name": "objective_hive_world_oil_pump_valve"
+    },
+    {
+      "hash": "0x8A54E81FEBB2F1FD",
+      "kind": "entity",
+      "name": "gen_seismic_probe"
+    },
+    {
+      "hash": "0x8AD7A3118BD48D1C",
+      "kind": "entity",
+      "name": "8AD7A3118BD48D1C"
+    },
+    {
+      "hash": "0x8AEACB6809CB385C",
+      "kind": "entity",
+      "name": "il_raise_flag"
+    },
+    {
+      "hash": "0x8B68E624D1AB3344",
+      "kind": "entity",
+      "name": "8B68E624D1AB3344"
+    },
+    {
+      "hash": "0x8C054C49C3C0D5DB",
+      "kind": "entity",
+      "name": "cyborg_siege_engine_sarcophagus_left_door"
+    },
+    {
+      "hash": "0x8C7D1CD25B16EBFC",
+      "kind": "entity",
+      "name": "8C7D1CD25B16EBFC"
+    },
+    {
+      "hash": "0x8C8237654EF77272",
+      "kind": "entity",
+      "name": "cy_aa_emplacement"
+    },
+    {
+      "hash": "0x8CA4DFA795A473C8",
+      "kind": "entity",
+      "name": "EXO-49 解放者 手臂 左手 MK3"
+    },
+    {
+      "hash": "0x8D1F833F6A16DE1A",
+      "kind": "entity",
+      "name": "8D1F833F6A16DE1A"
+    },
+    {
+      "hash": "0x8D3F6F8C574BC495",
+      "kind": "entity",
+      "name": "8D3F6F8C574BC495"
+    },
+    {
+      "hash": "0x8D435A5C9A304215",
+      "kind": "entity",
+      "name": "8D435A5C9A304215"
+    },
+    {
+      "hash": "0x8DBF99607BD8E550",
+      "kind": "entity",
+      "name": "猎杀器 电弧"
+    },
+    {
+      "hash": "0x8DEE773789F9D60C",
+      "kind": "entity",
+      "name": "8DEE773789F9D60C"
+    },
+    {
+      "hash": "0x8E569186DE6E3B24",
+      "kind": "entity",
+      "name": "机器人小兵 反坦克手榴弹"
+    },
+    {
+      "hash": "0x8E7968D7E7AA4EAB",
+      "kind": "entity",
+      "name": "8E7968D7E7AA4EAB"
+    },
+    {
+      "hash": "0x8F2158C7E969E2AB",
+      "kind": "entity",
+      "name": "刺魟 机炮"
+    },
+    {
+      "hash": "0x8F3A6DE385966F9E",
+      "kind": "entity",
+      "name": "机器人小兵 霰弹枪"
+    },
+    {
+      "hash": "0x8F6F7C8C1E4B9B6D",
+      "kind": "entity",
+      "name": "8F6F7C8C1E4B9B6D"
+    },
+    {
+      "hash": "0x8F7D4D9C196018C8",
+      "kind": "entity",
+      "name": "8F7D4D9C196018C8"
+    },
+    {
+      "hash": "0x8FEDF8E3669014A2",
+      "kind": "entity",
+      "name": "poster_propaganda_04"
+    },
+    {
+      "hash": "0x8FFE419994D3EF01",
+      "kind": "entity",
+      "name": "8FFE419994D3EF01"
+    },
+    {
+      "hash": "0x90001FEAC563D6A1",
+      "kind": "entity",
+      "name": "briefcase"
+    },
+    {
+      "hash": "0x900FF9707522851F",
+      "kind": "entity",
+      "name": "900FF9707522851F"
+    },
+    {
+      "hash": "0x90679ED549706B8C",
+      "kind": "entity",
+      "name": "90679ED549706B8C"
+    },
+    {
+      "hash": "0x9076EEED17FCEE35",
+      "kind": "entity",
+      "name": "强化侦察纵步者"
+    },
+    {
+      "hash": "0x9080B0090BC6F3AB",
+      "kind": "entity",
+      "name": "9080B0090BC6F3AB"
+    },
+    {
+      "hash": "0x908407189863B30C",
+      "kind": "entity",
+      "name": "908407189863B30C"
+    },
+    {
+      "hash": "0x90905E85597CCB1F",
+      "kind": "entity",
+      "name": "bug_tcs_01_terminal_screen"
+    },
+    {
+      "hash": "0x90B42F086A67E4A8",
+      "kind": "entity",
+      "name": "cache_loot_marker"
+    },
+    {
+      "hash": "0x91209E5AF7A9660B",
+      "kind": "entity",
+      "name": "organic_soup_hose_connection"
+    },
+    {
+      "hash": "0x913B7D337E61EE4C",
+      "kind": "entity",
+      "name": "objective_grinder_terminal"
+    },
+    {
+      "hash": "0x91EBD77931110AFC",
+      "kind": "entity",
+      "name": "91EBD77931110AFC"
+    },
+    {
+      "hash": "0x923282ECD1C5F7BD",
+      "kind": "entity",
+      "name": "cha_tutorial_helldiver_passenger"
+    },
+    {
+      "hash": "0x925158186B8FD952",
+      "kind": "entity",
+      "name": "relay_alignment_switch"
+    },
+    {
+      "hash": "0x927EAF0B67D7719A",
+      "kind": "entity",
+      "name": "927EAF0B67D7719A"
+    },
+    {
+      "hash": "0x927F0EB8D641607D",
+      "kind": "entity",
+      "name": "ship_hub_arcade_terminal"
+    },
+    {
+      "hash": "0x929DAC5A3E891208",
+      "kind": "entity",
+      "name": "929DAC5A3E891208"
+    },
+    {
+      "hash": "0x92ABCCA27674DB9D",
+      "kind": "entity",
+      "name": "cy_destroy_command_bunker"
+    },
+    {
+      "hash": "0x92BCC263E751BD45",
+      "kind": "entity",
+      "name": "92BCC263E751BD45"
+    },
+    {
+      "hash": "0x93248281AD92A1AF",
+      "kind": "entity",
+      "name": "93248281AD92A1AF"
+    },
+    {
+      "hash": "0x9402B0FC52136A70",
+      "kind": "entity",
+      "name": "cha_seaf_city_civ_8"
+    },
+    {
+      "hash": "0x946F2497E6C6FFE7",
+      "kind": "entity",
+      "name": "946F2497E6C6FFE7"
+    },
+    {
+      "hash": "0x947DB4323EE9C881",
+      "kind": "entity",
+      "name": "cape_dispenser"
+    },
+    {
+      "hash": "0x94DCB7D13FFB6A73",
+      "kind": "entity",
+      "name": "94DCB7D13FFB6A73"
+    },
+    {
+      "hash": "0x9549FF64BA3FD5A1",
+      "kind": "entity",
+      "name": "9549FF64BA3FD5A1"
+    },
+    {
+      "hash": "0x9579D47B23904246",
+      "kind": "entity",
+      "name": "generic_human"
+    },
+    {
+      "hash": "0x95D717E4AA9ED443",
+      "kind": "entity",
+      "name": "il_cannon_crank_vertical"
+    },
+    {
+      "hash": "0x95DAB8E3E18CADC7",
+      "kind": "entity",
+      "name": "95DAB8E3E18CADC7"
+    },
+    {
+      "hash": "0x96110F9D6B010E02",
+      "kind": "entity",
+      "name": "Cannon Turret"
+    },
+    {
+      "hash": "0x962C6A30D56BEA2A",
+      "kind": "entity",
+      "name": "962C6A30D56BEA2A"
+    },
+    {
+      "hash": "0x972816514B817BE5",
+      "kind": "entity",
+      "name": "bug_foggenerator"
+    },
+    {
+      "hash": "0x972BAAC825D4D165",
+      "kind": "entity",
+      "name": "湮灭坦克 车体重机枪"
+    },
+    {
+      "hash": "0x973A2984F0CA6A30",
+      "kind": "entity",
+      "name": "objective_destroy_communication_terminal"
+    },
+    {
+      "hash": "0x978D6D813DC4CA69",
+      "kind": "entity",
+      "name": "光能族火力网"
+    },
+    {
+      "hash": "0x98152772A72F7838",
+      "kind": "entity",
+      "name": "98152772A72F7838"
+    },
+    {
+      "hash": "0x9867D9EC6AC7E680",
+      "kind": "entity",
+      "name": "generic_intel_bunker"
+    },
+    {
+      "hash": "0x9872EEB31A5F88FD",
+      "kind": "entity",
+      "name": "全地形采油钻机 炮塔 (油车炮)"
+    },
+    {
+      "hash": "0x9880780EA1AB7463",
+      "kind": "entity",
+      "name": "cy_destroy_communication"
+    },
+    {
+      "hash": "0x9883BE2ECF066B13",
+      "kind": "entity",
+      "name": "9883BE2ECF066B13"
+    },
+    {
+      "hash": "0x98E5D055E6BCD20B",
+      "kind": "entity",
+      "name": "il_obj_asset_hijack_tech_hub_nexus_machine_top"
+    },
+    {
+      "hash": "0x9926876B2375A1BB",
+      "kind": "entity",
+      "name": "机器人 碉堡炮塔"
+    },
+    {
+      "hash": "0x992B6F65A5BAB53D",
+      "kind": "entity",
+      "name": "SMG/FLAM-34 司炉者 下挂喷火器"
+    },
+    {
+      "hash": "0x9951ECAE4E403070",
+      "kind": "entity",
+      "name": "机器人小兵 信号枪"
+    },
+    {
+      "hash": "0x99870D0755F9CE68",
+      "kind": "entity",
+      "name": "机器人小兵 火箭发射器"
+    },
+    {
+      "hash": "0x998969C01E6ED4F3",
+      "kind": "entity",
+      "name": "998969C01E6ED4F3"
+    },
+    {
+      "hash": "0x99EF79771760E7E9",
+      "kind": "entity",
+      "name": "tut_intro_mission_end_sequence"
+    },
+    {
+      "hash": "0x9A0D640BF4ABB03B",
+      "kind": "entity",
+      "name": "9A0D640BF4ABB03B"
+    },
+    {
+      "hash": "0x9A1573D38E2ADE74",
+      "kind": "entity",
+      "name": "9A1573D38E2ADE74"
+    },
+    {
+      "hash": "0x9A1F728716DA05B5",
+      "kind": "entity",
+      "name": "hellpod_flag"
+    },
+    {
+      "hash": "0x9A6A60CF4BAD9FA5",
+      "kind": "entity",
+      "name": "defend_horde_terminal"
+    },
+    {
+      "hash": "0x9A812E8A51A51822",
+      "kind": "entity",
+      "name": "9A812E8A51A51822"
+    },
+    {
+      "hash": "0x9AB036439F74C115",
+      "kind": "entity",
+      "name": "战争纵步 加农炮（右）"
+    },
+    {
+      "hash": "0x9AB148DEEFF42556",
+      "kind": "entity",
+      "name": "机器人 轻型火箭弹"
+    },
+    {
+      "hash": "0x9B75A86003C2A1F4",
+      "kind": "entity",
+      "name": "objective_oil_pump_terminal"
+    },
+    {
+      "hash": "0x9B93242CED907FA8",
+      "kind": "entity",
+      "name": "9B93242CED907FA8"
+    },
+    {
+      "hash": "0x9BFC8FCD68B09F28",
+      "kind": "entity",
+      "name": "超级地球武装部队大炮"
+    },
+    {
+      "hash": "0x9C311C48F9609212",
+      "kind": "entity",
+      "name": "9C311C48F9609212"
+    },
+    {
+      "hash": "0x9CC8C7AE4CEDB109",
+      "kind": "entity",
+      "name": "cha_science_officer_female"
+    },
+    {
+      "hash": "0x9D3A7E11095E3355",
+      "kind": "entity",
+      "name": "carry_flag"
+    },
+    {
+      "hash": "0x9D4935FA69B6B41A",
+      "kind": "entity",
+      "name": "super_uranium_sample_01"
+    },
+    {
+      "hash": "0x9D6CEFA0A6C054FE",
+      "kind": "entity",
+      "name": "9D6CEFA0A6C054FE"
+    },
+    {
+      "hash": "0x9D7ECE7A28963223",
+      "kind": "entity",
+      "name": "9D7ECE7A28963223"
+    },
+    {
+      "hash": "0x9D90F5CD1A00A353",
+      "kind": "entity",
+      "name": "9D90F5CD1A00A353"
+    },
+    {
+      "hash": "0x9DE82127A3F4BC16",
+      "kind": "entity",
+      "name": "tut_intro_mission_segment_obstacle_course"
+    },
+    {
+      "hash": "0x9E0E5E86A44C62A1",
+      "kind": "entity",
+      "name": "cy_carry_data"
+    },
+    {
+      "hash": "0x9E0FD5155E319BE0",
+      "kind": "entity",
+      "name": "9E0FD5155E319BE0"
+    },
+    {
+      "hash": "0x9E44B6D63F17F08C",
+      "kind": "entity",
+      "name": "9E44B6D63F17F08C"
+    },
+    {
+      "hash": "0x9E53A0971179344C",
+      "kind": "entity",
+      "name": "霸王虫 吐酸器"
+    },
+    {
+      "hash": "0x9EA66520B8B82A57",
+      "kind": "entity",
+      "name": "gen_icbm"
+    },
+    {
+      "hash": "0x9EE2439F373B5BDD",
+      "kind": "entity",
+      "name": "9EE2439F373B5BDD"
+    },
+    {
+      "hash": "0x9F27E0579375B865",
+      "kind": "entity",
+      "name": "9F27E0579375B865"
+    },
+    {
+      "hash": "0x9FF6AFD33975861F",
+      "kind": "entity",
+      "name": "SR005 Rocket"
+    },
+    {
+      "hash": "0xA00481BB8EADE28C",
+      "kind": "entity",
+      "name": "A00481BB8EADE28C"
+    },
+    {
+      "hash": "0xA02A47E692E0FFAE",
+      "kind": "entity",
+      "name": "A02A47E692E0FFAE"
+    },
+    {
+      "hash": "0xA0545AAD605FA9AF",
+      "kind": "entity",
+      "name": "poi_text_grave_01_02"
+    },
+    {
+      "hash": "0xA065EBFCF8AD1AFE",
+      "kind": "entity",
+      "name": "A065EBFCF8AD1AFE"
+    },
+    {
+      "hash": "0xA06A7FFD0982C7E3",
+      "kind": "entity",
+      "name": "A06A7FFD0982C7E3"
+    },
+    {
+      "hash": "0xA09A19371FECD6A3",
+      "kind": "entity",
+      "name": "bug_tcs_02_terminal"
+    },
+    {
+      "hash": "0xA0EA22BD370D4D72",
+      "kind": "entity",
+      "name": "Spawner · Cyborg Booth"
+    },
+    {
+      "hash": "0xA12293E3D75FB72A",
+      "kind": "entity",
+      "name": "cy_mortar_emplacement"
+    },
+    {
+      "hash": "0xA12A30F44DB871DF",
+      "kind": "entity",
+      "name": "A12A30F44DB871DF"
+    },
+    {
+      "hash": "0xA1379C8C41A10E22",
+      "kind": "entity",
+      "name": "AX/AR-23 护卫犬 武器MK2 (废案, 焦土爆炸)"
+    },
+    {
+      "hash": "0xA16AB4FF66AE6970",
+      "kind": "entity",
+      "name": "轨道凝固汽油弹火力网"
+    },
+    {
+      "hash": "0xA1BDB3A13E3633DD",
+      "kind": "entity",
+      "name": "地对空导弹发射器"
+    },
+    {
+      "hash": "0xA1E90D748B3D8AAA",
+      "kind": "entity",
+      "name": "A1E90D748B3D8AAA"
+    },
+    {
+      "hash": "0xA21F08920052C27E",
+      "kind": "entity",
+      "name": "power_station"
+    },
+    {
+      "hash": "0xA2414ED6E129C19F",
+      "kind": "entity",
+      "name": "illuminate_enemy_sample_01"
+    },
+    {
+      "hash": "0xA2B84F80D89F0800",
+      "kind": "entity",
+      "name": "A2B84F80D89F0800"
+    },
+    {
+      "hash": "0xA361D447FB6369C1",
+      "kind": "entity",
+      "name": "poster_propaganda_05"
+    },
+    {
+      "hash": "0xA36F5938D78A0349",
+      "kind": "entity",
+      "name": "bug_shrieker_nest"
+    },
+    {
+      "hash": "0xA38D7C999A74CE3C",
+      "kind": "entity",
+      "name": "A38D7C999A74CE3C"
+    },
+    {
+      "hash": "0xA38D905A6DA388D8",
+      "kind": "entity",
+      "name": "A38D905A6DA388D8"
+    },
+    {
+      "hash": "0xA39C3D37075AD193",
+      "kind": "entity",
+      "name": "A39C3D37075AD193"
+    },
+    {
+      "hash": "0xA3D5F183F8A2B768",
+      "kind": "entity",
+      "name": "seaf_drop_off"
+    },
+    {
+      "hash": "0xA3F130ED14CF40C3",
+      "kind": "entity",
+      "name": "bridge_ship_video_system"
+    },
+    {
+      "hash": "0xA436B278181E1532",
+      "kind": "entity",
+      "name": "A436B278181E1532"
+    },
+    {
+      "hash": "0xA4552F97033392F4",
+      "kind": "entity",
+      "name": "A4552F97033392F4"
+    },
+    {
+      "hash": "0xA45CFD1C3607EEC8",
+      "kind": "entity",
+      "name": "A45CFD1C3607EEC8"
+    },
+    {
+      "hash": "0xA486599AB9B206EB",
+      "kind": "entity",
+      "name": "A486599AB9B206EB"
+    },
+    {
+      "hash": "0xA531053415EB57DA",
+      "kind": "entity",
+      "name": "A531053415EB57DA"
+    },
+    {
+      "hash": "0xA56F9F7E8CD25D04",
+      "kind": "entity",
+      "name": "SEAF objectives (all factions)"
+    },
+    {
+      "hash": "0xA59A0883898E8B0B",
+      "kind": "entity",
+      "name": "ship_destroyer"
+    },
+    {
+      "hash": "0xA5E5C49757629354",
+      "kind": "entity",
+      "name": "A5E5C49757629354"
+    },
+    {
+      "hash": "0xA653C3FB4D4B36AA",
+      "kind": "entity",
+      "name": "A653C3FB4D4B36AA"
+    },
+    {
+      "hash": "0xA68FEB130C54971B",
+      "kind": "entity",
+      "name": "A68FEB130C54971B"
+    },
+    {
+      "hash": "0xA6AC6048B0B74258",
+      "kind": "entity",
+      "name": "Fusion Assault Gun"
+    },
+    {
+      "hash": "0xA6B6C68624AB47EC",
+      "kind": "entity",
+      "name": "cha_deckofficer_spawntask_f_01"
+    },
+    {
+      "hash": "0xA6DD444237848672",
+      "kind": "entity",
+      "name": "A6DD444237848672"
+    },
+    {
+      "hash": "0xA6EF09E48BD0FF81",
+      "kind": "entity",
+      "name": "A6EF09E48BD0FF81"
+    },
+    {
+      "hash": "0xA701A354F7802A3E",
+      "kind": "entity",
+      "name": "A701A354F7802A3E"
+    },
+    {
+      "hash": "0xA701E55EA68D4CF9",
+      "kind": "entity",
+      "name": "炽灼部队  燃烧手雷"
+    },
+    {
+      "hash": "0xA7381B87F3A3B455",
+      "kind": "entity",
+      "name": "A7381B87F3A3B455"
+    },
+    {
+      "hash": "0xA738EAC4C8CFD970",
+      "kind": "entity",
+      "name": "cy_filling_station_barrel"
+    },
+    {
+      "hash": "0xA7CD9C1B0504DA2B",
+      "kind": "entity",
+      "name": "basic_fire_source"
+    },
+    {
+      "hash": "0xA7D07AD5643819E1",
+      "kind": "entity",
+      "name": "A7D07AD5643819E1"
+    },
+    {
+      "hash": "0xA7F1620602B19808",
+      "kind": "entity",
+      "name": "A7F1620602B19808"
+    },
+    {
+      "hash": "0xA8173FBA5DEC35C3",
+      "kind": "entity",
+      "name": "A8173FBA5DEC35C3"
+    },
+    {
+      "hash": "0xA837FBF26AF5DFE7",
+      "kind": "entity",
+      "name": "cy_destroy_fuel"
+    },
+    {
+      "hash": "0xA849F005228177B9",
+      "kind": "entity",
+      "name": "hangar_basic_customisation"
+    },
+    {
+      "hash": "0xA87D1161023BFCB3",
+      "kind": "entity",
+      "name": "A87D1161023BFCB3"
+    },
+    {
+      "hash": "0xA8D4030E707A49B4",
+      "kind": "entity",
+      "name": "cha_per_f_02"
+    },
+    {
+      "hash": "0xA8E4CFA4CF339DCA",
+      "kind": "entity",
+      "name": "A8E4CFA4CF339DCA"
+    },
+    {
+      "hash": "0xA94C7E65C30FC935",
+      "kind": "entity",
+      "name": "objective_colony_relay_alarm_light"
+    },
+    {
+      "hash": "0xA9936CBE561E8180",
+      "kind": "entity",
+      "name": "A9936CBE561E8180"
+    },
+    {
+      "hash": "0xA99575EEE4F0E719",
+      "kind": "entity",
+      "name": "gen_find_escape_pod"
+    },
+    {
+      "hash": "0xA9A19CFFE985C468",
+      "kind": "entity",
+      "name": "A9A19CFFE985C468"
+    },
+    {
+      "hash": "0xA9A3F0678242267C",
+      "kind": "entity",
+      "name": "A9A3F0678242267C"
+    },
+    {
+      "hash": "0xA9BA0163DF3A110B",
+      "kind": "entity",
+      "name": "A9BA0163DF3A110B"
+    },
+    {
+      "hash": "0xAA1F94D4870A018A",
+      "kind": "entity",
+      "name": "AA1F94D4870A018A"
+    },
+    {
+      "hash": "0xAA3AF783D5BE9654",
+      "kind": "entity",
+      "name": "pa_speaker_npc"
+    },
+    {
+      "hash": "0xAA419E4F4DCB8D8B",
+      "kind": "entity",
+      "name": "pa_speaker"
+    },
+    {
+      "hash": "0xAA4564F90CDBF5F1",
+      "kind": "entity",
+      "name": "A/MG-43 机枪哨戒炮MK2 (双倍子弹)"
+    },
+    {
+      "hash": "0xAABE46D4C44C4BDE",
+      "kind": "entity",
+      "name": "sign_welcome_cape"
+    },
+    {
+      "hash": "0xAAD973C6A92A2A69",
+      "kind": "entity",
+      "name": "retracting_pole"
+    },
+    {
+      "hash": "0xAB2A82258FF2E3D6",
+      "kind": "entity",
+      "name": "AB2A82258FF2E3D6"
+    },
+    {
+      "hash": "0xABCFAA5CF998C8AF",
+      "kind": "entity",
+      "name": "ABCFAA5CF998C8AF"
+    },
+    {
+      "hash": "0xABDC3C3C4EB8E1EE",
+      "kind": "entity",
+      "name": "cyborg_siege_engine_sarcophagus"
+    },
+    {
+      "hash": "0xAC129AA2DB5EABC9",
+      "kind": "entity",
+      "name": "轨道炮攻击"
+    },
+    {
+      "hash": "0xAC6E5FA7DB7FE621",
+      "kind": "entity",
+      "name": "AC6E5FA7DB7FE621"
+    },
+    {
+      "hash": "0xAD522BFE10C00FE5",
+      "kind": "entity",
+      "name": "AD522BFE10C00FE5"
+    },
+    {
+      "hash": "0xAD7600C518A4D71E",
+      "kind": "entity",
+      "name": "AD7600C518A4D71E"
+    },
+    {
+      "hash": "0xAD972A2E815A49AA",
+      "kind": "entity",
+      "name": "crystalized_e710_sample_01"
+    },
+    {
+      "hash": "0xADC1F488921530FF",
+      "kind": "entity",
+      "name": "gen_delivery_location"
+    },
+    {
+      "hash": "0xADCDF389AC03EC4B",
+      "kind": "entity",
+      "name": "星球轰炸 380高爆弹（实体）"
+    },
+    {
+      "hash": "0xADD299F56916AE1F",
+      "kind": "entity",
+      "name": "爆炸筒"
+    },
+    {
+      "hash": "0xADEBC5A1DBC7D6A0",
+      "kind": "entity",
+      "name": "ADEBC5A1DBC7D6A0"
+    },
+    {
+      "hash": "0xAE1F84C3A7EB3B74",
+      "kind": "entity",
+      "name": "spring_rocker"
+    },
+    {
+      "hash": "0xAE57FCDB49F74E98",
+      "kind": "entity",
+      "name": "AE57FCDB49F74E98"
+    },
+    {
+      "hash": "0xAE74D17D783D38FD",
+      "kind": "entity",
+      "name": "bug_tcs_01_terminal_screen_b"
+    },
+    {
+      "hash": "0xAEBFA791C98B904E",
+      "kind": "entity",
+      "name": "cy_coordinates"
+    },
+    {
+      "hash": "0xAEDC4A073FB4B925",
+      "kind": "entity",
+      "name": "轨道彩纸秀"
+    },
+    {
+      "hash": "0xAEE82C34CCA8597B",
+      "kind": "entity",
+      "name": "AEE82C34CCA8597B"
+    },
+    {
+      "hash": "0xAEE85F66F612F187",
+      "kind": "entity",
+      "name": "AEE85F66F612F187"
+    },
+    {
+      "hash": "0xAEF33BF33A18C97C",
+      "kind": "entity",
+      "name": "AEF33BF33A18C97C"
+    },
+    {
+      "hash": "0xAF31D93BDE49147B",
+      "kind": "entity",
+      "name": "poi_text_tablet_family_01"
+    },
+    {
+      "hash": "0xAF42A738B84230CC",
+      "kind": "entity",
+      "name": "weapon_dispenser"
+    },
+    {
+      "hash": "0xAF9ABBAECD8A815F",
+      "kind": "entity",
+      "name": "AF9ABBAECD8A815F"
+    },
+    {
+      "hash": "0xAFB5FD55868CE266",
+      "kind": "entity",
+      "name": "AFB5FD55868CE266"
+    },
+    {
+      "hash": "0xAFD03C31434B6EE5",
+      "kind": "entity",
+      "name": "AFD03C31434B6EE5"
+    },
+    {
+      "hash": "0xAFF49E6571E77FB9",
+      "kind": "entity",
+      "name": "cy_assassinate_lt"
+    },
+    {
+      "hash": "0xB010A89C9F407C54",
+      "kind": "entity",
+      "name": "B010A89C9F407C54"
+    },
+    {
+      "hash": "0xB041AEFD97503FEF",
+      "kind": "entity",
+      "name": "Caustic Spewer"
+    },
+    {
+      "hash": "0xB04B8F9EB9F45BC5",
+      "kind": "entity",
+      "name": "星球轰炸 轨道炮攻击（实体）"
+    },
+    {
+      "hash": "0xB04D927AFB137B9B",
+      "kind": "entity",
+      "name": "dummy"
+    },
+    {
+      "hash": "0xB056F8FC74ABA02D",
+      "kind": "entity",
+      "name": "B056F8FC74ABA02D"
+    },
+    {
+      "hash": "0xB06D036C4E7CEA6B",
+      "kind": "entity",
+      "name": "B06D036C4E7CEA6B"
+    },
+    {
+      "hash": "0xB0762600F2B478CE",
+      "kind": "entity",
+      "name": "B0762600F2B478CE"
+    },
+    {
+      "hash": "0xB07D1D05906CE4E9",
+      "kind": "entity",
+      "name": "B07D1D05906CE4E9"
+    },
+    {
+      "hash": "0xB09E60B74B484FA9",
+      "kind": "entity",
+      "name": "cy_obj_asset_cooling_valve_vertical"
+    },
+    {
+      "hash": "0xB0ADFF68FF95AE3D",
+      "kind": "entity",
+      "name": "B0ADFF68FF95AE3D"
+    },
+    {
+      "hash": "0xB0E14224E0D040DF",
+      "kind": "entity",
+      "name": "B0E14224E0D040DF"
+    },
+    {
+      "hash": "0xB127552416CE512E",
+      "kind": "entity",
+      "name": "B127552416CE512E"
+    },
+    {
+      "hash": "0xB1553B653A7202AF",
+      "kind": "entity",
+      "name": "B1553B653A7202AF"
+    },
+    {
+      "hash": "0xB19C942FFD41C4A5",
+      "kind": "entity",
+      "name": "defend_horde_silo"
+    },
+    {
+      "hash": "0xB1B193E8B822DEA0",
+      "kind": "entity",
+      "name": "tut_intro_mission_segment_zoo_2"
+    },
+    {
+      "hash": "0xB1D938C07E30C5DB",
+      "kind": "entity",
+      "name": "icbm_silo"
+    },
+    {
+      "hash": "0xB27FE88BC708A680",
+      "kind": "entity",
+      "name": "B27FE88BC708A680"
+    },
+    {
+      "hash": "0xB31073E494A0643A",
+      "kind": "entity",
+      "name": "poison_drill_01"
+    },
+    {
+      "hash": "0xB3436D6C3E3A2113",
+      "kind": "entity",
+      "name": "il_weather_device_battery"
+    },
+    {
+      "hash": "0xB38F570A8F6746D0",
+      "kind": "entity",
+      "name": "oil_pickup_tank"
+    },
+    {
+      "hash": "0xB39FCF5C73D5C383",
+      "kind": "entity",
+      "name": "artifact_sample_01"
+    },
+    {
+      "hash": "0xB3D836C98BA0738B",
+      "kind": "entity",
+      "name": "B3D836C98BA0738B"
+    },
+    {
+      "hash": "0xB40D20668943D67C",
+      "kind": "entity",
+      "name": "B40D20668943D67C"
+    },
+    {
+      "hash": "0xB43235DBD493750C",
+      "kind": "entity",
+      "name": "M-105 盟友 MK3（模型）"
+    },
+    {
+      "hash": "0xB44F8D33E16202FB",
+      "kind": "entity",
+      "name": "refinery_terminal"
+    },
+    {
+      "hash": "0xB47A16679BEB6F1D",
+      "kind": "entity",
+      "name": "B47A16679BEB6F1D"
+    },
+    {
+      "hash": "0xB4C3B3AF7C1FF404",
+      "kind": "entity",
+      "name": "poi_text_mine_01"
+    },
+    {
+      "hash": "0xB4CF4E52E9956087",
+      "kind": "entity",
+      "name": "B4CF4E52E9956087"
+    },
+    {
+      "hash": "0xB4D6F2F83BDE45A9",
+      "kind": "entity",
+      "name": "crystal_sample_01"
+    },
+    {
+      "hash": "0xB4ED319B39F5457B",
+      "kind": "entity",
+      "name": "B4ED319B39F5457B"
+    },
+    {
+      "hash": "0xB50D0158E80BEA01",
+      "kind": "entity",
+      "name": "B50D0158E80BEA01"
+    },
+    {
+      "hash": "0xB50DBC63A02C0D3B",
+      "kind": "entity",
+      "name": "B50DBC63A02C0D3B"
+    },
+    {
+      "hash": "0xB51D693EF3B1F3A9",
+      "kind": "entity",
+      "name": "bug_destroy_stalker_lair"
+    },
+    {
+      "hash": "0xB5D13EAD9F6DEFD3",
+      "kind": "entity",
+      "name": "poster_ministry_defense_01"
+    },
+    {
+      "hash": "0xB5D5378AD3545406",
+      "kind": "entity",
+      "name": "B5D5378AD3545406"
+    },
+    {
+      "hash": "0xB658EC76E566001C",
+      "kind": "entity",
+      "name": "B658EC76E566001C"
+    },
+    {
+      "hash": "0xB65EC1C74612DC2C",
+      "kind": "entity",
+      "name": "B65EC1C74612DC2C"
+    },
+    {
+      "hash": "0xB663751EB459D242",
+      "kind": "entity",
+      "name": "il_artifact_01"
+    },
+    {
+      "hash": "0xB6B06C4B6EC3DCF9",
+      "kind": "entity",
+      "name": "bug_kill"
+    },
+    {
+      "hash": "0xB6C391A6638AE660",
+      "kind": "entity",
+      "name": "capital_defense_building"
+    },
+    {
+      "hash": "0xB6CAF17BA65A7147",
+      "kind": "entity",
+      "name": "B6CAF17BA65A7147"
+    },
+    {
+      "hash": "0xB6E76076E5C6FE44",
+      "kind": "entity",
+      "name": "gen_footage_volume"
+    },
+    {
+      "hash": "0xB6FE4BD12C248286",
+      "kind": "entity",
+      "name": "assembly_site_clamp"
+    },
+    {
+      "hash": "0xB736612B9EC11C26",
+      "kind": "entity",
+      "name": "gen_restore_power"
+    },
+    {
+      "hash": "0xB7C9C0D0C39AA349",
+      "kind": "entity",
+      "name": "il_collect_black_box_terminal"
+    },
+    {
+      "hash": "0xB7F890C1C36070D6",
+      "kind": "entity",
+      "name": "B7F890C1C36070D6"
+    },
+    {
+      "hash": "0xB83FE951400219F6",
+      "kind": "entity",
+      "name": "cy_core_production_button"
+    },
+    {
+      "hash": "0xB846CDCF41967725",
+      "kind": "entity",
+      "name": "巨型烈焰轰炸者 燃烧榴弹发射器"
+    },
+    {
+      "hash": "0xB8574CF152D6B773",
+      "kind": "entity",
+      "name": "B8574CF152D6B773"
+    },
+    {
+      "hash": "0xB894B175E5263E02",
+      "kind": "entity",
+      "name": "B894B175E5263E02"
+    },
+    {
+      "hash": "0xB8A49F22D83D52CF",
+      "kind": "entity",
+      "name": "icbm_lock"
+    },
+    {
+      "hash": "0xB909AEA3B020CC61",
+      "kind": "entity",
+      "name": "B909AEA3B020CC61"
+    },
+    {
+      "hash": "0xB9298082589A7A58",
+      "kind": "entity",
+      "name": "B9298082589A7A58"
+    },
+    {
+      "hash": "0xB9328ADB35F457BA",
+      "kind": "entity",
+      "name": "B9328ADB35F457BA"
+    },
+    {
+      "hash": "0xB93C9B7A24ABC6B7",
+      "kind": "entity",
+      "name": "cy_samsite"
+    },
+    {
+      "hash": "0xB9606C5AAB32C3C2",
+      "kind": "entity",
+      "name": "APC上的 M-105 盟友 MK4（模型）"
+    },
+    {
+      "hash": "0xB9909D47BB6C91FD",
+      "kind": "entity",
+      "name": "B9909D47BB6C91FD"
+    },
+    {
+      "hash": "0xB9AAAE21AD68B51C",
+      "kind": "entity",
+      "name": "radar_wagon_button"
+    },
+    {
+      "hash": "0xB9C209B4F99B5335",
+      "kind": "entity",
+      "name": "AR-11 仲裁者 下挂霰弹"
+    },
+    {
+      "hash": "0xB9F56AB1115B44EE",
+      "kind": "entity",
+      "name": "warning_lamp_01"
+    },
+    {
+      "hash": "0xBA58A7667AA11627",
+      "kind": "entity",
+      "name": "BA58A7667AA11627"
+    },
+    {
+      "hash": "0xBA80E8D1331D8489",
+      "kind": "entity",
+      "name": "restore_power_terminal"
+    },
+    {
+      "hash": "0xBADBA9174CAEE9FF",
+      "kind": "entity",
+      "name": "icbm_terminal"
+    },
+    {
+      "hash": "0xBB2570AFA4C767D8",
+      "kind": "entity",
+      "name": "delivery_drop_off_upload"
+    },
+    {
+      "hash": "0xBB37F12D0F46690F",
+      "kind": "entity",
+      "name": "lieutenant_saw_ivory_legion"
+    },
+    {
+      "hash": "0xBB3AFFFB572C3488",
+      "kind": "entity",
+      "name": "BB3AFFFB572C3488"
+    },
+    {
+      "hash": "0xBB57E9F6D05E8F38",
+      "kind": "entity",
+      "name": "BB57E9F6D05E8F38"
+    },
+    {
+      "hash": "0xBBBBE501BEDE8603",
+      "kind": "entity",
+      "name": "BBBBE501BEDE8603"
+    },
+    {
+      "hash": "0xBC650C081EAB0735",
+      "kind": "entity",
+      "name": "cha_eaglepilot_f"
+    },
+    {
+      "hash": "0xBC9B4F730F0C9438",
+      "kind": "entity",
+      "name": "base_sample_static"
+    },
+    {
+      "hash": "0xBCB3210CF8EF49D3",
+      "kind": "entity",
+      "name": "机器人小兵 步枪"
+    },
+    {
+      "hash": "0xBD20741E0225BD33",
+      "kind": "entity",
+      "name": "cy_assembly_site_terminal"
+    },
+    {
+      "hash": "0xBD30758426ED2566",
+      "kind": "entity",
+      "name": "blacksaffron_sample_01"
+    },
+    {
+      "hash": "0xBD4429C7F5ACE39C",
+      "kind": "entity",
+      "name": "central_core_hole_plug"
+    },
+    {
+      "hash": "0xBD6F4DE16B9AEDCD",
+      "kind": "entity",
+      "name": "super_credit_stack"
+    },
+    {
+      "hash": "0xBE2EA3D89166B3C7",
+      "kind": "entity",
+      "name": "gen_evacuate_civilians"
+    },
+    {
+      "hash": "0xBE4CE9A61E217DF5",
+      "kind": "entity",
+      "name": "BE4CE9A61E217DF5"
+    },
+    {
+      "hash": "0xBE5C2702BD514A76",
+      "kind": "entity",
+      "name": "BE5C2702BD514A76"
+    },
+    {
+      "hash": "0xBE5C2826F9B5CAED",
+      "kind": "entity",
+      "name": "BE5C2826F9B5CAED"
+    },
+    {
+      "hash": "0xBE737C4A6B8A6211",
+      "kind": "entity",
+      "name": "BE737C4A6B8A6211"
+    },
+    {
+      "hash": "0xBE781E6C6D6FFA5F",
+      "kind": "entity",
+      "name": "tut_intro_mission_vo"
+    },
+    {
+      "hash": "0xBEB2A0F09E36BF72",
+      "kind": "entity",
+      "name": "automaton_sample_01"
+    },
+    {
+      "hash": "0xBEB64624137B7907",
+      "kind": "entity",
+      "name": "base_light_01_head"
+    },
+    {
+      "hash": "0xBF99092BEF2AD65D",
+      "kind": "entity",
+      "name": "BF99092BEF2AD65D"
+    },
+    {
+      "hash": "0xBFB8F9637F47C109",
+      "kind": "entity",
+      "name": "bug_tcs_02_terminal_screen"
+    },
+    {
+      "hash": "0xC02C2623B6359BB3",
+      "kind": "entity",
+      "name": "C02C2623B6359BB3"
+    },
+    {
+      "hash": "0xC066DCFAA61E740C",
+      "kind": "entity",
+      "name": "objective_collect_data_terminal"
+    },
+    {
+      "hash": "0xC0710247355E0042",
+      "kind": "entity",
+      "name": "C0710247355E0042"
+    },
+    {
+      "hash": "0xC0A95A247129132F",
+      "kind": "entity",
+      "name": "C0A95A247129132F"
+    },
+    {
+      "hash": "0xC0B9FD065DBC29D0",
+      "kind": "entity",
+      "name": "Fusion Carbine"
+    },
+    {
+      "hash": "0xC12AC9F7B42BDD89",
+      "kind": "entity",
+      "name": "C12AC9F7B42BDD89"
+    },
+    {
+      "hash": "0xC1841A7BAE3D5CD8",
+      "kind": "entity",
+      "name": "Fusion Assault Gun"
+    },
+    {
+      "hash": "0xC1B02C012D32EEDD",
+      "kind": "entity",
+      "name": "gen_horde_collect"
+    },
+    {
+      "hash": "0xC25C86066A36CFC8",
+      "kind": "entity",
+      "name": "C25C86066A36CFC8"
+    },
+    {
+      "hash": "0xC2D93163FDBB14A1",
+      "kind": "entity",
+      "name": "C2D93163FDBB14A1"
+    },
+    {
+      "hash": "0xC2E31F9E773D3295",
+      "kind": "entity",
+      "name": "marker_enemy_target"
+    },
+    {
+      "hash": "0xC2F0CC038E724374",
+      "kind": "entity",
+      "name": "seaf_gun_terminal"
+    },
+    {
+      "hash": "0xC30B36E82086D814",
+      "kind": "entity",
+      "name": "cha_mec_m_03"
+    },
+    {
+      "hash": "0xC32CE0805D1F2586",
+      "kind": "entity",
+      "name": "C32CE0805D1F2586"
+    },
+    {
+      "hash": "0xC36B5B37C058DBDD",
+      "kind": "entity",
+      "name": "TD-110 Maelstrom: Weapon 2"
+    },
+    {
+      "hash": "0xC380F637E9DADB28",
+      "kind": "entity",
+      "name": "C380F637E9DADB28"
+    },
+    {
+      "hash": "0xC39E7FD97E974E5E",
+      "kind": "entity",
+      "name": "激进先锋 烟雾弹"
+    },
+    {
+      "hash": "0xC3AB69B9C3D6EE71",
+      "kind": "entity",
+      "name": "capital_defense_tower"
+    },
+    {
+      "hash": "0xC3C1BBA1F445A81E",
+      "kind": "entity",
+      "name": "炮艇 火箭巢"
+    },
+    {
+      "hash": "0xC4C0B055ACEA0C82",
+      "kind": "entity",
+      "name": "C4C0B055ACEA0C82"
+    },
+    {
+      "hash": "0xC54746AD0BF050BF",
+      "kind": "entity",
+      "name": "gen_truth_transmitter"
+    },
+    {
+      "hash": "0xC5BCBC1F64B68B9C",
+      "kind": "entity",
+      "name": "cargo_backpack"
+    },
+    {
+      "hash": "0xC6131D225B3161BA",
+      "kind": "entity",
+      "name": "C6131D225B3161BA"
+    },
+    {
+      "hash": "0xC685E61D82A4B7A7",
+      "kind": "entity",
+      "name": "C685E61D82A4B7A7"
+    },
+    {
+      "hash": "0xC69DC4EA37395D13",
+      "kind": "entity",
+      "name": "SEAF的高爆手雷"
+    },
+    {
+      "hash": "0xC6A5BB8B319217AC",
+      "kind": "entity",
+      "name": "猎杀器 激光武器"
+    },
+    {
+      "hash": "0xC6D5AF4610B26661",
+      "kind": "entity",
+      "name": "C6D5AF4610B26661"
+    },
+    {
+      "hash": "0xC71C0C7B2E688B9B",
+      "kind": "entity",
+      "name": "automaton_super_sample_01"
+    },
+    {
+      "hash": "0xC73FA345ECD33C6F",
+      "kind": "entity",
+      "name": "C73FA345ECD33C6F"
+    },
+    {
+      "hash": "0xC750E7134609475A",
+      "kind": "entity",
+      "name": "C750E7134609475A"
+    },
+    {
+      "hash": "0xC77CE3971539F54F",
+      "kind": "entity",
+      "name": "C77CE3971539F54F"
+    },
+    {
+      "hash": "0xC7ACF2C0C3A05DFC",
+      "kind": "entity",
+      "name": "C7ACF2C0C3A05DFC"
+    },
+    {
+      "hash": "0xC7C2AFE0D83CF26D",
+      "kind": "entity",
+      "name": "C7C2AFE0D83CF26D"
+    },
+    {
+      "hash": "0xC7C4CC9CF8FAD8AF",
+      "kind": "entity",
+      "name": "C7C4CC9CF8FAD8AF"
+    },
+    {
+      "hash": "0xC8378469E1936877",
+      "kind": "entity",
+      "name": "巨型者 火箭发射器"
+    },
+    {
+      "hash": "0xC85A744553A4BA14",
+      "kind": "entity",
+      "name": "C85A744553A4BA14"
+    },
+    {
+      "hash": "0xC87AADA6F7B9DCDE",
+      "kind": "entity",
+      "name": "C87AADA6F7B9DCDE"
+    },
+    {
+      "hash": "0xC87DE3898E33B58E",
+      "kind": "entity",
+      "name": "C87DE3898E33B58E"
+    },
+    {
+      "hash": "0xC897C0D84448AB2C",
+      "kind": "entity",
+      "name": "轨道精准攻击"
+    },
+    {
+      "hash": "0xC89ED7AC3E425B25",
+      "kind": "entity",
+      "name": "lieutenant_saw"
+    },
+    {
+      "hash": "0xC8BED792CAC2ECD5",
+      "kind": "entity",
+      "name": "C8BED792CAC2ECD5"
+    },
+    {
+      "hash": "0xC8D6FE9B194DB7E1",
+      "kind": "entity",
+      "name": "C8D6FE9B194DB7E1"
+    },
+    {
+      "hash": "0xC8DBAF8AE773D979",
+      "kind": "entity",
+      "name": "cy_convoy_end_marker"
+    },
+    {
+      "hash": "0xC939D3209C0A2827",
+      "kind": "entity",
+      "name": "C939D3209C0A2827"
+    },
+    {
+      "hash": "0xC979FA81B6678953",
+      "kind": "entity",
+      "name": "C979FA81B6678953"
+    },
+    {
+      "hash": "0xC9AF550ACBEC004C",
+      "kind": "entity",
+      "name": "战争纵步者 高爆手雷"
+    },
+    {
+      "hash": "0xC9C30E640EA6EB6E",
+      "kind": "entity",
+      "name": "poi_text_tablet_overseer_01"
+    },
+    {
+      "hash": "0xC9E402CB57F4EFE0",
+      "kind": "entity",
+      "name": "bug_purge_hatchery"
+    },
+    {
+      "hash": "0xCA39404C7641C200",
+      "kind": "entity",
+      "name": "headstone_01"
+    },
+    {
+      "hash": "0xCA397A8610AF550A",
+      "kind": "entity",
+      "name": "super_earth_cache_lid"
+    },
+    {
+      "hash": "0xCA4BBEF63C869C18",
+      "kind": "entity",
+      "name": "SEAF的SMG-37 防卫者"
+    },
+    {
+      "hash": "0xCA8D43FFF1F69215",
+      "kind": "entity",
+      "name": "tut_intro_mission_segment_loadout_room"
+    },
+    {
+      "hash": "0xCA92EC69137DA319",
+      "kind": "entity",
+      "name": "CA92EC69137DA319"
+    },
+    {
+      "hash": "0xCA9803F70CCA1486",
+      "kind": "entity",
+      "name": "base_sample_dynamic"
+    },
+    {
+      "hash": "0xCB036409F28330E7",
+      "kind": "entity",
+      "name": "CB036409F28330E7"
+    },
+    {
+      "hash": "0xCB1A204319FC2ADA",
+      "kind": "entity",
+      "name": "CB1A204319FC2ADA"
+    },
+    {
+      "hash": "0xCB510C64BAE10FBA",
+      "kind": "entity",
+      "name": "CB510C64BAE10FBA"
+    },
+    {
+      "hash": "0xCB7AAE11212F2960",
+      "kind": "entity",
+      "name": "CB7AAE11212F2960"
+    },
+    {
+      "hash": "0xCB7F154719F331EC",
+      "kind": "entity",
+      "name": "轨道游走火力网"
+    },
+    {
+      "hash": "0xCB85E7F7FF8855F4",
+      "kind": "entity",
+      "name": "猎杀器 等离子加农炮"
+    },
+    {
+      "hash": "0xCBCE5F5F0310EF15",
+      "kind": "entity",
+      "name": "机器人小兵 手枪"
+    },
+    {
+      "hash": "0xCBFCCAD8BDCED643",
+      "kind": "entity",
+      "name": "CBFCCAD8BDCED643"
+    },
+    {
+      "hash": "0xCC1645F74188D530",
+      "kind": "entity",
+      "name": "tut_intro_mission_segment_resupply_area"
+    },
+    {
+      "hash": "0xCC16FF3A5EEB6D83",
+      "kind": "entity",
+      "name": "cha_seaf_city_civ_6"
+    },
+    {
+      "hash": "0xCC91E462D07957BB",
+      "kind": "entity",
+      "name": "CC91E462D07957BB"
+    },
+    {
+      "hash": "0xCCF0C855D4C5A9F1",
+      "kind": "entity",
+      "name": "cy_destroy_airbase"
+    },
+    {
+      "hash": "0xCCFAE6D4A601C741",
+      "kind": "entity",
+      "name": "雪球"
+    },
+    {
+      "hash": "0xCD00BDC1149C2928",
+      "kind": "entity",
+      "name": "MG-206 重机枪 MK2（模型）"
+    },
+    {
+      "hash": "0xCD0486D2BAF5429E",
+      "kind": "entity",
+      "name": "automaton_intel_sample_01"
+    },
+    {
+      "hash": "0xCD1F0C09CAE0D533",
+      "kind": "entity",
+      "name": "Fusion Repeater"
+    },
+    {
+      "hash": "0xCD659374035EA78E",
+      "kind": "entity",
+      "name": "CD659374035EA78E"
+    },
+    {
+      "hash": "0xCDC1F82CE3337A82",
+      "kind": "entity",
+      "name": "CDC1F82CE3337A82"
+    },
+    {
+      "hash": "0xCDCA29C351EA71D8",
+      "kind": "entity",
+      "name": "CDCA29C351EA71D8"
+    },
+    {
+      "hash": "0xCE1306E16A1A0739",
+      "kind": "entity",
+      "name": "gen_collect_data"
+    },
+    {
+      "hash": "0xCE38D9313E31A6F1",
+      "kind": "entity",
+      "name": "CE38D9313E31A6F1"
+    },
+    {
+      "hash": "0xCE5A33E0063824F1",
+      "kind": "entity",
+      "name": "CE5A33E0063824F1"
+    },
+    {
+      "hash": "0xCE8DBB54FFA3CAF5",
+      "kind": "entity",
+      "name": "CE8DBB54FFA3CAF5"
+    },
+    {
+      "hash": "0xCEC07BAE39337EC6",
+      "kind": "entity",
+      "name": "CEC07BAE39337EC6"
+    },
+    {
+      "hash": "0xCF1AD44DEDD1F257",
+      "kind": "entity",
+      "name": "research_artifact_sample_01"
+    },
+    {
+      "hash": "0xCF20A9A75AD46084",
+      "kind": "entity",
+      "name": "CF20A9A75AD46084"
+    },
+    {
+      "hash": "0xCF636EF96E4399FB",
+      "kind": "entity",
+      "name": "CF636EF96E4399FB"
+    },
+    {
+      "hash": "0xCFBDE18C084F800F",
+      "kind": "entity",
+      "name": "CFBDE18C084F800F"
+    },
+    {
+      "hash": "0xCFC175F92EEC0DFB",
+      "kind": "entity",
+      "name": "computer_tablet"
+    },
+    {
+      "hash": "0xD00D47ACAFB19EC4",
+      "kind": "entity",
+      "name": "D00D47ACAFB19EC4"
+    },
+    {
+      "hash": "0xD0444F56A7D86E2B",
+      "kind": "entity",
+      "name": "generator"
+    },
+    {
+      "hash": "0xD081BA6F0BBE0633",
+      "kind": "entity",
+      "name": "D081BA6F0BBE0633"
+    },
+    {
+      "hash": "0xD0BAD8C2A999C940",
+      "kind": "entity",
+      "name": "poster_ministry_truth_01"
+    },
+    {
+      "hash": "0xD101CE353891B6A3",
+      "kind": "entity",
+      "name": "se_pa_speaker_01"
+    },
+    {
+      "hash": "0xD13C8B39AB0D9917",
+      "kind": "entity",
+      "name": "D13C8B39AB0D9917"
+    },
+    {
+      "hash": "0xD17575A157040482",
+      "kind": "entity",
+      "name": "D17575A157040482"
+    },
+    {
+      "hash": "0xD1E990BAF22D5A52",
+      "kind": "entity",
+      "name": "D1E990BAF22D5A52"
+    },
+    {
+      "hash": "0xD1F232A6929E6D44",
+      "kind": "entity",
+      "name": "燃烧机枪蹂躏者 燃烧机枪"
+    },
+    {
+      "hash": "0xD1FB020EE8D18DAB",
+      "kind": "entity",
+      "name": "D1FB020EE8D18DAB"
+    },
+    {
+      "hash": "0xD208993722284D58",
+      "kind": "entity",
+      "name": "D208993722284D58"
+    },
+    {
+      "hash": "0xD2237D9258AF18DA",
+      "kind": "entity",
+      "name": "poi_text_smugglers_01"
+    },
+    {
+      "hash": "0xD24156BD98FFF3FE",
+      "kind": "entity",
+      "name": "TD-110 风暴漩涡 垂发单元火箭（射弹）"
+    },
+    {
+      "hash": "0xD244444FC6579882",
+      "kind": "entity",
+      "name": "D244444FC6579882"
+    },
+    {
+      "hash": "0xD25291CB6BBEAE8B",
+      "kind": "entity",
+      "name": "D25291CB6BBEAE8B"
+    },
+    {
+      "hash": "0xD357DEE3CC202BD3",
+      "kind": "entity",
+      "name": "gate_02"
+    },
+    {
+      "hash": "0xD3641E12A1C34073",
+      "kind": "entity",
+      "name": "D3641E12A1C34073"
+    },
+    {
+      "hash": "0xD365C43981469A26",
+      "kind": "entity",
+      "name": "D365C43981469A26"
+    },
+    {
+      "hash": "0xD375D388811FFF72",
+      "kind": "entity",
+      "name": "flag_hanging_02"
+    },
+    {
+      "hash": "0xD3CD6F0CA83BB51E",
+      "kind": "entity",
+      "name": "D3CD6F0CA83BB51E"
+    },
+    {
+      "hash": "0xD3CEB59066593FBD",
+      "kind": "entity",
+      "name": "cy_objective_destroy_factory_terminal"
+    },
+    {
+      "hash": "0xD3D0B07CD9ADEB02",
+      "kind": "entity",
+      "name": "habs_forklift_01"
+    },
+    {
+      "hash": "0xD41BBECC1196B813",
+      "kind": "entity",
+      "name": "D41BBECC1196B813"
+    },
+    {
+      "hash": "0xD463836441CD0BA7",
+      "kind": "entity",
+      "name": "bug_enemy_sample_01"
+    },
+    {
+      "hash": "0xD4A349DAAE850283",
+      "kind": "entity",
+      "name": "city_cannon_lock"
+    },
+    {
+      "hash": "0xD4D4EAE659BC671C",
+      "kind": "entity",
+      "name": "cha_mec_m_02"
+    },
+    {
+      "hash": "0xD4E86FEB3D0C209A",
+      "kind": "entity",
+      "name": "tutorial_crossway_hatch"
+    },
+    {
+      "hash": "0xD53A201AD7ED14F5",
+      "kind": "entity",
+      "name": "D53A201AD7ED14F5"
+    },
+    {
+      "hash": "0xD53EE03481AE73FD",
+      "kind": "entity",
+      "name": "APC上的 M-105 盟友 MK5（模型）"
+    },
+    {
+      "hash": "0xD564F4E9E3A98599",
+      "kind": "entity",
+      "name": "objective_refueling_terminal"
+    },
+    {
+      "hash": "0xD5740BAB784168E4",
+      "kind": "entity",
+      "name": "bureau_terminal"
+    },
+    {
+      "hash": "0xD5A6ABA03479CFB8",
+      "kind": "entity",
+      "name": "D5A6ABA03479CFB8"
+    },
+    {
+      "hash": "0xD616D0BDDB1BE7DC",
+      "kind": "entity",
+      "name": "D616D0BDDB1BE7DC"
+    },
+    {
+      "hash": "0xD622224A7889AD79",
+      "kind": "entity",
+      "name": "gen_seaf_gun"
+    },
+    {
+      "hash": "0xD65B304D05CF9820",
+      "kind": "entity",
+      "name": "D65B304D05CF9820"
+    },
+    {
+      "hash": "0xD6A1019CF530FA1D",
+      "kind": "entity",
+      "name": "objective_colony_relay_tower_terminal"
+    },
+    {
+      "hash": "0xD6C719E3FEA7CDAB",
+      "kind": "entity",
+      "name": "shuttle_escape_hatch"
+    },
+    {
+      "hash": "0xD6F9C1D41D1E416A",
+      "kind": "entity",
+      "name": "cy_destroy_control_tower"
+    },
+    {
+      "hash": "0xD6FB1326FC0A95C1",
+      "kind": "entity",
+      "name": "御门者 等离子速射炮 （右）"
+    },
+    {
+      "hash": "0xD742F7E814405B0A",
+      "kind": "entity",
+      "name": "D742F7E814405B0A"
+    },
+    {
+      "hash": "0xD7436A6A98A35744",
+      "kind": "entity",
+      "name": "D7436A6A98A35744"
+    },
+    {
+      "hash": "0xD75945A647DB2807",
+      "kind": "entity",
+      "name": "D75945A647DB2807"
+    },
+    {
+      "hash": "0xD77CB74BC37B6558",
+      "kind": "entity",
+      "name": "D77CB74BC37B6558"
+    },
+    {
+      "hash": "0xD784873A4FC7828C",
+      "kind": "entity",
+      "name": "D784873A4FC7828C"
+    },
+    {
+      "hash": "0xD79026219007A1E2",
+      "kind": "entity",
+      "name": "D79026219007A1E2"
+    },
+    {
+      "hash": "0xD79837514A87761A",
+      "kind": "entity",
+      "name": "D79837514A87761A"
+    },
+    {
+      "hash": "0xD7B60E973B295882",
+      "kind": "entity",
+      "name": "D7B60E973B295882"
+    },
+    {
+      "hash": "0xD7F32C2DF7934784",
+      "kind": "entity",
+      "name": "D7F32C2DF7934784"
+    },
+    {
+      "hash": "0xD86B3F92DD4AAEDC",
+      "kind": "entity",
+      "name": "objective_evacuate_civilians_main_terminal"
+    },
+    {
+      "hash": "0xD87D04AACBC0269C",
+      "kind": "entity",
+      "name": "cha_logistic_officer_female"
+    },
+    {
+      "hash": "0xD88547FF02B212E8",
+      "kind": "entity",
+      "name": "cy_destroy_factories"
+    },
+    {
+      "hash": "0xD888E2EC286A4B0D",
+      "kind": "entity",
+      "name": "D888E2EC286A4B0D"
+    },
+    {
+      "hash": "0xD8A28BFB827392BE",
+      "kind": "entity",
+      "name": "FUSION BATTERY"
+    },
+    {
+      "hash": "0xD9B2B77A990B8009",
+      "kind": "entity",
+      "name": "D9B2B77A990B8009"
+    },
+    {
+      "hash": "0xD9C51B722B223BC4",
+      "kind": "entity",
+      "name": "cha_per_f_03"
+    },
+    {
+      "hash": "0xD9E5D03FF013187F",
+      "kind": "entity",
+      "name": "cha_firsup_f_01"
+    },
+    {
+      "hash": "0xDA6C97AFE0B30EFC",
+      "kind": "entity",
+      "name": "DA6C97AFE0B30EFC"
+    },
+    {
+      "hash": "0xDA76A06325E692C9",
+      "kind": "entity",
+      "name": "轨道烟雾攻击"
+    },
+    {
+      "hash": "0xDA90F2B16BA63238",
+      "kind": "entity",
+      "name": "DA90F2B16BA63238"
+    },
+    {
+      "hash": "0xDAB3544D38F78EDE",
+      "kind": "entity",
+      "name": "DAB3544D38F78EDE"
+    },
+    {
+      "hash": "0xDB2D2920C2757750",
+      "kind": "entity",
+      "name": "poster_propaganda_06"
+    },
+    {
+      "hash": "0xDB2F41A326D7C23E",
+      "kind": "entity",
+      "name": "DB2F41A326D7C23E"
+    },
+    {
+      "hash": "0xDB3A644084BD54C3",
+      "kind": "entity",
+      "name": "DB3A644084BD54C3"
+    },
+    {
+      "hash": "0xDB59777F0ABAF6AF",
+      "kind": "entity",
+      "name": "cargo_container"
+    },
+    {
+      "hash": "0xDB6676E595797E8A",
+      "kind": "entity",
+      "name": "cha_helm_f_01"
+    },
+    {
+      "hash": "0xDC073EB62E3C5609",
+      "kind": "entity",
+      "name": "tut_intro_mission_segment_template"
+    },
+    {
+      "hash": "0xDC1302728BCB8C41",
+      "kind": "entity",
+      "name": "DC1302728BCB8C41"
+    },
+    {
+      "hash": "0xDC19126D15692D04",
+      "kind": "entity",
+      "name": "DC19126D15692D04"
+    },
+    {
+      "hash": "0xDC71DC8944473ACD",
+      "kind": "entity",
+      "name": "DC71DC8944473ACD"
+    },
+    {
+      "hash": "0xDC87D64E995658EB",
+      "kind": "entity",
+      "name": "sam_site_foundation"
+    },
+    {
+      "hash": "0xDC8D38595E39E3A6",
+      "kind": "entity",
+      "name": "DC8D38595E39E3A6"
+    },
+    {
+      "hash": "0xDCCA6BBE5B981D1D",
+      "kind": "entity",
+      "name": "investigate_point_upload_data_common"
+    },
+    {
+      "hash": "0xDD0C24C43731DD8C",
+      "kind": "entity",
+      "name": "poi_text_moor_crashed_ship_01"
+    },
+    {
+      "hash": "0xDD475D78A91D449E",
+      "kind": "entity",
+      "name": "DD475D78A91D449E"
+    },
+    {
+      "hash": "0xDD9DB3C7CF4426D9",
+      "kind": "entity",
+      "name": "DD9DB3C7CF4426D9"
+    },
+    {
+      "hash": "0xDDAE09B4D96003E6",
+      "kind": "entity",
+      "name": "DDAE09B4D96003E6"
+    },
+    {
+      "hash": "0xDDCE99C2B35BD47A",
+      "kind": "entity",
+      "name": "tutorial_trigger_area"
+    },
+    {
+      "hash": "0xDE11AB8A2337121D",
+      "kind": "entity",
+      "name": "DE11AB8A2337121D"
+    },
+    {
+      "hash": "0xDE15ABEB2F20F4E2",
+      "kind": "entity",
+      "name": "ship_cutscene_unit"
+    },
+    {
+      "hash": "0xDE3C60EC67CC7E65",
+      "kind": "entity",
+      "name": "DE3C60EC67CC7E65"
+    },
+    {
+      "hash": "0xDE5153FBF54D2251",
+      "kind": "entity",
+      "name": "DE5153FBF54D2251"
+    },
+    {
+      "hash": "0xDE6CD49631940A14",
+      "kind": "entity",
+      "name": "装甲运兵车 炮塔 MK2"
+    },
+    {
+      "hash": "0xDE71A7A387F30EF5",
+      "kind": "entity",
+      "name": "DE71A7A387F30EF5"
+    },
+    {
+      "hash": "0xDEF983C174B8E083",
+      "kind": "entity",
+      "name": "objective_extract_oil_hive_world_terminal"
+    },
+    {
+      "hash": "0xDEFDECDB7E95E2DE",
+      "kind": "entity",
+      "name": "gen_upload_data"
+    },
+    {
+      "hash": "0xDEFE062C2567C23D",
+      "kind": "entity",
+      "name": "legendarium_sample_01"
+    },
+    {
+      "hash": "0xDF657367D712CD8E",
+      "kind": "entity",
+      "name": "icbm_silo_wide"
+    },
+    {
+      "hash": "0xDFA99372CEFBF84D",
+      "kind": "entity",
+      "name": "DFA99372CEFBF84D"
+    },
+    {
+      "hash": "0xDFB610642EFF47D7",
+      "kind": "entity",
+      "name": "Fusion Repeater"
+    },
+    {
+      "hash": "0xDFC8B9519169B67A",
+      "kind": "entity",
+      "name": "DFC8B9519169B67A"
+    },
+    {
+      "hash": "0xDFFA1913B48D7C11",
+      "kind": "entity",
+      "name": "DFFA1913B48D7C11"
+    },
+    {
+      "hash": "0xE05784031312C43F",
+      "kind": "entity",
+      "name": "objective_extract_oil_hive_world_valve"
+    },
+    {
+      "hash": "0xE062C8055B4DCE77",
+      "kind": "entity",
+      "name": "gen_destroy_research_station"
+    },
+    {
+      "hash": "0xE068C2E1D5A876EA",
+      "kind": "entity",
+      "name": "E068C2E1D5A876EA"
+    },
+    {
+      "hash": "0xE09FCB5A280ACB1D",
+      "kind": "entity",
+      "name": "E09FCB5A280ACB1D"
+    },
+    {
+      "hash": "0xE0E097B347BDFE6C",
+      "kind": "entity",
+      "name": "E0E097B347BDFE6C"
+    },
+    {
+      "hash": "0xE0E257B37526DBE3",
+      "kind": "entity",
+      "name": "E/MG-101 重机枪部署支架 (火焰喷射器)"
+    },
+    {
+      "hash": "0xE275204CFDEEBD84",
+      "kind": "entity",
+      "name": "poi_text_crashedbomb_01_01"
+    },
+    {
+      "hash": "0xE2ED36E15655B4A4",
+      "kind": "entity",
+      "name": "gen_evacuate_button"
+    },
+    {
+      "hash": "0xE310DABABD5E36AF",
+      "kind": "entity",
+      "name": "E310DABABD5E36AF"
+    },
+    {
+      "hash": "0xE340D13561C7E39E",
+      "kind": "entity",
+      "name": "E340D13561C7E39E"
+    },
+    {
+      "hash": "0xE405918464BCDB07",
+      "kind": "entity",
+      "name": "truth_transmitter_tower_speakers"
+    },
+    {
+      "hash": "0xE407B40D9CB20086",
+      "kind": "entity",
+      "name": "E407B40D9CB20086"
+    },
+    {
+      "hash": "0xE41334ADBEAF0D12",
+      "kind": "entity",
+      "name": "gen_radar_terminal"
+    },
+    {
+      "hash": "0xE432929E520FDDFB",
+      "kind": "entity",
+      "name": "cyborg_cooling_structure"
+    },
+    {
+      "hash": "0xE43E990D0B4AE6E4",
+      "kind": "entity",
+      "name": "poi_text_tablet_seaf_retreat_01"
+    },
+    {
+      "hash": "0xE44EC9F9B3FE1D2A",
+      "kind": "entity",
+      "name": "cha_lieutenant_assault_jumppack"
+    },
+    {
+      "hash": "0xE48C901A7175F638",
+      "kind": "entity",
+      "name": "research_station_upload"
+    },
+    {
+      "hash": "0xE499F3BD49D0DCB9",
+      "kind": "entity",
+      "name": "E499F3BD49D0DCB9"
+    },
+    {
+      "hash": "0xE4BE3FDF0C857B7F",
+      "kind": "entity",
+      "name": "E4BE3FDF0C857B7F"
+    },
+    {
+      "hash": "0xE4EEB96023DF6A99",
+      "kind": "entity",
+      "name": "automaton_enemy_sample_01"
+    },
+    {
+      "hash": "0xE515A723DE95DC3D",
+      "kind": "entity",
+      "name": "cha_seaf_city_civ_7"
+    },
+    {
+      "hash": "0xE565029E9874254D",
+      "kind": "entity",
+      "name": "E565029E9874254D"
+    },
+    {
+      "hash": "0xE581D8561B6FB340",
+      "kind": "entity",
+      "name": "oil_field_plane"
+    },
+    {
+      "hash": "0xE5B14182B25F7F7D",
+      "kind": "entity",
+      "name": "E5B14182B25F7F7D"
+    },
+    {
+      "hash": "0xE644A7AF43D6C473",
+      "kind": "entity",
+      "name": "E644A7AF43D6C473"
+    },
+    {
+      "hash": "0xE66C05C1A974042E",
+      "kind": "entity",
+      "name": "E66C05C1A974042E"
+    },
+    {
+      "hash": "0xE66C0960EBCA6338",
+      "kind": "entity",
+      "name": "E66C0960EBCA6338"
+    },
+    {
+      "hash": "0xE69567209A83DF39",
+      "kind": "entity",
+      "name": "E69567209A83DF39"
+    },
+    {
+      "hash": "0xE6B3D18884B960D2",
+      "kind": "entity",
+      "name": "cy_destroy_detector_tower"
+    },
+    {
+      "hash": "0xE6B6467135035059",
+      "kind": "entity",
+      "name": "E6B6467135035059"
+    },
+    {
+      "hash": "0xE73F6B5A100B7230",
+      "kind": "entity",
+      "name": "radar_wagon"
+    },
+    {
+      "hash": "0xE753849CDD977D10",
+      "kind": "entity",
+      "name": "helldiver_dummy_hatch_adjusted"
+    },
+    {
+      "hash": "0xE754DE6061528402",
+      "kind": "entity",
+      "name": "E754DE6061528402"
+    },
+    {
+      "hash": "0xE8432D92CDB89471",
+      "kind": "entity",
+      "name": "tcs_support_damageable_deactivate"
+    },
+    {
+      "hash": "0xE85E6BE1877B05AF",
+      "kind": "entity",
+      "name": "cy_destroy_ammo"
+    },
+    {
+      "hash": "0xE86F9B4544A96BBD",
+      "kind": "entity",
+      "name": "E86F9B4544A96BBD"
+    },
+    {
+      "hash": "0xE8A244FFA3A48FE4",
+      "kind": "entity",
+      "name": "猎杀器 激光武器（眼部破损）"
+    },
+    {
+      "hash": "0xE8E7D998FCBD32F8",
+      "kind": "entity",
+      "name": "E8E7D998FCBD32F8"
+    },
+    {
+      "hash": "0xE8E83E520706599C",
+      "kind": "entity",
+      "name": "E8E83E520706599C"
+    },
+    {
+      "hash": "0xE8EF41881DAB0E9F",
+      "kind": "entity",
+      "name": "E8EF41881DAB0E9F"
+    },
+    {
+      "hash": "0xE9196A0BDB37F8F4",
+      "kind": "entity",
+      "name": "E9196A0BDB37F8F4"
+    },
+    {
+      "hash": "0xE92ED11C5B8E454B",
+      "kind": "entity",
+      "name": "E92ED11C5B8E454B"
+    },
+    {
+      "hash": "0xE98D623E013A113B",
+      "kind": "entity",
+      "name": "E98D623E013A113B"
+    },
+    {
+      "hash": "0xE9929CB8800E1C8F",
+      "kind": "entity",
+      "name": "objective_unclog_pipe_hive_world_valve"
+    },
+    {
+      "hash": "0xE9AF222F777A061F",
+      "kind": "entity",
+      "name": "E9AF222F777A061F"
+    },
+    {
+      "hash": "0xE9B891F3EAA0D606",
+      "kind": "entity",
+      "name": "E9B891F3EAA0D606"
+    },
+    {
+      "hash": "0xEAACABBFEC7BC08D",
+      "kind": "entity",
+      "name": "EAACABBFEC7BC08D"
+    },
+    {
+      "hash": "0xEABB200737DDC778",
+      "kind": "entity",
+      "name": "EABB200737DDC778"
+    },
+    {
+      "hash": "0xEAC0592CD0360582",
+      "kind": "entity",
+      "name": "EAC0592CD0360582"
+    },
+    {
+      "hash": "0xEAE962D85C0C2D4A",
+      "kind": "entity",
+      "name": "oil_pump"
+    },
+    {
+      "hash": "0xEAF660CC1C611C46",
+      "kind": "entity",
+      "name": "EAF660CC1C611C46"
+    },
+    {
+      "hash": "0xEB621F2C51E75E62",
+      "kind": "entity",
+      "name": "navmeshseedpoint"
+    },
+    {
+      "hash": "0xEB91B90EEC279745",
+      "kind": "entity",
+      "name": "E/MG-101 重机枪部署支架 (哨戒火箭)"
+    },
+    {
+      "hash": "0xEBDD6D57F66D5026",
+      "kind": "entity",
+      "name": "EBDD6D57F66D5026"
+    },
+    {
+      "hash": "0xEBDDBF46CF320699",
+      "kind": "entity",
+      "name": "EBDDBF46CF320699"
+    },
+    {
+      "hash": "0xEC3575E7A93793BB",
+      "kind": "entity",
+      "name": "Orbital Laser"
+    },
+    {
+      "hash": "0xEC5C5206720B853F",
+      "kind": "entity",
+      "name": "EC5C5206720B853F"
+    },
+    {
+      "hash": "0xEC654E8128131004",
+      "kind": "entity",
+      "name": "EC654E8128131004"
+    },
+    {
+      "hash": "0xEC7B25612DC06DD3",
+      "kind": "entity",
+      "name": "EC7B25612DC06DD3"
+    },
+    {
+      "hash": "0xEC801242CE260DAD",
+      "kind": "entity",
+      "name": "EC801242CE260DAD"
+    },
+    {
+      "hash": "0xEC8D7AA12A7AC8C4",
+      "kind": "entity",
+      "name": "EC8D7AA12A7AC8C4"
+    },
+    {
+      "hash": "0xECB5398588FC7C74",
+      "kind": "entity",
+      "name": "gen_refueling_station"
+    },
+    {
+      "hash": "0xED12FA4BDA0BB76D",
+      "kind": "entity",
+      "name": "ED12FA4BDA0BB76D"
+    },
+    {
+      "hash": "0xED8EEDA7E850B5C4",
+      "kind": "entity",
+      "name": "ED8EEDA7E850B5C4"
+    },
+    {
+      "hash": "0xEDEB8F3227377E5D",
+      "kind": "entity",
+      "name": "EDEB8F3227377E5D"
+    },
+    {
+      "hash": "0xEE00BFE8FF769F70",
+      "kind": "entity",
+      "name": "EE00BFE8FF769F70"
+    },
+    {
+      "hash": "0xEE1D81B9145FB30A",
+      "kind": "entity",
+      "name": "assembly_site_control_room_light_02"
+    },
+    {
+      "hash": "0xEE4DEE909FF50D5E",
+      "kind": "entity",
+      "name": "御门者 等离子速射炮 （左）"
+    },
+    {
+      "hash": "0xEE85D252F2B4B03D",
+      "kind": "entity",
+      "name": "cy_filling_station"
+    },
+    {
+      "hash": "0xEECB5C13AE48637B",
+      "kind": "entity",
+      "name": "objective_upload_data_main_terminal"
+    },
+    {
+      "hash": "0xEF66B417EDC3B1D6",
+      "kind": "entity",
+      "name": "轨道380MM高爆弹火力网"
+    },
+    {
+      "hash": "0xEF6BDEED79DB2999",
+      "kind": "entity",
+      "name": "EF6BDEED79DB2999"
+    },
+    {
+      "hash": "0xEF8DC4AB5F3EEEEA",
+      "kind": "entity",
+      "name": "colony_sign_01"
+    },
+    {
+      "hash": "0xEFCCDEF2100471A2",
+      "kind": "entity",
+      "name": "EFCCDEF2100471A2"
+    },
+    {
+      "hash": "0xEFD2745AA6C39DF5",
+      "kind": "entity",
+      "name": "EFD2745AA6C39DF5"
+    },
+    {
+      "hash": "0xF08AE61266335A40",
+      "kind": "entity",
+      "name": "research_station_destroy"
+    },
+    {
+      "hash": "0xF0C9B2D04A4A3E68",
+      "kind": "entity",
+      "name": "cy_assassinate_devastator"
+    },
+    {
+      "hash": "0xF0EB972AA7442493",
+      "kind": "entity",
+      "name": "F0EB972AA7442493"
+    },
+    {
+      "hash": "0xF12E3561F7C2D869",
+      "kind": "entity",
+      "name": "F12E3561F7C2D869"
+    },
+    {
+      "hash": "0xF156C490801F1AEB",
+      "kind": "entity",
+      "name": "F156C490801F1AEB"
+    },
+    {
+      "hash": "0xF19796950F7A84B1",
+      "kind": "entity",
+      "name": "F19796950F7A84B1"
+    },
+    {
+      "hash": "0xF1ADE19F87015997",
+      "kind": "entity",
+      "name": "F1ADE19F87015997"
+    },
+    {
+      "hash": "0xF1C4856CC0EAF603",
+      "kind": "entity",
+      "name": "sam_site_launcher_terminal"
+    },
+    {
+      "hash": "0xF1D828C1603BF2D6",
+      "kind": "entity",
+      "name": "F1D828C1603BF2D6"
+    },
+    {
+      "hash": "0xF1FC56743D6C34D6",
+      "kind": "entity",
+      "name": "F1FC56743D6C34D6"
+    },
+    {
+      "hash": "0xF2881F5807348116",
+      "kind": "entity",
+      "name": "噪轰引擎 加特林机枪（左）"
+    },
+    {
+      "hash": "0xF2B4A99D1B0E40C8",
+      "kind": "entity",
+      "name": "巨型炙焰者 火焰喷射器"
+    },
+    {
+      "hash": "0xF4078ADE4007EE17",
+      "kind": "entity",
+      "name": "il_module_shield_medium"
+    },
+    {
+      "hash": "0xF40DEA68B213B005",
+      "kind": "entity",
+      "name": "F40DEA68B213B005"
+    },
+    {
+      "hash": "0xF41432892465C5FD",
+      "kind": "entity",
+      "name": "carry_data"
+    },
+    {
+      "hash": "0xF4226B0EB28E94FB",
+      "kind": "entity",
+      "name": "F4226B0EB28E94FB"
+    },
+    {
+      "hash": "0xF45D1A033E848901",
+      "kind": "entity",
+      "name": "cy_obj_asset_cooling_pipe_large"
+    },
+    {
+      "hash": "0xF470F646C915F150",
+      "kind": "entity",
+      "name": "F470F646C915F150"
+    },
+    {
+      "hash": "0xF48E9DEC9CC20D8A",
+      "kind": "entity",
+      "name": "generic_intel"
+    },
+    {
+      "hash": "0xF4AE2436E8CD90FF",
+      "kind": "entity",
+      "name": "F4AE2436E8CD90FF"
+    },
+    {
+      "hash": "0xF4AF6BD0FA164409",
+      "kind": "entity",
+      "name": "F4AF6BD0FA164409"
+    },
+    {
+      "hash": "0xF4B44488ADDB5745",
+      "kind": "entity",
+      "name": "bug_central_core_hole"
+    },
+    {
+      "hash": "0xF4C0B6C9218FB571",
+      "kind": "entity",
+      "name": "炙焰装甲兵 火焰喷射器"
+    },
+    {
+      "hash": "0xF4E1C24D6F88A54C",
+      "kind": "entity",
+      "name": "F4E1C24D6F88A54C"
+    },
+    {
+      "hash": "0xF4F37221DED4D51B",
+      "kind": "entity",
+      "name": "F4F37221DED4D51B"
+    },
+    {
+      "hash": "0xF507C327C6E1FCCE",
+      "kind": "entity",
+      "name": "poster_sign_cyberstan"
+    },
+    {
+      "hash": "0xF5247DE3ABFB822B",
+      "kind": "entity",
+      "name": "守望者 电弧发射器"
+    },
+    {
+      "hash": "0xF5252BE8F520F3D8",
+      "kind": "entity",
+      "name": "Squad queue 0 · Mixed · empty"
+    },
+    {
+      "hash": "0xF572DD89AC8E5216",
+      "kind": "entity",
+      "name": "bunker_activation_codes"
+    },
+    {
+      "hash": "0xF598598C47617605",
+      "kind": "entity",
+      "name": "F598598C47617605"
+    },
+    {
+      "hash": "0xF5A8EE4636B9136D",
+      "kind": "entity",
+      "name": "F5A8EE4636B9136D"
+    },
+    {
+      "hash": "0xF60F0A015CAABA8D",
+      "kind": "entity",
+      "name": "F60F0A015CAABA8D"
+    },
+    {
+      "hash": "0xF62EBB0775C9B98D",
+      "kind": "entity",
+      "name": "F62EBB0775C9B98D"
+    },
+    {
+      "hash": "0xF69D47D73721848D",
+      "kind": "entity",
+      "name": "F69D47D73721848D"
+    },
+    {
+      "hash": "0xF6DA3E532ACFC9E4",
+      "kind": "entity",
+      "name": "F6DA3E532ACFC9E4"
+    },
+    {
+      "hash": "0xF73574301F5E9ABC",
+      "kind": "entity",
+      "name": "gen_colony_relay"
+    },
+    {
+      "hash": "0xF800D5F62789246C",
+      "kind": "entity",
+      "name": "F800D5F62789246C"
+    },
+    {
+      "hash": "0xF8138D914CDFAEF3",
+      "kind": "entity",
+      "name": "F8138D914CDFAEF3"
+    },
+    {
+      "hash": "0xF830D76D8E9530A4",
+      "kind": "entity",
+      "name": "F830D76D8E9530A4"
+    },
+    {
+      "hash": "0xF84EECBC4CA804A5",
+      "kind": "entity",
+      "name": "F84EECBC4CA804A5"
+    },
+    {
+      "hash": "0xF8543D57F6CE1B1B",
+      "kind": "entity",
+      "name": "F8543D57F6CE1B1B"
+    },
+    {
+      "hash": "0xF8742ABE9061FB16",
+      "kind": "entity",
+      "name": "objective_tut_intro_mission_terminal"
+    },
+    {
+      "hash": "0xF8985AB27A356BF0",
+      "kind": "entity",
+      "name": "F8985AB27A356BF0"
+    },
+    {
+      "hash": "0xF8BDED004DF65177",
+      "kind": "entity",
+      "name": "il_raise_building"
+    },
+    {
+      "hash": "0xF8C953E618ACE978",
+      "kind": "entity",
+      "name": "bug_destroy_stratagem_blocker"
+    },
+    {
+      "hash": "0xF8E53685C00D926A",
+      "kind": "entity",
+      "name": "gen_delivery_drop_off"
+    },
+    {
+      "hash": "0xF903A153F47AD10F",
+      "kind": "entity",
+      "name": "F903A153F47AD10F"
+    },
+    {
+      "hash": "0xF9DF21C8E52CAC95",
+      "kind": "entity",
+      "name": "F9DF21C8E52CAC95"
+    },
+    {
+      "hash": "0xFA52B73C2D97DD72",
+      "kind": "entity",
+      "name": "Eagle Storm - Gas"
+    },
+    {
+      "hash": "0xFA75F8DCBFFBA877",
+      "kind": "entity",
+      "name": "cha_mec_f_01"
+    },
+    {
+      "hash": "0xFAA5794A2DB3325B",
+      "kind": "entity",
+      "name": "FAA5794A2DB3325B"
+    },
+    {
+      "hash": "0xFADE74505BAF3287",
+      "kind": "entity",
+      "name": "FADE74505BAF3287"
+    },
+    {
+      "hash": "0xFB0AF9C18AAEFEF2",
+      "kind": "entity",
+      "name": "il_crashed_harvester"
+    },
+    {
+      "hash": "0xFB293A4018D14EEA",
+      "kind": "entity",
+      "name": "FB293A4018D14EEA"
+    },
+    {
+      "hash": "0xFB6D94D35EA62BA2",
+      "kind": "entity",
+      "name": "poster_ministry_unity_01"
+    },
+    {
+      "hash": "0xFBA070E097F5D134",
+      "kind": "entity",
+      "name": "FBA070E097F5D134"
+    },
+    {
+      "hash": "0xFBD932EAC8E28E0B",
+      "kind": "entity",
+      "name": "power_station_prime"
+    },
+    {
+      "hash": "0xFBE75EC44E7C9A50",
+      "kind": "entity",
+      "name": "FBE75EC44E7C9A50"
+    },
+    {
+      "hash": "0xFBFFB0C858049BE4",
+      "kind": "entity",
+      "name": "poi_text_tablet_permit_01"
+    },
+    {
+      "hash": "0xFC13460592CA79AA",
+      "kind": "entity",
+      "name": "FC13460592CA79AA"
+    },
+    {
+      "hash": "0xFC54DFDC4B04C10C",
+      "kind": "entity",
+      "name": "assembly_site_steam_trigger_area"
+    },
+    {
+      "hash": "0xFC8AC4ACDE96D99A",
+      "kind": "entity",
+      "name": "poi_text_tablet_advertandpropaganda_01"
+    },
+    {
+      "hash": "0xFC8DEC78BE8AB47D",
+      "kind": "entity",
+      "name": "cha_soldier_jetpack_standard"
+    },
+    {
+      "hash": "0xFC93128B5356CC67",
+      "kind": "entity",
+      "name": "FC93128B5356CC67"
+    },
+    {
+      "hash": "0xFCA5EDCC43A6E847",
+      "kind": "entity",
+      "name": "activation_codes_cache_button"
+    },
+    {
+      "hash": "0xFD7620CE572E3400",
+      "kind": "entity",
+      "name": "FD7620CE572E3400"
+    },
+    {
+      "hash": "0xFE93BE0A573B220E",
+      "kind": "entity",
+      "name": "objective_colony_relay_tower_light"
+    },
+    {
+      "hash": "0xFEBEE68F86AD7D6A",
+      "kind": "entity",
+      "name": "FEBEE68F86AD7D6A"
+    },
+    {
+      "hash": "0xFED1C7699D5518FD",
+      "kind": "entity",
+      "name": "poi_text_cy_robot_arm_01"
+    },
+    {
+      "hash": "0xFF660C3FD24531A0",
+      "kind": "entity",
+      "name": "oil_pickup_hose_connection"
+    },
+    {
+      "hash": "0xFFB4A0F6A52719E1",
+      "kind": "entity",
+      "name": "FFB4A0F6A52719E1"
+    },
+    {
+      "hash": "0xFFCCD13B32632FE3",
+      "kind": "entity",
+      "name": "FFCCD13B32632FE3"
+    }
+  ],
+  "group": {
+    "en": "Unclassified",
+    "zh-Hans": "未分类"
+  },
+  "id": "other",
+  "order": 100,
+  "version": 1
+}

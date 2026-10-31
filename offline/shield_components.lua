@@ -176,6 +176,7 @@ function M.build(c)
  local function zh()local l=lang();return l=='zh-Hans'or l=='zh-Hant'end
  local full,why=M.check_layout(c.schemas,c.kind)
  out.full,out.why=full,why
+ if full then require('component_names').apply(M,c.schemas,c.kind)end
  if c.log then c.log('shield: all '..#M.FIELDS..' fields'..(full and' (type library layout matches)'or(' -- the type library differs, check before editing: '..tostring(why))))end
  local names,owners,users={},{},{}
  for _,w in ipairs(c.weapons)do
@@ -269,10 +270,11 @@ function M.build(c)
        lines[#lines+1]=table.concat(t,'; ')
       end
       if x.note then lines[#lines+1]=pick(lang(),x.note)
-      elseif field:find('^unk_')or field:find('_unk_')then
+      elseif not x.resolved_name and(field:find('^unk_')or field:find('_unk_'))then
        lines[#lines+1]=pick(lang(),{'Meaning unknown; position and type checked against the type library.',
         '含义尚未确认；位置与类型已按类型库核对。','含義尚未確認；位置與類型已按類型庫核對。'})
       end
+      if x.resolved_name then for _,line in ipairs(require('component_names').tip(x,lang()))do lines[#lines+1]=line end end
       return lines
      end
     end

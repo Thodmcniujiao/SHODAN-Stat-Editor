@@ -2,6 +2,8 @@
 # to the current type library: a struct's type hash is the hash of its name, and its members are paired in order by kind.
 SHAL=os.environ.get('SHALZUTH',os.path.join(HERE,'HelldiversData'))   # a clone of shalzuth/HelldiversData
 SH={}; ENAMES=set()
+if not glob.glob(os.path.join(SHAL,'data','components','*.json')):
+    raise FileNotFoundError('Missing shalzuth component reference schemas: '+SHAL+'; clone HelldiversData or set SHALZUTH')
 for p in glob.glob(os.path.join(SHAL,'data','components','*.json')):
     try: d=json.load(open(p,encoding='utf-8'),object_pairs_hook=lambda kv:kv)
     except Exception: continue

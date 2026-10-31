@@ -162,7 +162,7 @@ end
 function M.parse_u64(text)
  if type(text)~='string'then return nil,'Enter an unsigned decimal integer or a 0x hexadecimal hash.'end
  text=text:match('^%s*(.-)%s*$')
- local hex=text:match('^0[xX](%x+)$')
+ local hex=text:match('^0[xX](%x+)$')or(#text==16 and text:find('[a-fA-F]')and text:match('^%x+$'))
  if hex then
   if #hex>16 then return nil,'Value exceeds uint64 (16 hexadecimal digits).'end
   local low=hex:sub(-8);local high=#hex>8 and hex:sub(1,-9)or'0'

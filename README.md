@@ -23,11 +23,11 @@ Windows x64 · 无需 mod loader · GPL-3.0 · English / 简体中文 / 繁體�
 
 本仓库是 Thodmcniujiao 的 fork，基于上游 **v4.1.0**。与上游相比，主要变化不是“多改了几个数”，而是导航和数据视图：
 
-- **10 个页面，页面下再分子页。** 原来的单排标签页和独立的敌人编辑器被页面取代；敌人设置是其中一页。
+- **10 个页面，页面下再分子页。** 原来的单排标签页和独立的敌人编辑器被页面取代；生物设置是其中一页。
 - **从“先选实体，再看组件”改为“先选组件/数据类型，再找实体”。** 实体组件、AI 设置、刷怪编辑器、游戏数据 ID 页都是这个思路。
 - **新增本地存档与文件层工具。** 当前装备栏直接读写 `testament_new.sav`；星球任务、实体拆毁、预载设置处理本地配置文件、实体差异和资源包。
 - **命名预设库。** 原来的每武器 1–5 快捷槽和 50 个整包预设，统一为按类别管理的命名预设，旧预设首次启动自动导入。
-- **上游更新已关闭。** 本 fork 不会被上游二进制包静默替换；窗口标题和 `app\build.txt` 里的 `build <时间>` 标明本地构建。
+- **上游更新已关闭。** 本 fork 不会被上游二进制包静默替换；窗口标题显示本 fork 的版本 **0.0.8 Reorganized by Thodmc** 与 `build <时间>`（`app\build.txt` 里也有）。
 
 界面语言：**English、简体中文、繁體中文、Русский**。版本号 **4.5.1**：基于上游 4.1.0，并已移植上游 4.5.1 的大部分数值行（见 `offline/UPSTREAM_4.5.1_PORT.md`）；内容不等同于上游 4.5.1，以打包时间为准。
 
@@ -37,7 +37,7 @@ Windows x64 · 无需 mod loader · GPL-3.0 · English / 简体中文 / 繁體�
 
 | 方面 | 上游 v4.1.0 | 本 fork |
 |---|---|---|
-| 导航 | 一排 10 个标签页；敌人编辑器是独立模式 | 顶部 **10 个页面**，页面下是子页/分类；敌人是“敌人设置”页 |
+| 导航 | 一排 10 个标签页；敌人编辑器是独立模式 | 顶部 **10 个页面**，页面下是子页/分类；敌人是“生物设置”页 |
 | 武器 / 投掷物 / 战备 / 机甲 / 强化 / 配件 / 护甲 | 有 | 保留，入口按页面重排 |
 | 绝地潜兵 | 在护甲页 | 独立“人物数据”页：Avatar / 生命 / 阵营组件（可折叠）+ 快速编辑 |
 | 玩家存档 | 无 | 军械库 › 当前装备栏编辑：本地 `.sav` 读写、备份与恢复 |
@@ -55,7 +55,7 @@ Windows x64 · 无需 mod loader · GPL-3.0 · English / 简体中文 / 繁體�
 
 **注意：**
 
-- 版本号 **4.5.1** 表示已对齐上游 4.5.1 的数值行，不代表与上游 4.5.1 完全相同。请用窗口标题的 `build <时间>` 区分本地构建。
+- 面板内部的版本号 **4.5.1** 表示已对齐上游 4.5.1 的数值行，不代表与上游 4.5.1 完全相同；窗口标题显示的是本 fork 的 **0.0.8**，请用其中的 `build <时间>` 区分本地构建。
 - 上游 4.5.1 的改动按差异块逐项移植（取舍见 `offline/UPSTREAM_4.5.1_PORT.md`）；名称/描述改写、载具物理、机甲移动和敌人动画速度已经移植，读取游戏数据包用编辑器自带的读取层（`offline/archives.lua`），不再需要 Filediver。
 - 本 fork 的自动更新被 `offline/host.lua` 里的 `LOCAL_ENTITY_EXTENSION` 关闭。设置页的“更新/更新渠道”仍显示，但不会联网检查或安装上游版本。
 
@@ -66,7 +66,7 @@ Windows x64 · 无需 mod loader · GPL-3.0 · English / 简体中文 / 繁體�
    - 程序通过 Steam 查找游戏。
    - 找不到时，把游戏目录写进 `%LOCALAPPDATA%\SHODAN\StatEditor\game folder.txt`，再启动。
 3. 在界面里改数值，点底部的 **写入游戏**，然后启动游戏。
-4. 想回到原版，点 **恢复游戏原始文件**。你的修改仍然保存在配置目录，重新点“写入游戏”即可再次应用。
+4. 想回到原版，点 **恢复游戏原始文件**。恢复成功后会丢弃待写入改动并自动重新读取页面数值，例如生命 99999 回到 125；命名预设保留。
 
 **更新方式：** 本 fork 不自动更新。下载新的便携包，解压覆盖程序文件即可；`%LOCALAPPDATA%\SHODAN\StatEditor` 里的配置、预设、日志和游戏原件不会被覆盖。
 
@@ -100,13 +100,13 @@ SHODAN Stat Editor Offline/
 | 1 | 游戏功能 | 玩家主体 · 玩家移动 · 玩家武器 · 任务设置 · 兴趣点设置 · 终端设置 · 战备设置 | ○ 占位 |
 | 2 | 人物数据 | 人物数据 · 快速编辑 | ● 可用 |
 | 3 | 材料货币 | 抓包发蓝币 · 古法刷资源 | ○ 占位 |
-| 4 | 敌人设置 | 敌人编辑 · AI设置 · 刷怪编辑器 · 敌人替换器 | ● 3 个可用 / ○ 1 个占位 |
+| 4 | 生物设置 | 敌人编辑 · AI设置 · 刷怪编辑器 · 生物组件 · 敌人替换器 | ● 4 个可用 / ○ 1 个占位 |
 | 5 | 军械库 | 解锁 · 武器编辑 · 武器配件自定义 · 护甲编辑 · 强化资源 · 装备替换 · 当前装备栏编辑 | ● 5 个可用 / ○ 2 个占位 |
 | 6 | 星球任务 | 星球设置 · 本地环境实体 · 战役编辑 · 行动编辑 · 任务编辑 | ● 3 个可用 / ◐ 1 个部分 / ○ 1 个占位 |
 | 7 | 实体组件 | 武器组件 · 武器类型 · 武器配件 · 炮塔与制导 · 挂载 · 地雷与投掷 · 生命与拆毁 · 地狱舱 | ● 全部可用 |
 | 8 | 轨道飞鹰 | 轨道编辑 · 飞鹰编辑 · 轨道武器编辑 | ● 全部可用 |
 | 9 | 游戏数据 | 伤害id修改 · 射弹id修改 · 爆炸id修改 · 电弧id修改 · 激光id修改 · 状态效果id · 战备id | ● 全部可用 |
-| 10 | 杂项与设置 | 身份设置 · 修改器设置 · 预载设置 · 寻找器 · 其他已解析字段 | ● 2 个可用 / ◐ 1 个部分 / ○ 2 个占位 |
+| 10 | 杂项与预载 | 身份设置 · 预载设置 · 寻找器 · 其他已解析字段 | ● 2 个可用 / ○ 2 个占位 |
 
 图例：● 可用　◐ 部分可用（有占位标签）　○ 占位（只列出计划，不修改游戏）
 
@@ -119,13 +119,13 @@ SHODAN Stat Editor Offline/
 | 战备冷却、次数、指令、飞鹰、轨道、哨戒炮 | 游戏数据 › 战备id › 战略配备 |
 | 机甲、FRV、坦克 | 游戏数据 › 战备id › 载具 |
 | 轨道武器、轰炸、飞鹰参数 | 轨道飞鹰 |
-| 敌人、AI、刷怪 | 敌人设置 |
+| 敌人、AI、刷怪 | 生物设置 |
 | 星球生成、环境、天气、行动、任务 | 星球任务 |
 | 某个实体的生命、护盾、武器组件等 | 实体组件 |
 | 伤害/射弹/爆炸/电弧/激光/状态/战备记录本身 | 游戏数据 |
 | 本地存档里的配装 | 军械库 › 当前装备栏编辑 |
-| 预载包、包清单、环境包数组 | 杂项与设置 › 预载设置 |
-| 角色字幕名、字体样式 | 杂项与设置 › 其他已解析字段 |
+| 预载包、包清单、环境包数组 | 杂项与预载 › 预载设置 |
+| 角色字幕名、字体样式 | 杂项与预载 › 其他已解析字段 |
 
 ### 逐页说明
 
@@ -133,7 +133,7 @@ SHODAN Stat Editor Offline/
 
 7 个子页按布局文档保留：玩家主体、玩家移动、玩家武器、任务设置、兴趣点设置、终端设置、战备设置。它们是**占位**，只列出计划中的功能（无敌、无限弹药、任务完成、全图目标等），不会写入游戏。
 
-真正的任务和生成编辑在 **星球任务 › 任务编辑** 和 **敌人设置 › 刷怪编辑器**。
+真正的任务和生成编辑在 **星球任务 › 任务编辑** 和 **生物设置 › 刷怪编辑器**。
 
 #### 2. 人物数据
 
@@ -152,18 +152,19 @@ SHODAN Stat Editor Offline/
 
 “抓包发蓝币”“古法刷资源”两个子页为占位。它们列出计划中的功能（开启、修改空投、替换战备、获取样本、超级结算），目前不会修改游戏。
 
-#### 4. 敌人设置
+#### 4. 生物设置
 
 - **敌人编辑：** 4 个分类：
   - **敌人**：虫族、机器人、光能者合并为一个列表，左侧用阵营选择器筛选（全部 / 虫族 / 机器人 / 光能者）；每个阵营最前面仍有“所有虫族 / 所有机器人 / 所有光能者”的倍率页。
   - **SEAF**：每种 SEAF 士兵，以及它们携带的武器。
   - **敌人生成**：按阵营调整增援、巡逻、前哨、生成点等倍率。
   - **敌人数据：** 一页“所有敌人”的全局倍率：生命、护甲、硬直抗性、眩晕/毒气抗性、火焰伤害、伤害、移动速度、视野范围。它同时作用于三族全部敌人（不含 SEAF），与各阵营倍率**相乘**；手动改过的敌人保持原值。
-- **AI 设置：** 5 个标签，编辑敌人 AI、角色 AI、视觉、听觉、危险感知的全部字段。字段与敌人页、倍率页共用。
+- **AI 设置：** 4 个标签：敌人 AI、角色 AI、视觉、听觉。压制感知与瞄准组件移入“生物组件”，与此处去重。
 - **刷怪编辑器：** 敌人调度（HiveMind，1084 字节、277 字段、19 条记录）和 SEAF 目标（96 字节、24 字段、1 条记录）。敌人生成页的倍率行与这里共用字段。
+- **生物组件：** 单位、压制感知、瞄准与压制等 11 类组件，按实体浏览；角色控制复用人物数据，角色语音位于人物数据。详见 [CREATURE_COMPONENT_AUDIT.md](offline/CREATURE_COMPONENT_AUDIT.md)。
 - **敌人替换器：** 占位。
 
-进入“敌人设置”页时界面变红，离开后恢复。原左上角的 **SHODAN Enemy Editor** 切换按钮已被页面取代；一次“写入游戏”同时应用两个编辑器的内容。详见 [ENEMY_DATA.md](offline/ENEMY_DATA.md) 和 [SPAWN_EDITOR.md](offline/SPAWN_EDITOR.md)。
+进入“生物设置”页时界面变红，离开后恢复。原左上角的 **SHODAN Enemy Editor** 切换按钮已被页面取代；一次“写入游戏”同时应用两个编辑器的内容。详见 [ENEMY_DATA.md](offline/ENEMY_DATA.md) 和 [SPAWN_EDITOR.md](offline/SPAWN_EDITOR.md)。
 
 #### 5. 军械库
 
@@ -238,10 +239,10 @@ SHODAN Stat Editor Offline/
 
 详见 [REFERENCE_NAVIGATION.md](offline/REFERENCE_NAVIGATION.md)、[DAMAGE_COMPONENTS.md](offline/DAMAGE_COMPONENTS.md)、[PROJECTILE_COMPONENTS.md](offline/PROJECTILE_COMPONENTS.md)、[EXPLOSION_COMPONENTS.md](offline/EXPLOSION_COMPONENTS.md)、[ARC_COMPONENTS.md](offline/ARC_COMPONENTS.md)、[BEAM_COMPONENTS.md](offline/BEAM_COMPONENTS.md)。
 
-#### 10. 杂项与设置
+#### 10. 杂项与预载
 
 - **身份设置：** 占位。
-- **修改器设置：** 字体大小、分辨率大小等显示选项，实时保存；其余旧设置项以占位说明呈现。
+字体大小和分辨率已移到右下角 **设置**，不再提供“修改器设置”子页。
 - **预载设置：** 7 个分类：额外预载、全局/任务、装备包、敌人包、环境/星球、包目录、热加入参考。支持按名称/哈希选包、合并包清单、向环境包数组追加、增删改包内资源。
   - 包由编辑器自带的读取层直接从游戏数据包读取（`offline/archives.lua`，按游戏版本缓存索引），**不再需要 Filediver**；配置了 Filediver 时仅作兜底。
   - 写游戏时生成独立的 `.patch_N`，原 NXA 容器保持原样；恢复时只移除本编辑器拥有的补丁。
@@ -259,6 +260,7 @@ SHODAN Stat Editor Offline/
 
 - `EntityNames/`：每个 JSON 是一个实体组，条目包含字符串 `hash` 与 `name`；未分类实体放入 `未分类.json`。实体列表上下输入框支持精确的十进制、十六进制哈希；下方搜索跨所有实体组匹配名称与哈希。
 - `TypeIdNames/`：每种 TypeID 一个 JSON，例如 `projectile.json`、`damage.json`、`eagle.json`。同号的不同类型分别命名，搜索与跳转严格限定当前种类。
+- 便携版优先读取 exe 旁边的 `Names\EntityNames` / `Names\TypeIdNames`（随包分发）；只有该文件夹不存在时才回退到 `%LOCALAPPDATA%\SHODAN\StatEditor`。
 - 上方输入框输入时自动跳转，无需回车；“重载JSON”和“打开JSON文件夹”使用统一布局。
 
 轨道编辑与飞鹰编辑使用各自组件数组的 `ComponentIndexData.index`（从 0 开始）；轨道武器编辑使用全局 EntityHash。游戏数据中的战备、伤害、射弹等使用各自 TypeID。局部编号以当前游戏表为准。
@@ -326,9 +328,10 @@ SHODAN Stat Editor Offline/
 | 穿透植被 | 默认关；火箭、发射器弹药和战备弹药穿过树冠/灌木 |
 | 第三人称狙击步枪准星 | 默认关；狙击枪第三人称瞄准时显示准星 |
 | 显示的标签页 | 隐藏不用的内容；搜索也会跳过 |
-| 重置全部数值 | 把当前全部改动恢复为游戏原值（二次确认） |
+| 清除所有修改 | 清除编辑器跨启动记住的全部改动（数值、被动堆叠、预载、拆毁、装备栏、名称与描述）；不动预设，也不动已写入的游戏文件（二次确认） |
+| 每次关闭后清除修改器缓存 | 默认关；开启后关闭编辑器会丢弃未写入改动，重启从已写入的游戏文件读回数值；不会把已安装的 99999 显示成备份中的 125 |
 | 更新 / 更新渠道 | 本 fork 不检查更新；选项保留但不会替换本地版本 |
-| GitHub / 日志与预设 | 打开项目链接或 `%LOCALAPPDATA%\SHODAN\StatEditor` |
+| 本fork / 原仓库 / 日志与预设 | 打开本 fork 或原仓库（SHODAN）的 GitHub 页面，或 `%LOCALAPPDATA%\SHODAN\StatEditor` |
 
 设置会立即保存到 `config.txt`。
 
@@ -357,6 +360,7 @@ SHODAN Stat Editor Offline/
 | `entity_demolition.txt` | 实体拆毁覆盖 |
 | `entity_assets_installed.txt` | 资源补丁所有权记录 |
 | `preload_config.json` | 预载包清单、数组和方案 |
+| `..\Names\EntityNames` / `..\Names\TypeIdNames` | 便携版策划名（exe 旁边，优先读取，随包分发） |
 | `EntityNames/` / `entity_catalog.index.json` | 每组一个实体策划名 JSON / 完整索引 |
 | `TypeIdNames/` | 每种 TypeID 一个策划名 JSON；旧 JSON/TXT 保留供首次导入 |
 | `originals\` | 游戏原始文件备份 |
@@ -514,7 +518,7 @@ This repository is Thodmcniujiao's fork, based on upstream **v4.1.0**. The main 
 - **From "pick an entity, then see its components" to "pick a component/data type, then find the entities".** Components, AI settings, the spawn editor and the game-data id pages all work this way.
 - **New local save and file-level tools.** Current loadout reads and writes `testament_new.sav`; Planets, entity demolition and Preload work on local config files, entity deltas and packages.
 - **A named preset library.** The old 1–5 quick slots per weapon and 50 full presets are replaced by named presets grouped by category; old presets are imported automatically on first start.
-- **Upstream updates are off.** This fork cannot be silently replaced by an upstream binary; the window title and `app\build.txt` show `build <time>` for the local build.
+- **Upstream updates are off.** This fork cannot be silently replaced by an upstream binary; the window title shows this fork's version **0.0.8 Reorganized by Thodmc** and `build <time>` (also in `app\build.txt`).
 
 UI languages: **English, Simplified Chinese, Traditional Chinese, Russian**. Version **4.5.1**: based on upstream 4.1.0 with most of upstream 4.5.1's stat rows ported (see `offline/UPSTREAM_4.5.1_PORT.md`); not the same as upstream 4.5.1, use the build time.
 
@@ -542,7 +546,7 @@ UI languages: **English, Simplified Chinese, Traditional Chinese, Russian**. Ver
 
 **Notes:**
 
-- **4.5.1** means upstream 4.5.1's stat rows are in, not that this fork equals upstream 4.5.1. Use the `build <time>` in the window title to tell local builds apart.
+- **4.5.1** (the panel's own number) means upstream 4.5.1's stat rows are in, not that this fork equals upstream 4.5.1; the window title shows this fork's **0.0.8**, and its `build <time>` tells local builds apart.
 - Upstream 4.5.1 was ported hunk by hunk (choices in `offline/UPSTREAM_4.5.1_PORT.md`); names/descriptions, vehicle physics, exosuit movement and enemy animation speeds are ported too; the game's archives are read by the editor's own reader (`offline/archives.lua`), Filediver is no longer needed.
 - The updater is disabled by `LOCAL_ENTITY_EXTENSION` in `offline/host.lua`. Settings still shows "Updates" and "Update channel", but this build never checks for or installs an upstream version.
 
@@ -553,7 +557,7 @@ UI languages: **English, Simplified Chinese, Traditional Chinese, Russian**. Ver
    - The program finds the game through Steam.
    - If it cannot, write the game folder's path into `%LOCALAPPDATA%\SHODAN\StatEditor\game folder.txt` and start it again.
 3. Edit values, press **Install into the game** at the bottom, then start the game.
-4. To go back to the game's own values, press **Restore the game's files**. Your edits stay saved; press Install again to re-apply them.
+4. To go back to the game's own values, press **Restore the game's files**. A successful restore discards staged edits and reloads the displayed values immediately, for example health 99999 returns to 125. Named presets stay.
 
 **Updates:** this fork does not update itself. Download a new portable package and unzip it over the program files; config, presets, logs and the game's originals in `%LOCALAPPDATA%\SHODAN\StatEditor` are not overwritten.
 
@@ -587,13 +591,13 @@ The window's top bar holds **pages**; under a page title are its **sub-pages**. 
 | 1 | Features | Player · Movement · Weapons · Missions · Points of interest · Terminals · Stratagem settings | ○ placeholders |
 | 2 | Character | Character data · Quick edit | ● working |
 | 3 | Currency | Capture and send currency · Classic resource farming | ○ placeholders |
-| 4 | Enemies | Enemy editor · AI settings · Spawn editor · Enemy swapper | ● 3 working / ○ 1 placeholder |
+| 4 | Creatures | Enemy editor · AI settings · Spawn editor · Creature components · Enemy swapper | ● 4 working / ○ 1 placeholder |
 | 5 | Armory | Unlock · Weapon editing · Weapon attachments · Armor editing · Boosters · Loadout swap · Current loadout | ● 5 working / ○ 2 placeholders |
 | 6 | Planets | Planet settings · Local environment entities · Campaign editing · Operation editing · Mission editing | ● 3 working / ◐ 1 partial / ○ 1 placeholder |
 | 7 | Components | Weapon components · Weapon kinds · Weapon attachments · Turrets and guidance · Backpack · Mounts · Faction · Mines and throwing · Health and demolition · Hellpods | ● all working |
 | 8 | Orbital & Eagle | Orbital editing · Eagle editing · Orbital weapon editing | ● all working |
 | 9 | Game data | Damage ids · Projectile ids · Explosion ids · Arc ids · Laser ids · Status effect ids · Stratagem ids | ● all working |
-| 10 | Misc & settings | Identity · Editor settings · Preload · Finder · Other parsed fields | ● 2 working / ◐ 1 partial / ○ 2 placeholders |
+| 10 | Misc & preloads | Identity · Preload · Finder · Other parsed fields | ● 2 working / ○ 2 placeholders |
 
 Legend: ● working　◐ partial (some placeholder tabs)　○ placeholder (lists plans only; changes nothing)
 
@@ -611,8 +615,8 @@ Legend: ● working　◐ partial (some placeholder tabs)　○ placeholder (lis
 | One entity's health, shield, weapon components, ... | Components |
 | The damage/projectile/explosion/arc/laser/status/stratagem records themselves | Game data |
 | The loadout in your local save | Armory › Current loadout |
-| Preload packages, manifests, environment package arrays | Misc & settings › Preload |
-| Character subtitles, font styles | Misc & settings › Other parsed fields |
+| Preload packages, manifests, environment package arrays | Misc & preloads › Preload |
+| Character subtitles, font styles | Misc & preloads › Other parsed fields |
 
 ### Page by page
 
@@ -639,18 +643,19 @@ See [PLAYER_DATA.md](offline/PLAYER_DATA.md).
 
 "Capture and send currency" and "Classic resource farming" are placeholders. They list planned features (enable, edit supply drops, replace a stratagem, collect samples, super mission rewards) and change nothing.
 
-#### 4. Enemies
+#### 4. Creatures
 
 - **Enemy editor:** 4 categories:
   - **Enemies:** Terminids, Automatons and Illuminate in one list, filtered by a faction selector on the left (all / Terminids / Automatons / Illuminate). Each faction still starts with its "All Terminids / All Automatons / All Illuminate" multiplier page.
   - **SEAF:** every SEAF soldier kind and the weapons it carries.
   - **Spawning:** per-faction multipliers for reinforcements, patrols, outposts and spawners.
   - **Enemy data:** one "All enemies" global multiplier page: health, armor, stagger resistance, stun/gas resistance, fire damage taken, damage, movement speed, sight range. It applies to all three factions (not SEAF) and **multiplies** each faction's rows; enemies edited on their own page keep their values.
-- **AI settings:** 5 tabs for the enemies' AI, AI character, sight, hearing and danger sense, with every field. They share fields with the enemy pages and multiplier rows.
+- **AI settings:** 4 tabs for enemy AI, AI character, sight and hearing. Danger sense and targeting are in Creature components, without duplicate tabs.
 - **Spawn editor:** the enemy director (HiveMind, 1084 bytes, 277 fields, 19 records) and SEAF objectives (96 bytes, 24 fields, 1 record). The Spawning page's multiplier rows share these fields.
+- **Creature components:** 11 component types, including Unit, danger sense and targeting; Avatar reuses Character data and voice is on the Character page. See [CREATURE_COMPONENT_AUDIT.md](offline/CREATURE_COMPONENT_AUDIT.md).
 - **Enemy swapper:** placeholder.
 
-Opening the Enemies page turns the interface red; leaving it restores the normal color. The old **SHODAN Enemy Editor** toggle at the top left is gone: the page replaces it, and one Install applies both editors' changes. See [ENEMY_DATA.md](offline/ENEMY_DATA.md) and [SPAWN_EDITOR.md](offline/SPAWN_EDITOR.md).
+Opening the Creatures page turns the interface red; leaving it restores the normal color. The old **SHODAN Enemy Editor** toggle at the top left is gone: the page replaces it, and one Install applies both editors' changes. See [ENEMY_DATA.md](offline/ENEMY_DATA.md) and [SPAWN_EDITOR.md](offline/SPAWN_EDITOR.md).
 
 #### 5. Armory
 
@@ -725,10 +730,10 @@ Orbital editing / Eagle editing use **component group > component > parameter gr
 
 See [REFERENCE_NAVIGATION.md](offline/REFERENCE_NAVIGATION.md), [DAMAGE_COMPONENTS.md](offline/DAMAGE_COMPONENTS.md), [PROJECTILE_COMPONENTS.md](offline/PROJECTILE_COMPONENTS.md), [EXPLOSION_COMPONENTS.md](offline/EXPLOSION_COMPONENTS.md), [ARC_COMPONENTS.md](offline/ARC_COMPONENTS.md) and [BEAM_COMPONENTS.md](offline/BEAM_COMPONENTS.md).
 
-#### 10. Misc & settings
+#### 10. Misc & preloads
 
 - **Identity:** placeholder.
-- **Editor settings:** font size, resolution and other display options, saved immediately; the remaining old items are shown as placeholders.
+Font size and resolution are in the bottom-right **Settings** workspace; the Editor settings sub-page has been removed.
 - **Preload:** 7 categories: Extra preload, Global / mission, Loadout, Enemies, World, Catalog, Hot join. Pick packages by name/hash, merge manifests, append to environment package arrays and add/replace/delete package contents.
   - Packages are read straight from the game's archives by the editor's own reader (`offline/archives.lua`, its index cached per game build); **Filediver is no longer needed**, and is only a fallback when configured.
   - Install writes a separate `.patch_N`; the original NXA container is left as it is. Restore removes only the patches this editor owns.
@@ -746,6 +751,7 @@ Static entity hashes and local TypeID/index values use separate name folders:
 
 - `EntityNames/`: one JSON per entity group, with string `hash` and `name` entries. `未分类.json` holds unclassified and newly discovered entities. Search spans entity groups and accepts planning names, decimal hashes and hexadecimal hashes.
 - `TypeIdNames/`: one JSON per type, such as `projectile.json`, `damage.json` and `eagle.json`. Search and jump stay within the current type, even when another type uses the same number.
+- The portable build reads `Names\EntityNames` / `Names\TypeIdNames` beside the executable first; it falls back to `%LOCALAPPDATA%\SHODAN\StatEditor` only when that folder is absent.
 - The upper box jumps as you type, without Enter. Reload JSON and Open JSON folder have matching layouts on both kinds of list.
 
 Orbital and Eagle editing use their respective zero-based `ComponentIndexData.index`; orbital weapon editing uses EntityHash. Game data uses each record's own TypeID. Local index meanings follow the current game tables.
@@ -813,9 +819,10 @@ See [PRESETS.md](offline/PRESETS.md).
 | Foliage pass-through | Off by default; rockets, launcher rounds and stratagem ordnance fly through canopies and bushes |
 | Sniper crosshair in third person | Off by default; sniper rifles show a crosshair when aiming in third person |
 | Tabs shown | Hide what you do not use; search skips it too |
-| Reset all values | Every current change back to the game's values (asks twice) |
+| Clear all changes | Drops every change the editor keeps between runs (values, passive stacks, preloads, demolition, loadouts, names and descriptions); presets and the game's files stay (asks twice) |
+| Clear the cache on close | Off by default; when enabled, unsaved edits are discarded on close and the next start reads installed numeric values from the game files |
 | Updates / Update channel | This fork does not check for updates; the options remain and never replace the local build |
-| GitHub / Logs and Presets | Open the project link or `%LOCALAPPDATA%\SHODAN\StatEditor` |
+| This fork / Original repo / Logs and Presets | Open this fork's or the original repository's (SHODAN) GitHub page, or `%LOCALAPPDATA%\SHODAN\StatEditor` |
 
 Settings are saved to `config.txt` immediately.
 
@@ -844,6 +851,7 @@ All user data is in `%LOCALAPPDATA%\SHODAN\StatEditor`:
 | `entity_demolition.txt` | Entity demolition overrides |
 | `entity_assets_installed.txt` | Asset patch ownership |
 | `preload_config.json` | Preload manifests, arrays and plans |
+| `..\Names\EntityNames` / `..\Names\TypeIdNames` | Portable planning names beside the exe (read first, shipped with the package) |
 | `EntityNames/` / `entity_catalog.index.json` | Per-group entity planning-name JSON files and full index |
 | `TypeIdNames/` | One planning-name JSON per TypeID; legacy JSON/TXT retained for initial import |
 | `originals\` | Backups of the game's original files |

@@ -14,7 +14,7 @@ assert(#H.load(TEST_GAME,original)==0)
 local checks=[==[
 local model=SHODAN_PRELOAD_MODEL
 local function open(tab)
- local nav,k=E.MOD.nav.locate(tab);assert(nav.id=='misc'and k==4);state.nav_open(nav.id,k);E.click('cat:'..tab)
+ local nav,k=E.MOD.nav.locate(tab);assert(nav.id=='misc'and nav.subs[k].tabs[1]=='PreloadExtra');state.nav_open(nav.id,k);E.click('cat:'..tab)
 end
 local function row(p,id)for i,r in ipairs(p.rows)do if r.id==id then return r,i end end;error('row absent '..id)end
 local function edit(p,id,value)
