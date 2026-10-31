@@ -18,8 +18,10 @@ concurrency:
 
 env:
   LUAJIT_COMMIT: a4c064539ea931274d407e1249b4bb575424a0f4
-  LIBSODIUM_URL: https://download.libsodium.org/libsodium/releases/libsodium-1.0.22-stable-msvc.zip
-  LIBSODIUM_DLL_SHA256: 396501C7495E4B03D0F8ACB2416F3E2431B0CDC404968E17CC0E25C2ABC5CA27
+  # Fixed point release; the archive signature was verified using the official Minisign key.
+  LIBSODIUM_URL: https://download.libsodium.org/libsodium/releases/libsodium-1.0.22-msvc.zip
+  LIBSODIUM_ZIP_SHA256: 3E03A726FAC4BC09CB61D8F29D658EF7A5ECA0811DE59082130414F7CA2E4279
+  LIBSODIUM_DLL_SHA256: F656AEB789BFC3A2AC587FAE1D7CFE278BBE8CE73F28DA73B4D08282EA8F9FE3
 
 jobs:
   build:
@@ -33,6 +35,8 @@ jobs:
           git clone --quiet https://github.com/LuaJIT/LuaJIT.git "$env:RUNNER_TEMP\LuaJIT"
           git -C "$env:RUNNER_TEMP\LuaJIT" checkout --quiet $env:LUAJIT_COMMIT
           Invoke-WebRequest $env:LIBSODIUM_URL -OutFile "$env:RUNNER_TEMP\sodium.zip"
+          $archiveHash = (Get-FileHash "$env:RUNNER_TEMP\sodium.zip" -Algorithm SHA256).Hash
+          if ($archiveHash -ne $env:LIBSODIUM_ZIP_SHA256) { throw "libsodium archive checksum differs: $archiveHash" }
           Expand-Archive "$env:RUNNER_TEMP\sodium.zip" "$env:RUNNER_TEMP\sodium"
           New-Item -ItemType Directory -Force offline\runtime | Out-Null
           Copy-Item "$env:RUNNER_TEMP\sodium\libsodium\x64\Release\v143\dynamic\libsodium.dll" offline\runtime\
