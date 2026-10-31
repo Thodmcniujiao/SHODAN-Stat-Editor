@@ -355,7 +355,7 @@ do
  F[#F+1]={'projectile_function_overrides[7].fire_single_audio_event',1196,'u32','projectile_function_overrides','#8 · fire single audio event','#8 · 射击单发音频事件','#8 · 射擊單發音訊事件',R.hash,{id='projectile_function_overrides_7__fire_single_audio_event',desc='(hashed name) Overrides fire_single_audio_event if this weapon function filter is active'}}
  F[#F+1]={'projectile_function_overrides[7].fire_mode',1200,'enum','projectile_function_overrides','#8 · fire mode','#8 · 射击模式','#8 · 射擊模式',R.enum,{id='projectile_function_overrides_7__fire_mode',enum='eB99236EB',enum_type='FireMode'}}
  F[#F+1]={'projectile_function_overrides[7].unk_uint8_r0x0010',1204,'flag','projectile_function_overrides','#8 · Unknown uint8 +0x10','#8 · 未知字节 +0x10','#8 · 未知位元組 +0x10',R.flag,{id='projectile_function_overrides_7__unk_uint8_r0x0010'}}
- F[#F+1]={'unk_weapon_ability',1208,'enum','basic','Unk weapon ability','未知武器能力','未知武器能力',R.enum,{id='unk_weapon_ability',enum_type='AbilityId'}}
+ F[#F+1]={'unk_weapon_ability',1208,'enum','basic','Fire ability 2 (bolt/cycle)','第二射击能力（拉栓／上膛循环）','第二射擊能力（拉栓／上膛循環）',R.enum,{id='unk_weapon_ability',enum_type='AbilityId',desc='Secondary fire/cycle ability played on the weapon (e.g. R-36 Eruptor bolt action, paired with +948 fire_ability).'}}
  F[#F+1]={'unk_uint32_0x04BC',1212,'u32','basic','Unknown uint32 +0x4BC','未知整数 +0x4BC','未知整數 +0x4BC',R.count,{id='unk_uint32_0x04BC'}}
  F[#F+1]={'unk_uint32_0x04C0',1216,'u32','basic','Unknown uint32 +0x4C0','未知整数 +0x4C0','未知整數 +0x4C0',R.count,{id='unk_uint32_0x04C0'}}
  F[#F+1]={'unk_uint32_0x04C4',1220,'u32','basic','Unknown uint32 +0x4C4','未知整数 +0x4C4','未知整數 +0x4C4',R.count,{id='unk_uint32_0x04C4'}}

@@ -2,9 +2,13 @@
 io.stdout:setvbuf('no')
 local app=os.getenv('SHODAN_TEST_APP');if app then package.path=app..'/?.lua;'..package.path;SHODAN_DATA_DIRECTORY=nil;SHODAN_PRESET_DIRECTORY=nil end
 local ffi=require('ffi');local I=require('install');local G=require('gamedata');local H=require('hostdata')
+local steam=require('steam_integration')
+steam.poll=function()return{state='waiting',message='isolated test'}end
+steam.status=steam.poll;steam.ready=function()return false end
 local Assets=require('entity_assets');local S=require('engine_shim')
 local mode=assert(os.getenv('SHODAN_CACHE_TEST_PHASE'))
 assert(I.home:gsub('\\','/'):sub(1,#TEST_WORK)==TEST_WORK,'use an isolated profile and absolute --work')
+if not app then require('user_paths').names=TEST_WORK..'/program/Names' end
 local root=TEST_WORK..'/game-copy';local game=root..'/data/game';I.mkdirs(game);I.mkdirs(I.home)
 local function write(p,s)local f=assert(io.open(p,'wb'));assert(f:write(s));f:close()end
 if mode=='install'then
@@ -24,7 +28,7 @@ I.find_game=function()return game end;I.game_running=function()return false end
 local original_write=I.write_files
 I.write_files=function(path,...)
  assert(path==game,'refusing live game write')
- if mode=='restore_failed'then return nil,'forced restore failure'end
+ if mode=='restore_failed'or mode=='install_failed'then return nil,'forced transaction failure'end
  return original_write(path,...)
 end
 local original_assets=Assets.begin
@@ -66,6 +70,11 @@ S.pump=function()
    assert(e.default_of(part.field)==125,'original reset baseline was lost')
    local expected=(mode=='verify_reset'or mode=='pending_reset'or mode=='restore_empty')and 125 or mode=='cached'and 77777 or 99999
    assert(e.row_value(part.row)==expected,'unexpected health on '..mode..': '..tostring(e.row_value(part.row)))
+   if mode=='reopen' then
+    assert(not state.host_pending(),'reopening installed health became dirty')
+    e.change(part.row,0,false,54321);assert(state.host_pending())
+    e.change(part.row,0,false,99999);assert(not state.host_pending(),'installed-value undo became dirty')
+   end
    if mode~='install'then assert(disk_health()==((mode=='verify_reset'or mode=='restore_empty')and 125 or 99999),'disk changed before install')end
    if mode=='reset'or mode=='stage_reset'then
     e.reset_row(w,part.row);assert(e.row_value(part.row)==125)
@@ -73,7 +82,7 @@ S.pump=function()
     if mode=='stage_reset'then e.click('set:cache_clear_on_exit:off')end
    elseif mode=='pending_reset'then
     e.click('set:cache_clear_on_exit:on')
-   elseif mode=='dirty'then e.change(part.row,0,false,54321);assert(e.row_value(part.row)==54321)
+   elseif mode=='dirty'or mode=='install_failed'then e.change(part.row,0,false,54321);assert(e.row_value(part.row)==54321)
    elseif mode=='clear'then
     e.change(part.row,0,false,54321);e.click('cache_clear');e.click('cache_clear')
     assert(e.row_value(part.row)==99999,'clear cache did not return to installed value')
@@ -81,8 +90,15 @@ S.pump=function()
     e.change(part.row,0,false,54321)
     for _,key in ipairs({'vehicles','bounce','foliage','reticle'})do e.click('set:'..key..':on')end
    end
-   if mode=='install'or mode=='reset'or mode:match('^restore')then phase,down=1,true else phase=3 end
+   if mode=='install'or mode=='install_failed'or mode=='reset'or mode:match('^restore')then phase,down=1,true else phase=3 end
   elseif phase==1 then phase,down=2,false
+  elseif phase==2 and mode=='install_failed'then
+   if state.host_status():find('Not installed:',1,true)then
+    assert(state.host_pending(),'failed install was marked clean')
+    local e=TEST_CACHE_EDITOR;local row=e.by_hash.FFFFFFF800000001.by_id.health.row
+    e.change(row,0,false,99999);assert(not state.host_pending(),'failed install advanced baseline')
+    assert(disk_health()==99999);phase=3
+   end
   elseif phase==2 and mode=='restore_failed'then
    assert(state.phase=='ready','failed restore triggered reload')
    if state.host_status():find('Not restored:',1,true)then
@@ -112,6 +128,10 @@ assert(disk_health()==expected,'closing changed installed health')
 local cfg=assert(I.read(I.home..'/config.txt'))
 if mode=='stage_reset'then
  assert(cfg:find('cache_clear_on_exit off',1,true)and cfg:find(' health 125',1,true),'pending reset cache was lost')
-else assert(cfg:find('cache_clear_on_exit on',1,true)and not cfg:find(' health ',1,true),'closing retained numeric cache')end
+else
+ assert(cfg:find('cache_clear_on_exit on',1,true)and not cfg:find(' health ',1,true),'closing retained numeric cache')
+ local bak=I.read(I.home..'/config.txt.bak')
+ assert(not bak or not bak:find(' health ',1,true),'backup can revive cleared numeric cache')
+end
 gdi.DeleteDC(S.dc)
 print('PASS cache lifecycle:',mode,'disk health',expected,mode=='stage_reset'and'pending reset retained'or'numeric cache empty')

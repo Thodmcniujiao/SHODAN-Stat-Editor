@@ -2,7 +2,7 @@
 -- alias must still see the original value after another alias changed its byte.
 local ffi=require('ffi')
 local M={bytes={}}
-local sizes={flag=1,u8=1,i8=1,u16=2,i16=2,u32=4,i32=4,f32=4,enum=4}
+local sizes={flag=1,u8=1,i8=1,u16=2,i16=2,u32=4,i32=4,f32=4,enum=4,bolt=4}
 local float=ffi.new('float[1]')
 function M.remember(kind,offset,before)
  if type(before)~='string'then return end
@@ -21,6 +21,7 @@ function M.value(field,entry,read,header)
   local byte=saved[field.offset+i-1];if byte==nil then byte=live:byte(i)end
   bytes[i]=string.char(byte);value=value*256+byte
  end
+ if field.storage=='bolt'then return value==field.bolt_on and 1 or value==field.bolt_off and 0 or nil,true end
  if field.mask then return math.floor(value/field.mask)%2,true end
  if field.storage=='bits'then return math.floor(value/2^field.bit_shift)%2^field.bit_width,true end
  if field.storage=='f32'then ffi.copy(float,table.concat(bytes),4);return tonumber(float[0]),true end

@@ -33,7 +33,7 @@ local TYPES={
  [77]={'Regeneration override','再生覆盖'},[80]={'Stim capacity','治疗针容量'},
  [83]={'Booster','强化资源'},[87]={'DSS tactical action','DSS 战术动作'},
  [94]={'Local modifier definition','本地修饰定义'}}
-local function plain(s)return(s or''):gsub('<[^>]*>',''):gsub('[\r\n]+',' ')end
+local function plain(s)return((s or''):gsub('<[^>]*>',''):gsub('[\r\n]+',' '))end
 local function title(entry,lang)
  local zh=lang=='zh-Hans'or lang=='zh-Hant'
  local name=entry[zh and'name_zh'or'name_en']

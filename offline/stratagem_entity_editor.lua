@@ -369,6 +369,9 @@ function M.attach(c)
   end
   if #relation_rows>0 then groups[#groups+1]={type='EntityReferences',label={'Entity references','实体引用关系','實體引用關係'},rows=relation_rows,
    rank=7,sub='relations',sub_label={'Entity references (not component ownership)','实体引用关系（不代表归属）','實體引用關係（不代表歸屬）'}}end
+  -- 便捷参数 (convenience rows the components do not lay out; same fields): first
+  local quick=c.quick and c.quick(weapon,old)
+  if quick then groups[#groups+1]=quick;for _,row in ipairs(quick.rows)do hidden[#hidden+1]=row end end
   table.sort(groups,function(a,b)if a.rank~=b.rank then return a.rank<b.rank end;return a.type<b.type end)
   weapon.hidden_rows=hidden;weapon.stratagem_entity_groups=true
   weapon.stratagem_prior_modified=weapon.stratagem_prior_modified or weapon.custom_modified

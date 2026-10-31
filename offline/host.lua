@@ -46,7 +46,7 @@ local GOLD, WHITE, MUTED, WARN, GOOD = { 255, 255, 213, 0 }, { 255, 238, 242, 24
                                         { 255, 255, 150, 60 }, { 255, 120, 220, 140 }
 -- This fork's own release: the window title shows it instead of the
 -- panel's version and the upstream dev commit, then the build's stamp.
-local FORK_VERSION = '0.0.8.5'
+local FORK_VERSION = '0.0.8.6'
 
 local function centred(text, y, size, c)
     shim.text(text, (shim.w - shim.text_width(text, size)) / 2, y, size, c)
@@ -107,7 +107,7 @@ local function main()
               .. I.home:gsub('/', '\\') .. '\\game folder.txt\nand start again.')
     end
     log('game: ' .. game)
-    log('hash search: ' .. (G.native and 'native, every core' or 'Lua (shodan_hash.dll not found)'))
+    log('hash correction: exact aligned tail, no parameter adjustment')
     screen({ 'SHODAN Stat Editor', 'Reading the game\'s data files...' })
     shim.pump()
     local originals, ours, problems, count, installed = I.originals(game)
@@ -272,15 +272,49 @@ local function main()
     else rawset(_G,'SHODAN_PLAYER_SAVE_ERROR',tostring(player_save));log('player save unavailable: '..tostring(player_save))end
     local function save_page()return type(state.player_save_active)=='function'and state.player_save_active()end
     local preload_marker=I.home..'/preload_applied.txt'
-    local preload_applied=(I.read(preload_marker)or''):match('^(%x+)')
-    local function remember_preload()
-        if not preload_ok then return end
-        local signature=preload_model:signature();local f=io.open(preload_marker,'wb')
-        if f then local ok=f:write(signature..'\n');f:close();if ok then preload_applied=signature end end
+
+    -- Compare the whole desired install plan, independently of UI write counts.
+    local J=require('json_data')
+    local function digest(raw)return G.hex64(G.murmur64(ffi.cast('const uint8_t *',raw),#raw))end
+    local function keyed(t)local out={};for k,v in pairs(t or{})do out[tostring(k)]=v end;return out end
+    local function signature(t)return digest(J.encode(t))end
+    local function install_identity()
+        local out={tables={},assets={}}
+        for name,f in pairs(D.files)do out.tables[name]={original=G.hex64(f.hash),installed=installed[name]and digest(installed[name])or''}end
+        for name in pairs(EntityAssets.owned())do local raw=I.read(data_root..'/'..name);out.assets[name]=raw and digest(raw)or'missing'end
+        return signature(out)
+    end
+    local function install_snapshot()
+        local physics={}
+        if physics_ok then for _,r in ipairs(Physics.changed())do physics[r.id]=digest(r.main)end end
+        return {tables=D.fingerprints(),
+            passives=signature({stacks=keyed(state.stacks and state.stacks()),own_off=keyed(state.own_off and state.own_off())}),
+            armor_passives=signature(keyed(state.armor_passives and state.armor_passives())),
+            codes=signature(keyed(state.codes and state.codes())),
+            names=signature(keyed(state.rename_map and state.rename_map())),
+            demolition=signature(demolition and demolition:overrides(not state.entity_demolition_enabled or state.entity_demolition_enabled())or{}),
+            preload=preload_ok and preload_model:has_changes()and preload_model:signature()or'',
+            physics=signature(physics)}
+    end
+    local tracker=require('install_state').new{path=I.home..'/install_state.json',identity=install_identity,
+        snapshot=install_snapshot,empty=function()
+            local empty=signature({})
+            return {tables={},passives=signature({stacks={},own_off={}}),armor_passives=empty,codes=empty,names=empty,
+                demolition=empty,physics=empty,preload=''}
+        end}
+    state.host_read_baseline=function()tracker:read_baseline()end
+    local function install_revision()
+        return table.concat({state.writes or 0,demolition and demolition.version or 0,
+            preload_ok and preload_model.version or 0,state.cache_cleared or 0},':')
+    end
+    state.host_pending=function()return tracker:pending(install_revision())end
+    local function remember_install()
+        local ok,why=tracker:committed()
+        if not ok then log('installed state marker not saved: '..tostring(why))end
     end
 
     -- ------------------------------------------------------------ the host's bar (below the panel)
-    local bar = { hover = nil, message = nil, tone = MUTED, busy = nil, base = nil, buttons = {} }
+    local bar = { hover = nil, message = nil, tone = MUTED, busy = nil, buttons = {} }
     local function layout()
         local s = shim.h / 1080
         local sx = shim.w / 1060   -- (across: the panel stretches to the window's shape; its edges at 30 and 1030)
@@ -337,6 +371,9 @@ local function main()
 
     local function status()
         if bar.busy then return bar.busy, WARN end
+        local revision=install_revision()
+        if bar.status_revision and bar.status_revision~=revision then bar.message=nil end
+        bar.status_revision=revision
         if bar.message then return bar.message, bar.tone end
         if save_page()and save_ok then
             return player_save:count()>0 and('存档配装有 '..player_save:count()..' 项修改，点击“写入存档”生效。')or player_save.error or player_save.status,
@@ -345,9 +382,7 @@ local function main()
         if state.phase == 'gave_up' then return 'Startup error: ' .. tostring(state.status or ''), RED end
         if state.phase ~= 'ready' then return 'Finding the stats...', MUTED end
         local n = installed_count()
-        local preload_dirty=preload_ok and((preload_applied and preload_model:signature()~=preload_applied)
-            or(not preload_applied and preload_model:has_changes()))
-        local dirty = (bar.base and state.writes ~= bar.base)or preload_dirty
+        local dirty=state.host_pending()
         if dirty and n == 0 then return 'Your values are not in the game yet: close the game, then Install.', WARN end
         if dirty then return 'Changed since the last install: Install to put it in the game.', WARN end
         if n > 0 then return 'Your values are installed (' .. n .. ' game files). Close the game before installing.', GOOD end
@@ -441,7 +476,7 @@ local function main()
         shim.present()
     end
 
-    local function say(text, tone) bar.message, bar.tone = text, tone or MUTED end
+    local function say(text, tone) bar.message,bar.tone,bar.status_revision=text,tone or MUTED,install_revision()end
 
     local function busy(text)
         bar.busy = text
@@ -516,6 +551,11 @@ local function main()
             log('install stopped: passive stacking: ' .. tostring(why_not))
             say('Not installed: the armor passives could not be stacked (' .. tostring(why_not) .. '). Nothing was changed.', WARN)
             return
+        end
+        local armored,armor_why=D.armor_passives(changes,state.armor_passives and state.armor_passives(),log)
+        if not armored then
+            for _,c in ipairs(changes)do G.free(c.plain)end
+            bar.busy=nil;say('Not installed: '..tostring(armor_why),WARN);return
         end
         local coded
         coded, why_not = D.codes(changes, state.codes and state.codes(), log)
@@ -607,8 +647,8 @@ local function main()
             if mine and not writes[name] then writes[name], back = originals[name], back + 1 end
         end
         if not next(writes) and not next(asset_writes) and not next(EntityAssets.owned()) then
-            bar.busy, bar.base = nil, state.writes
-            remember_preload()
+            bar.busy = nil
+            remember_install()
             say('Nothing to install: your values are the game\'s own.', GOOD)
             return
         end
@@ -632,9 +672,9 @@ local function main()
         log(string.format('entity resource patches installed: %d source triads',#asset_report))
         for name, data in pairs(writes) do ours[name] = data ~= originals[name] end
         installed_values:update(writes)
+        for name,data in pairs(writes)do installed[name]=data~=originals[name]and data or nil end
         if state.installed_committed then state.installed_committed()end
-        if recorded then remember_preload()end
-        bar.base = state.writes
+        if recorded then remember_install()end
         log(string.format('installed: %d changed, %d back to the original', made, back))
         local touched=0;for _,entry in ipairs(asset_transaction.entries)do if entry.before~=entry.after then touched=touched+1 end end
         say(string.format('Installed (%d game files changed%s). Start the game to play with your values.', made+touched,
@@ -663,7 +703,7 @@ local function main()
         local committed=asset_transaction:commit()
         installed_values:update(writes)
         if state.installed_committed then state.installed_committed()end
-        if committed then os.remove(preload_marker);preload_applied=nil end
+        if committed then os.remove(preload_marker)end
         -- files another tool changed since: left as they are (theirs now); files another mod had changed before
         -- this editor: back to that mod's version, which Steam's file check replaces (issue #90)
         local modded = 0
@@ -677,13 +717,14 @@ local function main()
             local latest,latest_ours,problems,_,current=I.originals(game)
             if #problems>0 then return nil,table.concat(problems,'; ')end
             local ok,err=D.reload(game,latest);if not ok then return nil,err end
-            originals,ours=latest,latest_ours
+            originals,ours,installed=latest,latest_ours,current
+            tracker:restored()
             installed_values=require('installed_values').new(D.files,current,log)
             rawset(_G,'SHODAN_INSTALLED_VALUES',installed_values)
             Physics.reset()
             return true
         end)
-        bar.busy=nil;bar.base=state.writes
+        bar.busy=nil
         if not reloaded then
             log('restored files, but reload failed: '..tostring(reload_why))
             say('Files restored, but the editor could not reload: '..tostring(reload_why),WARN);return
@@ -745,7 +786,16 @@ local function main()
     local last = clock()
     while shim.pump() do
         local now = clock()
-        if state.phase=='ready'then Steam.poll(type(state.steam_auto_config)~='function'or state.steam_auto_config())end
+        if state.phase=='ready'then
+            Steam.poll(type(state.steam_auto_config)~='function'or state.steam_auto_config())
+            if not bar.proxy_auto_checked then
+                bar.proxy_auto_checked=true
+                if (type(state.proxy_auto_start)~='function'or state.proxy_auto_start())and not rawget(_G,'TEST_WORK')then
+                    local ok,why=require('network_proxy').start()
+                    if not ok then log('auto-start proxy: '..tostring(why))end
+                end
+            end
+        end
         if bar.proxy_launch_pending then
             local proxy=require('network_proxy').status()
             if proxy.alive and proxy.trusted then
@@ -768,7 +818,7 @@ local function main()
         sync_component_page()
         last = now
         if bar.restore_reloading and state.phase=='ready'then
-            bar.restore_reloading=nil;bar.base=state.writes
+            bar.restore_reloading=nil
             say('Original files restored and editor values reloaded.'
                 ..((bar.restore_modded or 0)>0 and string.format(' %d files still hold another mod\'s changes.',bar.restore_modded)or''),GOOD)
             log('restored data reloaded')
@@ -786,14 +836,10 @@ local function main()
                 table.sort(demolition_model.targets,function(a,b)return a.name:lower()<b.name:lower()end)
                 demolition:refilter()
             end
-            bar.base = state.writes
             log(string.format('ready: %s weapons, %s values applied, %s refused', tostring(state.weapons),
                 tostring(state.applied), tostring(state.refused)))
             log(string.format('startup timing: %.3f s to ready; table discovery: %s',clock()-startup_started,
                 state.offline_direct and 'host headers' or 'memory scan'))
-            local stacks = state.stacks and state.stacks() or {}
-            local own_off = state.own_off and state.own_off() or {}
-            if installed_count() == 0 and ((state.applied or 0) > 0 or next(stacks) or next(own_off)) then bar.base = -1 end
             if I.game_running() then say('Helldivers 2 is running: you can edit, but close it before you Install.', WARN) end
             local updated = U.cleanup()
             if updated then say('Updated to ' .. updated .. '.', GOOD) end
@@ -801,7 +847,7 @@ local function main()
         -- Settings > Clear all cached changes: the buffers hold the files' values again, so nothing is waiting to be
         -- installed (the panel counts the clears: see state.cache_cleared)
         if bar.cache_cleared ~= state.cache_cleared then
-            bar.cache_cleared, bar.base = state.cache_cleared, state.writes
+            bar.cache_cleared = state.cache_cleared
         end
         -- updates: asked at start, and again when Settings > Update channel changes
         local channel = type(state.update_channel) == 'function' and state.update_channel() or 'releases'

@@ -399,6 +399,7 @@ function M.build(c)
  return M.pages
 end
 function M.translate_name(v,lang)
+ if type(v)~='string'then return end
  local target=require('planet_effect_view').translate_name(v,lang);if target then return target end
  local effect=EFFECTS.translate_name(v,lang);if effect then return effect end
  local assignment=ASSIGN.translate_name(v,lang);if assignment then return assignment end

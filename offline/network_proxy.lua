@@ -20,6 +20,12 @@ for _,d in ipairs({
  'int CertFreeCertificateContext(shodan_proxy_cert *context);',
  'int CertCloseStore(void *store,uint32_t flags);',
  'int CertAddEncodedCertificateToStore(void *store,uint32_t encoding,const uint8_t *bytes,uint32_t size,uint32_t mode,void *context);',
+ 'typedef struct { uint32_t size, usage, pid; uintptr_t heap; uint32_t module, threads, parent; int32_t base; uint32_t flags; uint16_t exe[260]; } host_process_entry;',
+ 'void *CreateToolhelp32Snapshot(uint32_t flags, uint32_t pid);',
+ 'int Process32FirstW(void *snapshot, host_process_entry *entry);',
+ 'int Process32NextW(void *snapshot, host_process_entry *entry);',
+ 'int TerminateProcess(void *process, uint32_t code);',
+ 'void Sleep(uint32_t ms);',
 })do pcall(ffi.cdef,d)end
 local shell=ffi.load('shell32');local crypt=ffi.load('crypt32')
 local M={root=Paths.root,home=Paths.home,revision=0,port=8847}
@@ -35,19 +41,22 @@ local function decode(path)local raw=F.read(path);if raw then local ok,v=pcall(J
 local function quote(s)return'"'..s..'"'end
 local function folder()return M.home..'/WarProxy'end
 local function exe()return M.root..'/app/network/mitmdump.exe'end
-local function certificate()
- local pem=F.read(folder()..'/mitmproxy-ca-cert.pem');if not pem then return end
+local function certificate_bytes(pem)
+ if not pem or pem==''then return end
  local size=ffi.new('uint32_t[1]')
  if crypt.CryptStringToBinaryA(pem,#pem,0,nil,size,nil,nil)==0 then return end
  local bytes=ffi.new('uint8_t[?]',size[0])
  if crypt.CryptStringToBinaryA(pem,#pem,0,bytes,size,nil,nil)==0 then return end
  return bytes,tonumber(size[0])
 end
+local function certificate()
+ return certificate_bytes(F.read(folder()..'/mitmproxy-ca-cert.pem'))
+end
 local function root_store()
  return crypt.CertOpenStore(ffi.cast('const void *',10),0,nil,0x14000,wide('ROOT')) -- system W, current user, existing
 end
-function M.trusted()
- local bytes,size=certificate();if not bytes then return false end
+local function cert_in_store(bytes,size)
+ if not bytes then return false end
  local store=root_store();if store==nil then return false end
  local found=false;local context=nil
  while true do
@@ -55,6 +64,59 @@ function M.trusted()
   if context.size==size and ffi.string(context.bytes,size)==ffi.string(bytes,size)then found=true;crypt.CertFreeCertificateContext(context);break end
  end
  crypt.CertCloseStore(store,0);return found
+end
+function M.trusted()
+ local bytes,size=certificate()
+ return cert_in_store(bytes,size)
+end
+local function kill_mitmdump_processes(keep_pid)
+ if rawget(_G,'TEST_WORK')then return end
+ local snap=ffi.C.CreateToolhelp32Snapshot(2,0)
+ if snap==nil or ffi.cast('intptr_t',snap)==-1 then return end
+ local e=ffi.new('host_process_entry');e.size=ffi.sizeof(e)
+ local handles={}
+ local ok=ffi.C.Process32FirstW(snap,e)
+ while ok~=0 do
+  local name=utf8(e.exe):lower()
+  if name=='mitmdump.exe'and e.pid~=keep_pid then
+   local h=ffi.C.OpenProcess(0x100001,0,e.pid)
+   if h~=nil then ffi.C.TerminateProcess(h,0);handles[#handles+1]=h end
+  end
+  ok=ffi.C.Process32NextW(snap,e)
+ end
+ ffi.C.CloseHandle(snap)
+ for _,h in ipairs(handles)do ffi.C.WaitForSingleObject(h,400);ffi.C.CloseHandle(h)end
+end
+local function ensure_ca_files()
+ if rawget(_G,'TEST_WORK')or M.trusted()then return end
+ local rel_parent=M.root:gsub('\\','/'):match('^(.*)/[^/]+/SHODAN Stat Editor Offline$')
+ if not rel_parent then return end
+ local I=require('install')
+ local stamps=I.list_files and{}or nil
+ local find=ffi.new('host_find_data')
+ local hfind=ffi.C.FindFirstFileA(rel_parent..'/*',find)
+ local dirs={}
+ if hfind~=nil and ffi.cast('intptr_t',hfind)~=-1 then
+  repeat
+   local dname=ffi.string(find.name)
+   if dname~='.'and dname~='..'and bit.band(find.attributes,16)~=0 then dirs[#dirs+1]=dname end
+  until ffi.C.Process32NextW and ffi.C.FindNextFileA(hfind,find)==0
+  ffi.C.FindClose(hfind)
+ end
+ table.sort(dirs,function(a,b)return a>b end)
+ for _,d in ipairs(dirs)do
+  local wdir=rel_parent..'/'..d..'/SHODAN Stat Editor Offline/Data/WarProxy'
+  local pem=F.read(wdir..'/mitmproxy-ca-cert.pem')
+  local ca_key=F.read(wdir..'/mitmproxy-ca.pem')
+  if pem and ca_key and cert_in_store(certificate_bytes(pem))then
+   I.mkdirs(folder())
+   for _,fn in ipairs({'mitmproxy-ca.pem','mitmproxy-ca-cert.pem','mitmproxy-ca.p12','mitmproxy-ca-cert.p12','mitmproxy-ca-cert.cer','mitmproxy-dhparam.pem'})do
+    local content=F.read(wdir..'/'..fn)
+    if content then F.write(folder()..'/'..fn,content)end
+   end
+   return
+  end
+ end
 end
 function M.trust()
  if M.trusted()then return true end
@@ -89,9 +151,13 @@ function M.status()
  return M.cached
 end
 function M.start()
- local s=M.status();if s.alive or s.starting then return true end
+ M.cache_at=nil
+ local s=M.status();if s.alive then return true end
  if not require('install').exists(exe())then return nil,'缺少随包 mitmdump.exe，请使用完整构建。'end
- M.stopping=false;require('install').mkdirs(folder());F.remove(folder()..'/stop.request')
+ M.stopping=false;require('install').mkdirs(folder())
+ F.remove(folder()..'/stop.request');F.remove(folder()..'/proxy_health.json')
+ kill_mitmdump_processes(nil)
+ ensure_ca_files()
  local args={'--listen-host','127.0.0.1','--listen-port',tostring(M.port),'--mode','regular','--allow-hosts',quote('^api[.]live[.]prod[.]thehelldiversgame[.]com(:443)?$'),
   '--set',quote('confdir='..folder()),'--set',quote('shodan_effect_definitions='..M.home..'/galactic_effect_overrides.json'),
   '--set',quote('shodan_planet_effects='..M.home..'/planet_effects.json'),'--set','flow_detail=0','--set','termlog_verbosity=error','-s',quote(M.root..'/app/network/galactic_effect_proxy.py')}
@@ -100,12 +166,37 @@ function M.start()
  info.verb,info.file,info.parameters,info.directory,info.show=verb,file,params,dir,0
  if shell.ShellExecuteExW(info)==0 then return nil,'无法启动随包代理核心，Windows 错误 '..tonumber(ffi.C.GetLastError())end
  if M.process then ffi.C.CloseHandle(M.process)end;M.process=info.process
- M.revision=M.revision+1;M.cache_at=nil;return true
+ for _=1,35 do
+  ffi.C.Sleep(100)
+  M.cache_at=nil
+  local cur=M.status()
+  if cur.alive then
+   if not cur.trusted then pcall(M.trust);M.cache_at=nil;M.status()end
+   M.revision=M.revision+1;return true
+  end
+  if M.process and ffi.C.WaitForSingleObject(M.process,0)~=258 then break end
+ end
+ M.cache_at=nil;M.revision=M.revision+1
+ if M.status().alive then return true end
+ return nil,'代理核心启动失败（请检查端口 '..tostring(M.port)..' 是否被其他程序占用）。'
 end
 function M.stop()
  M.stopping=true
  require('install').mkdirs(folder());local ok,why=F.write(folder()..'/stop.request','stop\n')
+ if not rawget(_G,'TEST_WORK')then
+  ffi.C.Sleep(150)
+  kill_mitmdump_processes(nil)
+  F.remove(folder()..'/proxy_health.json')
+  if M.process then ffi.C.CloseHandle(M.process);M.process=nil end
+  M.stopping=false
+ end
  M.revision=M.revision+1;M.cache_at=nil;return ok,why
+end
+function M.refresh_live()
+ require('install').mkdirs(folder())
+ F.write(folder()..'/refresh.request',tostring(os.time())..'\n')
+ M.revision=M.revision+1;M.cache_at=nil
+ return true
 end
 function M.editor_closed(stop_with_editor)
  if not stop_with_editor then return true end

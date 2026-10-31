@@ -367,14 +367,28 @@ function M.entity_hash_slot(s,schemas)
     fail('this build has no unreferenced aligned numeric correction record')
 end
 
-function M.load_overrides(path)
-    local out={};local f=io.open(path,'rb')
-    if not f then return out end
-    for line in f:lines()do
-        local id,key,value=line:match('^([EU]%x+)%s+(%d+:%a+)%s+(%d+)$')
-        if id and #id==17 then out[id]=out[id]or{};out[id][key]=tonumber(value) end
+local function valid_overrides(raw)
+    if raw:find('%z')then return false end
+    local any=false
+    for line in raw:gmatch('[^\r\n]+')do
+        if line:match('^# SHODAN independent entity demolition overrides v1')then any=true
+        elseif not line:match('^%s*#')and line:find('%S')then
+            local id,key,value=line:match('^([EU]%x+)%s+(%d+:%a+)%s+(%d+)$')
+            if not id or #id~=17 or tonumber(value)>4294967295 then return false end
+            any=true
+        end
     end
-    f:close();return out
+    return any
+end
+function M.load_overrides(path)
+    local out={}
+    local raw,why=require('portable_file').read(path,{validate=valid_overrides})
+    if not raw then return out,why end
+    for line in raw:gmatch('[^\r\n]+')do
+        local id,key,value=line:match('^([EU]%x+)%s+(%d+:%a+)%s+(%d+)$')
+        if id and #id==17 then out[id]=out[id]or{};out[id][key]=tonumber(value)end
+    end
+    return out
 end
 
 function M.save_overrides(path,overrides)
@@ -382,12 +396,7 @@ function M.save_overrides(path,overrides)
     for _,id in ipairs(sorted_keys(overrides))do
         for _,key in ipairs(sorted_keys(overrides[id]))do lines[#lines+1]=id..' '..key..' '..string.format('%.0f',overrides[id][key]) end
     end
-    local f,why=io.open(path..'.new','wb');if not f then return nil,why end
-    f:write(table.concat(lines,'\n')..'\n');f:close()
-    local kernel=ffi.load('kernel32')
-    pcall(ffi.cdef,'int MoveFileExA(const char *a,const char *b,uint32_t flags);')
-    if kernel.MoveFileExA(path..'.new',path,9)==0 then return nil,'could not replace override settings' end
-    return true
+    return require('portable_file').save(path,table.concat(lines,'\n')..'\n',{validate=valid_overrides})
 end
 
 -- Install integration: build against all other panel edits, never against relocated host pointers.

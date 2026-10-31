@@ -130,5 +130,35 @@ class Assignments(unittest.TestCase):
             self.assertEqual(addon.current_catalog, live())
         with tempfile.TemporaryDirectory() as temp:asyncio.run(scenario(Path(temp)))
 
+    def test_remove_specific_live_effects_and_replace_mode(self):
+        doc = dict(planetStatus=[dict(index=0, owner=1), dict(index=256, owner=3)],
+                   planetActiveEffects=[dict(index=0, galacticEffectId=1202),
+                                        dict(index=0, galacticEffectId=1203),
+                                        dict(index=0, galacticEffectId=999),
+                                        dict(index=256, galacticEffectId=999)])
+        # 1. Remove 1202 (and paired icon 1203) from planet 0 while keeping 999 and adding 1397
+        p = plan(index=0, ids=[1397], icons=True)
+        p['targets']['0']['removed'] = [1202]
+        out, changed = proxy.patch_status(doc, p, live(), 801)
+        self.assertEqual(changed, 3)  # 2 removed + 1 added
+        self.assertEqual(out['planetActiveEffects'], [
+            dict(index=0, galacticEffectId=999),
+            dict(index=256, galacticEffectId=999),
+            dict(index=0, galacticEffectId=1397),
+        ])
+        # 2. Replace mode on planet 0: clears 1202, 1203, 999 on planet 0 and only keeps 1397; planet 256 untouched
+        p2 = plan(index=0, ids=[1397], icons=False)
+        p2['targets']['0']['replace'] = True
+        out2, changed2 = proxy.patch_status(doc, p2, live(), 801)
+        self.assertEqual(changed2, 4)  # 3 removed + 1 added
+        self.assertEqual(out2['planetActiveEffects'], [
+            dict(index=256, galacticEffectId=999),
+            dict(index=0, galacticEffectId=1397),
+        ])
+        # 3. Extract live effects snapshot
+        snap = proxy.extract_live_effects(doc, 801)
+        self.assertEqual(snap['planets']['0'], [1202, 1203, 999])
+        self.assertEqual(snap['planets']['256'], [999])
+
 
 if __name__ == '__main__':unittest.main()

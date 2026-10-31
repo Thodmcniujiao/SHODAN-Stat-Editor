@@ -14,8 +14,8 @@ S.GROUPS={
 S.ENUMS={eye={[0]={'None','无','無'},{'Humanoid','人形','人形'},{'Cone','锥形','錐形'},{'Omni','全向','全向'}}}
 local L={}
 f(L,'distance',0,'f32','range','Sight range (m)','视距（米）','視距（米）',R.m,{verified=true,id='sight'})
-f(L,'peripheral_distance',4,'f32','range','Peripheral distance (m; -1: off)','余光距离（米，-1 为无）','餘光距離（米，-1 為無）',R.sm)
-f(L,'back_distance',8,'f32','range','Behind distance (m; -1: off)','背后感知距离（米，-1 为无）','背後感知距離（米，-1 為無）',R.sm)
+f(L,'peripheral_distance',4,'f32','range','Side sight range (m; -1: as far as straight ahead)','侧方视距（米，-1 为与正前方相同）','側方視距（米，-1 為與正前方相同）',R.sm,{verified=true,id='sight_side'})
+f(L,'back_distance',8,'f32','range','Rear sight range (m; -1: as far as straight ahead)','后方视距（米，-1 为与正前方相同）','後方視距（米，-1 為與正前方相同）',R.sm,{verified=true,id='sight_rear'})
 f(L,'angle_horizontal',12,'f32','range','Sight cone width (degrees)','视野水平角（度）','視野水平角（度）',R.deg,{verified=true,id='sight_h'})
 f(L,'angle_vertical',16,'f32','range','Sight cone height (degrees)','视野垂直角（度）','視野垂直角（度）',R.deg,{verified=true,id='sight_v'})
 f(L,'eye_type',32,'enum','sight','Eye type','视觉类型','視覺類型',R.enum,{enum='eye',enum_type='EyeType'})

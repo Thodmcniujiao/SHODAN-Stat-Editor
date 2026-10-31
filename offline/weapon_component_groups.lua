@@ -48,6 +48,9 @@ function M.attach(c)
   collect(c.primary);if #groups==0 then collect(c.fallback)end
   if #groups>0 then
    table.sort(groups,function(a,b)return(c.subs[a.sub]or c.subs.weapon).order<(c.subs[b.sub]or c.subs.weapon).order end)
+   -- 便捷参数 first: hidden convenience rows that write the same fields as the components
+   local quick=c.quick and c.quick(weapon,weapon.legacy_rows)
+   if quick then table.insert(groups,1,quick)end
    weapon.hidden_rows,weapon.all_component_rows,weapon.matched_components=hidden,all,matched
    c.wrap(weapon,groups,{'Components','组件','組件'})
    -- Saved IDs (including old prefixed aliases) can be restored before a group is opened.
@@ -77,7 +80,7 @@ function M.attach(c)
    weapon.lazy_components_attached=true
    weapon.custom_modified=function()
     if previous_modified and previous_modified()then return true end
-    for _,group in ipairs(groups)do if group.modified()then return true end end
+    for _,group in ipairs(groups)do if group.modified and group.modified()then return true end end
     return false
    end
    weapon.note=weapon.hash

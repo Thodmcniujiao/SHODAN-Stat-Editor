@@ -7,6 +7,7 @@ local checks=[==[
 local J=require('json_data');local F=require('preset_files');local R=E.MOD.record_names
 local function open(tab)
  local parent,sub=assert(E.MOD.nav.locate(tab));state.nav_open(parent.id,sub);E.click('cat:'..tab)
+ if E.ui.tab~=tab then E.ui.tab=tab end
  assert(E.ui.tab==tab);E.ui.search={text='',active=false}
 end
 local function type_id(text)
@@ -83,8 +84,134 @@ for n=2,#layouts do for key,pos in pairs(layouts[1])do for i=1,4 do assert(layou
 local opened;E.settings.open=function(path)opened=path;return true end
 open('HealthComponents');E.click('component_config');assert(opened==catalog.folder:gsub('/','\\'))
 open('Eagle');E.click('record_names_folder');assert(opened==R.folder:gsub('/','\\'))
+
+-- Right-click context menu: 设置分组 and 更改策划名 on all entity name and typeidindex list items
+local function find_menu_item(label)
+ for i,item in ipairs(assert(E.ui.context_menu,'missing context menu').items)do
+  if item.label==label then return i,item end
+ end
+end
+for _,tab in ipairs({'Primary','Secondary','Support','Throwables','Terminids','Automatons','Illuminate','SEAF',
+ 'HealthComponents','OrbitalBeam','RecDamage','RecProjectile','RecExplosion','RecArc','RecBeam','RecStatus','RecStratagem','Orbital','Eagle','Stratagems','Mechas'})do
+ open(tab);local first=assert(E.weapons_in(tab)[1],tab..' empty')
+ E.MOD.clipboard.right_click('weapon:'..first.hash,120,260)
+ local n_items=#E.ui.context_menu.items
+ assert(n_items==4 or n_items==5,tab..': expected 4 or 5 right-click menu items, got '..n_items)
+ assert(find_menu_item('设置分组'),tab..': missing 设置分组 in right-click menu')
+ assert(find_menu_item('更改策划名'),tab..': missing 更改策划名 in right-click menu')
+ E.ui.context_menu=nil
+end
+-- Test 更改策划名 and 设置分组 on Armory -> Weapon editing (Primary)
+open('Primary')
+local primary_w=assert(E.weapons_in('Primary')[1])
+local orig_primary_name=primary_w.name
+E.MOD.clipboard.right_click('weapon:'..primary_w.hash,120,260)
+assert(#E.ui.context_menu.items==5,'Primary weapon must have 5 right-click menu items')
+E.click('context_item:'..assert(find_menu_item('更改策划名')))
+assert(E.ui.design_name and E.ui.design_name.page==primary_w)
+E.ui.design_name.text='主武器策划名测试';E.click('design_name:save')
+assert(E.MOD.item_naming.custom_name_of(primary_w)=='主武器策划名测试')
+E.MOD.clipboard.right_click('weapon:'..primary_w.hash,120,260)
+E.click('context_item:'..assert(find_menu_item('设置分组')))
+E.ui.item_group.text='主力步枪组';E.click('item_group:save')
+assert(E.MOD.item_naming.custom_group_of(primary_w)=='主力步枪组')
+-- Restore Primary weapon default name and group
+E.MOD.clipboard.right_click('weapon:'..primary_w.hash,120,260)
+E.click('context_item:'..assert(find_menu_item('更改策划名')));E.click('design_name:reset')
+assert(primary_w.name==orig_primary_name)
+E.MOD.clipboard.right_click('weapon:'..primary_w.hash,120,260)
+E.click('context_item:'..assert(find_menu_item('设置分组')));E.click('item_group:reset')
+-- Test 更改策划名 and 设置分组 on entity name list item (HealthComponents)
+open('HealthComponents');state.component_filter('all',true)
+E.MOD.clipboard.right_click('weapon:'..alpha.hash,120,260)
+local idx_name=assert(find_menu_item('更改策划名'))
+E.click('context_item:'..idx_name);assert(E.ui.design_name and E.ui.design_name.page==alpha)
+E.ui.design_name.text='右键测试实体名';E.click('design_name:save');assert(not E.ui.design_name)
+assert(alpha.name=='右键测试实体名','entity design name not updated')
+E.MOD.clipboard.right_click('weapon:'..alpha.hash,120,260)
+local idx_grp=assert(find_menu_item('设置分组'))
+E.click('context_item:'..idx_grp);assert(E.ui.item_group and E.ui.item_group.page==alpha)
+E.ui.item_group.text='右键新建实体分组';E.click('item_group:save');assert(not E.ui.item_group)
+assert(alpha.catalog_record.category_name=='右键新建实体分组','entity group not updated')
+-- Restore entity default name and group
+E.MOD.clipboard.right_click('weapon:'..alpha.hash,120,260)
+E.click('context_item:'..assert(find_menu_item('更改策划名')));E.click('design_name:reset')
+E.MOD.clipboard.right_click('weapon:'..alpha.hash,120,260)
+E.click('context_item:'..assert(find_menu_item('设置分组')));E.click('item_group:pick:bugs')
+assert(alpha.catalog_record.category=='bugs')
+
+-- Test 更改策划名 and 设置分组 on typeidindex list item (RecProjectile)
+open('RecProjectile')
+E.MOD.clipboard.right_click('weapon:'..shot.hash,120,260)
+E.click('context_item:'..assert(find_menu_item('更改策划名')))
+assert(E.ui.design_name and E.ui.design_name.page==shot)
+E.ui.design_name.text='右键射弹策划名';E.click('design_name:save')
+assert(R.name('projectile',shot.id)=='右键射弹策划名')
+E.MOD.clipboard.right_click('weapon:'..shot.hash,120,260)
+E.click('context_item:'..assert(find_menu_item('设置分组')))
+assert(E.ui.item_group and E.ui.item_group.page==shot)
+E.ui.item_group.text='右键射弹分组';E.click('item_group:save')
+assert(R.group('projectile',shot.id)=='右键射弹分组')
+E.click('record_cat:右键射弹分组')
+local filtered_proj=E.weapons_in('RecProjectile')
+assert(#filtered_proj==1 and filtered_proj[1]==shot,'TypeID group filter failed')
+E.click('record_cat:all')
+
+-- Test parameter input box: vertical caret line, periodic blinking, and selection highlight/text color change
+E.select_weapon(shot)
+local edit_row_idx
+for n,r in ipairs(shot.rows)do
+ if not r.collapsed_component and not r.readonly_text and not r.link_only and not r.empty and E.row_value(r)~=nil then
+  edit_row_idx=n;break
+ end
+end
+assert(edit_row_idx,'no editable parameter row on projectile page')
+E.ui.scroll=math.max(1,edit_row_idx-2)
+E.click('value:'..edit_row_idx)
+assert(E.ui.value and E.ui.value.n==edit_row_idx and E.ui.value.fresh)
+local t0=assert(E.ui.value.touched)
+E.ui.value.text='12345';E.MOD.text.all(E.ui.value,t0)
+E.ui.version=E.ui.version+1;E.tick()
+local function inspect_gui_input()
+ local has_caret,has_sel_bg,has_sel_fg,has_white_text,has_underscore=false,false,false,false,false
+ for _,item in ipairs(E.ui.gui.items)do
+  if item.kind=='rect'and item.c then
+   if item.c[2]==255 and item.c[3]==245 and item.c[4]==120 then has_caret=true end
+   if item.c[2]==38 and item.c[3]==112 and item.c[4]==210 then has_sel_bg=true end
+  elseif item.kind=='text'then
+   if item.text=='12345'or item.text=='123'or item.text=='45'then
+    if item.c[2]==255 and item.c[3]==232 and item.c[4]==88 then has_sel_fg=true end
+    if item.c[2]==238 and item.c[3]==242 and item.c[4]==246 then has_white_text=true end
+   end
+   if item.text:find('12345_',1,true)then has_underscore=true end
+  end
+ end
+ return has_caret,has_sel_bg,has_sel_fg,has_white_text,has_underscore
+end
+local caret1,sel_bg1,sel_fg1,_,under1=inspect_gui_input()
+assert(caret1,'vertical caret line must be drawn in visible blink phase')
+assert(sel_bg1 and sel_fg1,'full selection must draw selection background and highlight text color')
+assert(not under1,'parameter input must not append underscore as caret')
+-- Partial selection: '123' unselected (WHITE), '45' selected (SEL_FG on SEL_BG)
+E.ui.value.fresh=false;E.ui.value.anchor=5;E.ui.value.at=3
+E.MOD.text.touch(E.ui.value,E.ui.value.touched)
+E.ui.version=E.ui.version+1;E.tick()
+local caret2,sel_bg2,sel_fg2,white2=inspect_gui_input()
+assert(caret2 and sel_bg2 and sel_fg2 and white2,'partial selection must draw both unselected WHITE text and selected SEL_FG text')
+-- Simulate blink off half-period
+E.ui.value.touched=E.ui.value.touched-0.6
+E.tick()
+local caret_off=inspect_gui_input()
+assert(not caret_off,'vertical caret line must blink off in the second half-period')
+-- Simulate blink back on in next period
+E.ui.value.touched=E.ui.value.touched-0.55
+E.tick()
+local caret_on_again=inspect_gui_input()
+assert(caret_on_again,'vertical caret line must blink back on in the next period')
+E.ui.value=nil
+
 assert(#H.diff()==0,'naming, searches and jumps must not modify game bytes')
 gdi.DeleteDC(S.dc)
-print('PASS: current-game hash/decimal active typing, filter-independent hash jump, strict TypeID search/jump scope, nine per-type JSONs, identical native controls and correct folder buttons; no game writes')
+print('PASS: current-game hash/decimal active typing, filter-independent hash jump, strict TypeID search/jump scope, right-click 设置分组/更改策划名 on entity & TypeID lists, and blinking vertical caret + selection highlight; no game writes')
 ]==]
 assert(loadstring(start..checks,'@naming-browser-integration'))()

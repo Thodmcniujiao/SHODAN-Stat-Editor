@@ -141,7 +141,8 @@ function M.new(o)
   selected=nil,save=nil,values={},paths=o.paths or{},presets={},preset_path=o.preset_path,version=0,
   status='请在“存档与备份”选择存档，或输入完整路径。',error=nil},Model)
  if o.preset_path then
-  local raw=self.io.read(o.preset_path);if raw then local ok,t=pcall(J.decode,raw,1024*1024);if ok and type(t)=='table'then self.presets=t end end
+  local raw=require('portable_file').read(o.preset_path,{fs=self.io,validate=function(raw)return type(J.decode(raw,1024*1024))=='table'end})
+  if raw then self.presets=J.decode(raw,1024*1024)end
  end
  if #self.paths==1 then local ok,why=self:load(self.paths[1]);if not ok then self.error=why end end
  return self
@@ -215,6 +216,7 @@ function Model:restore()
 end
 function Model:preset(what,n)
  n=tostring(n)
+ local previous=self.presets[n]
  if not self.save then return nil,'请先读取存档。'end
  if what=='save'then local t={};for _,f in ipairs(M.FIELDS)do if not f.unknown then t[f.key]=self:read(f.key)end end;self.presets[n]=t
  elseif what=='clear'then self.presets[n]=nil
@@ -224,7 +226,8 @@ function Model:preset(what,n)
   for key,value in pairs(t)do local ok,why=self:set(key,value);if not ok then self.values=before;return nil,why end end
  end
  if self.preset_path and(what=='save'or what=='clear')then
-  local ok,why=self.io.write(self.preset_path,J.encode(self.presets));if not ok then return nil,why end
+  local ok,why=require('portable_file').save(self.preset_path,J.encode(self.presets),{fs=self.io,validate=function(raw)return type(J.decode(raw))=='table'end})
+  if not ok then self.presets[n]=previous;return nil,why end
  end
  self:touch();return true
 end

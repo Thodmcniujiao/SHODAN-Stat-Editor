@@ -34,7 +34,7 @@ function M.load(folder)
    assert(kind=='entity'or kind=='unit',path..': invalid entity kind')
    local rid=(kind=='unit'and'U'or'E')..hash
    assert(not cfg.entities[rid],path..': duplicate hash '..rid)
-   cfg.entities[rid]={name=item.name,category=id}
+   cfg.entities[rid]={name=item.name,category=id,custom=item.custom==true or nil,user_group=item.user_group==true or nil}
   end
  end
  if not cfg.by_id.other then
@@ -95,5 +95,105 @@ function M.open(folder,legacy,records)
   file.data.entities=all;atomic(file.path,file.data);cfg=M.load(folder)
  end
  return cfg
+end
+local function parse_rid(rid)
+ local s=tostring(rid or''):match('^%s*(.-)%s*$'):upper()
+ local kind=s:match('^U%x+$')and #s==17 and'unit'or'entity'
+ local hash=assert(IDs.hex(s),'invalid entity hash: '..tostring(rid))
+ return (kind=='unit'and'U'or'E')..hash,hash,kind
+end
+local function normalize_rows(rows)
+ local all=J.array()
+ for key,item in pairs(rows or{})do
+  if type(item)=='string'then item={hash=key,name=item}
+  else
+   local copy={};for k,v in pairs(item)do copy[k]=v end
+   if not copy.hash and type(key)=='string'then copy.hash=key end
+   item=copy
+  end
+  local raw=item.hash;local hash=IDs.entity(raw)
+  local kind=item.kind or(type(raw)=='string'and #raw==17 and raw:sub(1,1)=='U'and'unit')or'entity'
+  item.hash='0x'..assert(hash,'invalid entity hash');item.kind=kind
+  all[#all+1]=item
+ end
+ return all
+end
+function M.set_name(folder,cfg,rid,new_name,default_name)
+ local norm_rid,hash,kind=parse_rid(rid)
+ new_name=tostring(new_name or''):gsub('[%z\1-\31]',' '):match('^%s*(.-)%s*$')
+ validate_name(new_name)
+ if not(cfg and cfg.files)then cfg=M.load(folder)end
+ local current=cfg.entities[norm_rid]
+ local cat_id=current and current.category or'other'
+ local file=assert(cfg.files[cat_id]or cfg.files.other,'missing entity group file')
+ local all=normalize_rows(file.data.entities)
+ local found=false
+ for _,item in ipairs(all)do
+  local item_rid=(item.kind=='unit'and'U'or'E')..IDs.entity(item.hash)
+  if item_rid==norm_rid then item.name=new_name;item.custom=new_name~=''and true or nil;found=true;break end
+ end
+ if not found then
+  all[#all+1]={hash='0x'..hash,kind=kind,name=new_name~=''and new_name or(default_name or''),custom=new_name~=''and true or nil}
+ end
+ file.data.entities=all
+ atomic(file.path,file.data)
+ return true
+end
+function M.set_group(folder,cfg,rid,target,default_name)
+ local norm_rid,hash,kind=parse_rid(rid)
+ target=tostring(target or''):gsub('[%z\1-\31]',' '):match('^%s*(.-)%s*$')
+ assert(target~=''and #target<=256,'invalid group name')
+ if not(cfg and cfg.files)then cfg=M.load(folder)end
+ local target_id
+ if cfg.by_id[target]then target_id=target
+ elseif target=='未分类'or target=='未分組'or target:lower()=='unclassified'then target_id='other'
+ else
+  for _,cat in ipairs(cfg.categories)do
+   if cat.id:lower()==target:lower()or tostring(localized(cat.name)):lower()==target:lower()then target_id=cat.id;break end
+   if type(cat.name)=='table'then
+    for _,v in pairs(cat.name)do if tostring(v):lower()==target:lower()then target_id=cat.id;break end end
+   end
+   if target_id then break end
+  end
+ end
+ if not target_id then
+  local safe=target:gsub('[<>:"/\\|?*]','_'):match('^%s*(.-)%s*$')
+  assert(safe~='','invalid group name')
+  local base_id=target:match('^[%w_-]+$')and target~='all'and target or('g'..safe:gsub('.',function(c)return string.format('%02x',c:byte())end):sub(1,48))
+  local new_id,n=base_id,1
+  while cfg.by_id[new_id]or new_id=='all'do n=n+1;new_id=base_id..'_'..n end
+  local order=1
+  for _,cat in ipairs(cfg.categories)do if cat.id~='other'and cat.order>=order then order=cat.order+1 end end
+  local path=folder..'/'..safe..'.json'
+  if F.read(path)then path=folder..'/'..safe..' ('..new_id..').json'end
+  local group={version=1,id=new_id,group=target,order=order,entities=J.array()}
+  atomic(path,group)
+  cfg=M.load(folder)
+  target_id=new_id
+ end
+ local current=cfg.entities[norm_rid]
+ local old_id=current and current.category or'other'
+ local old_file=cfg.files[old_id]or cfg.files.other
+ local new_file=assert(cfg.files[target_id],'missing target group file')
+ local moved={hash='0x'..hash,kind=kind,name=(current and current.name)or default_name or'',custom=current and current.custom or nil,user_group=target_id~='other'and true or nil}
+ if old_file and old_file~=new_file then
+  local kept=J.array()
+  for _,item in ipairs(normalize_rows(old_file.data.entities))do
+   local item_rid=(item.kind=='unit'and'U'or'E')..IDs.entity(item.hash)
+   if item_rid==norm_rid then moved=item;moved.user_group=target_id~='other'and true or nil else kept[#kept+1]=item end
+  end
+  old_file.data.entities=kept
+ end
+ local dest=normalize_rows(new_file.data.entities)
+ local present=false
+ for _,item in ipairs(dest)do
+  local item_rid=(item.kind=='unit'and'U'or'E')..IDs.entity(item.hash)
+  if item_rid==norm_rid then item.user_group=target_id~='other'and true or nil;present=true;break end
+ end
+ if not present then dest[#dest+1]=moved end
+ new_file.data.entities=dest
+ if old_file and old_file~=new_file then atomic(old_file.path,old_file.data)end
+ atomic(new_file.path,new_file.data)
+ return target_id
 end
 return M

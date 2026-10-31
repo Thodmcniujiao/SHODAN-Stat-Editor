@@ -488,7 +488,7 @@ MOD.kit_names = {
     [0xE85E6600] = 'AC-2 Obedient',
     [0xE867121D] = 'CPR-80 Bulwark',
     [0xE9248FAC] = 'GS-17 Frontier Marshall',
-    [0xECA42A1F] = '',
+    [0xECA42A1F] = 'RE-824 Bearer of the Standard',
     [0xECB02294] = 'I-102 Draconaught',
     [0xEE8E36D3] = 'DP-53 Saviour of the Free',
     [0xF0ABC83F] = 'FS-38 Eradicator',
@@ -726,6 +726,26 @@ MOD.ENEMY_LIST = {
     { 'illuminate', 'structure', 'Warp Ship (invasion)', '', '2AD2E055DAD21F6E', '', '' },
     { 'illuminate', 'structure', 'Warp Gateway', '', '7DF314C744F0D935', '', '' },
     { 'terminids', 'structure', 'Infested Tower', '', 'AFC719AF96F10DC3', '', '' },
+    { 'automatons', 'enemy', 'Bunker Turret', 'Turret Small Autocannon', '9926876B2375A1BB', '0=back', '' },
+    { 'illuminate', 'enemy', 'Gazer Spire', 'Orbital Cannon', '262351741C53FF0C', '', '' },
+    { 'automatons', 'enemy', 'MG Raider', 'Entry 0034', '089833D2880D9E06', '0=head;1=chest;2=left_arm;3=right_arm;4=leg_right;5=leg_left', '' },
+    { 'automatons', 'enemy', 'Trooper', 'Entry 0040', '09DFB04B2E578BC3', '0=head;1=chest;2=left_arm;3=right_arm;4=leg_right;5=leg_left', '' },
+    { 'automatons', 'enemy', 'Commissar', 'Entry 0121', '1B5B9AC4F96B36E5', '0=head;1=chest;2=left_arm;3=right_arm;4=leg_right;5=leg_left', '' },
+    { 'automatons', 'enemy', 'Rocket Raider', 'Entry 0185', '2A12104F2853AE16', '0=head;1=chest;2=left_arm;3=right_arm;4=leg_right;5=leg_left', '' },
+    { 'automatons', 'enemy', 'Hulk Bruiser', 'Entry 0235', '32CDEADA234FB8DF', '0=left_arm;1=right_arm;2=left_leg;3=right_leg;4=head;5=', '' },
+    { 'automatons', 'enemy', 'Trooper', 'Entry 0396', '52018DEB9AB6827E', '0=head;1=chest;2=left_arm;3=right_arm;4=backpack;5=leg_left', '' },
+    { 'automatons', 'enemy', 'Vox Engine', 'Entry 0459', '611BA777783B08A2', '0=', '' },
+    { 'automatons', 'enemy', 'Reinforced Scout Strider', 'Entry 0654', '9076EEED17FCEE35', '0=leg_left;1=leg_right;2=turret;3=torso', '' },
+    { 'automatons', 'enemy', 'Devastator', 'Entry 0658', '91EBD77931110AFC', '0=head;1=chest;2=boss;3=pelvis;4=;5=;6=right_arm;7=left_arm;8=right_hip;9=right_hip;10=right_leg;11=left_leg;12=backpack', '' },
+    { 'illuminate', 'enemy', 'Cannon Turret', 'Entry 0673', '96110F9D6B010E02', '', '' },
+    { 'automatons', 'enemy', 'MG Raider', 'Entry 0747', 'A4552F97033392F4', '0=head;1=chest;2=left_arm;3=right_arm;4=leg_right;5=leg_left', '' },
+    { 'automatons', 'enemy', 'Trooper', 'Entry 0790', 'AE57FCDB49F74E98', '0=head;1=chest;2=left_arm;3=right_arm;4=leg_right;5=leg_left', '' },
+    { 'automatons', 'enemy', 'Trooper', 'Entry 0806', 'B056F8FC74ABA02D', '0=head;1=chest;2=left_arm;3=right_arm;4=leg_right;5=leg_left', '' },
+    { 'automatons', 'enemy', 'MG Raider', 'Entry 0831', 'B4ED319B39F5457B', '0=head;1=chest;2=left_arm;3=right_arm;4=leg_right;5=leg_left', '' },
+    { 'terminids', 'enemy', 'Predator Stalker', 'Entry 0957', 'D1E990BAF22D5A52', '0=;1=;2=;3=;4=r_claw;5=l_claw;6=;7=;8=;9=wings', '' },
+    { 'automatons', 'enemy', 'Hulk Scorcher', 'Entry 1059', 'E44EC9F9B3FE1D2A', '0=left_arm;1=right_arm;2=left_leg;3=right_leg;4=head;5=', '' },
+    { 'automatons', 'enemy', 'Devastator', 'Entry 1166', 'FC8DEC78BE8AB47D', '0=head;1=chest;2=boss;3=pelvis;4=;5=;6=right_arm;7=left_arm;8=right_hip;9=right_hip;10=right_leg;11=left_leg;16=backpack', '' },
+    { 'terminids', 'enemy', 'Charger Behemoth', 'Entry 1169', 'FD5247653C897803', '0=head;1=body_rear;2=;3=torso_underside;4=torso_inside;5=;6=;7=;8=;9=;10=;11=;12=;13=;14=;15=;16=', '' },
     { 'seaf', 'enemy', 'SEAF Soldier', 'Variant 1', '75F7E96AF7DCD303', '0=head;1=torso;2=left_arm;3=right_arm;4=left_leg;5=right_leg', '' },
     { 'seaf', 'enemy', 'SEAF Soldier', 'Variant 2', '6B22AE8E5F669D4F', '0=head;1=torso;2=left_arm;3=right_arm;4=left_leg;5=right_leg', '' },
     { 'seaf', 'enemy', 'SEAF Soldier', 'Variant 3', 'A00331F24DEEF2EE', '0=head;1=torso;2=left_arm;3=right_arm;4=left_leg;5=right_leg', '' },
@@ -1598,6 +1618,22 @@ MOD.langs = {
       ['Hull front'] = '车体前部',
       ['Hunter'] = '追猎虫',
       ['Hyena'] = '鬣狗',
+      ['Gazer Spire'] = '凝视者尖塔',
+      ['MG Raider'] = '机枪奇袭者',
+      ['Rocket Raider'] = '火箭奇袭者',
+      ['Reinforced Scout Strider'] = '强化侦察纵步者',
+      ['Predator Stalker'] = '掠食追踪虫',
+      ['Turret Small Autocannon'] = '小型自动机炮炮塔',
+      ['Orbital Cannon'] = '轨道炮',
+      ['RE-824 Bearer of the Standard'] = 'RE-824 旗手',
+      ['Melee armor penetration (+)'] = '近战穿甲 (+)',
+      ['Fire rate (x)'] = '射速 (x)',
+      ['Magazine size (x)'] = '弹匣容量 (x)',
+      ['added to every melee attack, up to 10; lowered: down to 0'] = '加到每种近战攻击上，最高 10；降低时最低为 0',
+      ['at least 1 round, at most 2048'] = '最少 1 发，最多 2048 发',
+      ['how fast their guns shoot; flamers, beams and melee stay as they are'] = '枪械的射击速度；喷火器、光束和近战不变',
+      ["the same distance for every enemy; 0: the game's own (most are 1 m, so no multiplier)"] = '所有敌人统一设为此距离；0：使用游戏原值（多数默认为 1 米，故不使用倍率）',
+      ["the same time for every gun; 0: the game's own (enemy reloads are 0 in the data, so no multiplier)"] = '所有枪械统一设为此装填时间；0：使用游戏原值（敌人武器数据中装填为 0，故不使用倍率）',
       ['Illuminate'] = '光能者',
       ['Illusionist death'] = '幻术师死亡',
       ['Immediate Extraction Beacon'] = '立即撤离信标',
@@ -2805,6 +2841,29 @@ MOD.langs = {
       ['Never'] = '从不',
       ['Patrolling speed (m/s)'] = '巡逻速度 (米/秒)',
       ['Picked up into'] = '拾取到',
+      ['Stomp'] = '践踏',
+      ['Weight class'] = '重量类型',
+      ['ArmorPassives'] = '护甲词条',
+      ['Every armor set with this name. Its passive text is shared by every armor with that passive.'] = '同名的所有护甲套装。被动说明文字由所有带该被动的护甲共用。',
+      ['Quick edit'] = '便捷参数',
+      ['Shield bash'] = '盾击',
+      ['No bolt pull'] = '取消拉栓',
+      ['Second ammo (id)'] = '第二弹种(编号)',
+      ['Second ammo replaces (1 or 2)'] = '第二弹种占用的功能槽 (1 或 2)',
+      ['Beam range (m)'] = '光束射程（米）',
+      ['Beams per barrel'] = '每管光束数',
+      ['Beam stays after the shot (s)'] = '射击后光束停留（秒）',
+      ['Side sight range (m)'] = '侧方视距（米）',
+      ['Rear sight range (m)'] = '后方视距（米）',
+      ['Bleed-out time (s)'] = '失血时间（秒）',
+      ['-1: as far as straight ahead'] = '-1：与正前方视距相同',
+      ['the rate of fire switch'] = '射速切换',
+      ['the fire mode switch'] = '射击模式切换',
+      ['the underbarrel switch'] = '下挂切换',
+      ['none. - / + : add one, hold Reload in game to switch'] = '无。- / +：添加一种，游戏中长按装填切换',
+      ['how long it lasts once its health is gone; sets its bleed-out health, so it also takes more shots to finish'] = '生命值耗尽后还能持续多久；它设置的是失血生命值，所以也需要更多攻击才能击毁',
+      ['this part does not bleed out: the game treats it as extra health (Hulk legs: 500)'] = '此部位不会失血：游戏将其视为额外生命值（Hulk 腿部为 500）',
+      ['the beam record\'s: every weapon firing this beam reaches as far'] = '光束记录的数值：发射该光束的所有武器射程相同',
       ['Picked up into: Primary slot'] = '拾取到：主武器栏',
       ['Picked up into: Support slot'] = '拾取到：支援武器栏',
       ['Picking it up puts it in your primary slot instead (1), in place of your primary. 3 = the support slot.'] = '拾取后放入主武器栏 (1)，替换你的主武器。3 = 支援武器栏。',
@@ -3849,6 +3908,14 @@ MOD.langs = {
       ['radical'] = '激进先锋',
       ['radius (m)'] = '半径(米)',
       ['raider'] = '奇袭者',
+      ['gazer spire'] = '凝视者尖塔',
+      ['mg raider'] = '机枪奇袭者',
+      ['rocket raider'] = '火箭奇袭者',
+      ['reinforced scout strider'] = '强化侦察纵步者',
+      ['predator stalker'] = '掠食追踪虫',
+      ['turret small autocannon'] = '小型自动机炮炮塔',
+      ['orbital cannon'] = '轨道炮',
+      ['re-824 bearer of the standard'] = 'RE-824 旗手',
       ['rail cannon round'] = '轨道炮弹',
       ['railgun'] = '磁轨炮',
       ['railgun round'] = '磁轨炮弹',
@@ -6559,6 +6626,29 @@ MOD.langs = {
       ['Never'] = '從不',
       ['Patrolling speed (m/s)'] = '巡邏速度 (米/秒)',
       ['Picked up into'] = '拾取到',
+      ['Stomp'] = '踐踏',
+      ['Weight class'] = '重量類型',
+      ['ArmorPassives'] = '護甲詞條',
+      ['Every armor set with this name. Its passive text is shared by every armor with that passive.'] = '同名的所有護甲套裝。被動說明文字由所有帶該被動的護甲共用。',
+      ['Quick edit'] = '便捷參數',
+      ['Shield bash'] = '盾擊',
+      ['No bolt pull'] = '取消拉栓',
+      ['Second ammo (id)'] = '第二彈種(編號)',
+      ['Second ammo replaces (1 or 2)'] = '第二彈種佔用的功能槽 (1 或 2)',
+      ['Beam range (m)'] = '光束射程（公尺）',
+      ['Beams per barrel'] = '每管光束數',
+      ['Beam stays after the shot (s)'] = '射擊後光束停留（秒）',
+      ['Side sight range (m)'] = '側方視距（公尺）',
+      ['Rear sight range (m)'] = '後方視距（公尺）',
+      ['Bleed-out time (s)'] = '失血時間（秒）',
+      ['-1: as far as straight ahead'] = '-1：與正前方視距相同',
+      ['the rate of fire switch'] = '射速切換',
+      ['the fire mode switch'] = '射擊模式切換',
+      ['the underbarrel switch'] = '下掛切換',
+      ['none. - / + : add one, hold Reload in game to switch'] = '無。- / +：新增一種，遊戲中長按裝填切換',
+      ['how long it lasts once its health is gone; sets its bleed-out health, so it also takes more shots to finish'] = '生命值耗盡後還能持續多久；它設定的是失血生命值，所以也需要更多攻擊才能擊毀',
+      ['this part does not bleed out: the game treats it as extra health (Hulk legs: 500)'] = '此部位不會失血：遊戲將其視為額外生命值（Hulk 腿部為 500）',
+      ['the beam record\'s: every weapon firing this beam reaches as far'] = '光束記錄的數值：發射該光束的所有武器射程相同',
       ['Picked up into: Primary slot'] = '拾取到：主武器欄',
       ['Picked up into: Support slot'] = '拾取到：支援武器欄',
       ['Picking it up puts it in your primary slot instead (1), in place of your primary. 3 = the support slot.'] = '拾取後放入主武器欄 (1)，替換你的主武器。3 = 支援武器欄。',
@@ -12260,7 +12350,7 @@ KINDS[TYPES.kit].parse = function(blob, stride, spec, address)
         if v and v >= #blob then v = v - address - HEADER_BYTES end
         return v and v >= 0 and v < #blob and v or nil
     end
-    local index = { name = u32(blob, 16), type = u32(blob, 40), pieces = {} }
+    local index = { name = u32(blob, 16), passive = u32(blob,28), type = u32(blob, 40), pieces = {} }
     local bodies, count = at(48), u32(blob, 56)
     if not (index.name and index.type and count) or count > 8 then return nil, 'armor kit layout does not match this build' end
     if index.type ~= 0 or count == 0 then return index, 0 end
@@ -12574,7 +12664,8 @@ local function field_at(kind, offset, storage, limit)
     -- (three captures: `x and s:match()` would keep only the first)
     local packed_bytes,packed_shift,packed_width
     if type(storage)=='string' then packed_bytes,packed_shift,packed_width=storage:match('^bits([124])_(%d+)_(%d+)$') end
-    local key = kind .. ':' .. offset .. ((mask or packed_bytes) and (':' .. storage) or '')
+    -- ('bolt': a u32 pair shown as a switch, the No bolt pull row; its own field beside the raw u32's)
+    local key = kind .. ':' .. offset .. ((mask or packed_bytes or storage=='bolt') and (':' .. storage) or '')
     local f = fields[key]
     if not f then
         f = { key = key, kind = kind, offset = offset, storage = mask and 'flag' or storage, mask = mask and 2^tonumber(mask), limit = limit, users = {} }
@@ -12620,6 +12711,10 @@ local function read_field(f)
     if f.storage == 'gun' then   -- an enemy's weapon: the chosen entity's number (MOD.enemy.gun_choices)
         return MOD.enemy.gun_id(api.read(entry.copies[1] + HEADER_BYTES + f.offset, 8))
     end
+    if f.storage == 'bolt' then   -- one of two known u32 values, shown as 1 (bolt_on) / 0 (bolt_off)
+        local v = peek4(entry.copies[1] + HEADER_BYTES + f.offset)
+        return v == f.bolt_on and 1 or v == f.bolt_off and 0 or nil
+    end
     if f.storage == 'flag' then   -- a bool byte
         local b = api.read(entry.copies[1] + HEADER_BYTES + f.offset, 1)
         b = b and b:byte()
@@ -12655,6 +12750,7 @@ local function encode(f, value)
     if f.storage == 'grenade' then return KINDS[TYPES.throwable].entity_bytes(value) end
     if f.storage == 'gun' then local g = MOD.enemy.gun_choices().by_id[value]; return g and g.key end
     if f.storage == 'f32' then return f32_bytes(value) end
+    if f.storage == 'bolt' then return u32_bytes(value >= .5 and f.bolt_on or f.bolt_off) end
     if f.storage == 'flag' then
         local n = value >= .5 and 1 or 0
         if f.mask then
@@ -12684,7 +12780,14 @@ local function default_of(f)
 end
 
 -- Writes every copy of the table; read back, or rolled back.
-local function write_field(f, value)
+local write_field
+-- A gun with both weapon functions taken (+184 left, +188 right): the chosen one (t.pick: 1 left, 2 right) becomes
+-- the ammo switch (8) while it has a second ammo. Run by either value, so config lines work in any order.
+function MOD.second_toggle(t, id)
+    write_field(t.left, id ~= 0 and read_field(t.pick) == 1 and 8 or default_of(t.left))
+    write_field(t.right, id ~= 0 and read_field(t.pick) == 2 and 8 or default_of(t.right))
+end
+write_field = function(f, value)
     local normalized,why=MOD.numeric.validate(f,value)
     if normalized==nil then return false,why end
     value=normalized
@@ -12693,6 +12796,7 @@ local function write_field(f, value)
         default_of(f)
         if read_field(f) ~= value then state.writes = state.writes + 1 end   -- (the host: changed since the last install)
         f.value = value
+        if f.toggle then MOD.second_toggle(f.toggle, read_field(f.toggle.second)) end
         return true
     end
     local entry = tables[f.kind]
@@ -12730,6 +12834,11 @@ local function write_field(f, value)
     for _, undo in ipairs(done) do if undo[2] ~= bytes then state.writes = state.writes + 1; break end end
     if f.storage == 'grenade' then KINDS[TYPES.throwable].rearm() end
     if f.storage == 'tier' and f.death then write_field(f.death, u32(bytes, 8)) end   -- the health's type follows
+    -- (MOD.slot.pickup_row) out of a support slot, an empty EAT / Commando must not play its drop ability: that
+    -- ability always drops the support slot, so it threw the support weapon away (upstream issue #115)
+    if f.auto_drop then write_field(f.auto_drop, (value == 1 or value == 2) and 0 or default_of(f.auto_drop)) end
+    if f.switch then write_field(f.switch, value ~= 0 and 8 or default_of(f.switch)) end   -- (a second ammo's weapon function)
+    if f.toggle then MOD.second_toggle(f.toggle, value) end
     return true
 end
 
@@ -13159,20 +13268,62 @@ end
 
 -- Armor weight: one page on the Armors tab, a row per armor (every armor set of that name), its weight on every
 -- piece of it (the torso's shown); speed and stamina follow it (tested in game, issue #89).
-MOD.kits = { HASH = 'FFFFFFF900000001', NAMES = { [0] = 'Light', [1] = 'Medium', [2] = 'Heavy' } }
+MOD.kits = { HASH = 'FFFFFFF900000001', PAGE = 'FFFFFFF8%08X', LOOK = 'FFFFFFF7%08X', MAX_PASSIVES = 14,
+             NAMES = { [0] = 'Light', [1] = 'Medium', [2] = 'Heavy' } }
 function MOD.kits.build()
-    local old = by_hash[MOD.kits.HASH]
-    for k = #weapons, 1, -1 do if weapons[k] == old then table.remove(weapons, k) end end
-    by_hash[MOD.kits.HASH] = nil
+    for k = #weapons, 1, -1 do
+        if weapons[k].kits then by_hash[weapons[k].hash] = nil; table.remove(weapons, k) end
+    end
     local any = false
     for _, group in ipairs(KINDS[TYPES.kit].list) do any = any or #tables[group].index.pieces > 0 end
     if not any then return end
+    -- (not listed: each armor's own page shows its weight; this page keeps the values' ids for configs and presets)
     by_hash[MOD.kits.HASH] = { name = 'Armor weight', slot = 'Armors', hash = MOD.kits.HASH, key = hash_key(MOD.kits.HASH),
-                               rows = {}, by_id = {}, kits = true,
+                               rows = {}, by_id = {}, kits = true, nav_hidden = true,
                                note = 'Light, medium or heavy, per armor (every armor set with that name).' }
-    weapons[#weapons + 1] = by_hash[MOD.kits.HASH]
+    -- at the top of the Armors tab, below the Helldiver
+    local at = #weapons + 1
+    for k, w in ipairs(weapons) do if w.slot == 'Armors' then at = k + (w.player and 1 or 0); break end end
+    table.insert(weapons, at, by_hash[MOD.kits.HASH])
+    -- each armor its own page, between Armor weight and the passives
+    local by_name, order, last = MOD.kits.named()
+    for _, id in ipairs(order) do
+        if MOD.kit_names[id] ~= '' then
+            local hash = string.format(MOD.kits.PAGE, id)
+            -- a few armors' variants differ: the page starts from the passive most of them have (not none, if it can)
+            local seen, lead = {}, nil
+            for _, kit in ipairs(by_name[id]) do
+                local v = kit.index.passive
+                seen[v] = (seen[v] or 0) + 1
+                if not lead or (v ~= 0 and (lead == 0 or seen[v] > seen[lead])) then lead = v end
+            end
+            last = { name = MOD.kit_names[id], slot = 'Armors', hash = hash, key = hash_key(hash), rows = {}, by_id = {},
+                     kits = 'passive', armor = id, default = lead ~= 0 and { lead } or {},
+                     note = 'Every armor set with this name. Its passive text is shared by every armor with that passive.' }
+            by_hash[hash] = last
+            at = at + 1
+            table.insert(weapons, at, last)
+        end
+    end
+    MOD.kits.migrate()
+end
+function MOD.kits.named()
+    local by_name, order = {}, {}
+    for _, group in ipairs(KINDS[TYPES.kit].list) do
+        local index = tables[group].index
+        if #index.pieces > 0 and MOD.kit_names and MOD.kit_names[index.name] then   -- (unnamed: not in the game yet)
+            if not by_name[index.name] then by_name[index.name] = {}; order[#order + 1] = index.name end
+            table.insert(by_name[index.name], { group = group, index = index })
+        end
+    end
+    local function name_of(id) return MOD.kit_names[id] end
+    table.sort(order, function(a, b) return name_of(a):lower() < name_of(b):lower() end)
+    return by_name, order
 end
 function MOD.kits.resolve(entry)
+    if entry.kits == 'passive' then return MOD.kits.weight_row(entry) end
+    if entry.kits ~= true then return end
+    MOD.kits.weights = {}
     local by_name, order = {}, {}
     for _, group in ipairs(KINDS[TYPES.kit].list) do
         local index = tables[group].index
@@ -13197,6 +13348,7 @@ function MOD.kits.resolve(entry)
         parts[1].id = row_id
         local w = default_of(parts[1].field)
         if w and rows[w + 1] then rows[w + 1][#rows[w + 1] + 1] = { row_id, name_of(id), parts } end
+        MOD.kits.weights[id] = { row_id, parts }
     end
     for w, list in ipairs(rows) do
         for _, r in ipairs(list) do
@@ -13206,6 +13358,31 @@ function MOD.kits.resolve(entry)
             row.note = '0 light, 1 medium, 2 heavy'
         end
     end
+end
+
+-- An armor's own page: its weight (light / medium / heavy) first, the same fields as the hidden Armor weight page's
+-- row, saved under that page (health_owner), so old configs and presets keep working.
+function MOD.kits.weight_row(entry)
+    local weight_page = by_hash[MOD.kits.HASH]
+    if not MOD.kits.weights and weight_page then
+        weight_page.rows, weight_page.by_id = {}, {}
+        MOD.kits.resolve(weight_page)
+    end
+    local w = MOD.kits.weights and MOD.kits.weights[entry.armor]
+    if not w or not weight_page then return end
+    local parts = {}
+    for k, p in ipairs(w[2]) do
+        parts[k] = { id = p.id, field = p.field, health_owner = { weapon = weight_page, part = p } }
+    end
+    entry.field_keys = entry.field_keys or {}
+    for _, p in ipairs(parts) do entry.field_keys[p.field.key] = true end
+    local row = add_row(entry, 'Armor weight', 'weight', 'Weight class', 'u32', parts, 0, 2, 1, 1)
+    row.choice = 'weight'
+    row.label_of = function()
+        local tr = state.tr or function(v) return v end   -- (settings is declared below this function)
+        return tr('Weight class') .. ': ' .. tr(MOD.kits.NAMES[read_field(parts[1].field) or -1] or '?')
+    end
+    row.note = '0 light, 1 medium, 2 heavy'
 end
 
 -- The helldiver: its health component (main health +0, each named zone's health +232; zones of 552 bytes from +520,
@@ -13955,6 +14132,13 @@ local function resolve_gun(weapon, key)
         damage_rows(weapon, 'Damage', '', drow)
     end
     if drow then status_rows(weapon, 'Damage', '', drow, 'hit') end
+    -- a beam's reach (BeamSettings +8; from starstring's fork, by upstream 4.6.0), where the beam is the damage source.
+    -- The same field as the beam record's page (RecBeam): one value, shown in both places.
+    local reach = beam and drow and tables[T_BEAM] and tables[T_BEAM].index[read_field(field_at(T_BEAM_WEAPON, beam, 'u32', 100000)) or -1]
+    if reach then
+        add_row(weapon, 'Damage', 'beam_range', 'Beam range (m)', 'f32', { part('beam_range', T_BEAM, reach + 8, 'f32', 100000) }, 0, 10000, 1, 10).note =
+            'the beam record\'s: every weapon firing this beam reaches as far'
+    end
     -- a beam's damage ticks per minute (BeamWeaponComponentData +104; SHODAN Offline Integration: 60 on the Laser
     -- Cannon and Laser Sentry)
     local tick = beam and field_at(T_BEAM_WEAPON, beam + 104, 'u32', 6000)
@@ -13963,6 +14147,15 @@ local function resolve_gun(weapon, key)
         add_row(weapon, 'Damage', 'beam_ticks', 'Damage ticks per minute', 'u32',
                 { part('beam_ticks', T_BEAM_WEAPON, beam + 104, 'u32', 6000) }, 1, 6000, 10, 60).note =
             'how often the beam deals its damage while it touches'
+    end
+    -- +108 / +112 (upstream 4.6.0): 2 and 0.15 s on the Trident, 1 and 1.4 s on the Meltagun; the steady lasers (1 and 0)
+    -- ignore both, tested
+    local beams = beam and default_of(field_at(T_BEAM_WEAPON, beam + 108, 'u32', 1000))
+    local stay = beam and default_of(field_at(T_BEAM_WEAPON, beam + 112, 'f32', 100000))
+    if beams and beams >= 1 and beams <= 16 and (beams > 1 or (stay or 0) > 0) then
+        add_row(weapon, 'Damage', 'beam_count', 'Beams per barrel', 'u32', { part('beam_count', T_BEAM_WEAPON, beam + 108, 'u32', 1000) }, 1, 12, 1, 1).tip =
+            { 'The Trident shows 4 beams at its default of 2.' }
+        add_row(weapon, 'Damage', 'beam_stay', 'Beam stays after the shot (s)', 'f32', { part('beam_stay', T_BEAM_WEAPON, beam + 112, 'f32', 100000) }, 0, 10, 0.05, 0.25)
     end
     local damage_to = #weapon.rows
     if arow then
@@ -14514,6 +14707,34 @@ local function resolve_gun(weapon, key)
         if inf and (d1 == 0 or d1 == 1) and (not inf[2] or d2 == 0 or d2 == 1) then
             add_row(weapon, 'Ammo', 'infinite_ammo', 'Infinite ammo', 'flag', inf, 0, 1, 1, 1).tip =
                 { 'The magazine never runs out. Flamethrowers: also set Ammo per puff to 0.' }
+            -- with the other Ammo rows, not under a second Ammo heading below Handling (upstream issue #118)
+            local at = #weapon.rows
+            for k = #weapon.rows - 1, 1, -1 do
+                if weapon.rows[k].section == 'Ammo' then at = k + 1; break end
+            end
+            table.insert(weapon.rows, at, table.remove(weapon.rows))
+        end
+        -- no bolt pull (127MU's fork, by upstream 4.6.0): the R-36's and R-40's fire animation (+936) and fire
+        -- abilities (+948, +1208) take the R-63 Diligence's, only where the game still holds the expected values.
+        -- The raw u32s stay editable on the weapon's component page; this row is a switch over the same bytes.
+        local bolt = KINDS[T_WEAPON].stride == 1240
+                     and ({ B6AFF2195568767F = { { 936, 0x14FAF8EB, 'anim' }, { 948, 2668, 'ability' }, { 1208, 2668, 'ability' } },
+                            ['41F2DEF484634B59'] = { { 948, 2694, 'ability' } } })[weapon.hash]
+        local donor = bolt and tables[T_WEAPON].index[hash_key('03E67A19B07C6523')]
+        if donor then
+            local anim = default_of(field_at(T_WEAPON, donor + 936, 'u32', 4294967295))
+            local ability = default_of(field_at(T_WEAPON, donor + 948, 'u32', 100000))
+            local fits, parts = anim == 0xAE6CC371 and ability and ability > 0, {}
+            for k, b in ipairs(bolt) do
+                if default_of(field_at(T_WEAPON, data + b[1], 'u32', 4294967295)) ~= b[2] then fits = false end
+                parts[k] = part('no_bolt_' .. b[1], T_WEAPON, data + b[1], 'bolt', 1)
+                parts[k].field.bolt_off, parts[k].field.bolt_on = b[2], b[3] == 'anim' and anim or ability
+            end
+            if fits then
+                add_row(weapon, 'Handling', 'no_bolt', 'No bolt pull', 'flag', parts, 0, 1, 1, 1).tip =
+                    { 'Skips the bolt pull after each shot (the R-63 Diligence\'s fire animation and ability).',
+                      'Fire rate, ammo and damage stay as they are. The raw ids stay editable on the component page.' }
+            end
         end
         -- the bayonet guns: the bayonet strike's damage row, which every bayonet shares
         local bayonet = MOD.BAYONET[weapon.name] and not weapon.mounted and MOD.melee_rows(weapon, 568, 'Bayonet melee', 'bayonet_')
@@ -14911,7 +15132,8 @@ local function build_stratagems()
                 w.note = w.note:gsub('%.$', '') .. ', ' .. entry.name .. '.'
             elseif hash and not by_hash[hash] then
                 w = { name = (entry.short or entry.name) .. ': ' .. (MOUNTS[label or 0] or ('Weapon ' .. (m + 1))), slot = 'Mechas', hash = hash,
-                      key = hash_key(hash), rows = {}, by_id = {}, mounted = true, note = 'Mounted on the ' .. entry.name .. '.' }
+                      key = hash_key(hash), rows = {}, by_id = {}, mounted = true, note = 'Mounted on the ' .. entry.name .. '.',
+                      mount_role = MOUNTS[label or 0] or ('weapon ' .. (m + 1)) }
                 mounted[hash] = w
                 weapons[#weapons + 1] = w
                 by_hash[hash] = w
@@ -15097,6 +15319,12 @@ KINDS[TYPES.vehicle].rows = function(entry, key, twins)
     regen.note = 'damaged parts heal; destroyed parts stay destroyed'
     add_row(entry, 'Vehicle', 'regen_delay', 'Regeneration delay after damage (s)', 'f32',
             parts('regen_delay', 12, 'f32', 3600), 0, 600, 0.1, 1)
+    -- (upstream 4.6.0) the melee button's stomp is an ability, no record names its damage: damage row 253 (unnamed),
+    -- the wiki's 9 values (609, the same values, is the Cyborg Lieutenant's). Same fields as RecDamage 253's page.
+    if MOD.exo_mounted[entry.name] then
+        local stomp = MOD.melee_rows(entry, 253, 'Stomp', 'stomp_')
+        if stomp then stomp.tip = { 'Every exosuit shares this stomp (damage record 253).' } end
+    end
     MOD.physics.rows(entry, key, twins)
     local n = 0
     for z = 0, 37 do
@@ -16816,6 +17044,26 @@ MOD.enemy = { on = false, TABS = { 'Terminids', 'Automatons', 'Illuminate', 'SEA
               ZONE = 552, ZONES = 520 }
 
 -- 'leg_right' -> 'Right leg', 'l_wrist' -> 'Left wrist'
+-- (upstream 4.6.0)
+-- Body parts no catalogue names, by the name hash at zone +96 (murmur64a's upper half, found by trying names;
+-- the Heatsink also by the wiki's numbers)
+MOD.enemy.PART_NAMES = {
+    [0x2B047266] = 'heatsink', [0xB709FE1C] = 'back_leg', [0x83BAB375] = 'back_lower_leg',
+    [0x70828B7A] = 'back_upper_leg', [0x3B75843B] = 'back_upper_leg_top', [0x7778AF66] = 'backpack',
+    [0x73757F26] = 'boss_head', [0x21014345] = 'engine_rear_weakspot', [0xB455B1EE] = 'eye_top',
+    [0x2D0AC038] = 'headplate', [0x47344B93] = 'jetpack', [0xF73F6AF7] = 'left_arm_armor',
+    [0x718CE684] = 'left_arm_weakspot', [0xC10B192C] = 'left_back_leg_armor', [0x19C4C9A6] = 'left_collar',
+    [0xA6323908] = 'left_front_leg_armor', [0x0D324590] = 'left_gun_weakspot',
+    [0x15B7E16D] = 'left_lower_arm', [0x5E8233FA] = 'left_lower_leg', [0x39241507] = 'left_middle_leg',
+    [0x93C0058D] = 'left_upper_leg', [0x83A150AB] = 'left_upper_leg_top', [0x23128279] = 'pilot',
+    [0x49807680] = 'right_arm_armor', [0x61DCC7A6] = 'right_arm_weakspot',
+    [0xCA9ED401] = 'right_back_leg_armor', [0x6E41F493] = 'right_collar',
+    [0x53DF0BFD] = 'right_front_leg_armor', [0xD19627FC] = 'right_gun_weakspot',
+    [0x20C2028D] = 'right_lower_arm', [0x50C392D7] = 'right_lower_leg', [0xFF9A5522] = 'right_middle_leg',
+    [0x56EB4767] = 'right_upper_leg', [0x04B52E77] = 'right_upper_leg_top', [0xA2BF8B44] = 'weakspot',
+    [0x46C655CA] = 'weakspot_engine',
+}
+
 function MOD.enemy.zone_name(name)
     if not name or name == '' then return nil end
     local words = {}
@@ -17046,7 +17294,7 @@ function MOD.enemy.resolve(entry)
                       'how fast the bleed-out health runs out')
     if drain then drain.scale = -1 end
     -- +36 the health lost per second by its body parts' bleed-out health (issue #91; positive, unlike +28)
-    row('Health', 'zone_drain', 'Body part bleed-out drain (health/s)', 36, 'f32', 10000000, 1000000, 1, 10,
+    local zone_drain = row('Health', 'zone_drain', 'Body part bleed-out drain (health/s)', 36, 'f32', 10000000, 1000000, 1, 10,
         "how fast a body part's bleed-out health runs out")
     row('Health', 'regen', 'Regeneration (health/s)', 4, 'f32', 1000000, 100000, 1, 10)
     row('Health', 'regen_delay', 'Regeneration delay after damage (s)', 12, 'f32', 3600, 600, 0.1, 1)
@@ -17054,16 +17302,31 @@ function MOD.enemy.resolve(entry)
     for z, n in (entry.enemy.zones or ''):gmatch('(%d+)=([^;]*)') do names[tonumber(z)] = n end
     local ht = tables[TYPES.health]
     local top = ht.copies[1] + HEADER_BYTES
+    -- (upstream 4.6.0) +322: the part bleeds out at all; where it does not, its bleed-out health is extra health
+    local function bleeds(base)
+        return (peek4(top + members[1].at + base + 96) or 0) ~= 0
+               and math.floor((peek4(top + members[1].at + base + 320) or 0) / 65536) % 256 ~= 0
+    end
     local count = 0
     for z = 0, 37 do
         local base = MOD.enemy.ZONES + z * MOD.enemy.ZONE
         if (peek4(top + members[1].at + base + 96) or 0) ~= 0 then
             count = count + 1
-            local section = MOD.enemy.zone_name(names[z]) or ('Body part ' .. count)
+            local section = MOD.enemy.zone_name(names[z] or MOD.enemy.PART_NAMES[peek4(top + members[1].at + base + 96)])
+                            or ('Body part ' .. count)
             local id = 'zone' .. z
             row(section, id .. '_health', 'Health', base + 232, 'u32', 10000000, 1000000, 10, 100)
-            row(section, id .. '_bleed', 'Bleed-out health', base + 236, 'u32', 10000000, 1000000, 10, 100,
-                'what it has left once its health is gone, lost over time')
+            local drains = bleeds(base)
+            local bleed = row(section, id .. '_bleed', 'Bleed-out health', base + 236, 'u32', 10000000, 1000000, 10, 100,
+                drains and 'what it has left once its health is gone, lost over time'
+                       or 'this part does not bleed out: the game treats it as extra health (Hulk legs: 500)')
+            -- (upstream 4.6.0, issue #119) one drain per enemy (+36), so a part's bleed-out time is its bleed-out health
+            -- over that drain: the same bytes as the row above, shown in seconds (no second stored value)
+            if drains and bleed and zone_drain and (read_field(zone_drain.parts[1].field) or 0) > 0 then
+                local time = add_row(entry, section, id .. '_bleed_time', 'Bleed-out time (s)', 'f32', bleed.parts, 0, 3600, 0.1, 1)
+                time.lead, time.drain = bleed.lead, zone_drain
+                time.note = 'how long it lasts once its health is gone; sets its bleed-out health, so it also takes more shots to finish'
+            end
             row(section, id .. '_armor', 'Armor', base + 216, 'u32', 100, 10, 1, 1)
             row(section, id .. '_durable', 'Durable ratio (0-1)', base + 204, 'f32', 1, 1, 0.05, 0.1)
             row(section, id .. '_explosive', 'Explosive damage taken (x)', base + 324, 'f32', 100, 100, 0.05, 0.25)
@@ -17209,6 +17472,11 @@ function MOD.enemy.more_rows(entry)
     if #keep > 0 then
         MOD.enemy.mult_row(entry, 'Senses', 'retention', 'Tracking after losing sight (x)', keep, 20, true,
                            'how long it keeps hunting you once you break line of sight; x1: as in the game, x2: twice as long')
+    end
+    -- (upstream 4.6.0) SensorEye +4 / +8: -1 in the game's data means as far as straight ahead
+    for _, sd in ipairs({ { 'sight_side', 'Side sight range (m)', 4 }, { 'sight_rear', 'Rear sight range (m)', 8 } }) do
+        local r = row(TYPES.sensor, 'Senses', sd[1], sd[2], { sd[3] }, 'f32', 10000, -1, 1000, 1, 10, '-1: as far as straight ahead')
+        for _, p in ipairs(r and r.parts or {}) do p.field.signed = true end
     end
     row(TYPES.sensor, 'Senses', 'sight_h', 'Sight cone width (degrees)', { 12 }, 'f32', 360, 0, 360, 1, 10)
     row(TYPES.sensor, 'Senses', 'sight_v', 'Sight cone height (degrees)', { 16 }, 'f32', 360, 0, 360, 1, 10)
@@ -17406,16 +17674,32 @@ MOD.enemy.FACTION_STATS = {
       function(page, r, p) return (r.id == 'stun_resist' or r.id == 'gas_resist') and p ~= r.parts[1] end },
     { 'Toughness', 'all_fire', 'Fire damage taken (x)', 'mult', 20, nil,
       function(page, r, p) return r.id == 'fire_taken' and p ~= r.parts[1] end },
+    { 'Toughness', 'all_explosive', 'Explosive damage taken (x)', 'mult', 20, nil,
+      function(page, r) return not page.enemy.gun and (r.id == 'explosive' or r.id:match('^zone%d+_explosive$')) end },
     { 'Attacks', 'all_damage', 'Damage (x)', 'mult', 20, 'melee, guns and death explosions, shared ones included',
       function(page, r, p) return MOD.enemy.damage_part(p) end },
+    { 'Attacks', 'all_melee_ap', 'Melee armor penetration (+)', 'add', 10, 'added to every melee attack, up to 10; lowered: down to 0',
+      function(page, r) return r.id:match('^atk%d+_ap$') end },
     { 'Attacks', 'all_spread', 'Weapon spread (x)', 'mult', 10, 'lower: their shots land closer to where they aim (0: dead on)',
       function(page, r) return r.id == 'spread_h' or r.id == 'spread_v' end },
+    { 'Attacks', 'all_rpm', 'Fire rate (x)', 'mult', 10, 'how fast their guns shoot; flamers, beams and melee stay as they are',
+      function(page, r) return page.enemy.gun and r.id:match('^rpm') end, nil, { 1, 6000 } },
+    { 'Attacks', 'all_reload', 'Reload time (s)', 'set', 60, "the same time for every gun; 0: the game's own (enemy reloads are 0 in the data, so no multiplier)",
+      function(page, r) return page.enemy.gun and r.id == 'reload_time' end },
+    { 'Attacks', 'all_capacity', 'Magazine size (x)', 'mult', 10, 'at least 1 round, at most 2048',
+      function(page, r) return page.enemy.gun and r.id == 'capacity' end, nil, { 1, 2048 } },
     { 'Movement', 'all_speed', 'Movement speed (x)', 'mult', 10, nil,
       function(page, r, p) return r.id == 'speed' and p ~= r.parts[1] end },
     { 'Movement', 'all_anim', 'Animation speed (x)', 'mult', 20, 'how fast they attack, turn and react',
       function(page, r, p) return (r.id == 'anim_speed' or r.id == 'anim_attack' or r.id == 'anim_hit') and p ~= r.parts[1] end, 'anim' },
     { 'Senses', 'all_sight', 'Sight range (x)', 'mult', 10, nil,
       function(page, r) return not page.enemy.gun and r.id == 'sight' end },
+    { 'Senses', 'all_sight_side', 'Side sight range (m)', 'set', 1000, "the same distance for every enemy; 0: the game's own (most are 1 m, so no multiplier)",
+      function(page, r) return not page.enemy.gun and r.id == 'sight_side' end },
+    { 'Senses', 'all_sight_rear', 'Rear sight range (m)', 'set', 1000, "the same distance for every enemy; 0: the game's own (most are 1 m, so no multiplier)",
+      function(page, r) return not page.enemy.gun and r.id == 'sight_rear' end },
+    { 'Senses', 'all_hearing', 'Hearing (x)', 'mult', 10, nil,
+      function(page, r) return not page.enemy.gun and r.id == 'hearing' end },
     { 'Suppression', 'all_flinch', 'Flinch from your fire (x)', 'mult', 20, 'enemies at 0 stay immune',
       function(page, r) return not page.enemy.gun and r.id == 'flinch' end },
     { 'Suppression', 'all_danger_radius', 'Shots count within (x)', 'mult', 10, nil,
@@ -17453,10 +17737,10 @@ function MOD.enemy.faction_resolve(entry)
     for _, s in ipairs(MOD.enemy.FACTION_STATS) do
         local lead = { id = s[2], field = field_at(0, 'enemy:' .. entry.hash .. ':' .. s[2], 'virtual', 1000) }
         local add = s[4] == 'add'
-        lead.field.default = add and 0 or 1
+        lead.field.default = (add or s[4] == 'set') and 0 or 1
         local r = add_row(entry, s[1], s[2], s[3], add and 'u32' or 'f32', { lead }, add and -10 or 0, s[5],
-                          add and 1 or 0.05, add and 1 or 0.25)
-        r.faction, r.add, r.note = s, add or nil, s[6]
+                          add and 1 or s[5] >= 1000 and 1 or 0.05, add and 1 or s[5] >= 1000 and 10 or 0.25)
+        r.faction, r.add, r.set, r.note = s, add or nil, s[4] == 'set' or nil, s[6]
         if s[8] == 'anim' then r.tip = MOD.physics.ANIM_TIP end
         lead.field.signed = add or nil
         if s == MOD.enemy.FACTION_STATS[#MOD.enemy.FACTION_STATS] then   -- under the last row: the blue marks
@@ -17691,6 +17975,10 @@ local function resolve(weapon)
                         add_row(weapon, 'Physical shield', 'shield_plate_armor', 'Shield plate armor', 'u32',
                                 { part('shield_plate_armor', TYPES.health, at + 520 + 552 + 216, 'u32', 100) }, 0, 10, 1, 1)
                     end
+                    -- (upstream 4.6.0) the bash is an ability, no record of the arm names its damage: damage row 251
+                    -- (unnamed), the only one with the wiki's 9 values; the same fields as RecDamage 251's page
+                    local bash = MOD.melee_rows(weapon, 251, 'Shield bash', 'bash_')
+                    if bash then bash.tip = { 'Damage record 251: the shield bash of the Breakthrough\'s shield arm.' } end
                 end
             end
         end
@@ -17774,7 +18062,8 @@ KINDS[T_PROJECTILE].swap_row = function(weapon, sources, shots, fire, extra)
         row.note = function(others)
             local spec, now, own = KINDS[T_PROJECTILE], read_field(row_parts[1].field), default_of(row_parts[1].field)
             local shot = spec.by_id and spec.by_id[now]
-            local text = now == own and "its own. - / + : fire another weapon's"
+            local text = now == 0 and 'none. - / + : add one, hold Reload in game to switch'
+                         or now == own and "its own. - / + : fire another weapon's"
                          or ('fires: ' .. (shot and shot.label or ('projectile ' .. tostring(now))) .. '. The rows above stay its own')
             if #others > 0 then text = text .. '; ammo type shared with ' .. table.concat(others, ', ', 1, math.min(2, #others)) end
             return text
@@ -17787,7 +18076,33 @@ KINDS[T_PROJECTILE].swap_row = function(weapon, sources, shots, fire, extra)
     if second and second > 0 then
         row = swap('projectile_2', 'Second mode fires (id)', { { id = 'projectile_2', field = alt } })
     else
+        -- (upstream 4.6.0) no second mode: the same row adds one. Its choice also sets a free weapon function
+        -- (+184 left, else +188 right) to the ammo switch, 8 (tested in game on the S-11 and, right, the Railgun:
+        -- hold Reload to switch). Both taken: the player picks which one the switch replaces.
         second = nil
+        local wrow = alt and tables[T_WEAPON].index[weapon.key]
+        local left = wrow and field_at(T_WEAPON, wrow + 184, 'u32', 100)
+        local right = wrow and field_at(T_WEAPON, wrow + 188, 'u32', 100)
+        local free = left and (default_of(left) == 0 and left or default_of(right) == 0 and right)
+        if left and not weapon.name:find('(', 1, true)   -- (no mounted guns, underbarrels)
+           and (weapon.slot == 'Primary' or weapon.slot == 'Secondary' or weapon.slot == 'Support') then
+            if free then alt.switch = free
+            else   -- the underbarrel's and the fire rate's go last
+                local l, r = default_of(left), default_of(right)
+                local pick = field_at(0, 'second_toggle:' .. weapon.hash, 'virtual', 2)
+                pick.default = (l == 11 or r == 2) and 2 or 1
+                pick.toggle = { left = left, right = right, pick = pick, second = alt }
+                alt.toggle = pick.toggle
+                add_row(weapon, 'Projectile swap', 'second_toggle', 'Second ammo replaces (1 or 2)', 'u32',
+                        { { id = 'second_toggle', field = pick } }, 1, 2, 1, 1).note = function()
+                    local gone = read_field(pick) == 1 and l or r
+                    return gone == 2 and 'the rate of fire switch' or gone == 3 and 'the fire mode switch' or 'the underbarrel switch'
+                end
+            end
+            row = swap('projectile_2', 'Second ammo (id)', { { id = 'projectile_2', field = alt } })
+            row.tip = { 'A second ammo type: pick another weapon\'s projectile. In game hold Reload to switch.',
+                        'It takes a free weapon function (fire mode / rate / underbarrel switch); 0 gives it back.' }
+        end
     end
     if ammo then
         local id = 'projectile_' .. ammo.prefix:sub(1, -2)
@@ -17920,7 +18235,8 @@ function MOD.record_names.name_of(page)
         local item=hash and catalog and(catalog.config.entities[page.entity_id or('E'..hash)]or catalog.config.entities[hash])
         if item and item.name then
             local n=item.name
-            return type(n)=='table'and(n[catalog.language]or n.en or n['zh-Hans']or select(2,next(n)))or n
+            n=type(n)=='table'and(n[catalog.language]or n.en or n['zh-Hans']or select(2,next(n)))or n
+            if n and n~=''then return n end
         end
     end
     local t, id = MOD.record_names.type_of(page), MOD.record_names.id_of(page)
@@ -17936,10 +18252,109 @@ function MOD.record_names.name_of(page)
     end
     return name
 end
+function MOD.record_names.tab_type(tab)
+    tab=tab or ui.tab
+    return ({RecDamage='damage',RecProjectile='projectile',RecExplosion='explosion',RecArc='arc',
+        RecBeam='beam',RecStatus='status',RecStratagem='stratagem',Orbital='bombardment',Eagle='eagle',
+        Stratagems='stratagem',Mechas='stratagem'})[tab]
+end
+function MOD.record_names.entity_hash_of(page)
+    if not page then return nil end
+    if page.entity_hash then return page.entity_hash:upper() end
+    if page.orbital_beam and page.hash then return page.hash:upper() end
+    if page.key and #page.key == 8 then
+        return string.format('%08X%08X', u32(page.key, 4), u32(page.key, 0))
+    end
+    if page.enemy and page.enemy.members and page.enemy.members[1] and page.enemy.members[1].key and #page.enemy.members[1].key == 8 then
+        return string.format('%08X%08X', u32(page.enemy.members[1].key, 4), u32(page.enemy.members[1].key, 0))
+    end
+    if page.name then
+        local pkg = tostring(page.name):match('^0[xX](%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x)$')
+        if pkg then return pkg:upper() end
+    end
+    if page.hash then return MOD.name_ids.hex(page.hash) end
+    return nil
+end
+function MOD.record_names.index_target_of(page)
+    if not page then return nil, nil end
+    if page.component_entry or page.orbital_beam or page.stratagem_entity_page then return nil, nil end
+    local t, id = MOD.record_names.type_of(page), MOD.record_names.id_of(page)
+    if t and type(id) == 'number' then return t, id end
+    if page.planet_index ~= nil then return 'planet_effect_assignment', page.planet_index end
+    if page.effect_id ~= nil then return 'galactic_effect', page.effect_id end
+    if page.source_ordinal ~= nil then return (page.slot or 'planet'):lower(), page.source_ordinal end
+    if page.modifier_id ~= nil then return 'planet_modifier', page.modifier_id end
+    if page.passive and tables[page.passive] and tables[page.passive].index then return 'armor_passive', tables[page.passive].index.id end
+    if page.booster and type(page.booster[1]) == 'number' then return 'booster', page.booster[1] end
+    if page.source_block ~= nil then return 'preload_world', page.source_block end
+    return nil, nil
+end
+function MOD.record_names.is_entity_item(page)
+    if not page then return false end
+    local t, id = MOD.record_names.index_target_of(page)
+    if t and id ~= nil then return false end
+    return MOD.record_names.entity_hash_of(page) ~= nil
+end
+function MOD.record_names.group_id_of(page)
+    if not page then return'other'end
+    if MOD.record_names.is_entity_item(page)then
+        local catalog=MOD.component_catalog
+        if catalog then
+            catalog:refresh()
+            local hex=MOD.record_names.entity_hash_of(page)
+            local r=page.catalog_record or(hex and catalog:record_of(page.entity_id or('E'..hex)))
+            if r and r.category then return r.category end
+            local ent=hex and(catalog.config.entities[page.entity_id or('E'..hex)]or catalog.config.entities[hex])
+            if ent and ent.category then return ent.category end
+        end
+        return'other'
+    end
+    local t,id=MOD.record_names.index_target_of(page)
+    if not t or id==nil then return'other'end
+    MOD.record_names.ensure()
+    return MOD.record_names.group(t,id)or'other'
+end
+function MOD.record_names.group_of(page)
+    if not page then return nil end
+    if MOD.record_names.is_entity_item(page)then
+        local catalog=MOD.component_catalog
+        if catalog then
+            catalog:refresh()
+            local hex=MOD.record_names.entity_hash_of(page)
+            local r=page.catalog_record or(hex and catalog:record_of(page.entity_id or('E'..hex)))
+            if r and r.category_name then return r.category_name end
+            local ent=hex and(catalog.config.entities[page.entity_id or('E'..hex)]or catalog.config.entities[hex])
+            if ent and ent.category and catalog.config.by_id[ent.category]then
+                local cname=catalog.config.by_id[ent.category].name
+                return type(cname)=='table'and(cname[catalog.language]or cname.en or cname['zh-Hans']or select(2,next(cname)))or cname
+            end
+        end
+        return nil
+    end
+    local t,id=MOD.record_names.index_target_of(page)
+    if not t or id==nil then return nil end
+    MOD.record_names.ensure()
+    return MOD.record_names.group(t,id)
+end
+function MOD.record_names.categories_for(tab, lang)
+    tab=tab or ui.tab
+    if tab=='OrbitalBeam'and MOD.component_catalog then return MOD.component_catalog:categories()end
+    MOD.record_names.ensure()
+    local t=MOD.record_names.tab_type(tab)
+    local out=MOD.record_names.categories(t,lang)
+    if (tab=='Stratagems'or tab=='Mechas')and MOD.component_catalog then
+        local seen={};for _,c in ipairs(out)do seen[c.id]=true end
+        for _,c in ipairs(MOD.component_catalog:categories())do
+            if not seen[c.id]then seen[c.id]=true;table.insert(out,#out,c)end
+        end
+    end
+    return out
+end
 function MOD.record_names.label(page, tr)
     if page.stratagem_entity_page then
-        local label=MOD.record_names.name_of(page)or(tr and tr(page.name)or page.name)
-        return page.name==page.entity_hash and('Entity '..page.entity_hash)or(label..' ['..page.entity_hash..']')
+        local custom=MOD.record_names.name_of(page)
+        local label=(custom and custom~='')and(tr and tr(custom)or custom)or(tr and tr(page.name)or page.name)
+        return label==page.entity_hash and('Entity '..page.entity_hash)or(label..' ['..page.entity_hash..']')
     end
     local id, name = MOD.record_names.id_of(page), tr and tr(page.name) or page.name
     local custom = MOD.record_names.name_of(page)
@@ -17951,10 +18366,11 @@ function MOD.record_names.label(page, tr)
 end
 function MOD.record_names.search_text(page)
     local id, custom = MOD.record_names.id_of(page), MOD.record_names.name_of(page)
+    local grp = MOD.record_names.group_of(page)
     local decimal = MOD.record_names.decimal_of(page)
     return tostring(page.name or '') .. ' ' .. tostring(page.note or '')
         .. (id and (' ' .. tostring(id)) or '') .. (decimal and (' ' .. tostring(decimal)) or '')
-        .. (custom and (' ' .. custom) or '')
+        .. (custom and (' ' .. custom) or '') .. (grp and (' ' .. grp) or '')
         .. (page.component_index==nil and page.component_search and (' '..page.component_search)or'')
         .. (type(id)=='number'and(' 0x'..string.format('%X',id))or'')
         .. (page.component_index==nil and page.entity_hash and(' 0x'..page.entity_hash..' '..tostring(MOD.name_ids.decimal(page.entity_hash)or''))or'')
@@ -18168,6 +18584,8 @@ function MOD.projectile.rows(page,at)
             end
         end
         emit(row,s,storage=='u64'and'uint64 (exact decimal)'or storage)
+        if name=='ricochet_threshold_angle'then page.by_id.ricochet_angle=row.parts[1]
+        elseif name=='ricochet_threshold_speed'then page.by_id.ricochet_speed=row.parts[1]end
         if name=='projectile_flags_1'or name=='projectile_flags_2'then
             for _,b in ipairs(C.BITS)do if b[2]==off then
                 local flag=add_row(page,'Projectile',b[1],b[1],'flag',{},0,1,1,1)
@@ -18719,6 +19137,10 @@ end
 -- A row's value (the mean of its parts); default = true: the game's own value instead.
 local function row_value(row, default)
     if row.custom_value then return row.custom_value(default)end
+    if row.drain then   -- a bleed-out time: health over the drain (at a drain of 0 it keeps the last time)
+        local rate = (default and default_of or read_field)(row.drain.parts[1].field)
+        if rate and rate > 0 then row.scale = 1 / rate end
+    end
     if row.empty then return nil end   -- (a document's field the editor has no stat for)
     if row.button_slot then
         local value=(default and default_of or read_field)(row.parts[1].field)
@@ -18758,6 +19180,23 @@ end
 -- One line per changed value: <weapon hash> <stat> <value>   # weapon name
 -- plus `hotkey <key>`. Written after every change, read once at start.
 local overrides = {}    -- list of { hash, id, value }
+-- The fields with a saved change (an override), rebuilt only when something was written or an override changed.
+-- Component groups ask it to mark themselves changed: a set lookup per field instead of reading every value from
+-- memory on every redraw (a vehicle page's 40 components, every list entry, every hover: ~1 s a frame before).
+MOD.override_serial = 0
+function MOD.changed_keys()
+    local c = MOD.changed_keys_cache
+    if not c or c.writes ~= state.writes or c.n ~= #overrides or c.serial ~= MOD.override_serial then
+        c = { writes = state.writes, n = #overrides, serial = MOD.override_serial, keys = {} }
+        for _, o in ipairs(overrides) do
+            local owner = by_hash[o.hash]
+            local p = owner and owner.by_id[o.id]
+            if p and p.field and p.field.key then c.keys[p.field.key] = true end
+        end
+        MOD.changed_keys_cache = c
+    end
+    return c.keys
+end
 local hotkey_name = 'F8'
 local config_dirty_at = nil
 -- The Settings page's choices, saved in config.txt with the changes. changes: apply the changes
@@ -18770,8 +19209,8 @@ local config_dirty_at = nil
 -- runs when it closes (off: they stay, as before).
 local settings = { changes = true, block_input = true, size = 80, side = 'right', opacity = 90,
                    component_show_missing = true, component_category = 'all', weapon_category = 'all', enemy_category = 'all',
-                   arc_mp = true, updates = 'ask', update_channel = 'releases', cache_clear_on_exit = false, proxy_stop_on_exit = false, steam_auto_config = true,
-                   stacks = {}, own_off = {}, hidden = {}, lang = MOD.lang or MOD.offline and rawget(_G, 'SHODAN_OFFLINE_LANG') or 'en',
+                   arc_mp = true, updates = 'ask', update_channel = 'releases', cache_clear_on_exit = false, proxy_stop_on_exit = false, proxy_auto_start = true, steam_auto_config = true,
+                   stacks = {}, own_off = {}, armor_passives = {}, hidden = {}, lang = MOD.lang or MOD.offline and rawget(_G, 'SHODAN_OFFLINE_LANG') or 'en',
                    last = { stat = {}, enemy = {} }, enemy_last = false,
                    -- the settings page's two links: this fork, then the original it is built on
                    FORK = 'https://github.com/Thodmcniujiao/SHODAN-Stat-Editor',
@@ -18830,6 +19269,7 @@ do
         state.lang = function() return settings.lang end
         state.updates = function() return settings.updates end   -- the host's updater: 'ask' or 'auto'
         state.update_channel = function() return settings.update_channel end   -- 'releases' or 'commits'
+        state.armor_passives=function()return settings.armor_passives end
         state.stacks = function() return settings.stacks end   -- passive id -> { passive ids stacked on it }
         state.own_off = function() return settings.own_off end -- passive id -> true: its own effects left out
         state.entity_demolition_enabled = function() return settings.changes end
@@ -18854,6 +19294,7 @@ do
         end
     end
     function settings.tr(v)
+        if type(v)~='string'then return tostring(v or'')end
         if MOD.planet.labels[v]then return require('component_view').pick(settings.lang,MOD.planet.labels[v])end
         local planet_name=MOD.planet.translate_name(v,settings.lang);if planet_name then return planet_name end
         local spawn_name=require('spawn_components').translate_name(v,settings.lang);if spawn_name then return spawn_name end
@@ -18983,7 +19424,12 @@ local function save_config()
         lines[#lines + 1] = 'update_channel ' .. settings.update_channel
         lines[#lines + 1] = 'cache_clear_on_exit ' .. onoff(settings.cache_clear_on_exit)
         lines[#lines + 1] = 'proxy_stop_on_exit ' .. onoff(settings.proxy_stop_on_exit)
+        lines[#lines + 1] = 'proxy_auto_start ' .. onoff(settings.proxy_auto_start)
         lines[#lines + 1] = 'steam_auto_config ' .. onoff(settings.steam_auto_config)
+        local armors={};for id in pairs(settings.armor_passives)do armors[#armors+1]=id end;table.sort(armors)
+        for _,id in ipairs(armors)do local list=settings.armor_passives[id]
+            lines[#lines+1]=string.format('armor_passive %08X %s',id,#list>0 and table.concat(list,',')or'none')
+        end
         -- passive_stack <passive id> <passive id>,<passive id>...: the passives stacked on it
         local ids, NAMES = {}, KINDS[TYPES.passive].NAMES
         for id in pairs(settings.stacks) do ids[#ids + 1] = id end
@@ -19033,24 +19479,61 @@ local function save_config()
     for _, hash in ipairs(renamed) do
         for _, field in ipairs({ 'name', 'desc' }) do
             local v = MOD.rename.texts[hash][field]
-            if v then lines[#lines + 1] = 'rename ' .. hash .. ' ' .. field .. ' ' .. v end
+            if v then lines[#lines+1]=MOD.offline and('rename_json '..hash..' '..field..' '..require('json_data').encode(v))or('rename '..hash..' '..field..' '..v)end
         end
     end
-    local ok, why = MOD.write_text(path, table.concat(lines, '\r\n') .. '\r\n')
-    if not ok then log('could not write ' .. path .. ': ' .. why) end
+    local text = table.concat(lines, '\r\n') .. '\r\n'
+    local ok, why
+    if MOD.offline then ok,why=require('portable_file').save(path,text,{validate=MOD.valid_config,backup=not MOD.cache_clear_pending})
+    else ok,why=MOD.write_text(path,text) end
+    if not ok then
+        config_dirty_at=api.now()+2
+        log('could not write ' .. path .. ': ' .. tostring(why))
+    elseif MOD.cache_clear_pending then
+        -- Explicit cache clearing must also prevent backup recovery from reviving
+        -- discarded staged values. Durable presets and installed-state stay intact.
+        local fs=require('preset_files')
+        for _,name in ipairs({'config.txt','preload_config.json','entity_demolition.txt'})do
+            fs.remove(path:gsub('config%.txt$',name)..'.bak')
+        end
+        MOD.cache_clear_pending=nil
+    end
     return ok, why
 end
 
+-- Keep tolerant legacy parsing, but detect empty/binary/truncated non-config input.
+function MOD.valid_config(text)
+    if text=='' or text:find('%z') then return false end
+    for line in text:gmatch('[^\r\n]+')do
+        if line:match('^%s*hotkey%s+%S+') or line:match('^%s*changes%s+o[nf]+%s*$')
+            or line:match('^%s*lang%s+%S+') or line:match('^%x+%s+%S+%s+[%d%.%-]')then return true end
+    end
+    return false
+end
 local function load_config()
     local path = config_path()
-    local handle = path and io.open(path, 'rb')
-    if not handle then save_config(); return end
-    local text = handle:read('*a') or ''
-    handle:close()
+    local text,why,recovered
+    if MOD.offline and path then
+        text,why,recovered=require('portable_file').read(path,{validate=MOD.valid_config})
+        if recovered then log('config: '..why);config_dirty_at=api.now()+.75 end
+        if not text and why then log('config: '..why)end
+    else
+        local handle=path and io.open(path,'rb')
+        if handle then text=handle:read('*a');handle:close()end
+    end
+    if not text then save_config(); return end
     local count = 0
     for at, line in MOD.lines_of(text) do
+        local json_hash,json_field,json_text=line:match('^%s*rename_json%s+(%x+)%s+(%a+)%s+(.+)$')
+        local loaded_json=false
+        if MOD.offline and json_hash and #json_hash==16 and(json_field=='name'or json_field=='desc')then
+            local ok,value=pcall(require('json_data').decode,json_text)
+            if ok and type(value)=='string'and #value<=(MOD.rename.HARD[json_field]or 4000)then
+                local t=MOD.rename.texts[json_hash:upper()]or{};t[json_field]=value;MOD.rename.texts[json_hash:upper()]=t;loaded_json=true
+            end
+        end
         line = line:gsub('#.*$', '')
-        local known = not line:find('%S')
+        local known = loaded_json or not line:find('%S')
         local key = line:match('^%s*hotkey%s+(%S+)')
         if key then hotkey_name = key; known = true end
         local name, value = line:match('^%s*([%a_]+)%s+(%S+)%s*$')
@@ -19067,6 +19550,12 @@ local function load_config()
             end
             settings.stacks[tonumber(target)] = #list > 0 and list or nil
             known = true
+        end
+        local armor,passives=line:match('^%s*armor_passive%s+(%x+)%s+([%a%d,]+)%s*$')
+        if armor and MOD.offline then
+            local list,seen={},{}
+            for id in passives:gmatch('%d+')do id=tonumber(id);if not seen[id]then seen[id]=true;list[#list+1]=id end end
+            if #list<=MOD.kits.MAX_PASSIVES then settings.armor_passives[tonumber(armor,16)]=list;known=true end
         end
         local own = line:match('^%s*passive_own%s+(%d+)%s+off%s*$')
         if own and MOD.offline then settings.own_off[tonumber(own)], known = true, true end
@@ -19088,6 +19577,9 @@ local function load_config()
             known = true
         elseif name == 'proxy_stop_on_exit' then
             settings.proxy_stop_on_exit = value == 'on'
+            known = true
+        elseif name == 'proxy_auto_start' then
+            settings.proxy_auto_start = value ~= 'off'
             known = true
         elseif name == 'steam_auto_config' then
             settings.steam_auto_config = value ~= 'off'
@@ -19177,6 +19669,38 @@ local function mark_config_dirty() config_dirty_at = api.now() + 0.75; MOD.enemy
 -- In config.txt: rename <page hash> name|desc <text>. LIMIT: past it a typed text is still written, with a warning
 -- (the game's own are at most about that long); HARD: what a box takes at all (bytes).
 MOD.rename = { texts = {}, LIMIT = { name = 60, desc = 400 }, HARD = { name = 1000, desc = 4000 } }
+function MOD.kits.list_of(page)return settings.armor_passives[page.armor]or page.default end
+function MOD.kits.set(page,list)
+    if not page.armor then return nil,'Select an armor first'end
+    if list then
+        if #list>MOD.kits.MAX_PASSIVES then return nil,'At most 14 passives per armor'end
+        local seen,clean={},{}
+        for _,id in ipairs(list)do
+            if not by_hash[string.format('FFFFFFFE%08X',id)]then return nil,'Unknown passive: '..tostring(id)end
+            if not seen[id]then seen[id]=true;clean[#clean+1]=id end
+        end
+        list=clean
+        if table.concat(list,',')==table.concat(page.default,',')then list=nil end
+    end
+    if table.concat(settings.armor_passives[page.armor]or page.default,',')==table.concat(list or page.default,',')then return true end
+    settings.armor_passives[page.armor]=list
+    state.writes=state.writes+1;mark_config_dirty();return true
+end
+function MOD.kits.migrate()
+    local migrated={}
+    for _,page in ipairs(weapons)do local id=page.armor and page.default[1]
+        if id and(settings.stacks[id]or settings.own_off[id])then
+            if not settings.armor_passives[page.armor]then
+                local list=settings.own_off[id]and{}or{id}
+                for _,other in ipairs(settings.stacks[id]or{})do list[#list+1]=other end
+                local ok,why=MOD.kits.set(page,list);if not ok then log('armor migration: '..tostring(why))else migrated[id]=true end
+            else migrated[id]=true end
+        end
+    end
+    for id in pairs(migrated)do settings.stacks[id],settings.own_off[id]=nil,nil end
+    if next(migrated)then state.writes=state.writes+1;mark_config_dirty()end
+end
+
 -- a page's text ids ({ id, capitals } lists name and desc) and its game texts (game.name, game.desc), nil without
 function MOD.rename.of(w)
     local host = rawget(_G, 'SHODAN_TEXTS')
@@ -19289,6 +19813,7 @@ local function set_override(weapon, p, value)
     if value ~= nil then kept[#kept + 1] = { hash = weapon.hash, id = p.id, value = value,
         installed=p.field.installed_value~=nil and value==p.field.installed_value or nil } end
     overrides = kept
+    MOD.override_serial = MOD.override_serial + 1
     if p.field and p.field.storage == 'grenade' then MOD.queue_grenade(weapon, p, value) end
     mark_config_dirty()
 end
@@ -19397,11 +19922,13 @@ function MOD.enemy.faction_refresh()
             -- (each field's factor and offset, gathered over every page first: the whole-game page's and its
             -- faction page's multiply, their armor steps add)
             for _, r in ipairs(MOD.parameter_rows(page)) do
-                local v = read_field(r.parts[1].field) or (r.add and 0 or 1)
+                local v = read_field(r.parts[1].field) or ((r.add or r.set) and 0 or 1)
                 for _, f in ipairs(page.enemy.targets[r.id].list) do
                     local e = plan[f.key]
-                    if not e then e = { f = f, mult = 1, add = 0 }; plan[f.key] = e; plan[#plan + 1] = e end
-                    if r.add then e.add, e.is_add = e.add + v, true else e.mult = e.mult * v end
+                    if not e then e = { f = f, mult = 1, add = 0, span = r.faction[9] }; plan[f.key] = e; plan[#plan + 1] = e end
+                    if r.add then e.add, e.is_add = e.add + v, true
+                    elseif r.set then if v > 0 then e.set = v end
+                    else e.mult = e.mult * v end
                 end
             end
         end
@@ -19411,8 +19938,10 @@ function MOD.enemy.faction_refresh()
         local d = default_of(f)
         local new = d and d * e.mult
         if d and e.is_add then new = d + e.add end
+        if d and e.set then new = e.set end
         if new and f.storage == 'u32' then new = math.floor(new + 0.5) end
         if new then new=MOD.numeric.clamp(f,new)end
+        if new and new ~= d and e.span then new = math.max(e.span[1], math.min(e.span[2], new)) end
         local moved = new and new ~= d
         if moved then covered[f.key] = true end
         if new and not owned[f.key] then
@@ -19798,6 +20327,17 @@ function MOD.slot.pickup_row(weapon, key)
     end
     r.tip = { 'The interaction its pickup zone is (Interactable, the zone\'s +40): 1 primary slot, in place of your primary; '
               .. '2 secondary (the weapon has vanished); 3 the support slot. Any other value is written as typed.' }
+    -- WeaponData +464 auto_drop_ability (1240-byte layout; the EATs and the Commando): see write_field
+    local at = KINDS[T_WEAPON].stride == 1240 and tables[T_WEAPON] and tables[T_WEAPON].index[key]
+    local drop = at and field_at(T_WEAPON, at + 464, 'u32', 100000)
+    if drop and (default_of(drop) or 0) ~= 0 then
+        p.field.auto_drop = drop
+        r.tip[#r.tip + 1] = 'Out of the support slot (1 or 2) its Auto drop ability is set to 0, so an empty one stays in your hands '
+                            .. 'instead of throwing your support weapon away; 3 puts the game\'s back.'
+    end
+    if KINDS[TYPES.rack].pack(key) then
+        r.tip[#r.tip + 1] = 'Backpack weapon: its backpack does not attach while the weapon is in the primary slot.'
+    end
 end
 
 function MOD.slot.row(weapon)
@@ -19971,6 +20511,14 @@ local function prepare(deadline)
                 wrap=function(...)return MOD.component_groups.wrap(...)end,
                 translate=settings.tr,
                 names=rawget(_G,'SHODAN_COMPONENT_NAMES'),zone_name=MOD.enemy.zone_name,lang=function()return settings.lang end,
+                part_name_of=function(id)
+                    if MOD.enemy.PART_NAMES[id]then return MOD.enemy.zone_name(MOD.enemy.PART_NAMES[id])end
+                    return (MOD.avatar and MOD.avatar.ZONES and MOD.avatar.ZONES[id])or MOD.vehicle_parts[id]
+                end,
+                zone_id=function(offset)
+                    local t=tables[TYPES.health]
+                    return t and peek4(t.copies[1]+HEADER_BYTES+offset)or nil
+                end,
                 zone_present=function(offset)
                     local t=tables[TYPES.health]
                     return t and (peek4(t.copies[1]+HEADER_BYTES+offset)or 0)~=0
@@ -20107,7 +20655,11 @@ local function prepare(deadline)
     end
     if not progress.installed_rows then MOD.installed_rows();progress.installed_rows=true end
     if not MOD.snapshot_defaults(progress, deadline) then return end
-    if not MOD.restore_installed(progress,deadline)then return end
+    if not progress.installed_restored then
+        if not MOD.restore_installed(progress,deadline)then return end
+        progress.installed_restored=true
+        if state.host_read_baseline then state.host_read_baseline()end
+    end
     if api.now() >= deadline or not apply_config(deadline) then return end
     progress = nil
     MOD.enemy.faction_refresh()
@@ -20449,6 +21001,7 @@ MOD.nav = { BASE = { Orbital = 'Stratagems', Eagle = 'Stratagems', RecProjectile
                      RecStratagem = 'Records',
                      RecDamage = 'Records', RecArc = 'Records', RecBeam = 'Records',
                      RecStatus = 'Records', Helldiver = 'Armors', HelldiverQuick = 'Armors', HelldiverOther = 'Armors',
+                     ArmorPassives = 'Armors',
                      OrbitalBeam = 'Stratagems' },
             REC = { F1 = 'RecProjectile', F2 = 'RecExplosion', F3 = 'RecStatus',
                     F4 = 'RecDamage', F5 = 'RecArc', F6 = 'RecBeam', F7 = 'RecStratagem' } }
@@ -20510,7 +21063,7 @@ MOD.nav.PAGES = {
         { name = { 'Weapon editing', '武器编辑', '武器編輯' }, tabs = { 'Primary', 'Secondary', 'Support', 'Throwables' }, weapon_browser = true },
         { name = { 'Weapon attachments', '武器配件自定义', '武器配件自定義' }, tabs = { 'Attachments' } },
         { name = { 'Stratagem editing', '战备编辑', '戰備編輯' }, tabs = { 'Stratagems', 'Mechas' } },
-        { name = { 'Armor editing', '护甲编辑', '護甲編輯' }, tabs = { 'Armors' } },
+        { name = { 'Armor editing', '护甲编辑', '護甲編輯' }, tabs = { 'Armors', 'ArmorPassives' } },
         { name = { 'Boosters', '强化资源', '強化資源' }, tabs = { 'Boosters' } },
         { name = { 'Loadout swap', '装备替换', '裝備替換' }, todo = {
             { note = { 'Click a weapon first, then change the chosen one.', '请先点击武器，再修改选中', '請先點擊武器，再修改選中' }, items = { { 'Weapon swap', '武器替换', '武器替換' }, { 'Swap the chosen one', '修改选中', '修改選中' } } },
@@ -20760,6 +21313,7 @@ function MOD.nav.tab_of(w)
         return w.player_view == 'quick' and 'HelldiverQuick' or w.player_view == 'other' and 'HelldiverOther' or 'Helldiver'
     end
     if w.orbital_beam then return 'OrbitalBeam' end
+    if w.passive then return 'ArmorPassives' end   -- 护甲编辑 › 护甲词条 (the armors themselves: 护甲)
     local family = w.slot == 'Stratagems' and w.stratagem and w.stratagem.family
     return family == 'orbital' and 'Orbital' or family == 'eagle' and 'Eagle' or w.slot
 end
@@ -20794,8 +21348,10 @@ MOD.nav.TODO_TABS = {
         { note = { 'After S\' super Mission Editor.', '参考 S\' super Mission Editor', '參考 S\' super Mission Editor' }, items = { { 'ID', 'ID', 'ID' }, { 'Faction', '种族', '種族' }, { 'Type', '类型', '類型' }, { 'Generate in operation (level range)', '行动内生成（等级范围）', '行動內生成（等級範圍）' }, { 'Name / description IDs', '名称/描述ID', '名稱/描述ID' }, { 'Objectives', '目标', '目標' }, { 'Generate count', '生成数量', '生成數量' } } },
     } },
 }
+MOD.nav.LABELS = { Armors = { 'Armors', '护甲', '護甲' }, ArmorPassives = { 'Armor passives', '护甲词条', '護甲詞條' } }
 function MOD.nav.tab_label(tab)
     if MOD.nav.TODO_TABS[tab] then return MOD.nav.text(MOD.nav.TODO_TABS[tab].name) end
+    if MOD.nav.LABELS[tab] then return MOD.nav.text(MOD.nav.LABELS[tab]) end
     if MOD.nav.BASE[tab] then
         local page, k = MOD.nav.locate(tab)
         if page then return MOD.nav.text(page.subs[k].name) end
@@ -20829,6 +21385,7 @@ end
 local LIST_ROWS = 27
 MOD.WEAPON_SLOTS = { Primary = true, Secondary = true, Support = true, Throwables = true }
 MOD.WEAPON_COMP_SUBS = {
+    quick = { order = 0, name = { 'Quick edit (same fields as the components below)', '便捷参数（与下方组件共用字段）', '便捷參數（與下方組件共用欄位）' } },
     weapon = { order = 1, name = { 'Weapon components', '武器组件', '武器組件' } },
     type = { order = 2, name = { 'Weapon kinds', '武器类型', '武器類型' } },
     attach = { order = 3, name = { 'Weapon attachments', '武器配件', '武器配件' } },
@@ -20889,7 +21446,7 @@ function MOD.attach_weapon_components()
         fallback_specs[#fallback_specs + 1] = { spec = require(item[1]), view = item[2], sub = item[3] }
     end
     require('weapon_component_groups').attach({weapons=weapons,slots=MOD.WEAPON_SLOTS,
-        primary=primary_specs,fallback=fallback_specs,subs=MOD.WEAPON_COMP_SUBS,
+        primary=primary_specs,fallback=fallback_specs,subs=MOD.WEAPON_COMP_SUBS,quick=MOD.quick_group,
         wrap=MOD.component_groups.wrap,text=MOD.nav.text,lang=function()return settings.lang end,
         changed=function(page)return MOD.page_changed(page)end})
 end
@@ -20897,6 +21454,31 @@ end
 -- default, and the component's own parameter groups inside. Used by 轨道编辑 and 飞鹰编辑; the Armory and
 -- 人物数据 follow the same rule.
 MOD.component_groups = {}
+-- 便捷参数: the rows the component pages do not lay out on their own (upstream 4.6.0's convenience rows: a pickup slot
+-- with its auto-drop fix, No bolt pull, the second ammo, beam rows, the exosuit stomp and the shield bash). Each writes
+-- the same fields as the components below it, so a value set here shows there too. A group first on the page.
+MOD.QUICK = { ids = { pickup_slot = true, no_bolt = true, projectile_2 = true, second_toggle = true, beam_range = true,
+                      beam_count = true, beam_stay = true }, prefixes = { 'stomp_', 'bash_' } }
+function MOD.QUICK.wanted(row)
+    local id = tostring(row.id)
+    if MOD.QUICK.ids[id] then return true end
+    for _, p in ipairs(MOD.QUICK.prefixes) do if id:sub(1, #p) == p then return true end end
+    return false
+end
+function MOD.quick_group(weapon, rows)
+    local picked = {}
+    for _, r in ipairs(rows or {}) do if r.parts and #r.parts > 0 and MOD.QUICK.wanted(r) then picked[#picked + 1] = r end end
+    if #picked == 0 then return nil end
+    local function modified()
+        for _, r in ipairs(picked) do
+            local v, d = row_value(r), row_value(r, true)
+            if type(v) == 'number' and type(d) == 'number' and v ~= d then return true end
+        end
+        return false
+    end
+    return { type = 'QuickRows', label = { 'Quick edit', '便捷参数', '便捷參數' }, rows = picked, hide_type = true, rank = -1, modified = modified,
+             sub = 'quick', sub_label = { 'Quick edit (same fields as the components below)', '便捷参数（与下方组件共用字段）', '便捷參數（與下方組件共用欄位）' } }
+end
 function MOD.component_groups.wrap(entry, groups, sub_label)
     local kept = {}
     for _, g in ipairs(groups) do if #g.rows > 0 or g.ensure_rows then kept[#kept + 1] = g end end
@@ -20914,10 +21496,20 @@ function MOD.component_groups.wrap(entry, groups, sub_label)
         end
     end
     local function modified(rows)
+        local keys, all = MOD.changed_keys(), MOD.enemy.by_all
         for _, r in ipairs(rows) do
             if r.hash64 and MOD.stratagem.hash_text(r)~=MOD.stratagem.hash_text(r,true)then return true end
-            local v, d = row_value(r), row_value(r, true)
-            if type(v) == 'number' and type(d) == 'number' and v ~= d then return true end
+            if r.custom_value then   -- (a view's own value, not a field: compared as shown)
+                local v, d = row_value(r), row_value(r, true)
+                if type(v) == 'number' and type(d) == 'number' and v ~= d then return true end
+            end
+            for _, p in ipairs(r.parts or {}) do
+                local f = p.field
+                if f then
+                    if f.key and (keys[f.key] or (all and all[f.key])) then return true end
+                    if f.demolition and f.demolition:own(f) ~= nil then return true end
+                end
+            end
         end
         return false
     end
@@ -20925,7 +21517,15 @@ function MOD.component_groups.wrap(entry, groups, sub_label)
         local group_sub=g.sub or sub_key
         local group_sub_of=g.sub_label and function()return MOD.nav.text(g.sub_label)..' ('..counts[g.sub]..')'end or sub_of
         local component_of = function() return (g.label_of and g.label_of()or MOD.nav.text(g.label)) .. (g.hide_type and '' or (' (' .. g.type .. ')')) end
-        local modified_fn = function() return g.modified and g.modified()or modified(g.rows) end
+        local memo_stamp, memo_value
+        local modified_fn = function()
+            local stamp = state.writes .. ':' .. #overrides .. ':' .. MOD.override_serial .. ':' .. #g.rows
+            if stamp ~= memo_stamp then
+                memo_value = (g.modified and g.modified() or modified(g.rows)) and true or false
+                memo_stamp = stamp
+            end
+            return memo_value
+        end
         g.load = function()
             if g.loaded then return end
             local rows=g.ensure_rows and g.ensure_rows()or g.rows
@@ -21119,7 +21719,7 @@ function MOD.attach_stratagem_components()
         schemas=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas,
         names=rawget(_G,'SHODAN_COMPONENT_NAMES'),field_at=field_at,read=read_field,default_of=default_of,
         add_row=add_row,lang=function()return settings.lang end,wrap=MOD.component_groups.wrap,tab_of=MOD.nav.tab_of,log=log,
-        archive_rows=MOD.physics.owned_rows,
+        archive_rows=MOD.physics.owned_rows,quick=MOD.quick_group,
         bytes=function(kind,offset,n)local t=tables[kind];return t and api.read(t.copies[1]+HEADER_BYTES+offset,n)end,
         array_bytes=function(kind,offset,stride)
             local t=tables[kind];local base=t.copies[1]+HEADER_BYTES
@@ -21229,10 +21829,16 @@ local function weapons_in(tab)
     if planets then return planets end
     local saved=MOD.player_save_view.list(tab=='?search'and ui.tab or tab,words and ui.search.text or'')
     if saved then return saved end
-    local enum_list=MOD.component_records and MOD.component_records.lists[words and ui.tab or tab]
+    local active_tab = words and ui.tab or tab
+    local record_cat = not words and not ui.record_jump_unfiltered and settings.record_categories and settings.record_categories[active_tab] or 'all'
+    local function record_cat_match(page)
+        if not record_cat or record_cat == 'all' then return true end
+        return MOD.record_names.group_id_of(page) == record_cat
+    end
+    local enum_list=MOD.component_records and MOD.component_records.lists[active_tab]
     if enum_list then
         for _,page in ipairs(enum_list)do
-            local text=MOD.record_names.search_text(page):lower();local matches=true
+            local text=MOD.record_names.search_text(page):lower();local matches=record_cat_match(page)
             for _,word in ipairs(words or{})do if not text:find(word,1,true)then matches=false;break end end
             if matches then list[#list+1]=page end
         end
@@ -21248,7 +21854,7 @@ local function weapons_in(tab)
         for _, page in ipairs(MOD.records.all()) do
             local text = MOD.record_names.search_text(page):lower()
             local current=words and ui.tab or tab
-            local all = current == 'Records' or MOD.nav.tab_of(page) == current
+            local all = (current == 'Records' or MOD.nav.tab_of(page) == current) and record_cat_match(page)
             for _, word in ipairs(words or {}) do
                 if not text:find(word, 1, true) then all = false; break end
             end
@@ -21256,10 +21862,10 @@ local function weapons_in(tab)
         end
         return list
     end
-    local entity_list=MOD.stratagem_entity_model and MOD.stratagem_entity_model.lists[words and ui.tab or tab]
+    local entity_list=MOD.stratagem_entity_model and MOD.stratagem_entity_model.lists[active_tab]
     if entity_list then
         for _,page in ipairs(entity_list)do
-            local hay=MOD.record_names.search_text(page):lower();local include=true
+            local hay=MOD.record_names.search_text(page):lower();local include=record_cat_match(page)
             for _,word in ipairs(words or{})do if not hay:find(word,1,true)then include=false;break end end
             if include then list[#list+1]=page end
         end
@@ -21271,7 +21877,7 @@ local function weapons_in(tab)
     for _, weapon in ipairs(weapons) do
         if buckets and MOD.ENEMY_SLOTS[weapon.slot] and #weapon.rows > 0 and not settings.hidden[weapon.slot] then
             local b = buckets[weapon.slot]; b[#b + 1] = weapon
-        elseif #weapon.rows > 0 and not settings.hidden[weapon.slot] and not weapon.nav_hidden then
+        elseif (#weapon.rows > 0 or weapon.armor) and not settings.hidden[weapon.slot] and not weapon.nav_hidden then
             if words then
                 local name = MOD.record_names.is_page(weapon) and MOD.record_names.search_text(weapon) or weapon.name
                 if weapon.stratagem_entity_groups then name=name..' '..(weapon.entity_hash or'')end
@@ -21281,7 +21887,7 @@ local function weapons_in(tab)
                     if not name:find(word, 1, true) then all = false; break end
                 end
                 if all then list[#list + 1] = weapon end
-            elseif weapon_all and MOD.WEAPON_SLOTS[weapon.slot] or MOD.nav.tab_of(weapon) == tab then
+            elseif weapon_all and MOD.WEAPON_SLOTS[weapon.slot] or (MOD.nav.tab_of(weapon) == tab and (not MOD.record_names.is_tab(tab) or record_cat_match(weapon))) then
                 list[#list + 1] = weapon
             end
         end
@@ -21310,7 +21916,8 @@ local function modified(weapon)
             if p and weapon.field_keys[p.field.key] then return true end
         end
     end
-    -- an armor passive with passives stacked on it (offline)
+    -- an armor with its own passive combination (offline)
+    if weapon.armor and settings.armor_passives[weapon.armor] ~= nil then return true end
     local t = weapon.passive and tables[weapon.passive]
     return t ~= nil and (settings.stacks[t.index.id] ~= nil or settings.own_off[t.index.id] ~= nil)
 end
@@ -21582,12 +22189,210 @@ function MOD.parameter_name_start(page, row)
     local pref = MOD.parameters:get(page, row)
     ui.parameter_name = { page = page, row = MOD.parameters:source(row),
         text = pref and pref.name or MOD.parameters:original_label(row), fresh = true }
+    if MOD.text then MOD.text.touch(ui.parameter_name, api.now()) end
     ui.version = ui.version + 1
 end
 function MOD.parameter_name_finish(save, reset)
     local edit = ui.parameter_name
     if save and edit and not MOD.parameter_set(edit.page, edit.row, 'name', reset and '' or edit.text) then return end
     ui.parameter_name = nil
+    ui.version = ui.version + 1
+end
+
+MOD.item_naming = {}
+function MOD.item_naming.info(page)
+    if not page then return nil end
+    local t, id = MOD.record_names.index_target_of(page)
+    if t and id ~= nil then
+        MOD.record_names.ensure()
+        local raw_name = settings.tr(page.base_name or page.name or '')
+        if page.record or page.stratagem_type then
+            raw_name = raw_name:match('^.-#%d+%s*·%s*(.+)$') or raw_name:match('^#%d+%s*·%s*(.+)$') or raw_name
+        end
+        local custom = MOD.record_names.name(t, id) or MOD.record_names.name_of(page)
+        local current_name = (custom and custom ~= '') and custom or (page.custom_design_name) or raw_name
+        local grp = MOD.record_names.group(t, id)
+        local group_id = grp or 'other'
+        local group_name = grp or MOD.nav.text({ 'Unclassified', '未分类', '未分類' })
+        local groups = {}
+        for _, c in ipairs(MOD.record_names.categories(t, settings.lang)) do
+            if c.id ~= 'all' then groups[#groups + 1] = { id = c.id, name = c.name } end
+        end
+        return {
+            kind = 'typeid', page = page, type = t, id = tostring(id),
+            entity_hash = page.entity_hash,
+            base_name = raw_name, current_name = current_name,
+            current_group_id = group_id, current_group_name = group_name,
+            groups = groups,
+            subtitle = t .. ' #' .. tostring(id) .. ' · ' .. raw_name,
+        }
+    end
+    local hash = MOD.record_names.entity_hash_of(page)
+    local catalog = MOD.component_catalog
+    if not hash or not catalog then return nil end
+    catalog:refresh()
+    local rid = page.entity_id or ('E' .. hash)
+    local r = page.catalog_record or catalog:record_of(rid)
+    if r then rid, hash = r.id, r.hash end
+    local ent = catalog.config.entities[rid] or catalog.config.entities[hash]
+    local base_name = page.base_name or (page.component_entry and r and r.base_name) or page.name or hash
+    local custom = page.custom_design_name or (page.component_entry or page.orbital_beam or page.stratagem_entity_page) and MOD.record_names.name_of(page) or (ent and ent.custom and MOD.record_names.name_of(page))
+    local current_name = (custom and custom ~= '') and custom or (page.component_entry and r and r.name) or settings.tr(page.name or '')
+    local group_id = (r and r.category) or (ent and ent.category) or 'other'
+    local group_name = (r and r.category_name) or MOD.record_names.group_of(page) or MOD.nav.text({ 'Unclassified', '未分类', '未分類' })
+    local groups = {}
+    for _, c in ipairs(catalog:categories()) do
+        if c.id ~= 'all' then groups[#groups + 1] = { id = c.id, name = c.name } end
+    end
+    local dec = (r and r.decimal) or MOD.name_ids.decimal(hash)
+    return {
+        kind = 'entity', page = page, rid = rid, hash = hash, decimal = dec,
+        base_name = base_name, current_name = current_name,
+        current_group_id = group_id, current_group_name = group_name,
+        groups = groups,
+        subtitle = '0x' .. hash .. ' · ' .. settings.tr(base_name),
+    }
+end
+function MOD.item_naming.custom_name_of(page)
+    if not page then return nil end
+    if page.custom_design_name and page.custom_design_name ~= '' then return page.custom_design_name end
+    local t, id = MOD.record_names.index_target_of(page)
+    if t and id ~= nil then
+        MOD.record_names.ensure()
+        local n = MOD.record_names.name(t, id)
+        return (n and n ~= '') and n or nil
+    end
+    local catalog = MOD.component_catalog
+    local hash = MOD.record_names.entity_hash_of(page)
+    if catalog and hash then
+        local ent = catalog.config.entities[page.entity_id or ('E' .. hash)] or catalog.config.entities[hash]
+        if ent and ent.custom and ent.name then
+            local n = ent.name
+            n = type(n) == 'table' and (n[catalog.language] or n.en or n['zh-Hans'] or select(2, next(n))) or n
+            if n and n ~= '' then return n end
+        end
+    end
+    return nil
+end
+function MOD.item_naming.custom_group_of(page)
+    if not page then return nil end
+    local t, id = MOD.record_names.index_target_of(page)
+    if t and id ~= nil then
+        MOD.record_names.ensure()
+        local g = MOD.record_names.group(t, id)
+        return (g and g ~= '' and g ~= 'other') and g or nil
+    end
+    local catalog = MOD.component_catalog
+    local hash = MOD.record_names.entity_hash_of(page)
+    if catalog and hash then
+        local ent = catalog.config.entities[page.entity_id or ('E' .. hash)] or catalog.config.entities[hash]
+        if ent and ent.user_group and ent.category and ent.category ~= 'other' then
+            return MOD.record_names.group_of(page)
+        end
+    end
+    return nil
+end
+function MOD.item_naming.start_name(page)
+    local info = MOD.item_naming.info(page)
+    if not info then return end
+    if ui.value and state.commit_value then local ok = state.commit_value(); if not ok then return end end
+    if ui.code then MOD.code.finish(false) end
+    ui.context_menu, ui.parameter_name, ui.item_group = nil, nil, nil
+    ui.design_name = { page = page, info = info, text = info.current_name or '', fresh = true }
+    if MOD.text then MOD.text.touch(ui.design_name, api.now()) end
+    ui.version = ui.version + 1
+end
+function MOD.item_naming.finish_name(save, reset)
+    local edit = ui.design_name
+    if not edit then return end
+    if save then
+        local info = edit.info
+        local page = edit.page
+        local val = reset and '' or tostring(edit.text or ''):match('^%s*(.-)%s*$')
+        if page then page.base_name = page.base_name or page.name end
+        if info.kind == 'entity' then
+            local ok, why = MOD.component_catalog:set_name(info.rid, val)
+            if not ok then
+                MOD.notify(MOD.nav.text({ 'Cannot save design name: ', '无法保存策划名：', '無法儲存策劃名：' }) .. tostring(why), 6)
+                return
+            end
+            local r = MOD.component_catalog:record_of(info.rid)
+            if page then
+                page.custom_design_name = val ~= '' and val or nil
+                if not page.record and not page.stratagem_type and page.component_index == nil then
+                    page.name = (val ~= '' and val) or (page.component_entry and r and r.name) or page.base_name
+                end
+            end
+            for _, w in ipairs(weapons) do
+                if (w.entity_hash and w.entity_hash:upper() == info.hash) or (w.orbital_beam and w.hash == info.hash) then
+                    w.base_name = w.base_name or w.name
+                    if w.stratagem_entity_page or w.component_entry then w.name = (r and r.name) or (val ~= '' and val) or w.base_name end
+                end
+            end
+            if MOD.component_kind() then MOD.component_reselect() end
+        else
+            MOD.record_names.ensure()
+            local ok, why = pcall(MOD.record_names.set_name, info.type, info.id, val)
+            if not ok then
+                MOD.notify(MOD.nav.text({ 'Cannot save design name: ', '无法保存策划名：', '無法儲存策劃名：' }) .. tostring(why), 6)
+                return
+            end
+            if page then
+                page.custom_design_name = val ~= '' and val or nil
+                if not MOD.record_names.is_tab(MOD.nav.tab_of(page)) then
+                    page.name = val ~= '' and val or page.base_name
+                end
+            end
+            if info.entity_hash and MOD.component_catalog then
+                MOD.component_catalog:set_name('E' .. info.entity_hash:upper(), val)
+            end
+        end
+        MOD.notify(val ~= '' and (MOD.nav.text({ 'Saved design name: ', '已更改策划名：', '已更改策劃名：' }) .. val)
+            or MOD.nav.text({ 'Restored default name.', '已恢复默认名称。', '已還原預設名稱。' }), 4)
+    end
+    ui.design_name = nil
+    ui.version = ui.version + 1
+end
+function MOD.item_naming.start_group(page)
+    local info = MOD.item_naming.info(page)
+    if not info then return end
+    if ui.value and state.commit_value then local ok = state.commit_value(); if not ok then return end end
+    if ui.code then MOD.code.finish(false) end
+    ui.context_menu, ui.parameter_name, ui.design_name = nil, nil, nil
+    ui.item_group = {
+        page = page, info = info,
+        text = info.current_group_id ~= 'other' and info.current_group_name or '',
+        fresh = true,
+    }
+    if MOD.text then MOD.text.touch(ui.item_group, api.now()) end
+    ui.version = ui.version + 1
+end
+function MOD.item_naming.finish_group(save, target_group)
+    local edit = ui.item_group
+    if not edit then return end
+    if save then
+        local info = edit.info
+        local chosen = target_group or tostring(edit.text or ''):match('^%s*(.-)%s*$')
+        if chosen == '' then chosen = 'other' end
+        if info.kind == 'entity' then
+            local target_id, why = MOD.component_catalog:set_group(info.rid, chosen)
+            if not target_id then
+                MOD.notify(MOD.nav.text({ 'Cannot set group: ', '无法设置分组：', '無法設置分組：' }) .. tostring(why), 6)
+                return
+            end
+            if MOD.component_kind() then MOD.component_reselect() end
+        else
+            MOD.record_names.ensure()
+            local ok, res = pcall(MOD.record_names.set_group, info.type, info.id, chosen)
+            if not ok then
+                MOD.notify(MOD.nav.text({ 'Cannot set group: ', '无法设置分组：', '無法設置分組：' }) .. tostring(res), 6)
+                return
+            end
+        end
+        local updated = MOD.item_naming.info(edit.page)
+        MOD.notify(MOD.nav.text({ 'Group set to: ', '已设置分组：', '已設置分組：' }) .. (updated and updated.current_group_name or chosen), 4)
+    end
+    ui.item_group = nil
     ui.version = ui.version + 1
 end
 
@@ -21598,8 +22403,9 @@ local function select_weapon(weapon)
     if weapon and weapon.ensure_rows then weapon.ensure_rows() end
     if weapon and weapon.sync_rows then weapon.sync_rows() end
     MOD.parameter_refresh(weapon)
-    ui.parameter_name = nil
+    ui.parameter_name, ui.design_name, ui.item_group = nil, nil, nil
     ui.reference_click = nil
+    if ui.copy and ui.copy.weapon ~= weapon then ui.copy = nil end
     ui.weapon = weapon
     ui.row, ui.scroll, ui.settings, ui.binding, ui.stack_pick, ui.code, ui.context_menu = 1, 1, false, nil, nil, nil, nil
     local last = settings.last[MOD.enemy.on and 'enemy' or 'stat']
@@ -21649,7 +22455,9 @@ function MOD.record_names.jump(tab, text)
         end
         return nil
     end
+    ui.record_jump_unfiltered = true
     local list=weapons_in(tab)
+    ui.record_jump_unfiltered = nil
     local index=MOD.name_ids.index(text)
     local hash_only=tab=='OrbitalBeam'
     if index and not hash_only then
@@ -21673,6 +22481,10 @@ function MOD.record_names.jump_active()
     if page.component_entry then
         if settings.component_category~='all'and settings.component_category~=page.category then settings.component_category='all'end
         if not page.has_component then settings.component_show_missing=true end
+    elseif settings.record_categories and settings.record_categories[ui.tab] and settings.record_categories[ui.tab]~='all' then
+        if MOD.record_names.group_id_of(page)~=settings.record_categories[ui.tab] then
+            settings.record_categories[ui.tab]='all'
+        end
     end
     ui.search={text='',active=false};ui.page=1
     select_weapon(page);ui.message=nil;ui.version=ui.version+1
@@ -22173,12 +22985,161 @@ local function reset_weapon(weapon)
         for _, row in ipairs(MOD.parameter_rows(weapon)) do if not(weapon.custom_reset and row.custom_value)then reset_row(weapon, row)end end
     end
     for _, row in ipairs(weapon.hidden_rows or {}) do reset_row(weapon, row) end   -- (an orbital's stats not laid out)
+    if weapon.armor then MOD.kits.set(weapon, nil) end
     local t = weapon.passive and tables[weapon.passive]   -- an armor passive: its stacked passives go too
     if t and (settings.stacks[t.index.id] or settings.own_off[t.index.id]) then
         settings.stacks[t.index.id], settings.own_off[t.index.id] = nil, nil
         state.writes = state.writes + 1
         mark_config_dirty()
     end
+end
+
+-- ---------------------------------------------------------------- vehicle Copy to...
+-- One component's shown values (a page section where the page has no components) onto other vehicles' matching rows.
+-- Pages pair only with their own kind: vehicle bodies with bodies, mounted parts by their mount (left arm with left
+-- arms, turret with turrets). Components pair by type with the entity hash left out (HealthComponentData:<hash>).
+-- Rows pair by what they edit, never by position: the group and id, and the component type and storage of their first
+-- field; body part rows (zone<n>_..., their group zone<n>), whose numbers each vehicle assigns its own way, by the
+-- zone's name hash instead.
+MOD.vcopy = {}
+function MOD.vcopy.kind(w)
+    if w.stratagem and w.stratagem.vehicle then return 'vehicle' end
+    if w.mounted and w.mount_role then return 'mount:' .. w.mount_role end
+end
+function MOD.vcopy.norm(comp) return (tostring(comp):gsub(':%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x', '')) end
+function MOD.vcopy.copyable(r)
+    return r.parts and #r.parts > 0 and not (r.choice or r.link_only or r.collapsed_component or r.hash64 or r.custom_change
+        or r.custom_value or r.button_slot or r.reference_value or r.empty or r.packed_flag) and not MOD.references.type_of(r)
+end
+-- the page's group of that (normalized) component type; nil: the page has no components (then `comp` is a section)
+function MOD.vcopy.group_of(w, comp)
+    for _, g in ipairs(w.component_groups or {}) do
+        if MOD.vcopy.norm(g.type) == MOD.vcopy.norm(comp) then return g end
+    end
+end
+function MOD.vcopy.comps(w)
+    if w.ensure_rows then w.ensure_rows() end
+    local out = {}
+    for _, g in ipairs(w.component_groups or {}) do out[#out + 1] = g.type end
+    return out
+end
+function MOD.vcopy.rows(w, comp)
+    if w.ensure_rows then w.ensure_rows() end
+    local out, list = {}, nil
+    if w.component_groups then
+        local g = MOD.vcopy.group_of(w, comp)
+        if not g then return out end
+        if g.load then g.load() end
+        list = g.rows
+    else
+        list = {}
+        for _, r in ipairs(w.rows or {}) do if r.section == comp then list[#list + 1] = r end end
+    end
+    for _, r in ipairs(list or {}) do if MOD.vcopy.copyable(r) then out[#out + 1] = r end end
+    return out
+end
+function MOD.vcopy.key(r, comp)
+    local f = r.parts[1].field
+    local c = MOD.vcopy.norm(comp or r.component or '')
+    local z, rest = tostring(r.id):match('^zone(%d+)_(.+)$')
+    local t = tables[TYPES.health]
+    if z and t and f.kind == TYPES.health and type(f.offset) == 'number' then
+        -- the zone's start: the health record holding the field, + 520 + z * 552; its name hash at +96
+        local hex = tostring(comp or r.component or ''):match('(%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x%x)')
+        local at = hex and t.index[hash_key(hex)]
+        if not at then   -- (old layout: the zone fields lie in the record the field's offset falls in)
+            at = f.offset - 520 - tonumber(z) * 552 - ((f.offset - 520) % 552)
+        end
+        local name = at and peek4(t.copies[1] + HEADER_BYTES + at + 520 + tonumber(z) * 552 + 96)
+        if name and name ~= 0 then return c .. '|zone:' .. string.format('%08X', name) .. ':' .. rest end
+    end
+    return c .. '|' .. MOD.vcopy.norm(r.section or '') .. '|' .. tostring(r.id)
+end
+-- the title a component (or section) is shown with
+function MOD.vcopy.title(w, comp)
+    local g = MOD.vcopy.group_of(w, comp)
+    if g and g.header and g.header.component_of then return g.header.component_of() end
+    return settings.tr(MOD.vcopy.norm(comp))
+end
+-- a component offers Copy to... when another page of its kind has at least one of its rows
+function MOD.vcopy.can(w, comp)
+    local kind = w and MOD.vcopy.kind(w)
+    if not kind then return false end
+    MOD.vcopy.cache = MOD.vcopy.cache or {}
+    local ck = w.hash .. '|' .. tostring(comp)
+    if MOD.vcopy.cache[ck] == nil then
+        -- (drawn on every header: another page of the kind with this component type is enough; the rows are only
+        -- loaded and paired when Copy to... opens)
+        local found = false
+        if w.component_groups then
+            local want = MOD.vcopy.norm(comp)
+            for _, other in ipairs(weapons) do
+                if other ~= w and MOD.vcopy.kind(other) == kind then
+                    for _, g in ipairs(other.component_groups or {}) do
+                        if MOD.vcopy.norm(g.type) == want then found = true; break end
+                    end
+                end
+                if found then break end
+            end
+        else found = #MOD.vcopy.targets(w, comp) > 0 end
+        MOD.vcopy.cache[ck] = found
+    end
+    return MOD.vcopy.cache[ck]
+end
+-- what copying onto `target` does: changes (with both values), equal, without counterpart, shared fields, mismatches
+function MOD.vcopy.plan(w, comp, target)
+    local by, tg = {}, MOD.vcopy.group_of(target, comp)
+    local tcomp = tg and tg.type or comp
+    for _, r in ipairs(MOD.vcopy.rows(target, comp)) do local k = MOD.vcopy.key(r, tcomp); by[k] = by[k] or r end
+    local plan = { changes = {}, same = 0, missing = {}, shared = 0, mismatch = 0 }
+    for _, r in ipairs(MOD.vcopy.rows(w, comp)) do
+        local v, t = row_value(r), by[MOD.vcopy.key(r, comp)]
+        local f, g = r.parts[1].field, t and t.parts[1].field
+        if type(v) ~= 'number' then
+        elseif not t then plan.missing[#plan.missing + 1] = r
+        elseif f == g then plan.shared = plan.shared + 1   -- (one field both show: nothing to copy)
+        elseif f.kind ~= g.kind or f.storage ~= g.storage or r.storage ~= t.storage then plan.mismatch = plan.mismatch + 1
+        else
+            local now = row_value(t)
+            if type(now) == 'number' and math.abs(now - v) <= math.max(1e-6, math.abs(v) * 1e-6) then plan.same = plan.same + 1
+            else plan.changes[#plan.changes + 1] = { from = r, row = t, old = now, new = v } end
+        end
+    end
+    return plan
+end
+function MOD.vcopy.targets(w, comp)
+    local kind, out = MOD.vcopy.kind(w), {}
+    if not kind then return out end
+    local keys = {}
+    for _, r in ipairs(MOD.vcopy.rows(w, comp)) do keys[MOD.vcopy.key(r, comp)] = true end
+    if not next(keys) then return out end
+    for _, other in ipairs(weapons) do
+        if other ~= w and MOD.vcopy.kind(other) == kind then
+            local tg = MOD.vcopy.group_of(other, comp)
+            local tcomp = tg and tg.type or comp
+            for _, r in ipairs(MOD.vcopy.rows(other, comp)) do
+                if keys[MOD.vcopy.key(r, tcomp)] then out[#out + 1] = other; break end
+            end
+        end
+    end
+    table.sort(out, function(a, b) return a.name:lower() < b.name:lower() end)
+    return out
+end
+-- writes the planned changes through change() (range, overrides and multipliers as typed by hand)
+function MOD.vcopy.apply(w, section, targets)
+    local shown, done = ui.weapon, 0
+    for _, target in ipairs(targets) do
+        local plan = MOD.vcopy.plan(w, section, target)
+        ui.weapon = target   -- (change() edits the shown page's rows)
+        for _, c in ipairs(plan.changes) do
+            change(c.row, 0, false, c.new)
+            local now = row_value(c.row)
+            if now and math.abs(now - c.new) <= math.max(1e-4, math.abs(c.new) * 1e-4) then done = done + 1 end
+        end
+    end
+    ui.weapon = shown
+    ui.version = ui.version + 1
+    return done
 end
 
 function MOD.nav.tabs_and_kinds(nav_page)
@@ -22236,7 +23197,7 @@ function MOD.nav.page_modified(nav_page)
         local w = by_hash[hash]
         if w and tab_set[MOD.nav.tab_of(w)] then return true end
     end
-    if tab_set['Armors'] and (next(settings.stacks or {}) ~= nil or next(settings.own_off or {}) ~= nil) then return true end
+    if tab_set['Armors'] and (next(settings.stacks or {}) ~= nil or next(settings.own_off or {}) ~= nil or next(settings.armor_passives)~=nil) then return true end
     if tab_set['CurrentLoadout'] then
         local save = rawget(_G, 'SHODAN_PLAYER_SAVE_MODEL')
         if save and save.count and save:count() > 0 then return true end
@@ -22303,7 +23264,7 @@ function MOD.nav.reset_page(nav_page)
         if bridge then bridge:clear(); MOD.sync_demolition(); mark_config_dirty() end
     end
     if tab_set['Armors'] and (next(settings.stacks or {}) ~= nil or next(settings.own_off or {}) ~= nil) then
-        settings.stacks, settings.own_off = {}, {}
+        settings.stacks, settings.own_off, settings.armor_passives = {}, {}, {}
         state.writes = state.writes + 1
         mark_config_dirty()
     end
@@ -22392,7 +23353,7 @@ end
 local function clear_editor_cache()
     local ok, why = reset_all()
     if not ok then return nil, why end
-    settings.stacks, settings.own_off = {}, {}
+    settings.stacks, settings.own_off, settings.armor_passives = {}, {}, {}
     MOD.rename.texts = {}
     ui.rename = nil
     local save = rawget(_G, 'SHODAN_PLAYER_SAVE_MODEL')
@@ -22403,6 +23364,7 @@ local function clear_editor_cache()
     MOD.restore_installed({},math.huge)
     -- (the host: the buffers hold the files' values again, so nothing is waiting to be installed)
     state.cache_cleared = (state.cache_cleared or 0) + 1
+    if MOD.offline then MOD.cache_clear_pending=true end
     mark_config_dirty()
     ui.version = ui.version + 1
     return true
@@ -22471,10 +23433,11 @@ local presets = require('preset_controller').new({
             local a={};for i,v in ipairs(values)do a[i]=v end;stacks[tostring(id)]=a
         end
         for id,value in pairs(settings.own_off or{})do own_off[tostring(id)]=value end
-        return {stacks=stacks,own_off=own_off}
+        local armor={};for id,list in pairs(settings.armor_passives)do local a={};for i,v in ipairs(list)do a[i]=v end;armor[tostring(id)]=a end
+        return {stacks=stacks,own_off=own_off,armor_passives=armor}
     end,
     apply=function(preset)
-        local stacks,own_off
+        local stacks,own_off,armor
         if preset.data and((preset.scope=='game'and preset.kind=='snapshot')or preset.scope=='global')then
             assert(type(preset.data.stacks)=='table'and type(preset.data.own_off)=='table','Invalid armor configuration in preset')
             stacks,own_off={},{}
@@ -22484,6 +23447,14 @@ local presets = require('preset_controller').new({
             end
             for id,value in pairs(preset.data.own_off)do local key=tonumber(id)
                 assert(key and key%1==0 and key>=0 and type(value)=='boolean','Invalid passive switch');own_off[key]=value
+            end
+        end
+        if preset.data and preset.data.armor_passives then
+            armor={}
+            for id,list in pairs(preset.data.armor_passives)do
+                local n=tonumber(id);assert(n and by_hash[string.format(MOD.kits.PAGE,n)]and type(list)=='table'and #list<=MOD.kits.MAX_PASSIVES,'Invalid armor passive list')
+                armor[n]={};local seen={}
+                for _,v in ipairs(list)do assert(type(v)=='number'and v%1==0 and by_hash[string.format('FFFFFFFE%08X',v)]and not seen[v],'Unknown or duplicate passive');seen[v]=true;armor[n][#armor[n]+1]=v end
             end
         end
         if preset.scope=='global'and preset.kind~='patch'then
@@ -22497,7 +23468,7 @@ local presets = require('preset_controller').new({
             end
             overrides=kept;mark_config_dirty()
         elseif preset.kind~='patch'then MOD.reset_side(preset.scope=='enemy')end
-        if stacks then settings.stacks,settings.own_off=stacks,own_off;state.writes=state.writes+1;mark_config_dirty()end
+        if stacks then settings.stacks,settings.own_off=stacks,own_off;settings.armor_passives=armor or{};MOD.kits.migrate();state.writes=state.writes+1;mark_config_dirty()end
         local refused=0
         for _,o in ipairs(preset.values)do
             local weapon=by_hash[o.hash]
@@ -22542,12 +23513,56 @@ function MOD.workspace.open(mode)
         ui.stack_pick,ui.component_menu,ui.weapon_menu,ui.binding,ui.context_menu=nil,nil,nil,nil,nil
         if mode=='presets'then
             presets.select_scope('global')
-            ui.tab='Presets';ui.settings=false
+            ui.tab='Presets';ui.settings=false;ui.preset_return=nil
+            presets.refresh(true)   -- presets copied into the folder while the editor ran
         elseif mode=='settings'then ui.tab=ui.workspace_return.tab;ui.settings=true
         else return nil,'Unknown workspace'end
         ui.search={text='',active=false};ui.confirm=nil
     end
     ui.version=ui.version+1;return true
+end
+
+-- Double-click on a preset's preview row: open the parameter's page (and row) in the editor; the footer's
+-- Back to preset button returns to the preset with its tree and scroll as they were.
+function MOD.preset_jump(entry)
+    local jump=entry and entry.jump
+    local function fail(text)ui.message={text=text,till=api.now()+5};ui.version=ui.version+1;return false end
+    if not jump then return false end
+    local target=jump.hash and by_hash[jump.hash]
+    if not target and jump.planet then target=require('planet_effect_view').by_index[jump.planet]end
+    if not target and jump.effect then target=require('galactic_effect_view').by_id[jump.effect]end
+    local tab=target and MOD.nav.tab_of(target)or jump.tab
+    if not target and tab then target=weapons_in(tab)[1]end
+    if not target then return fail(MOD.nav.text({'This entry has no page in this build.','当前版本中没有该条目对应的页面。','目前版本中沒有該條目對應的頁面。'}))end
+    local back=presets.jump_state()
+    local ok,why=MOD.workspace.open('editor');if not ok then return fail(tostring(why))end
+    local enemy=false
+    for _,page in ipairs(MOD.nav.PAGES)do for _,sub in ipairs(page.subs or{})do for _,t in ipairs(sub.tabs or{})do
+        if t==tab then enemy=page.enemy==true end
+    end end end
+    if enemy~=MOD.enemy.on then MOD.enemy.on=enemy;settings.enemy_last=enemy;mark_config_dirty()end
+    ui.search,ui.page,ui.value={text='',active=false},1,nil
+    select_weapon(target)
+    if jump.id then
+        local parts=MOD.parts_of(target,jump.part or jump.id)or MOD.parts_of(target,jump.id)or{}
+        local row=parts[1]and parts[1].row
+        if row and row.component and target.sync_rows then
+            ui.expanded_components[target.hash..':'..row.component]=true;target.sync_rows(row.component)
+        end
+        for n,r in ipairs(target.rows)do
+            if r==row or r.id==jump.id then ui.row=n;ui.scroll=math.max(1,n-3);break end
+        end
+    end
+    MOD.nav.sync()
+    ui.preset_return=back
+    ui.message={text=MOD.nav.text({'Opened from the preset. "Back to preset" (bottom right) returns to it.','已从预设跳转；点击右下角“返回预设”可回到预设。','已從預設跳轉；點擊右下角「返回預設」可回到預設。'}),till=api.now()+6}
+    ui.version=ui.version+1
+    return true
+end
+function MOD.preset_back()
+    local back=ui.preset_return;if not back then return false end
+    local ok,why=MOD.workspace.open('presets');if not ok then return false end
+    presets.restore(back);return true
 end
 
 -- Draws the whole panel into a fresh screen gui. Coordinates are 1080p units from the panel's
@@ -22580,6 +23595,7 @@ local function draw(width, height)
     local GOLD, WHITE, MUTED, DIM = MOD.enemy.on and ui.tab~='Presets'and not ui.settings and color(255, 72, 60) or color(255, 213, 0), color(238, 242, 246), color(153, 171, 184), color(95, 108, 120)
     MOD.enemy.ALL_INK = MOD.enemy.ALL_INK or color(120, 200, 255)   -- a value only an 'All <faction>' row changed
     local WARN, GOOD = color(255, 150, 60), color(120, 220, 140)
+    local SEL_BG, SEL_FG, CARET_INK = color(38, 112, 210), color(255, 232, 88), color(255, 245, 120)
 
     local function rect(x, y, w, h, c, z)
         step('Gui.rect')
@@ -22623,6 +23639,102 @@ local function draw(width, height)
         step('Gui.text')
         Gui.text(gui, value, ink_font, size, ink_material, Vector3(px, height - oy - top - size * 0.8, z or 953), c or WHITE)
     end
+    local function draw_input(edit, x, y, size, c, limit, align_right, z, bx, by, bw, bh, char_limit, rfn, tfn)
+        if not edit then return end
+        rfn, tfn = rfn or rect, tfn or text
+        z = z or 953
+        local v = MOD.text.view(edit, char_limit or 64)
+        local shown = v.text
+        local design = size
+        local scaled = size * s
+        local scale_factor = 1
+        if shown ~= '' and limit then
+            local m = measure_text(shown, scaled)
+            if m > limit * sx and m > 0 then
+                scale_factor = (limit * sx) / m
+                scaled = scaled * scale_factor
+            end
+        end
+        local draw_size = design * scale_factor
+        local y_adj = y + (design - draw_size) / 2
+        local function sub_w(str)
+            if not str or str == '' then return 0 end
+            return measure_text(str, scaled) / sx
+        end
+        local w_total = sub_w(shown)
+        local x_start = align_right and (x - w_total) or x
+        local w_sa = sub_w(shown:sub(1, v.sel_a))
+        local w_sb = sub_w(shown:sub(1, v.sel_b))
+        local w_caret = sub_w(v.before_caret)
+        local stops = { { byte = v.vis_a, gx = ox + x_start * sx } }
+        local pos = 0
+        for ch in shown:gmatch(MOD.text.CHAR) do
+            pos = pos + #ch
+            stops[#stops + 1] = { byte = v.vis_a + pos, gx = ox + (x_start + sub_w(shown:sub(1, pos))) * sx }
+        end
+        edit._layout = { stops = stops }
+        if v.sel_a < v.sel_b then
+            local sx0, sx1 = x_start + w_sa, x_start + w_sb
+            if bx and bw then
+                sx0 = math.max(bx + 2, math.min(sx0, bx + bw - 2))
+                sx1 = math.max(bx + 2, math.min(sx1, bx + bw - 2))
+            end
+            local sw = math.max(2, sx1 - sx0)
+            local sy0 = by and (by + 3) or (y - 2)
+            local sh = bh and math.max(12, bh - 6) or (design + 4)
+            rfn(sx0, sy0, sw, sh, SEL_BG, z)
+            if v.sel_a == 0 and v.sel_b == #shown then
+                tfn(shown, x_start, y_adj, draw_size, SEL_FG, nil, false, z + 1, true)
+            else
+                if #v.prefix > 0 then tfn(v.prefix, x_start, y_adj, draw_size, c or WHITE, nil, false, z + 1, true) end
+                if #v.selected > 0 then tfn(v.selected, x_start + w_sa, y_adj, draw_size, SEL_FG, nil, false, z + 1, true) end
+                if #v.suffix > 0 then tfn(v.suffix, x_start + w_sb, y_adj, draw_size, c or WHITE, nil, false, z + 1, true) end
+            end
+        elseif shown ~= '' then
+            tfn(shown, x_start, y_adj, draw_size, c or WHITE, nil, false, z + 1, true)
+        end
+        if MOD.text.caret_on(edit, api.now()) then
+            local cx = (#shown == 0 and align_right) and (x - 2) or (x_start + w_caret)
+            if bx and bw then cx = math.max(bx + 3, math.min(cx, bx + bw - 5)) end
+            local cy = by and (by + 3) or (y - 2)
+            local ch = bh and math.max(12, bh - 6) or (design + 4)
+            local cw = math.max(2, 2 / sx)
+            rfn(cx, cy, cw, ch, CARET_INK, z + 2)
+        end
+    end
+    local function draw_multiline_input(edit, x, y, line_h, max_rows, size, w_limit, z, rfn, tfn)
+        if not edit then return 1, 1 end
+        rfn, tfn = rfn or rect, tfn or text
+        z = z or 953
+        local rows, caret_row, caret_off, meta = MOD.text.wrap(edit, w_limit, size)
+        local start = math.max(1, caret_row - (max_rows - 1))
+        local scaled = size * s
+        local function sub_w(str)
+            if not str or str == '' then return 0 end
+            return measure_text(str, scaled) / sx
+        end
+        for n = start, math.min(#rows, start + max_rows - 1) do
+            local ly = y + (n - start) * line_h
+            local line = rows[n]
+            local m = meta[n]
+            local w_sa = sub_w(line:sub(1, m.sel_a))
+            local w_sb = sub_w(line:sub(1, m.sel_b))
+            if m.sel_a < m.sel_b then
+                local sw = math.max(2, w_sb - w_sa)
+                rfn(x + w_sa, ly - 1, sw, size + 3, SEL_BG, z)
+                if #m.prefix > 0 then tfn(m.prefix, x, ly, size, WHITE, nil, false, z + 1, true) end
+                if #m.selected > 0 then tfn(m.selected, x + w_sa, ly, size, SEL_FG, nil, false, z + 1, true) end
+                if #m.suffix > 0 then tfn(m.suffix, x + w_sb, ly, size, WHITE, nil, false, z + 1, true) end
+            elseif line ~= '' then
+                tfn(line, x, ly, size, WHITE, nil, false, z + 1, true)
+            end
+            if n == caret_row and MOD.text.caret_on(edit, api.now()) then
+                local cx = x + sub_w(line:sub(1, caret_off))
+                rfn(cx, ly - 1, math.max(2, 2 / sx), size + 3, CARET_INK, z + 2)
+            end
+        end
+        return #rows, start
+    end
     local function outline(x, y, w, h, c, z)
         z = z or 952
         rect(x, y, w, 2, c, z); rect(x, y + h - 2, w, 2, c, z)
@@ -22656,7 +23768,13 @@ local function draw(width, height)
             rect=function(x,y,...)return rect(x,y+frame_top,...)end,
             outline=function(x,y,...)return outline(x,y+frame_top,...)end,
             region=function(k,x,y,...)return region(k,x,y+frame_top,...)end,
-            GOLD=GOLD,WHITE=WHITE,MUTED=MUTED,selected=color(90,74,8),hover=color(40,52,64),
+            draw_input=function(e,x,y,sz,c,lim,ar,z,bx,by,bw,bh,clim)
+                return draw_input(e,x,y+frame_top,sz,c,lim,ar,z,bx,by and(by+frame_top),bw,bh,clim)
+            end,
+            draw_multiline=function(e,x,y,lh,mr,sz,wl,z)
+                return draw_multiline_input(e,x,y+frame_top,lh,mr,sz,wl,z)
+            end,
+            GOLD=GOLD,WHITE=WHITE,MUTED=MUTED,WARN=WARN,selected=color(90,74,8),hover=color(40,52,64),
             line=color(70,82,94),input=color(20,26,34),status=state.host_status})
         return regions
     end
@@ -22794,21 +23912,35 @@ local function draw(width, height)
         button('enemy_cat:prev','<',16,94,32,28,true)
         button('enemy_cat:menu',enemy_categories[selected].name,52,94,246,28,true,ui.enemy_menu)
         button('enemy_cat:next','>',302,94,32,28,true)
+    elseif record_tab and not presets_tab and not ui.settings and not todo_view and not solo_view then
+        settings.record_categories = settings.record_categories or {}
+        local rcategories = MOD.record_names.categories_for(ui.tab, settings.lang)
+        local cur_cat = settings.record_categories[ui.tab] or 'all'
+        local selected = 1
+        for i, category in ipairs(rcategories) do if category.id == cur_cat then selected = i end end
+        if selected == 1 then settings.record_categories[ui.tab] = 'all' end
+        button('record_cat:prev','<',16,94,32,28,true)
+        button('record_cat:menu',rcategories[selected].name,52,94,246,28,true,ui.record_menu)
+        button('record_cat:next','>',302,94,32,28,true)
     end
     -- Hash and TypeID lists share the same jump/reload/folder control geometry.
     if (component_browser or record_tab or effect_tab)and not presets_tab and not ui.settings and not todo_view and not solo_view then
         local rid,active=ui.record_id,ui.record_id.active
         local hash_mode=component_browser or ui.tab=='OrbitalBeam'
-        if record_tab or effect_tab then
-            text(planet_effect_tab and 'planetIndex' or effect_tab and 'galacticEffectId' or hash_mode and 'EntityHash' or 'TypeID / ComponentIndexData.index',24,102,16,MUTED,302)
+        if effect_tab then
+            text(planet_effect_tab and 'planetIndex' or 'galacticEffectId',24,102,16,MUTED,302)
             text(MOD.nav.text({'Jump as you type; search this list below','输入即跳转；下方搜索当前列表','輸入即跳轉；下方搜尋目前列表'}),24,134,14,DIM,302)
+        elseif record_tab then
+            text((hash_mode and 'EntityHash' or 'TypeID / ComponentIndexData.index') .. ' · ' .. MOD.nav.text({'Jump as you type','输入即跳转','輸入即跳轉'}),24,131,14,MUTED,302)
         end
         rect(16,158,318,30,active and color(20,26,34)or color(28,34,42),951)
         outline(16,158,318,30,active and GOLD or(ui.hover=='record_id'and GOLD or color(70,82,94)))
         if rid.text==''and not active then
             text(planet_effect_tab and MOD.nav.text({'Jump to planet index','跳转星球编号','跳轉星球編號'})or effect_tab and MOD.nav.text({'Jump to effect ID','跳转词条 ID','跳轉詞條 ID'})or hash_mode and MOD.nav.text({'Jump to hash (hex / decimal)','跳转哈希（十六进制 / 十进制）','跳轉雜湊（十六進位 / 十進位）'})
                 or MOD.nav.text({'Jump to current TypeID index','跳转当前 TypeID 的索引','跳轉目前 TypeID 的索引'}),24,165,14,DIM,302)
-        else text(rid.text..(active and '_'or''),24,164,16,WHITE,302)end
+        elseif active then
+            draw_input(rid,24,164,16,WHITE,302,false,953,16,158,318,30,32)
+        else text(rid.text,24,164,16,WHITE,302)end
         region('record_id',16,158,318,30)
         button(effect_tab and'effect_plan_reload'or component_browser and'component_reload'or'record_names_reload',MOD.nav.text({'Reload JSON','重载JSON','重載JSON'}),16,194,116,26,true)
         button(effect_tab and'effect_plan_folder'or component_browser and'component_config'or'record_names_folder',MOD.nav.text({'Open JSON folder','打开JSON文件夹','開啟JSON資料夾'}),138,194,196,26,true)
@@ -22849,10 +23981,17 @@ local function draw(width, height)
                        :gsub('^\209([\128-\143])', function(c) return '\208' .. string.char(c:byte() + 32) end)   -- р-я
             text((changed and '* ' or '') .. rest .. id, 44, y + 5, 14, ink, searching and 206 or 282)
         else
+            local rcat=(record_tab and((settings.record_categories and settings.record_categories[ui.tab])or'all')=='all'and MOD.record_names.group_of(weapon))
+                or(not component_browser and not record_tab and MOD.item_naming.custom_group_of(weapon))
             local category=component_browser and settings.component_category=='all'and('['..weapon.catalog_record.category_name..'] ')
+                or record_tab and rcat and rcat~=''and(ui.tab=='OrbitalBeam'or MOD.record_names.group_id_of(weapon)~='other')and('['..rcat..'] ')
+                or rcat and rcat~=''and('['..rcat..'] ')
                 or weapon_browser and settings.weapon_category=='all'and('['..settings.tr(weapon.slot)..'] ')
                 or enemy_key and not searching and settings[enemy_key]=='all'and('['..settings.tr(weapon.slot)..'] ')or''
-            local label = record_tab and MOD.record_names.label(weapon, settings.tr) or settings.tr(weapon.name)
+            local custom_lbl = not component_browser and not record_tab and MOD.item_naming.custom_name_of(weapon)
+            local label = record_tab and MOD.record_names.label(weapon, settings.tr)
+                or (custom_lbl and settings.tr(custom_lbl))
+                or settings.tr(weapon.name)
             text((changed and '* ' or '') .. category .. label .. id, 24, y + 4, 16, ink, (component_browser or weapon_browser or enemy_key) and 302 or searching and 226 or 302)
         end
         region(key, 16, y, 318, 25)
@@ -22887,8 +24026,10 @@ local function draw(width, height)
         outline(16, sy, 234, 30, active and GOLD or (ui.hover == 'search' and GOLD or color(70, 82, 94)))
         if ui.search.text == '' and not active then
             text(planet_effect_tab and MOD.nav.text({'Search planet / index / effect','搜索星球／编号／词条','搜尋星球／編號／詞條'})or effect_tab and MOD.nav.text({'Search ID / effect / payload','搜索 ID／效果／载荷','搜尋 ID／效果／載荷'})or record_tab and MOD.nav.text({'Search name or design name','搜索名称或策划名','搜尋名稱或策劃名'})or component_browser and MOD.nav.text({'Search design name / hex / decimal','搜索策划名 / 十六进制 / 十进制','搜尋策劃名 / 十六進位 / 十進位'})or MOD.enemy.on and 'Search enemies' or 'Search weapons and stratagems', 24, sy + 7, 15, DIM, 218)
+        elseif active then
+            draw_input(ui.search, 24, sy + 6, 16, WHITE, 218, false, 953, 16, sy, 234, 30, 36)
         else
-            text(ui.search.text .. (active and '_' or ''), 24, sy + 6, 16, WHITE, 218)
+            text(ui.search.text, 24, sy + 6, 16, WHITE, 218)
         end
         region('search', 16, sy, 234, 30)
         -- '*': only the pages with a change (with no text: every tab's)
@@ -22901,7 +24042,18 @@ local function draw(width, height)
     local weapon = ui.weapon
     local x0 = (solo_view or ui.settings) and 24 or 356
     if ui.settings then
-        local y = 56
+        local TOP,BOTTOM,STEP=54,H-84,24
+        local density=MOD.offline and math.max(1,settings.font_px/16)or 1
+        ui.settings_scroll=ui.settings_scroll or 1
+        local y=56-(ui.settings_scroll-1)*STEP
+        local draw_text,draw_button,draw_rect,draw_outline,draw_region=text,button,rect,outline,region
+        local function at_y(at)return TOP+(at-TOP)*density end
+        local function inside(at,h)return at>=TOP and at+h<=BOTTOM end
+        local function text(value,x,at,size,...)at=at_y(at);if inside(at,size*density)then draw_text(value,x,at,size,...)end end
+        local function button(key,label,x,at,w,h,...)at=at_y(at);if inside(at,h)then draw_button(key,label,x,at,w,h,...)end end
+        local function rect(x,at,w,h,...)at=at_y(at);if inside(at,h)then draw_rect(x,at,w,h,...)end end
+        local function outline(x,at,w,h,...)at=at_y(at);if inside(at,h)then draw_outline(x,at,w,h,...)end end
+        local function region(key,x,at,w,h,...)at=at_y(at);if inside(at,h)then draw_region(key,x,at,w,h,...)end end
         local function choice(label, key, options, current)
             text(label, x0, y + 6, 16, WHITE, 270)
             for k, o in ipairs(options) do
@@ -22934,7 +24086,11 @@ local function draw(width, height)
                 local hovered = ui.hover == 'value:' .. key
                 rect(value_x, y, value_width, 28, hovered and color(40, 52, 64) or color(20, 26, 34), 951)
                 outline(value_x, y, value_width, 28, (typing or hovered) and GOLD or color(56, 66, 78))
-                text(typing and (ui.value.text .. '_') or shown, value_x + value_width - 8, y + 6, 17, WHITE, value_width - 16, true)
+                if typing then
+                    draw_input(ui.value, value_x + value_width - 8, y + 6, 17, WHITE, value_width - 16, true, 953, value_x, y, value_width, 28, 24, rect, text)
+                else
+                    text(shown, value_x + value_width - 8, y + 6, 17, WHITE, value_width - 16, true)
+                end
                 region('value:' .. key, value_x, y, value_width, 28)
                 button('set:' .. key .. ':up', '>', value_x + value_width + 4, y, 36, 28, true)
                 button('set:' .. key .. ':' .. reset_id, MOD.nav.text(reset_label), value_x + value_width + 48, y, 84, 28, reset_on)
@@ -22953,6 +24109,12 @@ local function draw(width, height)
             button('set:steam_auto_config:off', 'Off', 704, y, 60, 28, true, not settings.steam_auto_config)
             button('steam_repair', MOD.nav.text({ 'Repair', '修复接入', '修復接入' }), 776, y, 100, 28, true)
             button('steam_restore', MOD.nav.text({ 'Restore', '恢复原选项', '恢復原選項' }), 884, y, 100, 28, true)
+            y = y + 36
+            text(MOD.nav.text({ 'Start proxy on startup', '打开修改器时自动启动代理', '開啟修改器時自動啟動代理' }), x0, y + 6, 16, WHITE, 590)
+            button('set:proxy_auto_start:on', 'On', 640, y, 60, 28, true, settings.proxy_auto_start)
+            button('set:proxy_auto_start:off', 'Off', 704, y, 60, 28, true, not settings.proxy_auto_start)
+            button('proxy_start_now', MOD.nav.text({ 'Start proxy', '启动代理', '啟動代理' }), 776, y, 100, 28, true)
+            button('proxy_stop_now', MOD.nav.text({ 'Stop proxy', '停止代理', '停止代理' }), 884, y, 100, 28, true)
             y = y + 36
         end
         -- offline (the panel is the window, edits go into the game's files) only the rows that apply there
@@ -22973,7 +24135,11 @@ local function draw(width, height)
                 rect(680, y, 80, 28, typing and color(20, 26, 34) or color(40, 52, 64), 951)
                 outline(680, y, 80, 28, GOLD)
             end
-            text(typing and (ui.value.text .. '_') or (settings[key] .. '%'), 754, y + 6, 17, WHITE, 70, true)
+            if typing then
+                draw_input(ui.value, 754, y + 6, 17, WHITE, 70, true, 953, 680, y, 80, 28, 24, rect, text)
+            else
+                text(settings[key] .. '%', 754, y + 6, 17, WHITE, 70, true)
+            end
             region('value:' .. key, 680, y, 80, 28)
             button('set:' .. key .. ':up', '>', 764, y, 36, 28, settings[key] < r[2])
             y = y + 36
@@ -23041,7 +24207,7 @@ local function draw(width, height)
         -- kept, as before). The presets and the game's files are left alone: only Install writes to the game.
         local function any_cached_change()
             for _,o in ipairs(overrides)do if not o.installed then return true end end
-            if next(settings.stacks) or next(settings.own_off) or next(MOD.rename.texts) then return true end
+            if next(settings.stacks) or next(settings.own_off) or next(settings.armor_passives) or next(MOD.rename.texts) then return true end
             local save = rawget(_G, 'SHODAN_PLAYER_SAVE_MODEL')
             if save and save.count and save:count() > 0 then return true end
             local preload = rawget(_G, 'SHODAN_PRELOAD_MODEL')
@@ -23129,6 +24295,15 @@ local function draw(width, height)
                  W - x0 - 40)
             y = y + 48
         end
+        local extent=at_y(y+(ui.settings_scroll-1)*STEP+40)
+        ui.settings_scroll_last=math.max(1,math.ceil((extent-BOTTOM)/(STEP*density))+1)
+        if ui.settings_scroll>ui.settings_scroll_last then ui.settings_scroll=ui.settings_scroll_last;ui.version=ui.version+1 end
+        if ui.settings_scroll_last>1 then
+            draw_text(tostring(ui.settings_scroll)..' / '..ui.settings_scroll_last,W-28,H-80,12,MUTED,120,true)
+            draw_button('settings_scroll:up','<',W-96,H-78,30,20,ui.settings_scroll>1)
+            draw_button('settings_scroll:down','>',W-60,H-78,30,20,ui.settings_scroll<ui.settings_scroll_last)
+        end
+
     elseif presets_tab then
         -- drawn above
     elseif todo_view then
@@ -23199,10 +24374,9 @@ local function draw(width, height)
         -- the in-game name and description (offline, MOD.rename): two boxes under the rows
         local rename = MOD.offline and not (weapon.record or weapon.component_view or weapon.component_entry or weapon.enemy)
                        and MOD.rename.of(weapon)
-        if rename then bottom = bottom - 92 end
+        if rename then bottom = bottom - 132 end
         -- an armor passive (offline): the passives stacked on it, under its rows
-        local stack_id = MOD.offline and weapon.passive and tables[weapon.passive] and tables[weapon.passive].index.id
-        local stack_list = stack_id and (settings.stacks[stack_id] or {})
+        local stack_list = MOD.offline and weapon.armor and MOD.kits.list_of(weapon)
         if stack_list then bottom = bottom - (36 + 34 * (#stack_list + 2)) end
         local pitch = math.floor((bottom - y - section_space - below) / math.max(1, #weapon.rows))
         local scrolling = pitch < 22
@@ -23239,10 +24413,12 @@ local function draw(width, height)
                     rect(x0-6,y+2,W-x0-10,36,hovered and color(36,44,54)or color(25,27,28),951)
                     outline(x0-6,y+2,W-x0-10,36,hovered and GOLD or color(118,106,30))
                     rect(x0-6,y+2,5,36,GOLD,952)
-                    text((comp_mod and'* 'or'')..'▶ '..row.component_of(),x0+8,y+8,20,GOLD,W-x0-264)
+                    local cw=MOD.offline and MOD.vcopy.can(weapon,row.component)and 84 or 0
+                    text((comp_mod and'* 'or'')..'▶ '..row.component_of(),x0+8,y+8,20,GOLD,W-x0-264-cw)
                     local hint=MOD.nav.text({row.component_count..' fields · Click to expand',row.component_count..' 项参数 · 点击展开',row.component_count..' 項參數 · 點擊展開'})
-                    text(hint,W-114,y+11,14,hovered and WHITE or MUTED,146,true)
-                    region(key,x0-6,y+2,W-x0-10-92,36)
+                    text(hint,W-114-cw,y+11,14,hovered and WHITE or MUTED,146,true)
+                    region(key,x0-6,y+2,W-x0-10-92-cw,36)
+                    if cw>0 then button('copy_pick:'..row.component,MOD.nav.text({'Copy to...','复制到…','複製到…'}),W-16-86-cw,y+6,78,28,true,false,nil,954)end
                     button('reset_comp:'..row.component,settings.tr('Reset this page'),W-16-86,y+6,82,28,comp_mod==true,false,nil,954)
                     parent,section,y=row.component,row.section,y+parent_height+pitch
                 else
@@ -23254,10 +24430,12 @@ local function draw(width, height)
                             rect(x0-6,y+2,W-x0-10,36,hovered and color(36,44,54)or color(25,27,28),951)
                             outline(x0-6,y+2,W-x0-10,36,hovered and GOLD or color(118,106,30))
                             rect(x0-6,y+2,5,36,GOLD,952)
-                            text((comp_mod and'* 'or'')..'▼ '..row.component_of(),x0+8,y+8,20,GOLD,W-x0-264)
+                            local cw=MOD.offline and MOD.vcopy.can(weapon,row.component)and 84 or 0
+                            text((comp_mod and'* 'or'')..'▼ '..row.component_of(),x0+8,y+8,20,GOLD,W-x0-264-cw)
                             local hint=MOD.nav.text({row.component_count..' fields · Click to collapse',row.component_count..' 项参数 · 点击收起',row.component_count..' 項參數 · 點擊收起'})
-                            text(hint,W-114,y+11,14,hovered and WHITE or MUTED,146,true)
-                            region(key,x0-6,y+2,W-x0-10-92,36)
+                            text(hint,W-114-cw,y+11,14,hovered and WHITE or MUTED,146,true)
+                            region(key,x0-6,y+2,W-x0-10-92-cw,36)
+                            if cw>0 then button('copy_pick:'..row.component,MOD.nav.text({'Copy to...','复制到…','複製到…'}),W-16-86-cw,y+6,78,28,true,false,nil,954)end
                             button('reset_comp:'..row.component,settings.tr('Reset this page'),W-16-86,y+6,82,28,comp_mod==true,false,nil,954)
                         else
                             rect(x0-6,y+2,W-x0-10,36,color(25,27,28),951)
@@ -23298,6 +24476,11 @@ local function draw(width, height)
                         rect(x0 - 6, y + 1, W - x0 - 10, 21, MOD.enemy.on and color(48, 18, 16) or color(40, 34, 10), 951)
                         rect(x0 - 6, y + 1, 4, 21, GOLD, 952)
                         text(head, x0 + 6, y + 3, 17, GOLD, nx - 12)
+                        local copy = MOD.offline and not row.component and MOD.vcopy.can(weapon, section)
+                        if copy then
+                            room = room - 128
+                            button('copy_pick:' .. section, MOD.nav.text({ 'Copy to...', '复制到…', '複製到…' }), W - 16 - 124, y + 1, 120, 20, true, nil, nil, 953)
+                        end
                         if note ~= '' then text(note, x0 + nx, y + 4, 14, WARN, room) end
                     end
                     -- a list cut short: hovering it shows every name
@@ -23353,8 +24536,13 @@ local function draw(width, height)
                     region('row:'..n,x0-6,y-1,430,pitch-1)
                 elseif row.custom_edit then
                     local typing=ui.value and ui.value.weapon==weapon and ui.value.n==n
+                    local tx,lim=weapon.save_loadout and 930 or 950,weapon.save_loadout and 290 or 310
                     if typing or ui.hover=='value:'..n then rect(636,y,318,bh,color(20,26,34),951);outline(636,y,318,bh,GOLD)end
-                    text(typing and(ui.value.text..'_')or row.custom_text(),weapon.save_loadout and 930 or 950,y+bh/2-8,17,ink,weapon.save_loadout and 290 or 310,true)
+                    if typing then
+                        draw_input(ui.value,tx,y+bh/2-8,17,WHITE,lim,true,953,636,y,318,bh,48)
+                    else
+                        text(row.custom_text(),tx,y+bh/2-8,17,ink,lim,true)
+                    end
                     button('reset:'..n,'R',958,y,26,bh,row.custom_reset~=nil)
                     region('row:'..n,x0-6,y-1,430,pitch-1);region('value:'..n,636,y,318,bh,true)
                 elseif row.readonly_text then
@@ -23364,8 +24552,11 @@ local function draw(width, height)
                 elseif row.hash64 then
                     local typing=ui.value and ui.value.weapon==weapon and ui.value.n==n
                     if typing or ui.hover=='value:'..n then rect(636,y,318,bh,color(20,26,34),951);outline(636,y,318,bh,GOLD)end
-                    local value=typing and (ui.value.text..'_')or MOD.stratagem.hash_text(row)
-                    text(value,950,y+bh/2-8,17,ink,310,true)
+                    if typing then
+                        draw_input(ui.value,950,y+bh/2-8,17,WHITE,310,true,953,636,y,318,bh,36)
+                    else
+                        text(MOD.stratagem.hash_text(row),950,y+bh/2-8,17,ink,310,true)
+                    end
                     local was=MOD.stratagem.hash_text(row)~=MOD.stratagem.hash_text(row,true)
                     button('reset:'..n,'R',958,y,26,bh,was)
                     region('row:'..n,x0-6,y-1,430,pitch-1)
@@ -23385,8 +24576,11 @@ local function draw(width, height)
                         outline(572, y, 212, bh, GOLD)
                     end
                     if rec then
-                        text(#rec.arrows > 0 and (MOD.code.text(nil, rec.arrows) .. '  _') or 'Enter the code...', 780,
-                             y + bh / 2 - 9, 18, #rec.arrows > 0 and WHITE or MUTED, 204, true)
+                        text(#rec.arrows > 0 and MOD.code.text(nil, rec.arrows) or 'Enter the code...', 774,
+                             y + bh / 2 - 9, 18, #rec.arrows > 0 and WHITE or MUTED, 198, true)
+                        if MOD.text.caret_on(rec, api.now()) then
+                            rect(778, y + 3, math.max(2, 2 / sx), math.max(12, bh - 6), CARET_INK, 955)
+                        end
                     else
                         text(MOD.code.text(value), 780, y + bh / 2 - 9, 18, changed and GOLD or WHITE, 204, true)
                     end
@@ -23404,7 +24598,7 @@ local function draw(width, height)
                         outline(696, y, 88, bh, GOLD)
                     end
                     if typing then
-                        text(ui.value.text .. '_', 780, y + bh / 2 - 8, 17, WHITE, 84, true)
+                        draw_input(ui.value, 780, y + bh / 2 - 8, 17, WHITE, 84, true, 953, 696, y, 88, bh, 24)
                     else
                         text(shown(value), 780, y + bh / 2 - 8, 17, ink, 84, true)
                     end
@@ -23462,18 +24656,10 @@ local function draw(width, height)
         end
         if stack_list then
             y = (scrolling and bottom + 36 or y) + 12
-            text('ALSO INCLUDES', x0, y + 4, 15, MUTED)
-            text('Every armor with this passive gets their effects too (set on their own pages).',
-                 x0 + 150, y + 4, 14, MUTED, W - x0 - 170)
-            y = y + 26
-            -- its own effects: on (the rows above) or off (only the passives below apply)
-            local own = not settings.own_off[stack_id]
-            text('Own effects', x0, y + 6, 16, WHITE, 140)
-            text(own and 'Its stats above apply.' or 'Off: its stats above are left out; only the passives below apply.',
-                 x0 + 150, y + 7, 14, own and MUTED or WARN, 800 - x0 - 160)
-            button('stack_own:on', 'On', 800, y, 88, 28, true, own)
-            button('stack_own:off', 'Off', 896, y, 88, 28, true, not own)
-            y = y + 34
+            text(MOD.nav.text({'PASSIVES','护甲被动','護甲被動'}),x0,y+4,16,HEADING)
+            text(MOD.nav.text({'Only this armor; passive values remain shared on their original pages.','组合仅影响这件护甲；被动数值仍在各被动页面共享修改。','組合僅影響這件護甲；被動數值仍在各被動頁面共用修改。'}),x0+150,y+4,14,MUTED,W-x0-170)
+            y=y+28
+            if #stack_list==0 then text(MOD.nav.text({'No passive','无被动','無被動'}),x0,y+6,16,WHITE,420);y=y+34 end
             for _, id in ipairs(stack_list) do
                 local other = by_hash[string.format('FFFFFFFE%08X', id)]
                 text(other and other.name or ('Passive ' .. id), x0, y + 6, 16, WHITE, 420)
@@ -23481,7 +24667,9 @@ local function draw(width, height)
                 button('stack_del:' .. id, 'Remove', 896, y, 88, 28, true)
                 y = y + 34
             end
-            button('stack_pick', '+ Add passive', x0, y, 188, 28, true)
+            button('stack_pick', '+ Add passive', x0, y, 188, 28, #stack_list<MOD.kits.MAX_PASSIVES)
+            button('stack_reset',MOD.nav.text({'Reset','恢复默认','恢復預設'}),x0+198,y,110,28,settings.armor_passives[weapon.armor]~=nil)
+            text(MOD.nav.text({'The armory displays the first passive and up to 3 descriptions; all effects apply.','军械库显示首个被动名称及最多三条说明；所有效果仍生效。','軍械庫顯示首個被動名稱及最多三條說明；所有效果仍生效。'}),x0,y+38,13,MUTED,W-x0-20)
         end
         if rename then   -- the in-game name and description, at the very bottom
             -- the part of value that fits in room (its end while typing)
@@ -23498,7 +24686,7 @@ local function draw(width, height)
                 end
                 return cut(lo)
             end
-            local ry = H - 78 - 88
+            local ry = H - 78 - 128
             text('IN-GAME TEXT', x0, ry + 4, 15, MUTED)
             text('Click a box to type. Install puts it in the game, in every language.', x0 + 150, ry + 4, 14, MUTED, W - x0 - 170)
             ry = ry + 26
@@ -23512,17 +24700,27 @@ local function draw(width, height)
                 local bw = W - 46 - bx
                 local hot = editing or (ok and ui.hover == 'rename:' .. field)
                 text(f[2], x0, ry + 6, 16, WHITE, 140)
-                rect(bx, ry, bw, 28, editing and color(20, 26, 34) or hot and color(40, 52, 64) or color(28, 34, 42), 951)
-                outline(bx, ry, bw, 28, hot and GOLD or color(70, 82, 94))
+                local bh=field=='desc'and 68 or 28
+                rect(bx, ry, bw, bh, editing and color(20, 26, 34) or hot and color(40, 52, 64) or color(28, 34, 42), 951)
+                outline(bx, ry, bw, bh, hot and GOLD or color(70, 82, 94))
                 local value = editing and editing.text or typed or rename.game[field] or ''
-                if editing then value = fit(value .. '_', bw - 16, true) else value = fit(value, bw - 16) end
-                if ink_font then   -- (as text() draws, untranslated: the typed text as typed)
-                    Gui.text(gui, value, ink_font, 15 * s, ink_material, Vector3(ox + (bx + 8) * sx, height - oy - ((ry + 6 + 7.5) * sy - 7.5 * s) - 15 * s * 0.8, 953),
-                             typed and not editing and GOLD or WHITE)
+                if editing then
+                    if field=='desc'then
+                        draw_multiline_input(editing,bx+8,ry+6,18,3,15,bw-16,953)
+                    else
+                        draw_input(editing,bx+8,ry+6,15,WHITE,bw-16,false,953,bx,ry,bw,bh,80)
+                    end
+                else
+                    local rows
+                    if field=='desc'then rows=MOD.text.wrap({text=value},bw-16,15)
+                    else rows={fit(value,bw-16)} end
+                    if ink_font then for n=1,math.min(#rows,field=='desc'and 3 or 1)do
+                        Gui.text(gui,rows[n],ink_font,15*s,ink_material,Vector3(ox+(bx+8)*sx,height-oy-((ry+6+(n-1)*18+7.5)*sy-7.5*s)-15*s*.8,953),typed and GOLD or WHITE)
+                    end end
                 end
-                region('rename:' .. field, bx, ry, bw, 28, ok)
+                region('rename:'..field,bx,ry,bw,bh,ok)
                 button('rename_reset:' .. field, 'R', W - 42, ry, 26, 28, typed ~= nil)
-                ry = ry + 34
+                ry = ry + bh + 6
             end
         end
     end
@@ -23532,6 +24730,9 @@ local function draw(width, height)
     -- the game's own two (the desktop host's: start it through Steam, end its process after a second click), at the
     -- left of the footer; its text moves right
     local fx = (MOD.offline and state.host_game) and 274 or 18
+    local back_shown=ui.preset_return and not ui.settings and ui.tab~='Presets'
+    local footer_w=(MOD.offline and W-fx-18 or W-260)-(back_shown and 150 or 0)
+    if back_shown then button('preset_return',MOD.nav.text({'Back to preset','返回预设','返回預設'}),W-150,H-58,132,46,true,true)end
     if fx > 18 then
         button('game_launch', MOD.nav.text({ 'Start the game', '启动游戏', '啟動遊戲' }), 18, H - 58, 120, 46, true)
         local armed = state.host_kill_armed and state.host_kill_armed()
@@ -23544,63 +24745,107 @@ local function draw(width, height)
     end
     if ui.binding then
         text('Press the key that should open and close the panel: F1-F12, Insert, Home, End, Pause or Scroll Lock. Esc cancels.',
-             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+             fx, H - 56, 14, MUTED, footer_w)
     elseif ui.code then
         text('Enter the new code with the arrow keys or WASD, 9 arrows at most. Enter or Done keeps it, Backspace takes ' ..
-             'one back, Esc cancels.', fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+             'one back, Esc cancels.', fx, H - 56, 14, MUTED, footer_w)
     elseif ui.settings then
-        text('Settings are saved at once, in config.txt with your changes.', fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+        text('Settings are saved at once, in config.txt with your changes.', fx, H - 56, 14, MUTED, footer_w)
     elseif ui.rename then
         local n, cap = MOD.rename.length(ui.rename.text), MOD.rename.LIMIT[ui.rename.field]
         text(n > cap and string.format(MOD.nav.text({ 'Longer than the game\'s own (%d of %d characters): it is still written. Enter keeps it, Esc cancels.',
                                                        '比游戏原文长（%d / %d 字）：照样写入。回车保存，Esc 取消。', '比遊戲原文長（%d / %d 字）：照樣寫入。Enter 儲存，Esc 取消。' }), n, cap)
              or 'Type the text: Enter keeps it, Esc cancels. Install puts it in the game, in every language.',
-             fx, H - 56, 14, n > cap and WARN or MUTED, MOD.offline and W-fx-18 or W-260)
+             fx, H - 56, 14, n > cap and WARN or MUTED, footer_w)
     elseif ui.editing then
         text('Type the name: Enter keeps it, Esc cancels. The game sees these keys too, so name presets from a menu.',
-             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+             fx, H - 56, 14, MUTED, footer_w)
     elseif ui.value and ui.value.setting then
         local r = settings.RANGE[ui.value.setting]
-        text(string.format('Type the percent (%d-%d): Enter sets it, Esc cancels.', r[1], r[2]), fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+        text(string.format('Type the percent (%d-%d): Enter sets it, Esc cancels.', r[1], r[2]), fx, H - 56, 14, MUTED, footer_w)
     elseif ui.value and effect_tab then
-        text(MOD.nav.text({'Enter saves; Esc cancels. Use effect IDs or the field\'s JSON format.','回车保存，Esc 取消；输入词条 ID 或该字段的 JSON 格式。','Enter 儲存，Esc 取消；輸入詞條 ID 或該欄位的 JSON 格式。'}),fx,H-56,14,MUTED,W-fx-18)
+        text(MOD.nav.text({'Enter saves; Esc cancels. Use effect IDs or the field\'s JSON format.','回车保存，Esc 取消；输入词条 ID 或该字段的 JSON 格式。','Enter 儲存，Esc 取消；輸入詞條 ID 或該欄位的 JSON 格式。'}),fx,H-56,14,MUTED,footer_w)
     elseif ui.value then
         text('Type the value: Enter sets it, Esc cancels. Values out of range are set to the nearest allowed one.',
-             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+             fx, H - 56, 14, MUTED, footer_w)
     elseif ui.search.active and not presets_tab then
         text('Type to search: Enter keeps the results, Esc clears the search. The game sees these keys too.',
-             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+             fx, H - 56, 14, MUTED, footer_w)
     elseif presets_tab then
         text('Up/Down choose, Enter loads, Insert makes a new one, Shift+Insert saves into it, F2 renames, Del deletes.',
-             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+             fx, H - 56, 14, MUTED, footer_w)
     elseif todo_view then
-        text(MOD.nav.text(MOD.nav.T.todo_help), fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+        text(MOD.nav.text(MOD.nav.T.todo_help), fx, H - 56, 14, MUTED, footer_w)
     elseif effect_tab then
-        text(MOD.nav.text({'Choose planet, choose effect, add; then enable the plan and start the proxy.','选择星球 → 选择词条 → 添加；再启用方案并启动代理。','選擇星球 → 選擇詞條 → 新增；再啟用方案並啟動代理。'}),fx,H-56,14,MUTED,W-fx-18)
+        text(MOD.nav.text({'Choose planet, choose effect, add; then enable the plan and start the proxy.','选择星球 → 选择词条 → 添加；再启用方案并启动代理。','選擇星球 → 選擇詞條 → 新增；再啟用方案並啟動代理。'}),fx,H-56,14,MUTED,footer_w)
     else
         text('Up/Down choose a stat, Left/Right change it (Shift: bigger steps), click a value or press Enter to type it,',
-             fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+             fx, H - 56, 14, MUTED, footer_w)
     end
     if ui.message then
-        text(ui.message.text, fx, H - 34, 14, GOOD, MOD.offline and W-fx-18 or W-260)
+        text(ui.message.text, fx, H - 34, 14, GOOD, footer_w)
     elseif effect_tab then
-        text(MOD.nav.text({'Network plans save immediately in portable Data; Write to game is not needed.','网络方案即时保存在程序旁的 Data，无需点击“写入游戏”。','網路方案即時儲存於程式旁的 Data，無需點擊「寫入遊戲」。'}),fx,H-34,14,MUTED,W-fx-18)
+        text(MOD.nav.text({'Network plans save immediately in portable Data; Write to game is not needed.','网络方案即时保存在程序旁的 Data，无需点击“写入游戏”。','網路方案即時儲存於程式旁的 Data，無需點擊「寫入遊戲」。'}),fx,H-34,14,MUTED,footer_w)
     elseif MOD.offline and state.host_status then
-        text(state.host_status(),fx,H-34,14,MUTED,W-fx-18)
+        text(state.host_status(),fx,H-34,14,MUTED,footer_w)
     elseif presets_tab then
         text('Overwriting and deleting ask twice. Changes apply at once and are saved; ' .. #overrides ..
-             ' value(s) changed.', fx, H - 34, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+             ' value(s) changed.', fx, H - 34, 14, MUTED, footer_w)
     elseif todo_view then
-        text(MOD.nav.text(MOD.nav.T.todo_help2), fx, H - 34, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+        text(MOD.nav.text(MOD.nav.T.todo_help2), fx, H - 34, 14, MUTED, footer_w)
     else
         text(MOD.nav.text({'PgUp/PgDn change selection, Del resets; ','PgUp/PgDn 切换项目，Del 重置；','PgUp/PgDn 切換項目，Del 重設；'}) .. #overrides ..
-             ' value(s) changed.', fx, H - 34, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+             ' value(s) changed.', fx, H - 34, 14, MUTED, footer_w)
     end
     -- the passives to stack on the chosen one: over its page, until one is chosen (Cancel / Esc: none)
+    -- Copy to...: the matching pages, any number chosen, a preview of the focused one, then Copy
+    if ui.copy and ui.copy.weapon == weapon and not ui.settings then
+        local T = function(t) return MOD.nav.text(t) end
+        local choices = MOD.vcopy.targets(weapon, ui.copy.section)
+        local x, y, w, h = 350, 84, W - 360, H - 104 - 84 - 8
+        rect(x, y, w, h, color(8, 11, 15), 958)
+        outline(x, y, w, h, GOLD, 959)
+        region('stack_modal', x, y, w, h, false)
+        text(T({ 'Copy to', '复制到', '複製到' }) .. ': ' .. MOD.vcopy.title(weapon, ui.copy.section), x + 16, y + 14, 20, GOLD, w - 32, false, 960)
+        text(T({ 'Rows pair by component, field and body part; bodies, arms and turrets only with their own kind.',
+                 '按组件、字段和部位匹配；主体、手臂、炮塔只与同类对应。', '依元件、欄位與部位比對；主體、手臂、砲塔只與同類對應。' }),
+             x + 16, y + 44, 14, MUTED, w - 32, false, 960)
+        local plans = {}
+        for _, c in ipairs(choices) do plans[c.hash] = MOD.vcopy.plan(weapon, ui.copy.section, c) end
+        local cols, bw = 3, math.floor((w - 32 - 16) / 3)
+        local grid_rows = math.min(math.ceil(#choices / cols), 8)
+        for k, c in ipairs(choices) do
+            local col, row = (k - 1) % cols, math.floor((k - 1) / cols)
+            if row < grid_rows then
+                button('copy_toggle:' .. c.hash, settings.tr(c.name) .. '  (' .. #plans[c.hash].changes .. ')',
+                       x + 16 + col * (bw + 8), y + 72 + row * 34, bw, 30, true, ui.copy.chosen[c.hash], nil, 961)
+            end
+        end
+        if #choices == 0 then text(T({ 'No other page of this kind has these rows.', '没有其他同类页面包含这些参数。', '沒有其他同類頁面包含這些參數。' }), x + 16, y + 80, 16, MUTED, w - 32, false, 960) end
+        -- the preview: the focused (last chosen) page's changes, current → copied
+        local focus = ui.copy.focus and by_hash[ui.copy.focus]
+        local py = y + 72 + grid_rows * 34 + 10
+        if focus and plans[focus.hash] then
+            local plan = plans[focus.hash]
+            text(T({ 'Preview: ', '预览：', '預覽：' }) .. settings.tr(focus.name) .. ' · ' .. #plan.changes .. T({ ' change(s) · ', ' 项改变 · ', ' 項改變 · ' })
+                 .. plan.same .. T({ ' equal · ', ' 项相同 · ', ' 項相同 · ' }) .. #plan.missing .. T({ ' without counterpart', ' 项无对应', ' 項無對應' })
+                 .. (plan.shared > 0 and (' · ' .. plan.shared .. T({ ' shared field(s)', ' 项共用字段', ' 項共用欄位' })) or ''),
+                 x + 16, py, 15, GOLD, w - 32, false, 960)
+            local room = math.max(0, math.floor((y + h - 60 - py - 24) / 20))
+            for k = 1, math.min(room, #plan.changes) do
+                local c = plan.changes[k]
+                local label = c.row.label_of and c.row.label_of() or settings.tr(c.row.label)
+                text(label .. ':  ' .. fmt(c.old, c.row.storage) .. '  →  ' .. fmt(c.new, c.row.storage), x + 24, py + 4 + k * 20, 14, WHITE, w - 48, false, 960)
+            end
+            if #plan.changes > room and room > 0 then text('+' .. (#plan.changes - room), x + 24, py + 4 + (room + 1) * 20, 14, MUTED, 80, false, 960) end
+        elseif #choices > 0 then
+            text(T({ 'Choose pages; the last one chosen is previewed here.', '选择目标页面；最后选择的页面会在此预览。', '選擇目標頁面；最後選擇的頁面會在此預覽。' }), x + 16, py, 15, MUTED, w - 32, false, 960)
+        end
+        button('copy_go', T({ 'Copy', '复制', '複製' }), x + w - 16 - 104 - 8 - 104, y + h - 16 - 30, 104, 30, next(ui.copy.chosen) ~= nil and settings.changes, false, nil, 961)
+        button('copy_cancel', T({ 'Cancel', '取消', '取消' }), x + w - 16 - 104, y + h - 16 - 30, 104, 30, true, false, nil, 961)
+    end
     if ui.stack_pick and ui.stack_pick == weapon and not ui.settings then
-        local target = tables[weapon.passive] and tables[weapon.passive].index.id
-        local taken = { [target or -1] = true }
-        for _, id in ipairs(settings.stacks[target] or {}) do taken[id] = true end
+        local taken={};for _,id in ipairs(MOD.kits.list_of(weapon))do taken[id]=true end
         local choices = {}
         for _, w in ipairs(weapons) do
             local t = w.passive and tables[w.passive]
@@ -23612,7 +24857,7 @@ local function draw(width, height)
         outline(x, y, w, h, GOLD, 959)
         region('stack_modal', x, y, w, h, false)
         text('Add a passive to ' .. weapon.name, x + 16, y + 14, 20, GOLD, w - 32, false, 960)
-        text('Its effects are added to every armor with this passive.', x + 16, y + 44, 14, MUTED, w - 32, false, 960)
+        text(MOD.nav.text({'Only this armor receives the selected passive.','只为当前护甲添加所选被动。','只為目前護甲新增所選被動。'}), x + 16, y + 44, 14, MUTED, w - 32, false, 960)
         local cols, bw = 3, math.floor((w - 32 - 16) / 3)
         for k, c in ipairs(choices) do
             local col, row = (k - 1) % cols, math.floor((k - 1) / cols)
@@ -23674,6 +24919,12 @@ local function draw(width, height)
         local h=#enemy_categories*28+8
         rect(16,124,318,h,color(12,17,23),970)
         for i,category in ipairs(enemy_categories)do button('enemy_cat:'..category.id,category.name,20,128+(i-1)*28,310,26,true,settings[enemy_key]==category.id,nil,971)end
+    elseif record_tab and ui.record_menu then
+        local rcategories=MOD.record_names.categories_for(ui.tab, settings.lang)
+        local cur_cat=(settings.record_categories and settings.record_categories[ui.tab])or'all'
+        local h=#rcategories*28+8
+        rect(16,124,318,h,color(12,17,23),970)
+        for i,category in ipairs(rcategories)do button('record_cat:'..category.id,category.name,20,128+(i-1)*28,310,26,true,cur_cat==category.id,nil,971)end
     end
     if ui.context_menu and #ui.context_menu.items > 0 then
         local menu = ui.context_menu
@@ -23704,12 +24955,60 @@ local function draw(width, height)
         text(MOD.parameters:original_label(edit.row), mx + 16, my + 48, 14, MUTED, mw - 32, false, 987)
         rect(mx + 16, my + 74, mw - 32, 32, color(30, 38, 48), 986)
         outline(mx + 16, my + 74, mw - 32, 32, GOLD, 987)
-        text(edit.text .. '_', mx + 24, my + 81, 17, WHITE, mw - 48, false, 988, true)
+        draw_input(edit, mx + 24, my + 81, 17, WHITE, mw - 48, false, 988, mx + 16, my + 74, mw - 32, 32, 48)
         region('parameter_name:input', mx + 16, my + 74, mw - 32, 32, true)
         text(MOD.nav.text({ 'Enter saves · Esc cancels · Empty restores the original name', '回车保存 · Esc 取消 · 留空恢复原名称', 'Enter 儲存 · Esc 取消 · 留空還原原名稱' }), mx + 16, my + 118, 14, MUTED, mw - 32, false, 987)
         button('parameter_name:save', MOD.nav.text({ 'Save', '保存', '儲存' }), mx + 16, my + 154, 148, 30, true, false, nil, 988)
         button('parameter_name:reset', MOD.nav.text({ 'Restore default name', '恢复默认名称', '還原預設名稱' }), mx + 176, my + 154, 172, 30, true, false, nil, 988)
         button('parameter_name:cancel', MOD.nav.text({ 'Cancel', '取消', '取消' }), mx + 360, my + 154, 144, 30, true, false, nil, 988)
+    end
+    if ui.design_name then
+        local edit = ui.design_name
+        local mx, my, mw = math.floor((W - 520) / 2), math.floor((H - 200) / 2), 520
+        region('design_name_block', 0, 0, W, H, true)
+        rect(mx, my, mw, 200, color(12, 17, 23), 985)
+        outline(mx, my, mw, 200, GOLD, 986)
+        text(MOD.nav.text({ 'Change design name', '更改策划名', '更改策劃名' }), mx + 16, my + 14, 21, GOLD, mw - 32, false, 987)
+        text(edit.info and edit.info.subtitle or '', mx + 16, my + 48, 14, MUTED, mw - 32, false, 987, true)
+        rect(mx + 16, my + 74, mw - 32, 32, color(30, 38, 48), 986)
+        outline(mx, my, mw, 200, GOLD, 986)
+        outline(mx + 16, my + 74, mw - 32, 32, GOLD, 987)
+        draw_input(edit, mx + 24, my + 81, 17, WHITE, mw - 48, false, 988, mx + 16, my + 74, mw - 32, 32, 48)
+        region('design_name:input', mx + 16, my + 74, mw - 32, 32, true)
+        text(MOD.nav.text({ 'Enter saves · Esc cancels · Empty restores the original name', '回车保存 · Esc 取消 · 留空恢复原名称', 'Enter 儲存 · Esc 取消 · 留空還原原名稱' }), mx + 16, my + 118, 14, MUTED, mw - 32, false, 987)
+        button('design_name:save', MOD.nav.text({ 'Save', '保存', '儲存' }), mx + 16, my + 154, 148, 30, true, false, nil, 988)
+        button('design_name:reset', MOD.nav.text({ 'Restore default name', '恢复默认名称', '還原預設名稱' }), mx + 176, my + 154, 172, 30, true, false, nil, 988)
+        button('design_name:cancel', MOD.nav.text({ 'Cancel', '取消', '取消' }), mx + 360, my + 154, 144, 30, true, false, nil, 988)
+    end
+    if ui.item_group then
+        local edit = ui.item_group
+        local info = edit.info or {}
+        local groups = info.groups or {}
+        local cols = 3
+        local grid_rows = math.min(5, math.max(1, math.ceil(#groups / cols)))
+        local mh = 224 + grid_rows * 34
+        local mx, my, mw = math.floor((W - 540) / 2), math.floor((H - mh) / 2), 540
+        region('item_group_block', 0, 0, W, H, true)
+        rect(mx, my, mw, mh, color(12, 17, 23), 985)
+        outline(mx, my, mw, mh, GOLD, 986)
+        text(MOD.nav.text({ 'Set group', '设置分组', '設置分組' }), mx + 16, my + 14, 21, GOLD, mw - 32, false, 987)
+        text((info.subtitle or '') .. ' · ' .. MOD.nav.text({ 'Current: ', '当前分组：', '目前分組：' }) .. (info.current_group_name or ''), mx + 16, my + 46, 14, MUTED, mw - 32, false, 987, true)
+        local bw = math.floor((mw - 32 - (cols - 1) * 8) / cols)
+        for k = 1, math.min(#groups, cols * grid_rows) do
+            local g = groups[k]
+            local col, r = (k - 1) % cols, math.floor((k - 1) / cols)
+            button('item_group:pick:' .. g.id, g.name, mx + 16 + col * (bw + 8), my + 74 + r * 34, bw, 28, true, info.current_group_id == g.id, nil, 988)
+        end
+        local iy = my + 82 + grid_rows * 34
+        text(MOD.nav.text({ 'Or type a group name (creates a new group if needed):', '或输入分组名称（不存在时自动新建分组）：', '或輸入分組名稱（不存在時自動新建分組）：' }), mx + 16, iy, 14, MUTED, mw - 32, false, 987)
+        rect(mx + 16, iy + 24, mw - 32, 32, color(30, 38, 48), 986)
+        outline(mx + 16, iy + 24, mw - 32, 32, GOLD, 987)
+        draw_input(edit, mx + 24, iy + 31, 17, WHITE, mw - 48, false, 988, mx + 16, iy + 24, mw - 32, 32, 48)
+        region('item_group:input', mx + 16, iy + 24, mw - 32, 32, true)
+        local by = iy + 72
+        button('item_group:save', MOD.nav.text({ 'Save', '保存', '儲存' }), mx + 16, by, 156, 30, true, false, nil, 988)
+        button('item_group:reset', MOD.nav.text({ 'Unclassified', '设为未分类', '設為未分類' }), mx + 184, by, 180, 30, true, false, nil, 988)
+        button('item_group:cancel', MOD.nav.text({ 'Cancel', '取消', '取消' }), mx + 376, by, 148, 30, true, false, nil, 988)
     end
     return regions
 end
@@ -23732,11 +25031,26 @@ function MOD.restore_last()
     ui.tab, ui.page, ui.search, ui.settings, ui.weapon = tabs[1], 1, { text = '', active = false }, false, nil
     for _, t in ipairs(tabs) do if t == last.tab then ui.tab = t end end
     local page = last.weapon and by_hash[last.weapon]
-    if page and MOD.nav.tab_of(page) == ui.tab and #page.rows > 0 and (page.enemy ~= nil) == MOD.enemy.on then
+    if page and not page.nav_hidden and MOD.nav.tab_of(page) == ui.tab and (#page.rows > 0 or page.armor) and (page.enemy ~= nil) == MOD.enemy.on then
         select_weapon(page)
     else
         select_weapon(weapons_in(ui.tab)[1])
     end
+end
+
+function MOD.item_naming.click_caret(edit, gx, shift)
+    if not edit or not MOD.text then return end
+    if gx and edit._layout and edit._layout.stops and #edit._layout.stops > 0 then
+        local best, best_d = edit._layout.stops[1].byte, math.huge
+        for _, stop in ipairs(edit._layout.stops) do
+            local d = math.abs(gx - stop.gx)
+            if d < best_d then best, best_d = stop.byte, d end
+        end
+        MOD.text.click_at(edit, best, shift, api.now())
+    else
+        MOD.text.all(edit, api.now())
+    end
+    ui.version = ui.version + 1
 end
 
 local function click(key)
@@ -23748,7 +25062,27 @@ local function click(key)
             if arg == 'save' then MOD.parameter_name_finish(true)
             elseif arg == 'reset' then MOD.parameter_name_finish(true, true)
             elseif arg == 'cancel' then MOD.parameter_name_finish(false)
-            elseif arg == 'input' then ui.parameter_name.fresh = true end
+            elseif arg == 'input' then MOD.item_naming.click_caret(ui.parameter_name, ui.cursor_gx, key_down(VK.Shift)) end
+        end
+        return
+    end
+    if ui.design_name then
+        if kind == 'design_name' then
+            if arg == 'save' then MOD.item_naming.finish_name(true)
+            elseif arg == 'reset' then MOD.item_naming.finish_name(true, true)
+            elseif arg == 'cancel' then MOD.item_naming.finish_name(false)
+            elseif arg == 'input' then MOD.item_naming.click_caret(ui.design_name, ui.cursor_gx, key_down(VK.Shift)) end
+        end
+        return
+    end
+    if ui.item_group then
+        if kind == 'item_group' then
+            local sub, val = arg:match('^([%w_]+):?(.*)$')
+            if sub == 'pick' and val ~= '' then MOD.item_naming.finish_group(true, val)
+            elseif arg == 'save' then MOD.item_naming.finish_group(true)
+            elseif arg == 'reset' then MOD.item_naming.finish_group(true, 'other')
+            elseif arg == 'cancel' then MOD.item_naming.finish_group(false)
+            elseif arg == 'input' then MOD.item_naming.click_caret(ui.item_group, ui.cursor_gx, key_down(VK.Shift)) end
         end
         return
     end
@@ -23782,6 +25116,8 @@ local function click(key)
     else ui.reference_click = nil end
     if kind~='component_cat'then ui.component_menu=nil end
     if kind~='weapon_cat'then ui.weapon_menu=nil end
+    if kind~='enemy_cat'then ui.enemy_menu=nil end
+    if kind~='record_cat'then ui.record_menu=nil end
     -- clicking anything else while naming keeps the name typed so far
     if ui.editing and kind ~= 'name' then local ok=presets.finish_rename(true);if not ok then return end end
     if ui.rename and key ~= 'rename:' .. ui.rename.field then   -- (a box left: what it holds is kept)
@@ -23790,7 +25126,7 @@ local function click(key)
     end
     if ui.search.active and kind ~= 'search' then ui.search.active = false end
     if ui.record_id.active and kind ~= 'record_id' then ui.record_id.active = false end
-    if ui.value and key ~= 'value:' .. ui.value.n then finish_value(true) end
+    if ui.value and key ~= 'value:' .. tostring(ui.value.n) then finish_value(true) end
     if ui.code and key ~= 'code:' .. ui.code.n then MOD.code.finish(false) end
     if kind ~= 'set' then ui.binding = nil end
     if kind=='component_missing'then
@@ -23810,6 +25146,24 @@ local function click(key)
                 at=(at-1+(arg=='next'and 1 or-1))%#categories+1;settings.component_category=categories[at].id
             else settings.component_category=arg end
             ui.component_menu=nil;ui.page=1;MOD.component_reselect();mark_config_dirty()
+        end
+    elseif kind=='record_cat'then
+        settings.record_categories=settings.record_categories or{}
+        if arg=='menu'then ui.record_menu=not ui.record_menu
+        else
+            local categories=MOD.record_names.categories_for(ui.tab, settings.lang)
+            local cur=settings.record_categories[ui.tab]or'all'
+            if arg=='prev'or arg=='next'then
+                local at=1
+                for i,c in ipairs(categories)do if c.id==cur then at=i end end
+                at=(at-1+(arg=='next'and 1 or-1))%#categories+1;settings.record_categories[ui.tab]=categories[at].id
+            else settings.record_categories[ui.tab]=arg end
+            ui.record_menu=nil;ui.page=1
+            local list=weapons_in((ui.search.text~=''or ui.search.edited)and'?search'or ui.tab)
+            local keep=false
+            for _,w in ipairs(list)do if w==ui.weapon then keep=true;break end end
+            select_weapon(keep and ui.weapon or list[1])
+            ui.version=ui.version+1
         end
     elseif kind=='enemy_cat'then
         local categories,key=MOD.enemy_categories()
@@ -23918,7 +25272,7 @@ local function click(key)
                     if not ok(w) then w = weapons_in(tab)[1] end
                 elseif not (w and MOD.nav.tab_of(w) == tab) then
                     w = nav.weapon[tab] and by_hash[nav.weapon[tab]]
-                    if not (w and MOD.nav.tab_of(w) == tab and (#w.rows > 0 or w.component_entry)) then w = weapons_in(tab)[1] end
+                    if not (w and not w.nav_hidden and MOD.nav.tab_of(w) == tab and (#w.rows > 0 or w.component_entry or w.armor)) then w = weapons_in(tab)[1] end
                 end
                 if component_switch and not settings.component_show_missing and w and not w.has_component then w=weapons_in((ui.search.text~=''or ui.search.edited)and'?search'or tab)[1]end
                 select_weapon(w)
@@ -23945,6 +25299,10 @@ local function click(key)
     elseif kind=='preset_folder'then return presets.open_folder()
     elseif kind=='steam_repair'or kind=='steam_restore'then
         return state.host_steam and state.host_steam(kind=='steam_repair'and'repair'or'restore')
+    elseif kind=='proxy_start_now'or kind=='proxy_stop_now'then
+        local Proxy=require('network_proxy')
+        local ok,why=(kind=='proxy_start_now'and Proxy.start or Proxy.stop)()
+        MOD.notify(ok and Proxy.status().message or tostring(why),6);ui.version=ui.version+1
     elseif kind=='game_launch'or kind=='game_kill'then   -- (the desktop host's: offline/host.lua)
         return state.host_game and state.host_game(kind=='game_launch'and'launch_game'or'kill_game')
     elseif kind == 'value' and (arg == 'size' or arg == 'opacity' or settings.DISPLAY[arg]) then
@@ -23952,6 +25310,9 @@ local function click(key)
             local text = tostring(settings[arg])
             if arg == 'render_height' then local w, h = settings.display_size(); text = w and (w .. 'x' .. h) or '' end
             ui.value = { n = arg, setting = arg, text = text, fresh = true }
+            if MOD.text then MOD.text.touch(ui.value, api.now()) end
+        elseif ui.value.setting == arg then
+            MOD.item_naming.click_caret(ui.value, ui.cursor_gx, key_down(VK.Shift))
         end
     elseif kind == 'set' then
         local name, value = arg:match('^([%w_]+):?(.*)$')
@@ -23962,6 +25323,12 @@ local function click(key)
         elseif name == 'update_channel' and (value == 'releases' or value == 'commits') then settings.update_channel = value
         elseif name == 'cache_clear_on_exit' then settings.cache_clear_on_exit = value == 'on'
         elseif name == 'proxy_stop_on_exit' then settings.proxy_stop_on_exit = value == 'on'
+        elseif name == 'proxy_auto_start' then
+            settings.proxy_auto_start = value == 'on'
+            if settings.proxy_auto_start and not rawget(_G, 'TEST_WORK') then
+                local ok, why = require('network_proxy').start()
+                MOD.notify(ok and MOD.nav.text({ 'Proxy started.', '代理已启动。', '代理已啟動。' }) or tostring(why), 4)
+            end
         elseif name == 'steam_auto_config' then settings.steam_auto_config = value == 'on'
         elseif name == 'arc_mp' then settings.arc_mp, settings.arc.next_check = value == 'on', 0
         elseif name == 'vehicles' then
@@ -24019,13 +25386,17 @@ local function click(key)
     elseif kind == 'search' then
         if arg == 'clear' then ui.search, ui.page = { text = '', active = false, edited = ui.search.edited }, 1
         elseif arg == 'edited' then ui.search.edited, ui.page = not ui.search.edited or nil, 1
-        else ui.search.active = true end
+        elseif ui.search.active then MOD.item_naming.click_caret(ui.search, ui.cursor_gx, key_down(VK.Shift))
+        else ui.search.active = true; if MOD.text then MOD.text.touch(ui.search, api.now()) end end
     elseif kind == 'record_id' then
         if arg == 'clear' then
             ui.record_id = { text = '', active = false }
+        elseif ui.record_id.active then
+            MOD.item_naming.click_caret(ui.record_id, ui.cursor_gx, key_down(VK.Shift))
         else
             ui.record_id.active = true
             ui.search.active = false
+            if MOD.text then MOD.text.touch(ui.record_id, api.now()) end
         end
     elseif kind == 'effect_plan_folder' then
         settings.open(require('user_paths').home:gsub('/','\\'))
@@ -24041,6 +25412,9 @@ local function click(key)
         if ui.tab=='OrbitalBeam'then
             local ok,why=MOD.component_catalog:reload();if not ok then MOD.notify(tostring(why),8)end
             ui.version=ui.version+1;return
+        end
+        if (ui.tab=='Stratagems'or ui.tab=='Mechas')and MOD.component_catalog then
+            pcall(MOD.component_catalog.reload, MOD.component_catalog)
         end
         local ok, count, errors = pcall(MOD.record_names.reload, data_dir('StatEditor'), rawget(_G, 'SHODAN_NAMES_DIRECTORY'))
         if ok then
@@ -24067,7 +25441,10 @@ local function click(key)
         end
     elseif kind == 'rename' and weapon and not ui.rename then
         local ids, typed = MOD.rename.of(weapon), MOD.rename.texts[weapon.hash]
-        ui.rename = { weapon = weapon, field = arg, text = typed and typed[arg] or ids and ids.game[arg] or '' }
+        ui.rename = { weapon = weapon, field = arg, text = typed and typed[arg] or ids and ids.game[arg] or '', fresh = true }
+        if MOD.text then MOD.text.touch(ui.rename, api.now()) end
+    elseif kind == 'rename' and weapon and ui.rename and ui.rename.weapon == weapon and ui.rename.field == arg then
+        MOD.item_naming.click_caret(ui.rename, ui.cursor_gx, key_down(VK.Shift))
     elseif kind == 'rename_reset' and weapon then
         MOD.rename.set(weapon, arg, nil)
         ui.version = ui.version + 1
@@ -24089,6 +25466,24 @@ local function click(key)
         if arg=='new'then presets.start_group()else presets.cycle_group(arg)end
     elseif kind == 'pgroup_id' then presets.select_group(arg)
     elseif kind == 'pmove' then presets.move_group(arg)
+    elseif kind == 'pdetail' then
+        local n=tonumber(arg);local now,last=api.now(),ui.detail_click
+        local seconds=.5;local ok,ms=pcall(function()return user.GetDoubleClickTime()end);if ok then seconds=ms/1000 end
+        if last and last.n==n and now>=last.time and now-last.time<=seconds
+         and(not ui.cursor_gx or not last.x or math.abs(ui.cursor_gx-last.x)<=5)
+         and(not ui.cursor_gy or not last.y or math.abs(ui.cursor_gy-last.y)<=5)then
+            ui.detail_click=nil;MOD.preset_jump(presets.detail_entry(n))
+        else ui.detail_click={n=n,time=now,x=ui.cursor_gx,y=ui.cursor_gy}end
+    elseif kind == 'pmerge_pick' then
+        local what,id=arg:match('^(%a+):(.*)$');if what then presets.merge_toggle(what,id)end
+    elseif kind == 'pmerge_target' then presets.merge_target(arg)
+    elseif kind == 'pmerge' then
+        if arg=='keep'then presets.merge_keep()
+        elseif arg=='preview'then presets.merge_preview()
+        elseif arg=='apply'then presets.merge_apply()
+        elseif arg=='back'then if ui.preset_merge then ui.preset_merge.plan=nil;ui.preset_detail_scroll=1 end
+        else presets.merge_cancel()end
+    elseif kind == 'preset_return' then MOD.preset_back()
     elseif kind == 'ptree_page' then presets.toggle_detail('page',arg)
     elseif kind == 'ptree_section' then presets.toggle_detail('section',arg)
     elseif kind == 'pdetail_scroll' then
@@ -24098,6 +25493,8 @@ local function click(key)
     elseif kind == 'fpreset' then
         local n = presets.chosen()
         if arg == 'new' then presets.new_full_preset()
+        elseif arg == 'refresh' then presets.refresh()
+        elseif arg == 'merge' then if ui.preset_merge then presets.merge_cancel()else presets.merge_start()end
         elseif n and arg == 'load' then presets.load_full_preset(n)
         elseif n and arg == 'save' then presets.confirm('save', n)
         elseif n and arg == 'delete' then presets.confirm('delete', n)
@@ -24111,27 +25508,31 @@ local function click(key)
                 ui.description_click=nil;presets.start_description(n)
             else ui.description_click={id=n,time=now,x=ui.cursor_gx,y=ui.cursor_gy}end
         end
+    elseif kind=='settings_scroll'then
+        ui.settings_scroll=math.max(1,math.min(ui.settings_scroll_last or 1,(ui.settings_scroll or 1)+(arg=='down'and 3 or-3)))
+    elseif kind == 'copy_pick' and weapon then ui.copy = { weapon = weapon, section = arg, chosen = {} }
+    elseif kind == 'copy_toggle' and ui.copy then
+        ui.copy.chosen[arg] = not ui.copy.chosen[arg] or nil
+        ui.copy.focus = ui.copy.chosen[arg] and arg or next(ui.copy.chosen)
+    elseif kind == 'copy_cancel' then ui.copy = nil
+    elseif kind == 'copy_go' and ui.copy then
+        local c, list = ui.copy, {}
+        for hash in pairs(c.chosen) do list[#list + 1] = by_hash[hash] end
+        ui.copy = nil
+        if settings.changes then
+            local n = MOD.vcopy.apply(c.weapon, c.section, list)
+            ui.message = { text = MOD.nav.text({ 'Copied ' .. n .. ' value(s) to ' .. #list .. ' page(s).', '已复制 ' .. n .. ' 个数值到 ' .. #list .. ' 个页面。',
+                                                 '已複製 ' .. n .. ' 個數值到 ' .. #list .. ' 個頁面。' }), till = api.now() + 5 }
+        end
     elseif kind == 'stack_pick' and weapon then ui.stack_pick = weapon
     elseif kind == 'stack_cancel' then ui.stack_pick = nil
-    elseif kind == 'stack_own' and weapon and weapon.passive and tables[weapon.passive] then
-        local id = tables[weapon.passive].index.id
-        if (arg == 'off') ~= (settings.own_off[id] == true) then
-            settings.own_off[id] = arg == 'off' or nil
-            state.writes = state.writes + 1   -- (the host: changed since the last install)
-            mark_config_dirty()
-            log('passive own effects: ' .. weapon.name .. ' ' .. arg)
-        end
-    elseif (kind == 'stack_add' or kind == 'stack_del') and weapon and weapon.passive and tables[weapon.passive] then
-        local target, id = tables[weapon.passive].index.id, tonumber(arg)
-        local list, kept = settings.stacks[target] or {}, {}
-        for _, other in ipairs(list) do if other ~= id then kept[#kept + 1] = other end end
-        if kind == 'stack_add' and id ~= target then kept[#kept + 1] = id end
-        settings.stacks[target] = #kept > 0 and kept or nil
-        ui.stack_pick = nil
-        state.writes = state.writes + 1   -- (the host: changed since the last install)
-        mark_config_dirty()
-        local other = by_hash[string.format('FFFFFFFE%08X', id)]
-        log('passive stack: ' .. weapon.name .. (kind == 'stack_add' and ' + ' or ' - ') .. (other and other.name or id))
+    elseif kind=='stack_reset'and weapon and weapon.armor then MOD.kits.set(weapon,nil)
+    elseif(kind=='stack_add'or kind=='stack_del')and weapon and weapon.armor then
+        local id,kept=tonumber(arg),{}
+        for _,other in ipairs(MOD.kits.list_of(weapon))do if other~=id then kept[#kept+1]=other end end
+        if kind=='stack_add'then kept[#kept+1]=id end
+        local ok,why=MOD.kits.set(weapon,kept);if not ok then ui.message={text=tostring(why),till=api.now()+5}end
+        ui.stack_pick=nil
     elseif kind == 'stack_open' then
         local other = by_hash[string.format('FFFFFFFE%08X', tonumber(arg) or 0)]
         if other then select_weapon(other) end
@@ -24161,8 +25562,11 @@ local function click(key)
         elseif kind == 'code' and row.code then
             if ui.code then MOD.code.finish(true) else MOD.code.start(tonumber(arg)) end
         elseif kind == 'value' and row.code then MOD.code.start(tonumber(arg))
-        elseif kind == 'value' and not row.link_only and not ui.value and row_value(row) ~= nil then
+        elseif kind == 'value' and not row.link_only and ui.value and ui.value.weapon == weapon and ui.value.n == tonumber(arg) then
+            MOD.item_naming.click_caret(ui.value, ui.cursor_gx, key_down(VK.Shift))
+        elseif kind == 'value' and not row.link_only and not ui.value and (row.custom_edit or row.hash64 or row_value(row) ~= nil) then
             ui.value = { n = tonumber(arg), weapon = weapon, text = row.input_text and row.input_text()or row.hash64 and MOD.stratagem.hash_text(row)or MOD.numeric.input(row,row_value(row))or fmt(row_value(row), row.storage), fresh = true }
+            if MOD.text then MOD.text.touch(ui.value, api.now()) end
         end
     end
 end
@@ -24173,6 +25577,7 @@ state.panel_message=function()return ui.message~=nil end
 -- offline/host.lua, when its window closes: Settings > Clear the cache on close drops the changes the editor kept
 -- (presets and the game's files stay). The host has stopped redrawing by then, so the config is written here.
 state.proxy_stop_on_exit=function()return settings.proxy_stop_on_exit end
+state.proxy_auto_start=function()return settings.proxy_auto_start end
 state.steam_auto_config=function()return settings.steam_auto_config end
 state.set_steam_auto_config=function(v)settings.steam_auto_config=v==true;save_config()end
 state.host_closing=function()
@@ -24275,6 +25680,7 @@ local function typed_chars()
     return chars(text)
 end
 
+MOD.text=require('text_edit')
 MOD.clipboard = {}
 function MOD.clipboard.copy(val)
     val = tostring(val or '')
@@ -24288,7 +25694,7 @@ end
 
 function MOD.clipboard.planning_name(page)
     if not page then return '' end
-    local custom = MOD.record_names.name_of(page)
+    local custom = (MOD.item_naming and MOD.item_naming.custom_name_of(page)) or MOD.record_names.name_of(page)
     if custom and custom ~= '' then return settings.tr(custom) end
     local name = settings.tr(page.name or '')
     if page.record or page.stratagem_type then
@@ -24376,7 +25782,7 @@ function MOD.clipboard.hit_under(x, y)
 end
 
 function MOD.clipboard.right_click(key, gx, gy)
-    if ui.parameter_name then return end
+    if ui.parameter_name or ui.design_name or ui.item_group then return end
     ui.context_menu = nil
     ui.version = ui.version + 1
     if not key then return end
@@ -24386,45 +25792,40 @@ function MOD.clipboard.right_click(key, gx, gy)
     if kind == 'weapon' then
         local target = by_hash[arg]
         if not target then return end
+        local naming = MOD.item_naming and MOD.item_naming.info(target)
+        if naming then
+            items[#items + 1] = {
+                label = MOD.nav.text({ 'Set group', '设置分组', '設置分組' }),
+                action = function() MOD.item_naming.start_group(target) end,
+            }
+            items[#items + 1] = {
+                label = MOD.nav.text({ 'Change design name', '更改策划名', '更改策劃名' }),
+                action = function() MOD.item_naming.start_name(target) end,
+            }
+        end
         local pname = MOD.clipboard.planning_name(target)
         items[#items + 1] = {
             label = MOD.nav.text({ 'Copy design name', '复制策划名', '複製策劃名' }),
             enabled = pname ~= '',
             action = function() MOD.clipboard.copy(pname) end,
         }
-        local index_only = ui.tab == 'Orbital' or ui.tab == 'Eagle' or ui.tab:match('^Rec') or ui.tab == 'Records'
-                           or target.component_index ~= nil or target.record or target.stratagem_type
-        local id = MOD.record_names.id_of(target)
-        if index_only or (not target.component_entry and not target.orbital_beam and not target.stratagem_entity_page and type(id) == 'number') then
-            if id ~= nil then
-                local idx = tostring(id)
-                items[#items + 1] = {
-                    label = MOD.nav.text({ 'Copy index', '复制 Index', '複製 Index' }),
-                    action = function() MOD.clipboard.copy(idx) end,
-                }
-            end
-        end
-        if not index_only then
-            local hex = target.entity_hash
-                or (target.orbital_beam and target.hash)
-                or (type(id) == 'string' and MOD.name_ids.hex(id))
-                or (target.key and #target.key == 8 and string.format('%08X%08X', u32(target.key, 4), u32(target.key, 0)))
-                or (target.enemy and target.enemy.members and target.enemy.members[1] and target.enemy.members[1].key
-                    and #target.enemy.members[1].key == 8
-                    and string.format('%08X%08X', u32(target.enemy.members[1].key, 4), u32(target.enemy.members[1].key, 0)))
-                or (MOD.preload and MOD.preload.data and MOD.preload.data.catalog and MOD.preload.data.catalog[target.hash] and target.hash)
-            local dec = (target.catalog_record and target.catalog_record.decimal) or (hex and MOD.name_ids.decimal(hex))
-            if hex and dec then
-                local hex_str = '0x' .. hex:upper()
-                items[#items + 1] = {
-                    label = MOD.nav.text({ 'Copy decimal hash', '复制十进制哈希', '複製十進位雜湊' }),
-                    action = function() MOD.clipboard.copy(dec) end,
-                }
-                items[#items + 1] = {
-                    label = MOD.nav.text({ 'Copy hex hash', '复制十六进制哈希', '複製十六進位雜湊' }),
-                    action = function() MOD.clipboard.copy(hex_str) end,
-                }
-            end
+        if naming and naming.kind == 'typeid' then
+            local idx = tostring(naming.id)
+            items[#items + 1] = {
+                label = MOD.nav.text({ 'Copy index', '复制 Index', '複製 Index' }),
+                action = function() MOD.clipboard.copy(idx) end,
+            }
+        elseif naming and naming.kind == 'entity' and naming.hash and naming.decimal then
+            local hex_str = '0x' .. naming.hash:upper()
+            local dec = naming.decimal
+            items[#items + 1] = {
+                label = MOD.nav.text({ 'Copy decimal hash', '复制十进制哈希', '複製十進位雜湊' }),
+                action = function() MOD.clipboard.copy(dec) end,
+            }
+            items[#items + 1] = {
+                label = MOD.nav.text({ 'Copy hex hash', '复制十六进制哈希', '複製十六進位雜湊' }),
+                action = function() MOD.clipboard.copy(hex_str) end,
+            }
         end
     elseif kind == 'value' and (arg == 'size' or arg == 'opacity' or settings.DISPLAY[arg]) then
         local shown = tostring(settings[arg])
@@ -24571,9 +25972,54 @@ local function keyboard(now)
     local typed = typed_chars()   -- drained every frame, so a stray character never lands in a later field
     local poll = typed == nil     -- no characters to hand over (the game's engine): the keys are read instead
     local ctrl = key_down(VK.Ctrl) and not key_down(0x12)
+    if MOD.text and not(ui.binding or ui.code)then
+        local edit=ui.design_name or ui.item_group or ui.parameter_name or ui.editing or ui.value or(not ui.settings and ui.record_id.active and ui.record_id)
+            or ui.rename or(not ui.settings and ui.search.active and ui.search)
+        if edit then
+            local numeric=edit==ui.value
+            local row=numeric and edit.weapon and edit.weapon.rows[edit.n]
+            local multiline=edit==ui.editing and edit.kind=='description'or edit==ui.rename and edit.field=='desc'
+            local limit=edit==ui.design_name and 1024 or edit==ui.item_group and 256 or edit==ui.parameter_name and 512 or edit==ui.editing and(edit.kind=='description'and 4096 or edit.kind=='group'and 240 or 120)
+                or numeric and(row and row.custom_edit and 4096 or 64)or edit==ui.record_id and 20
+                or edit==ui.rename and MOD.rename.HARD[edit.field]or 128
+            local typed_input=typed
+            if poll and not ctrl then
+                typed_input={}
+                for _,vk in ipairs(TEXT_KEYS)do if pressed('T'..vk,now)then local c=key_char(vk);if c then typed_input[#typed_input+1]=c end end end
+            end
+            local before=edit.text
+            local handled=MOD.text.keys(edit,{ctrl=ctrl,shift=key_down(VK.Shift),limit=limit,multiline=multiline,now=now,
+                commit_down=key_down(VK.Enter)and not(multiline and key_down(VK.Shift)),cancel_down=key_down(VK.Escape),
+                compact=edit==ui.record_id,delay=numeric and .4 or .3,rate=numeric and .1 or .015,typed=typed_input,
+                pressed=function(name,delay,rate)return pressed(name,now,delay,rate)end,
+                copy=MOD.clipboard.copy,paste=settings.paste,
+                accept=function(c)
+                    if edit==ui.record_id then return c:find('^%x$')or c=='x'or c=='X'end
+                    if numeric then return MOD.numeric.accept(row,c)or(edit.setting=='render_height'and c:find('^[xX%*]$'))end
+                    return multiline and c=='\n'or not c:find('[%z\1-\31]')
+                end})
+            if handled then
+                if edit.text~=before then
+                    if edit==ui.record_id then MOD.record_names.jump_active()end
+                    if edit==ui.search then ui.page=1 end
+                end
+                ui.version=ui.version+1;return
+            end
+        end
+    end
     if ui.context_menu and pressed('Escape', now) then
         ui.context_menu = nil
         ui.version = ui.version + 1
+        return
+    end
+    if ui.design_name then
+        if pressed('Escape', now) then MOD.item_naming.finish_name(false); return end
+        if pressed('Enter', now) then MOD.item_naming.finish_name(true); return end
+        return
+    end
+    if ui.item_group then
+        if pressed('Escape', now) then MOD.item_naming.finish_group(false); return end
+        if pressed('Enter', now) then MOD.item_naming.finish_group(true); return end
         return
     end
     if ui.parameter_name then
@@ -24828,10 +26274,17 @@ local function keyboard(now)
     if ui.tab ~= 'Presets' and not (nav_sub and nav_sub.solo and not ui.settings) and key_down(VK.Ctrl)
        and pressed('T70', now) then     -- Ctrl+F (a sub-page of one page has no list to search)
         ui.search.active = true
+        if MOD.text then MOD.text.touch(ui.search, now) end
         return
     end
     if ui.settings then
         if pressed('Escape',now)then MOD.workspace.open('editor')end
+        if pressed('PageDown',now)then ui.settings_scroll=math.min(ui.settings_scroll_last or 1,(ui.settings_scroll or 1)+12);ui.version=ui.version+1 end
+        if pressed('PageUp',now)then ui.settings_scroll=math.max(1,(ui.settings_scroll or 1)-12);ui.version=ui.version+1 end
+        return
+    end
+    if ui.copy then   -- Copy to... is open: Esc closes it
+        if pressed('Escape', now) then ui.copy = nil end
         return
     end
     if ui.stack_pick then   -- the passive picker is open: Esc closes it
@@ -24839,7 +26292,16 @@ local function keyboard(now)
         return
     end
     if ui.tab == 'Presets' then
+        if ui.preset_merge then
+            if pressed('Escape',now)then
+                if ui.preset_merge.plan then ui.preset_merge.plan=nil;ui.version=ui.version+1 else presets.merge_cancel()end
+            elseif pressed('Enter',now)then
+                if ui.preset_merge.plan then presets.merge_apply()else presets.merge_preview()end
+            end
+            return
+        end
         if pressed('Escape',now)then MOD.workspace.open('editor');return end
+        if pressed('F5',now)then presets.refresh()end
         local order, n = presets.full_order(), presets.chosen()
         local at = 0
         for k, m in ipairs(order) do if m == n then at = k end end
@@ -24901,9 +26363,10 @@ local function keyboard(now)
     end
     if enter and weapon.rows[ui.row] and weapon.rows[ui.row].code then MOD.code.start(ui.row); return end
     if enter and weapon.rows[ui.row] and weapon.rows[ui.row].link_only then MOD.references.open(weapon.rows[ui.row]); return end
-    if enter and weapon.rows[ui.row] and row_value(weapon.rows[ui.row]) ~= nil then
+    if enter and weapon.rows[ui.row] and (weapon.rows[ui.row].custom_edit or weapon.rows[ui.row].hash64 or row_value(weapon.rows[ui.row]) ~= nil) then
         local row=weapon.rows[ui.row]
         ui.value = { n = ui.row, weapon = weapon, text = row.input_text and row.input_text()or row.hash64 and MOD.stratagem.hash_text(row)or MOD.numeric.input(row,row_value(row))or fmt(row_value(row),row.storage), fresh = true }
+        if MOD.text then MOD.text.touch(ui.value, now) end
         return
     end
     local moved = false
@@ -24965,7 +26428,10 @@ function ui.wheel_scroll(notches)
         end
         ui.version=ui.version+1;return
     end
-    if ui.settings then return end
+    if ui.settings then
+        ui.settings_scroll=math.max(1,math.min(ui.settings_scroll_last or 1,(ui.settings_scroll or 1)-notches*3))
+        ui.version=ui.version+1;return
+    end
     local left = ui.cursor_gx and ui.split_gx and ui.cursor_gx < ui.split_gx
     local b = left and ui.lbar or (not left and ui.weapon and ui.sbar)
     if b then ui[b.id] = math.max(1, math.min(b.span + 1, ui[b.id] - notches * 3)) end
@@ -25002,14 +26468,40 @@ local function mouse(window)
         down = value == true or (type(value) == 'number' and value > 0)
     end
     if mouse_was_down ~= nil then
+        local function active_edit_for(k)
+            if not k then return nil end
+            if k == 'parameter_name:input' then return ui.parameter_name end
+            if k == 'design_name:input' then return ui.design_name end
+            if k == 'item_group:input' then return ui.item_group end
+            if k == 'record_id' and ui.record_id.active then return ui.record_id end
+            if k == 'search' and ui.search.active then return ui.search end
+            if ui.value and k == 'value:' .. tostring(ui.value.n) then return ui.value end
+            if ui.rename and k == 'rename:' .. tostring(ui.rename.field) then return ui.rename end
+            return nil
+        end
         if down and not mouse_was_down then
             armed = ui.hover
             if armed and armed:find('^[sl]bar:') then ui.scroll_press(armed, gy) end
+            local ed = active_edit_for(armed)
+            if ed and ed._layout then
+                MOD.item_naming.click_caret(ed, ui.cursor_gx, key_down(VK.Shift))
+                ui.text_drag = { edit = ed, key = armed }
+            else
+                ui.text_drag = nil
+            end
         end
         if down and ui.drag then ui.scroll_drag(gy) end
+        if down and ui.text_drag and ui.text_drag.edit then
+            MOD.item_naming.click_caret(ui.text_drag.edit, ui.cursor_gx, true)
+        end
         if not down then ui.drag = nil end
         if not down and mouse_was_down then
-            if armed and armed == ui.hover then click(armed) end
+            if ui.text_drag and armed == ui.text_drag.key then
+                ui.text_drag = nil
+            else
+                ui.text_drag = nil
+                if armed and armed == ui.hover then click(armed) end
+            end
             armed = nil
         end
     end
@@ -25396,20 +26888,27 @@ local function panel_frame(now)
     local width, height = sr.Gui.resolution()
     if ui.message and api.now() >= ui.message.till then ui.message = nil end
     if ui.confirm and api.now() >= ui.confirm.till then ui.confirm = nil; ui.version = ui.version + 1 end
+    local active_edit = ui.design_name or ui.item_group or ui.parameter_name or ui.editing or ui.value
+        or (not ui.settings and ui.record_id.active and ui.record_id)
+        or ui.rename or (not ui.settings and ui.search.active and ui.search)
+        or ui.code
+    local edit_sig = active_edit and MOD.text and MOD.text.signature(active_edit, now) or '-'
+    local rcat_sig = settings.record_categories and settings.record_categories[ui.tab] or 'all'
     local signature = table.concat({ width, height, state.phase, state.tables, ui.tab, ui.nav.page,
                                      ui.nav.sub[ui.nav.page] or 0, ui.page, ui.row, ui.scroll,
                                      tostring(ui.hover), tostring(ui.drag ~= nil), ui.weapon and ui.weapon.hash or '-', ui.version,
-                                     tostring(ui.settings), tostring(ui.binding), hotkey_name,
+                                     tostring(ui.settings),tostring(ui.settings_scroll), tostring(ui.binding), hotkey_name,
                                      #overrides, presets.scope, tostring(ui.fslot), ui.fpage,
                                      state.demolition_revision or 0,MOD.planet.network_status_revision(),
                                      MOD.component_catalog and MOD.component_catalog.revision or 0,
                                      tostring(settings.component_show_missing),settings.component_category,tostring(ui.component_menu),
-                                     settings.weapon_category,tostring(ui.weapon_menu),
+                                     settings.weapon_category,tostring(ui.weapon_menu),rcat_sig,tostring(ui.record_menu),
                                      ui.message and ui.message.text or '', ui.editing and ui.editing.text or '-',
                                      ui.search.text, tostring(ui.search.active),
                                      ui.record_id.text, tostring(ui.record_id.active),
                                      ui.value and (ui.value.n .. '=' .. ui.value.text) or '-',
                                      ui.rename and (ui.rename.field .. '=' .. ui.rename.text) or '-',
+                                     edit_sig,
                                      ui.context_menu and (ui.context_menu.id .. ':' .. ui.context_menu.gx .. ':' .. ui.context_menu.gy) or '-',
                                      state.host_status and state.host_status()or'' }, '|')
     if signature ~= ui.signature then
@@ -26556,7 +28055,7 @@ local function tick()
     hotkey_was_down = down
     if not ui.open and cursor.raw.saved then pcall(cursor.give_input, now) end
     if ui.open then
-        local ok, why = pcall(panel_frame, now)
+        local ok, why = xpcall(panel_frame, debug.traceback, now)
         if ui.close_request then ui.close_request = nil; open_panel(false) end
         if ok then
             ui.errors = 0
@@ -26564,6 +28063,13 @@ local function tick()
             state.ui_errors = state.ui_errors + 1
             ui.errors = ui.errors + 1
             log('panel error: ' .. tostring(why))
+            state.last_ui_error = tostring(why)
+            -- (the log keeps its first lines only: a page that fails to draw must still say why)
+            if state.ui_errors <= 3 then pcall(function()
+                local dir = data_dir('Logs')
+                local f = dir and io.open(dir .. '/panel_errors.log', state.ui_errors == 1 and 'wb' or 'ab')
+                if f then f:write(os.date('%H:%M:%S '), tostring(why), '\n'); f:close() end
+            end) end
             pcall(clear_gui)
             if ui.errors >= 5 then
                 open_panel(false)

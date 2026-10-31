@@ -499,6 +499,86 @@
       "hash": "0xFF5CC825B9571052",
       "kind": "entity",
       "name": "机器人 迫击炮塔"
+    },
+    {
+      "hash": "0x9926876B2375A1BB",
+      "kind": "entity",
+      "name": "碉堡炮塔 · 小型自动机炮炮塔"
+    },
+    {
+      "hash": "0x089833D2880D9E06",
+      "kind": "entity",
+      "name": "机枪奇袭者 · Entry 0034"
+    },
+    {
+      "hash": "0x09DFB04B2E578BC3",
+      "kind": "entity",
+      "name": "装甲兵 · Entry 0040"
+    },
+    {
+      "hash": "0x1B5B9AC4F96B36E5",
+      "kind": "entity",
+      "name": "政委 · Entry 0121"
+    },
+    {
+      "hash": "0x2A12104F2853AE16",
+      "kind": "entity",
+      "name": "火箭奇袭者 · Entry 0185"
+    },
+    {
+      "hash": "0x32CDEADA234FB8DF",
+      "kind": "entity",
+      "name": "巨型粉碎者 · Entry 0235"
+    },
+    {
+      "hash": "0x52018DEB9AB6827E",
+      "kind": "entity",
+      "name": "装甲兵 · Entry 0396"
+    },
+    {
+      "hash": "0x611BA777783B08A2",
+      "kind": "entity",
+      "name": "音擎 · Entry 0459"
+    },
+    {
+      "hash": "0x9076EEED17FCEE35",
+      "kind": "entity",
+      "name": "强化侦察纵步者 · Entry 0654"
+    },
+    {
+      "hash": "0x91EBD77931110AFC",
+      "kind": "entity",
+      "name": "蹂躏者 · Entry 0658"
+    },
+    {
+      "hash": "0xA4552F97033392F4",
+      "kind": "entity",
+      "name": "机枪奇袭者 · Entry 0747"
+    },
+    {
+      "hash": "0xAE57FCDB49F74E98",
+      "kind": "entity",
+      "name": "装甲兵 · Entry 0790"
+    },
+    {
+      "hash": "0xB056F8FC74ABA02D",
+      "kind": "entity",
+      "name": "装甲兵 · Entry 0806"
+    },
+    {
+      "hash": "0xB4ED319B39F5457B",
+      "kind": "entity",
+      "name": "机枪奇袭者 · Entry 0831"
+    },
+    {
+      "hash": "0xE44EC9F9B3FE1D2A",
+      "kind": "entity",
+      "name": "巨型炙焰者 · Entry 1059"
+    },
+    {
+      "hash": "0xFC8DEC78BE8AB47D",
+      "kind": "entity",
+      "name": "蹂躏者 · Entry 1166"
     }
   ],
   "group": {

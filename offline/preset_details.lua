@@ -2,6 +2,7 @@
 local V=require('component_view')
 local J=require('json_data')
 local U=require('stratagem_components')
+local Merge=require('preset_merge')
 local M={}
 local function keys(t)local out={};for k in pairs(t or{})do out[#out+1]=k end;table.sort(out,function(a,b)return tostring(a)<tostring(b)end);return out end
 local function value(v)
@@ -35,10 +36,12 @@ function M.build(p,c)
   local section={id=tab,label=c.tab_label and c.tab_label(tab)or c.tr(tab),rows={},count=0}
   page.sections[#page.sections+1]=section;by_tab[tab]={page,section};return page,section
  end
- local function add(tab,entity,label,id,saved,baseline,changed)
+ -- ref: the payload item the row shows (preset_merge.lua); jump: where double-clicking it opens the editor
+ local function add(tab,entity,label,id,saved,baseline,changed,ref,jump)
   local page,section=destination(tab)
   if changed==nil then changed=baseline==nil or type(saved)~='number'or type(baseline)~='number'or saved~=baseline end
-  section.rows[#section.rows+1]={entity=entity,label=label,id=id,value=value(saved),baseline=baseline~=nil and value(baseline)or nil,changed=changed}
+  section.rows[#section.rows+1]={entity=entity,label=label,id=id,value=value(saved),baseline=baseline~=nil and value(baseline)or nil,changed=changed,
+   ref=ref,pick=Merge.key(ref),jump=jump or{tab=tab}}
   if changed then page.count=page.count+1;section.count=section.count+1 end
  end
  local saved_by,seen_u64={},{}
@@ -86,19 +89,27 @@ function M.build(p,c)
     local chi=map[id_hi]~=nil and map[id_hi]or bhi
     local saved_str=(type(clo)=='number'and type(chi)=='number')and U.u64_text(math.floor(clo+.5),math.floor(chi+.5))or value(v.value)
     local base_str=(type(blo)=='number'and type(bhi)=='number')and U.u64_text(math.floor(blo+.5),math.floor(bhi+.5))or nil
-    add(tab,entity,label,key_id,saved_str,base_str,base_str==nil or saved_str~=base_str)
+    add(tab,entity,label,key_id,saved_str,base_str,base_str==nil or saved_str~=base_str,
+     {store='values',hash=v.hash,ids={id_lo,id_hi}},{tab=tab,hash=v.hash,id=key_id,part=id_lo})
    end
   else
    local baseline=c.default_value and c.default_value(v.hash,v.id)
-   add(tab,entity,label,v.id,v.value,baseline)
+   add(tab,entity,label,v.id,v.value,baseline,nil,{store='values',hash=v.hash,ids={v.id}},{tab=tab,hash=v.hash,id=v.id})
   end
  end
  local d=p.data or{}
  local game=p.scope=='game'and d or d.game or{}
  for _,key in ipairs({'stacks','own_off'})do for _,id in ipairs(keys(game[key]))do
   local title=c.passive_name and c.passive_name(id)or id
-  add('Armors',title,tx(key=='stacks'and'Additional passives'or'Own passive disabled',key=='stacks'and'叠加被动'or'关闭自身被动'),key..':'..id,game[key][id],nil,true)
+  add('Armors',title,tx(key=='stacks'and'Additional passives'or'Own passive disabled',key=='stacks'and'叠加被动'or'关闭自身被动'),key..':'..id,game[key][id],nil,true,
+   {store='game',key=key,id=id},{tab='Armors',hash=string.format('FFFFFFFE%08X',tonumber(id)or 0)})
  end end
+ for _,armor in ipairs(keys(game.armor_passives))do
+  local names={};for _,id in ipairs(game.armor_passives[armor])do names[#names+1]=c.passive_name and c.passive_name(id)or tostring(id)end
+  local page=c.by_hash[string.format('FFFFFFF8%08X',tonumber(armor))]
+  add('Armors',page and c.tr(page.name)or armor,tx('Armor passive combination','护甲被动组合'),'armor_passives:'..armor,names,nil,true,
+   {store='game',key='armor_passives',id=armor},{tab='Armors',hash=string.format('FFFFFFF8%08X',tonumber(armor)or 0)})
+ end
  local demolition=d.demolition or{}
  local bridge=rawget(_G,'SHODAN_DEMOLITION_BRIDGE');local model=bridge and bridge.panel.model
  for _,store in ipairs({'values','stale'})do for _,id in ipairs(keys(demolition[store]))do
@@ -109,7 +120,8 @@ function M.build(p,c)
    local label=tx('Destruction record ','破坏记录 ')..(level and tonumber(level)+1 or key)..' / '..tx(kind=='hit'and'Direct hit'or'Normal hit',kind=='hit'and'直击覆盖'or'普通命中')
    local owner=target and c.by_hash[target.hash]
    local entity=owner and(owner.name_of and owner.name_of()or c.tr(owner.name))or target and c.tr(target.name)or id
-   add('DemolitionComponents',entity,label,key,demolition[store][id][key],baseline)
+   add('DemolitionComponents',entity,label,key,demolition[store][id][key],baseline,nil,
+    {store='demolition',bucket=store,id=id,key=key},{tab='DemolitionComponents',hash=owner and owner.hash or nil})
   end
  end end
  local loadout=p.scope=='loadout'and d or d.loadout
@@ -118,7 +130,7 @@ function M.build(p,c)
   for _,key in ipairs(keys(loadout.values))do
    local f=Save.BY_KEY[key];local baseline=loadout.baseline and loadout.baseline[key]
    if baseline==nil and live and live.save and live.read then baseline=live:read(key,true)end
-   add('CurrentLoadout',tx('Saved equipment','存档配装'),f and tr(f.label)or key,key,loadout.values[key],baseline)
+   add('CurrentLoadout',tx('Saved equipment','存档配装'),f and tr(f.label)or key,key,loadout.values[key],baseline,nil,{store='loadout',key=key})
   end
  end
  local preload=p.scope=='preload'and d or d.preload or{}
@@ -133,7 +145,8 @@ function M.build(p,c)
  end
  for _,key in ipairs({'selected','targets'})do for _,hash in ipairs(keys(preload[key]))do
   local baseline=key=='targets'and hash=='18235E0C9EC0E636'
-  add(key=='selected'and'PreloadExtra'or'PreloadGlobal',package_name(hash),tx(key=='selected'and'Extra package selected'or'Load target',key=='selected'and'选择额外预载包'or'加载目标'),key,preload[key][hash],baseline,preload[key][hash]~=baseline)
+  add(key=='selected'and'PreloadExtra'or'PreloadGlobal',package_name(hash),tx(key=='selected'and'Extra package selected'or'Load target',key=='selected'and'选择额外预载包'or'加载目标'),key,preload[key][hash],baseline,preload[key][hash]~=baseline,
+   {store='preload',bucket=key,hash=hash})
  end end
  for _,hash in ipairs(keys(preload.edits))do
   local baseline=preload.edits[hash].baseline
@@ -147,12 +160,13 @@ function M.build(p,c)
     for _,field in ipairs({'type','name'})do
      local old=baseline and baseline[i]and baseline[i][field];local saved=after[i]and after[i][field]
      if old~=saved then
-      add('PreloadCatalog',package_name(hash),tx('Package entry ','包清单条目 ')..i..tx(field=='type'and' / type'or' / resource',field=='type'and' / 类型'or' / 资源'),i..':'..field,saved or tx('(removed)','（已删除）'),old,true)
+      add('PreloadCatalog',package_name(hash),tx('Package entry ','包清单条目 ')..i..tx(field=='type'and' / type'or' / resource',field=='type'and' / 类型'or' / 资源'),i..':'..field,saved or tx('(removed)','（已删除）'),old,true,
+       {store='preload',bucket='edits',hash=hash})
      end
     end
    end
   end
-  if #after==0 and not baseline then add('PreloadCatalog',hash,tx('Package contents','包清单内容'),'entries',{},nil,true)end
+  if #after==0 and not baseline then add('PreloadCatalog',hash,tx('Package contents','包清单内容'),'entries',{},nil,true,{store='preload',bucket='edits',hash=hash})end
  end
  for _,key in ipairs(keys(preload.arrays))do
   local entry=preload.arrays[key];local before=entry.expected or{};local after=entry.values or{}
@@ -160,12 +174,41 @@ function M.build(p,c)
   local tab=spec.domain=='modifier_entity'and(spec.root==146979202 and'PlanetModifierLists'or'GalacticModifierLists')or'PreloadWorld'
   for i=1,math.max(#before,#after)do
    if value(before[i])~=value(after[i])then
-    add(tab,key,tx('Array entry ','数组条目 ')..i,tostring(i),after[i]==nil and tx('(removed)','（已删除）')or after[i],before[i],true)
+    add(tab,key,tx('Array entry ','数组条目 ')..i,tostring(i),after[i]==nil and tx('(removed)','（已删除）')or after[i],before[i],true,{store='preload',bucket='arrays',key=key})
    end
   end
  end
- if preload.merge_enabled~=nil then add('PreloadGlobal',tx('Preload settings','预载设置'),tx('Merge enabled','启用合并'),'merge_enabled',preload.merge_enabled,true,preload.merge_enabled==false)end
- if d.legacy_preload or d.legacy_key then add('PreloadCatalog',tx('Imported preload plan','导入的预载方案'),'legacy', 'legacy',d.legacy_preload or d.legacy_key,nil,true)end
+ if preload.merge_enabled~=nil then add('PreloadGlobal',tx('Preload settings','预载设置'),tx('Merge enabled','启用合并'),'merge_enabled',preload.merge_enabled,true,preload.merge_enabled==false,{store='preload',bucket='merge_enabled'})end
+ if d.legacy_preload or d.legacy_key then add('PreloadCatalog',tx('Imported preload plan','导入的预载方案'),'legacy', 'legacy',d.legacy_preload or d.legacy_key,nil,true,{store='legacy'})end
+ local network=d.network or{}
+ local catalogue=require('galactic_effects').index(require('galactic_effects').data)
+ local function effect_name(id)
+  local e=catalogue[tonumber(id)];local name=e and e[c.lang()=='en'and'name_en'or'name_zh'];return name and name~=''and(name..' ['..id..']')or tostring(id)
+ end
+ local assignments=network.assignments
+ if assignments then
+  add('PlanetEffectAssignments',tx('Network interception','网络层劫持'),tx('Assignment master switch','星球分配总开关'),'enabled',assignments.enabled,false,assignments.enabled,
+   {store='network',kind='assignments',field='enabled'})
+  for _,planet in ipairs(keys(assignments.targets))do
+   local target=assignments.targets[planet];local title=tx('Planet #','星球 #')..planet
+   for _,id in ipairs(target.effects)do
+    add('PlanetEffectAssignments',title,tx('Effect assignment','指定词条'),tostring(id),effect_name(tostring(id)),nil,true,
+     {store='network',kind='assignments',planet=planet},{tab='PlanetEffectAssignments',planet=tonumber(planet)})
+   end
+   if target.include_icons==false then add('PlanetEffectAssignments',title,tx('Include matching icon','附带匹配图标'),'include_icons',false,true,true,
+    {store='network',kind='assignments',planet=planet},{tab='PlanetEffectAssignments',planet=tonumber(planet)})end
+  end
+ end
+ local definitions=network.definitions
+ if definitions then
+  add('PlanetEffectIds',tx('Network interception','网络层劫持'),tx('Definition override master switch','定义覆盖总开关'),'enabled',definitions.enabled,false,definitions.enabled,
+   {store='network',kind='definitions',field='enabled'})
+  for _,id in ipairs(keys(definitions.effects))do local e=definitions.effects[id]
+   local ref,jump={store='network',kind='definitions',effect=id},{tab='PlanetEffectIds',effect=tonumber(id)}
+   if e.enabled then add('PlanetEffectIds',effect_name(id),tx('Override this effect','覆盖本词条'),'enabled',true,false,true,ref,jump)end
+   for _,key in ipairs(keys(e.changes))do add('PlanetEffectIds',effect_name(id),key,key,e.changes[key],e.base[key],nil,ref,jump)end
+  end
+ end
  for _,page in ipairs(pages)do for _,section in ipairs(page.sections)do
   table.sort(section.rows,function(a,b)if a.entity~=b.entity then return a.entity<b.entity end;if a.label~=b.label then return a.label<b.label end;return a.id<b.id end)
  end end

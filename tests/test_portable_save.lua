@@ -41,3 +41,13 @@ adapter.write=function(path,content)
 end
 assert(not m:restore()and adapter.read(target)==edited and not adapter.read(target..'.shodan-tmp'))
 print('PASS: portable save backups, account/relocation identity, collision ordering, and partial temporary-write cleanup')
+-- Loadout preset failures must preserve both the previous JSON and model entry.
+adapter.write=real_write;m.preset_path=TEST_WORK..'/loadout-presets.json'
+assert(m:preset('save',7));local old_preset=m.presets['7'];local old_json=assert(adapter.read(m.preset_path))
+adapter.write=function(path,content)
+ if path==m.preset_path..'.tmp'then real_write(path,'partial');return nil,'injected preset failure'end
+ return real_write(path,content)
+end
+assert(not m:preset('clear',7));assert(m.presets['7']==old_preset and adapter.read(m.preset_path)==old_json)
+assert(not adapter.read(m.preset_path..'.tmp'))
+print('PASS: loadout preset JSON uses atomic saves and model rollback on failure')

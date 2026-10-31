@@ -197,6 +197,7 @@ function M.build(c,page,txt,PC)
  end
 end
 function M.translate_name(name,lang)
+ if type(name)~='string'then return end
  local root,tail=name:match('^(%w+EffectList) · (.*)$');if not root then return end
  tail=tail:gsub('%[#(%d+)%]',function(n)return V.pick(lang,{'[file record '..n..']','[文件序号 '..n..']','[檔案序號 '..n..']'})end)
  if root=='PlanetEffectList'then

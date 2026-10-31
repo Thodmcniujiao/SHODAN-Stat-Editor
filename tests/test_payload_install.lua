@@ -8,6 +8,11 @@ local ffi=require('ffi');local I=require('install');local G=require('gamedata')
 local H=require('hostdata');local Demo=require('demolition');local PC=require('preload_components')
 local Store=require('preload_store');local Assets=require('entity_assets');local S=require('engine_shim')
 assert(I.home:gsub('\\','/'):sub(1,#TEST_WORK)==TEST_WORK,'use --isolated-profile and an absolute --work')
+if not package_app then require('user_paths').names=TEST_WORK..'/program/Names' end
+local steam=require('steam_integration')
+steam.poll=function()return{state='waiting',message='isolated test'}end
+steam.status=steam.poll;steam.ready=function()return false end
+require('portable_io_guard')
 local root=TEST_WORK..'/game-copy';local game=root..'/data/game';I.mkdirs(game);I.mkdirs(I.home)
 local function write(p,s)local f=assert(io.open(p,'wb'));assert(f:write(s));f:close()end
 local live=TEST_GAME..'/data/game';local backups=os.getenv('SHODAN_TEST_BASELINE')

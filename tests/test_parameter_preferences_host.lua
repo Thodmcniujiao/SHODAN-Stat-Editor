@@ -38,7 +38,7 @@ loadfile = function(path, ...)
         return loadstring(source .. [[
 TEST_PARAMETERS={ui=ui,click=click,keyboard=keyboard,settings=settings,by_hash=by_hash,weapons=weapons,
  select=select_weapon,row_value=row_value,change=change,MOD=MOD,reset_row=reset_row,presets=presets,
- read=read_field,default_of=default_of,format=fmt,save=save_config}
+ read=read_field,default_of=default_of,format=fmt,save=save_config,weapons_in=weapons_in}
 ]], '@' .. path)
     end
     return real_loadfile(path, ...)
@@ -207,8 +207,9 @@ S.present = function()
         assert(weapon and group)
         e.select(weapon); assert(not group.loaded, 'favorites forced unopened components')
         e.click('comp_toggle:' .. group.type); e.MOD.parameter_refresh(weapon)
-        assert(group.loaded and weapon.rows[1].parameter_hint and weapon.rows[1].component == group.type)
-        assert(weapon.rows[1].section_of() == '收藏')
+        local group_first; for _, r in ipairs(weapon.rows) do if r.component == group.type then group_first = r; break end end
+        assert(group.loaded and group_first and group_first.parameter_hint and group_first.component == group.type)
+        assert(group_first.section_of() == '收藏')
         faction_regression(e)
         phase = 4
     end

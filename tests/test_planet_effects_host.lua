@@ -1,6 +1,6 @@
 local file=assert(io.open(TEST_ROOT..'/tests/test_parameter_preferences_host.lua','rb'))
 local prefix=assert(file:read('*a'):match('^(.-)local phase, changed, began'));file:close()
-prefix=prefix:gsub('save=save_config}', 'save=save_config,cancel=function()finish_value(false)end}')
+prefix=prefix:gsub('save=save_config', 'save=save_config,cancel=function()finish_value(false)end')
 local checks=[==[
 local began=tonumber(ffi.C.GetTickCount64());local phase=0
 local function find(page,id)

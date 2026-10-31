@@ -257,6 +257,19 @@ function M.diff()
     table.sort(out, function(x, y) return x.name < y.name end)
     return out
 end
+-- Stable across processes: omit host-only resolved addresses, retaining every
+-- editable byte. Cache this at the host's mutation revision, never per frame.
+function M.fingerprints()
+    local out = {}
+    for name, f in pairs(M.files) do
+        local p = G.alloc(f.n)
+        ffi.copy(p, f.p, f.n)
+        for _, at in ipairs(f.fields or {}) do ffi.fill(p + at, 8, 0) end
+        out[name] = G.hex64(G.murmur64(p, f.n))
+        G.free(p)
+    end
+    return out
+end
 -- A semantic editor may append an array even when no existing scalar bytes changed.
 function M.snapshot(name)
     local f=assert(M.files[name],'game table not loaded: '..name)
@@ -295,13 +308,26 @@ end
 -- the game, issue #74): past the 3rd, a modifier keeps its effect but loses its description id (+12). The ids
 -- that lose it go to `hidden`.
 local MAX_DESCRIBED = 3
-local function cap_descriptions(mods, hidden)
-    local out, shown = {}, 0
+local function cap_descriptions(mods, hidden, parts)
+    parts = parts or { mods }
+    local keep, left = {}, MAX_DESCRIBED
+    for round = 1, MAX_DESCRIBED do
+        for _, part in ipairs(parts) do
+            local seen = 0
+            for o = 1, #part, 16 do
+                if part:sub(o + 12, o + 15) ~= '\0\0\0\0' then
+                    seen = seen + 1
+                    local id = part:sub(o, o + 3)
+                    if seen == round and left > 0 and not keep[id] then keep[id], left = true, left - 1 end
+                end
+            end
+        end
+    end
+    local out = {}
     for o = 1, #mods, 16 do
         local m = mods:sub(o, o + 15)
         if m:sub(13, 16) ~= '\0\0\0\0' then
-            shown = shown + 1
-            if shown > MAX_DESCRIBED then
+            if not keep[m:sub(1, 4)] then
                 local b1, b2, b3, b4 = m:byte(1, 4)
                 hidden[#hidden + 1] = string.format('%08X', ((b4 * 256 + b3) * 256 + b2) * 256 + b1)
                 m = m:sub(1, 12) .. '\0\0\0\0'
@@ -311,6 +337,7 @@ local function cap_descriptions(mods, hidden)
     end
     return table.concat(out)
 end
+
 
 function M.stack(changes, stacks, log, own_off)
     log, stacks, own_off = log or function() end, stacks or {}, own_off or {}
@@ -401,8 +428,130 @@ function M.stack(changes, stacks, log, own_off)
     local grown = G.alloc(#s)
     ffi.copy(grown, s, #s)
     G.free(c.plain)
-    -- the edited floats moved: the other headers' reserved bytes salt the hash correction
+    -- Retained diagnostic offsets are invalid after the table payload grows.
     c.plain, c.n, c.bytes, c.floats = grown, #s, c.bytes + #s - n, {}
+    return true
+end
+
+local KIT = 0xD9A55AA0
+local FIRST_NEW_ID = 60
+-- lists: armor text id -> { passive id, ... }. Adds to / changes `changes` (from M.diff) in place.
+-- one_line: passive id -> the lines of its typed description; its other lines leave the armory.
+function M.armor_passives(changes, lists, log, one_line)
+    log, lists, one_line = log or function() end, lists or {}, one_line or {}
+    if not next(lists) and not next(one_line) then return true end
+    local function change_of(typ)
+        local f
+        for _, file in pairs(M.files) do
+            for _, h in ipairs(G.headers(file.p, file.n)) do if h.type == typ then f = file; break end end
+            if f then break end
+        end
+        if not f then return nil, 'the armor files are not loaded' end
+        for _, x in ipairs(changes) do if x.name == f.name then return x end end
+        local plain, n = open_base(f.cipher)
+        if not plain then return nil, f.name .. ': ' .. tostring(n) end
+        local c = { name = f.name, plain = plain, n = n, bytes = 0, floats = {}, hash = f.hash }
+        changes[#changes + 1] = c
+        table.sort(changes, function(x, y) return x.name < y.name end)
+        return c
+    end
+    local pc, why = change_of(PASSIVE)
+    if not pc then return nil, why end
+    local ac, why2 = change_of(KIT)
+    if not ac then return nil, why2 end
+    -- every passive's modifiers and weapon stat modifiers, as edited
+    local p, n = pc.plain, pc.n
+    local hs = G.headers(p, n)
+    for _, h in ipairs(hs) do
+        local P = h.at + 24
+        if h.type == PASSIVE and h.size >= 56 and one_line[u32(p, P)] then
+            local left = one_line[u32(p, P)]
+            for at = P + 56 + 12, P + 56 + 12 + (u32(p, P + 24) - 1) * 16, 16 do
+                if u32(p, at) ~= 0 then
+                    if left <= 0 then ffi.cast('uint32_t *', p + at)[0] = 0; pc.bytes = pc.bytes + 4 end
+                    left = left - 1
+                end
+            end
+        end
+    end
+    local blocks, next_id = {}, FIRST_NEW_ID
+    for _, h in ipairs(hs) do
+        if h.type == PASSIVE and h.size >= 56 then
+            local P = h.at + 24
+            next_id = math.max(next_id, u32(p, P) + 1)
+            local mc, sc = u32(p, P + 24), u32(p, P + 40)
+            local mo = mc > 0 and tonumber(ffi.cast(u64p, p + P + 16)[0]) or 56
+            local so = sc > 0 and tonumber(ffi.cast(u64p, p + P + 32)[0]) or 56 + mc * 16
+            if mo == 56 and so == 56 + mc * 16 and h.size >= so + sc * 12 then
+                local id = u32(p, P)
+                blocks[id] = { mods = ffi.string(p + P + 56, mc * 16), stats = ffi.string(p + P + so, sc * 12), head = ffi.string(p + h.at, 80) }
+                next_id = math.max(next_id, id + 1)
+            end
+        end
+    end
+    if u32(p, 0) ~= #hs or hs[#hs].at + 24 + hs[#hs].size ~= n then return nil, 'the armor passive file has another layout' end
+    -- each armor's id; a new record per different list
+    local armors, wanted, records, added = {}, {}, {}, {}
+    for armor in pairs(lists) do armors[#armors + 1] = armor end
+    table.sort(armors)
+    for _, armor in ipairs(armors) do
+        if type(armor)~='number'or armor%1~=0 or armor<0 or armor>4294967295 or type(lists[armor])~='table'or #lists[armor]>14 then return nil,'invalid armor passive list'end
+        local list,seen = {},{}
+        for _, id in ipairs(lists[armor]) do
+            if not blocks[id]then return nil,'passive '..tostring(id)..' is not in this game file'end
+            if seen[id]then return nil,'duplicate armor passive'end
+            seen[id]=true;list[#list+1]=id
+        end
+        local key = table.concat(list, ',')
+        if #list < 2 then
+            wanted[armor] = list[1] or 0
+        elseif records[key] then
+            wanted[armor] = records[key]
+        else
+            local mods, stats, dropped, hidden, parts = '', '', {}, {}, {}
+            for _, id in ipairs(list) do
+                mods, stats = append_mods(mods, blocks[id].mods, dropped), stats .. blocks[id].stats
+                parts[#parts + 1] = blocks[id].mods
+            end
+            mods = cap_descriptions(mods, hidden, parts)
+            local head = ffi.new('uint8_t[80]')
+            ffi.copy(head, blocks[list[1]].head, 80)
+            local payload = head + 24
+            local mc, sc = #mods / 16, #stats / 12
+            ffi.cast('uint32_t *', head + 12)[0] = 56 + #mods + #stats                           -- block size
+            ffi.cast('uint32_t *', payload)[0] = next_id
+            ffi.cast(u64p, payload + 16)[0] = mc > 0 and 56 or NONE
+            ffi.cast('uint32_t *', payload + 24)[0] = mc
+            ffi.cast(u64p, payload + 32)[0] = sc > 0 and 56 + #mods or NONE
+            ffi.cast('uint32_t *', payload + 40)[0] = sc
+            added[#added + 1] = ffi.string(head, 80) .. mods .. stats
+            records[key], wanted[armor] = next_id, next_id
+            log(string.format('passive %d: %s (%d modifiers, %d weapon stat modifiers)%s%s', next_id, key, mc, sc,
+                #dropped > 0 and ', already had ' .. table.concat(dropped, ' ') or '',
+                #hidden > 0 and ', not described in the armory ' .. table.concat(hidden, ' ') or ''))
+            next_id = next_id + 1
+        end
+    end
+    -- the armors
+    local q, kits, found = ac.plain, 0, {}
+    for _, h in ipairs(G.headers(q, ac.n)) do
+        local P = h.at + 24
+        if h.type == KIT and u32(q, P + 40) == 0 and wanted[u32(q, P + 16)] then
+            ffi.cast('uint32_t *', q + P + 28)[0] = wanted[u32(q, P + 16)]
+            found[u32(q,P+16)]=true
+            kits = kits + 1
+        end
+    end
+    for armor in pairs(lists)do if not found[armor]then return nil,'armor '..tostring(armor)..' is not in this game file'end end
+    ac.bytes = ac.bytes + kits * 4
+    log(string.format('armor passives: %d armor sets, %d new records', kits, #added))
+    if #added == 0 then return true end
+    local s = ffi.string(p, n) .. table.concat(added)
+    local grown = G.alloc(#s)
+    ffi.copy(grown, s, #s)
+    ffi.cast('uint32_t *', grown)[0] = #hs + #added
+    G.free(pc.plain)
+    pc.plain, pc.n, pc.bytes = grown, #s, pc.bytes + #s - n
     return true
 end
 
@@ -492,7 +641,7 @@ function M.codes(changes, codes, log)
     local bigger = G.alloc(#s)
     ffi.copy(bigger, s, #s)
     G.free(c.plain)
-    -- the edited floats moved: the other headers' reserved bytes salt the hash correction
+    -- Retained diagnostic offsets are invalid after the table payload grows.
     c.plain, c.n, c.floats = bigger, #s, {}
     return true
 end
@@ -500,40 +649,28 @@ end
 -- seal one changed file: { name, sealed } or nil, why
 function M.build(change, log)
     log = log or function() end
-    -- a one-table file whose changes hold no float to vary (whole numbers, zeros): nothing in it may vary for the
-    -- hash correction, so its table grows by 16 zero bytes after everything it holds (the game reads only what
-    -- its offsets name; grown tables load, as stacked passives do), and those vary instead
-    local hs = not change.demolition_schemas and G.headers(change.plain, change.n) or nil
-    if hs and #change.floats == 0 and #hs == 1 and hs[1].at + 24 + hs[1].size == change.n then
-        local n = change.n
-        local salt = n + (8 - n % 8) % 8                -- a word of its own (the native search needs the words whole)
-        local grown = G.alloc(salt + 16)               -- (zeroed)
-        ffi.copy(grown, change.plain, n)
-        ffi.cast('uint32_t *', grown + hs[1].at + 12)[0] = salt + 16 - hs[1].at - 24
-        G.free(change.plain)
-        change.plain, change.n, change.floats = grown, salt + 16, { salt }
-        log(string.format('no float among the changes: the table grows by %d bytes for the hash correction', salt + 16 - n))
+    -- Grow only the last LDLD payload over existing trailing padding and one
+    -- aligned checksum word. Earlier blocks, offsets and every live value stay
+    -- byte-exact, including independent entity demolition and appended arrays.
+    local n = change.n
+    local hs = G.headers(change.plain, n)
+    local last = hs[#hs]
+    local function fail(why) G.free(change.plain); change.plain = nil; return nil, why end
+    if not last then return fail('no blocks') end
+    for _, h in ipairs(hs) do
+        if h.at + 24 + h.size > n then return fail('table extends beyond its file') end
     end
-    local ok, why
-    if change.demolition_schemas then
-        local Demo = require('demolition')
-        local before = ffi.string(change.plain, change.n)
-        local valid, slot = pcall(Demo.entity_hash_slot, before, change.demolition_schemas)
-        if not valid then G.free(change.plain); return nil, tostring(slot) end
-        ok, why = G.correct_numeric_slot(change.plain, change.n, change.hash, slot.host, slot.knob, log)
-        if ok then
-            local layout = slot.layout
-            for index in pairs(layout.users) do
-                local at = layout.block.payload + layout.array.offset + index * layout.row.size
-                if ffi.string(change.plain + at, layout.row.size) ~= before:sub(at + 1, at + layout.row.size) then
-                    ok, why = nil, 'a referenced wind-up record changed during hash correction'; break
-                end
-            end
-        end
-    else
-        ok, why = G.correct(change.plain, change.n, change.hash, change.floats, log)
-    end
-    if not ok then G.free(change.plain); return nil, why end
+    local word = n + (8 - n % 8) % 8
+    local size = word + 8 - last.at - 24
+    if size > 4294967295 then return fail('checksum tail exceeds table size range') end
+    local grown = G.alloc(word + 8)
+    ffi.copy(grown, change.plain, n)
+    ffi.cast('uint32_t *', grown + last.at + 12)[0] = size
+    G.free(change.plain)
+    change.plain, change.n = grown, word + 8
+    local ok, why = G.correct_tail(grown, change.n, change.hash)
+    if not ok then return fail(why) end
+    log(string.format('hash corrected exactly: last table grows by %d bytes', change.n - n))
     local sealed = G.seal(change.plain, change.n)
     local back, m = G.open_sealed(sealed)
     local good = back and m == change.n and ffi.C.memcmp(back, change.plain, m) == 0 and G.murmur64(back, m) == change.hash

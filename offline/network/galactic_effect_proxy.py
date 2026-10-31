@@ -27,6 +27,7 @@ FIELDS = {'gameplayEffectId32', 'effectType', 'flags', 'nameHash',
           'descriptionGamePlayShortHash', 'valueTypes', 'values'}
 MAX_BYTES = 4 * 1024 * 1024
 CATALOG_URL = 'https://' + HOST + '/api/WarSeason/GalacticWarEffects'
+STATUS_URL_TEMPLATE = 'https://' + HOST + '/api/WarSeason/{war_id}/Status'
 
 
 def valid_value(key, value):
@@ -200,19 +201,32 @@ def patch_status(document, plan, current_catalog, war_id):
         return row
 
     additions = []
+    removed_pairs = set()
+    replaced_planets = set()
     for key, target in plan['targets'].items():
         if (not isinstance(key, str) or not key.isascii() or not key.isdigit()
                 or str(int(key)) != key or not isinstance(target, dict)
                 or type(target.get('include_icons')) is not bool or not isinstance(target.get('effects'), list)):
             raise ValueError('星球词条计划格式错误，未添加词条。')
+        replace = target.get('replace', False)
+        removed = target.get('removed', [])
+        if type(replace) is not bool or not isinstance(removed, list):
+            raise ValueError('星球词条计划格式错误，未添加词条。')
         planet = int(key)
         requested = target['effects']
-        if not requested:
+        if not requested and not replace and not removed:
             continue
         if planet not in known:
             raise ValueError(f'星球 {planet} 不在本次战况中，未添加词条。')
-        if any(type(e) is not int or e <= 0 for e in requested):
+        if any(type(e) is not int or e <= 0 for e in requested) or any(type(e) is not int or e <= 0 for e in removed):
             raise ValueError('词条编号格式错误，未添加词条。')
+        if replace:
+            replaced_planets.add(planet)
+        for rem in removed:
+            removed_pairs.add((planet, rem))
+            paired_rem = plan['icon_pairs'].get(str(rem))
+            if target['include_icons'] and type(paired_rem) is int:
+                removed_pairs.add((planet, paired_rem))
         expanded = []
         for effect in requested:
             row = validate_id(effect)
@@ -226,14 +240,62 @@ def patch_status(document, plan, current_catalog, war_id):
                     raise ValueError('生效／图标配对类型已变化，未添加词条。')
                 expanded.append(paired)
         for effect in expanded:
-            if (planet, effect) not in pairs:
-                additions.append({'index': planet, 'galacticEffectId': effect})
-                pairs.add((planet, effect))
-    if not additions:
+            removed_pairs.discard((planet, effect))
+            if (planet, effect) not in pairs or planet in replaced_planets:
+                if (planet, effect) not in {(p, e) for p, e in ((a['index'], a['galacticEffectId']) for a in additions)}:
+                    additions.append({'index': planet, 'galacticEffectId': effect})
+                    pairs.add((planet, effect))
+    kept_entries = []
+    removed_count = 0
+    for entry in entries:
+        p_idx, eff_id = entry['index'], entry['galacticEffectId']
+        if p_idx in replaced_planets or (p_idx, eff_id) in removed_pairs:
+            removed_count += 1
+        else:
+            kept_entries.append(entry)
+    if not additions and removed_count == 0:
         return document, 0
     output = copy.deepcopy(document)
-    output['planetActiveEffects'] = output['planetActiveEffects'] + additions
-    return output, len(additions)
+    if removed_count > 0:
+        output['planetActiveEffects'] = copy.deepcopy(kept_entries) + additions
+    else:
+        output['planetActiveEffects'] = output['planetActiveEffects'] + additions
+    return output, len(additions) + removed_count
+
+
+def extract_live_effects(document, war_id=801):
+    if not isinstance(document, dict) or not isinstance(document.get('planetActiveEffects'), list):
+        return None
+    planets = {}
+    total = 0
+    for entry in document['planetActiveEffects']:
+        if isinstance(entry, dict) and type(entry.get('index')) is int and type(entry.get('galacticEffectId')) is int:
+            key = str(entry['index'])
+            bucket = planets.setdefault(key, [])
+            if entry['galacticEffectId'] not in bucket:
+                bucket.append(entry['galacticEffectId'])
+                total += 1
+    return dict(war_id=document.get('warId', war_id), updated=time.time(),
+                total=total, planet_count=len(planets), planets=planets)
+
+
+def fetch_live_status(war_id=801):
+    opener = build_opener(ProxyHandler({}))
+    url = STATUS_URL_TEMPLATE.format(war_id=war_id)
+    from urllib.request import Request
+    req = Request(url, headers={'Accept': 'application/json', 'Accept-Language': 'en-US'})
+    with opener.open(req, timeout=10) as response:
+        final = urlsplit(response.geturl())
+        if final.scheme != 'https' or final.hostname != HOST:
+            raise ValueError('Unexpected status host')
+        raw = response.read(MAX_BYTES + 1)
+    if len(raw) > MAX_BYTES:
+        raise ValueError('Status payload too large')
+    doc = json.loads(raw)
+    snap = extract_live_effects(doc, war_id)
+    if snap is None:
+        raise ValueError('Invalid status payload')
+    return snap
 
 
 def fetch_catalogue():
@@ -309,6 +371,9 @@ class EffectDefinitionsAddon:
         self.catalogue_at = 0
         self.catalogue_task = None
         self.retry_at = 0
+        self.live_status_at = 0
+        self.live_status_task = None
+        self.live_retry_at = 0
         self.heartbeat_task = None
         self.session_started = time.time()
         self.revocation_service=None
@@ -350,6 +415,37 @@ class EffectDefinitionsAddon:
             self.report('catalogue_error', '实时词条目录获取失败；原战况保持不变，稍后重试。')
         finally:
             self.retry_at = time.monotonic() + 30
+
+    def save_live_snapshot(self, snap):
+        if not snap:
+            return
+        try:
+            path = self.assignments.parent / 'WarProxy/live_planet_effects.json'
+            path.parent.mkdir(parents=True, exist_ok=True)
+            temporary = path.with_suffix('.json.tmp')
+            temporary.write_text(json.dumps(snap, ensure_ascii=False), encoding='utf-8')
+            temporary.replace(path)
+            self.live_status_at = time.monotonic()
+        except OSError:
+            pass
+
+    async def refresh_live_status(self, war_id=801):
+        try:
+            snap = await asyncio.to_thread(fetch_live_status, war_id)
+            self.save_live_snapshot(snap)
+        except Exception:
+            pass
+        finally:
+            self.live_retry_at = time.monotonic() + 15
+
+    def schedule_live_status(self, war_id=801, force=False):
+        if (self.live_status_task and not self.live_status_task.done()) or (not force and time.monotonic() < self.live_retry_at):
+            return
+        try:
+            loop = asyncio.get_running_loop()
+        except RuntimeError:
+            return
+        self.live_status_task = loop.create_task(self.refresh_live_status(war_id))
 
     def schedule_catalogue(self):
         if (self.catalogue_task and not self.catalogue_task.done()) or time.monotonic() < self.retry_at:
@@ -410,12 +506,21 @@ class EffectDefinitionsAddon:
                 except OSError:pass
             if not ready:
                 ctx.master.shutdown();return
+            refresh_req = folder / 'refresh.request'
+            force_live = refresh_req.exists()
+            if force_live:
+                try: refresh_req.unlink(missing_ok=True)
+                except OSError: pass
+            war_id = assignments.get('war_id', 801) if isinstance(assignments, dict) else 801
+            if force_live or time.monotonic() - self.live_status_at > 15:
+                self.schedule_live_status(war_id, force=force_live)
             if enabled and not self.current_catalog:self.schedule_catalogue()
             await asyncio.sleep(1)
 
     def done(self):
         if self.heartbeat_task:self.heartbeat_task.cancel()
         if self.catalogue_task:self.catalogue_task.cancel()
+        if self.live_status_task:self.live_status_task.cancel()
         if self.revocation_service:self.revocation_service.close();self.revocation_service=None
 
     @staticmethod
@@ -482,6 +587,7 @@ class EffectDefinitionsAddon:
                 self.current_catalog=catalogue(document);self.catalogue_at=time.monotonic()
                 output, changed = patch_definitions(document, load_plan(self.path))
             else:
+                self.save_live_snapshot(extract_live_effects(document, status))
                 plan=load_assignments(self.assignments)
                 if not plan or not plan['enabled']:
                     return
@@ -489,7 +595,7 @@ class EffectDefinitionsAddon:
                     self.current_catalog=None;self.schedule_catalogue()
                     self.report('waiting', '等待本次实时词条目录，战况保持原样。');return
                 output, changed = patch_status(document,plan,self.current_catalog,status)
-                self.report('applied', f'已处理游戏战况，本次追加 {changed} 条；尚需在游戏中确认实际效果。',changed)
+                self.report('applied', f'已实时拦截并改写游戏战况，本次变更 {changed} 项词条。',changed)
             if not changed:
                 return
             serialized = json.dumps(output, ensure_ascii=False, separators=(',', ':'), allow_nan=False)

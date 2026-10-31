@@ -13,7 +13,7 @@
 local J = require('json_data')
 local F = require('preset_files')
 local IDs = require('name_ids')
-local M = { loaded = false, by = {}, count = 0, errors = {}, dir = nil }
+local M = { loaded = false, by = {}, groups = {}, group_lists = {}, count = 0, errors = {}, dir = nil }
 local ALIASES = {
     projectile = 'projectile', proj = 'projectile', projectile_type = 'projectile',
     explosion = 'explosion', expl = 'explosion', explosion_type = 'explosion',
@@ -116,13 +116,25 @@ end
 local function write(path,raw)
  assert(F.write(path..'.new',raw));assert(F.move(path..'.new',path))
 end
-local function save(t,names)
+local function save(t,names,groups,group_list)
  assert(t:match('^[%w_-]+$'),'invalid TypeID name')
  local path=M.paths and M.paths[t]or(M.folder..'/'..t..'.json')
- write(path,J.encode({version=1,type=t,names=names},true,index_less))
+ local data={version=1,type=t,names=names}
+ local raw=F.read(path)
+ if raw then
+  local ok,existing=pcall(J.decode,raw)
+  if ok and type(existing)=='table'and existing~=J.null and(existing.names or existing.type or existing.version)then
+   data=existing;data.version=data.version or 1;data.type=data.type or t;data.names=names
+  end
+ end
+ if groups and next(groups)then data.groups=groups else data.groups=nil end
+ if group_list and #group_list>0 then data.group_list=J.array(group_list)else data.group_list=nil end
+ write(path,J.encode(data,true,index_less))
+ if M.paths then M.paths[t]=path end
 end
 function M.load(dir,names_dir)
  local previous,previous_count,previous_paths=M.by,M.count,M.paths
+ local previous_groups,previous_glists=M.groups,M.group_lists
  local app_dir=assert(dir)
  -- Portable package: <exe>/Names/TypeIdNames wins over the local Data folder.
  -- An empty/missing package folder keeps the old app-data behaviour.
@@ -154,7 +166,7 @@ function M.load(dir,names_dir)
    end
   end
  end
- local by,count,errors,seen,by_path,rewrites={},0,{},{},{},{}
+ local by,groups,glists,count,errors,seen,by_path,rewrites={},{},{},0,{},{},{},{}
  for _,path in ipairs(F.list(M.folder))do if path:lower():match('%.json$')then
   local ok,why=pcall(function()
    local raw=assert(F.read(M.folder..'/'..path));local data=J.decode(raw)
@@ -162,16 +174,38 @@ function M.load(dir,names_dir)
    local t=type_key(data.type or path:gsub('%.json$',''))
    assert(t:match('^[%w_-]+$')and not seen[t],'duplicate/invalid TypeID '..t);seen[t]=true
    local names=data.names or data.records or data;assert(type(names)=='table'and names~=J.null,'names must be an object')
-   local list={}
+   local list,gmap,gorder,seen_g={},{},{},{}
+   if type(data.group_list)=='table'and data.group_list~=J.null then
+    for _,g in ipairs(data.group_list)do
+     assert(type(g)=='string'and #g<=256 and not g:find('[%z\1-\31]'),'invalid group name')
+     if g~=''and not seen_g[g]then seen_g[g]=true;gorder[#gorder+1]=g end
+    end
+   end
    for id,name in pairs(names)do
-    if names~=data or(id~='type'and id~='version')then
-     if type(name)=='table'then id,name=name.index or name.id,name.name end
+    if names~=data or(id~='type'and id~='version'and id~='groups'and id~='group_list')then
+     local item_group
+     if type(name)=='table'then item_group=name.group;id,name=name.index or name.id,name.name end
      local index=assert(IDs.index(id),'invalid local index '..tostring(id))
      assert(type(name)=='string'and #name<=1024 and not name:find('[%z\1-\31]'),'invalid planning name')
      assert(not list[index],'duplicate index '..index);list[index]=name;count=count+1
+     if type(item_group)=='string'and item_group~=''then
+      assert(#item_group<=256 and not item_group:find('[%z\1-\31]'),'invalid group name')
+      gmap[index]=item_group
+      if not seen_g[item_group]then seen_g[item_group]=true;gorder[#gorder+1]=item_group end
+     end
     end
    end
-   by[t]=list
+   if type(data.groups)=='table'and data.groups~=J.null then
+    for id,g in pairs(data.groups)do
+     local index=assert(IDs.index(id),'invalid group index '..tostring(id))
+     assert(type(g)=='string'and #g<=256 and not g:find('[%z\1-\31]'),'invalid group name')
+     if g~=''then
+      gmap[index]=g
+      if not seen_g[g]then seen_g[g]=true;gorder[#gorder+1]=g end
+     end
+    end
+   end
+   by[t]=list;groups[t]=gmap;glists[t]=gorder
    by_path[t]=M.folder..'/'..path
    if #names>0 and type(names[1])=='table'then
     table.sort(names,function(a,b)return index_less(a.index or a.id,b.index or b.id)end)
@@ -186,7 +220,8 @@ function M.load(dir,names_dir)
   local ok,why=pcall(write,file.path,file.raw)
   if not ok then errors[#errors+1]=file.path..': '..tostring(why)end
  end end
- if #errors==0 then M.by,M.count,M.paths=by,count,by_path else M.by,M.count,M.paths=previous,previous_count,previous_paths end
+ if #errors==0 then M.by,M.groups,M.group_lists,M.count,M.paths=by,groups,glists,count,by_path
+ else M.by,M.groups,M.group_lists,M.count,M.paths=previous,previous_groups or{},previous_glists or{},previous_count,previous_paths end
  M.errors=errors;M.loaded=true
  return M.count,errors
 end
@@ -196,18 +231,87 @@ function M.seed(t,entries)
  for id,name in pairs(entries)do
   local index=assert(IDs.index(id));if names[index]==nil then names[index]=name;changed=true end
  end
- if changed then save(t,names);M.by[t]=names end
+ if changed then save(t,names,M.groups and M.groups[t],M.group_lists and M.group_lists[t]);M.by[t]=names end
  M.count=0;for _,list in pairs(M.by)do for _ in pairs(list)do M.count=M.count+1 end end
 end
 function M.reload(dir,names_dir)
- local old,oldcount=M.by,M.count
+ local old,oldcount,oldgroups,oldglists=M.by,M.count,M.groups,M.group_lists
  local count,errors=M.load(dir or M.dir,names_dir or M.names_dir)
- if #errors>0 then M.by,M.count=old,oldcount;return oldcount,errors end
+ if #errors>0 then M.by,M.count,M.groups,M.group_lists=old,oldcount,oldgroups,oldglists;return oldcount,errors end
  return count,errors
 end
 function M.name(t, id)
     if not M.loaded then return nil end
     local list = M.by[type_key(t)]
-    return list and list[id_key(id)] or nil
+    local val = list and list[id_key(id)] or nil
+    return (val and val ~= '') and val or nil
+end
+function M.group(t, id)
+    if not M.loaded or not M.groups then return nil end
+    local list = M.groups[type_key(t)]
+    local val = list and list[id_key(id)] or nil
+    return (val and val ~= '') and val or nil
+end
+function M.set_name(t, id, name)
+    assert(M.loaded and M.folder, 'TypeIdNames is not loaded')
+    t = type_key(t)
+    local index = assert(IDs.index(id), 'invalid local index ' .. tostring(id))
+    name = trim(tostring(name or '')):gsub('[%z\1-\31]', ' ')
+    assert(#name <= 1024, 'invalid planning name')
+    local names = {}
+    for k, v in pairs(M.by[t] or {}) do names[k] = v end
+    names[index] = name
+    save(t, names, M.groups and M.groups[t], M.group_lists and M.group_lists[t])
+    M.by[t] = names
+    M.count = 0
+    for _, list in pairs(M.by) do for _ in pairs(list) do M.count = M.count + 1 end end
+    return true
+end
+function M.set_group(t, id, group_name)
+    assert(M.loaded and M.folder, 'TypeIdNames is not loaded')
+    t = type_key(t)
+    local index = assert(IDs.index(id), 'invalid local index ' .. tostring(id))
+    group_name = trim(tostring(group_name or '')):gsub('[%z\1-\31]', ' ')
+    assert(#group_name <= 256, 'invalid group name')
+    if group_name == 'other' or group_name == '未分类' or group_name == '未分組' or group_name:lower() == 'unclassified' then
+        group_name = ''
+    end
+    M.groups = M.groups or {}
+    M.group_lists = M.group_lists or {}
+    local groups = {}
+    for k, v in pairs(M.groups[t] or {}) do groups[k] = v end
+    local glist, seen = {}, {}
+    for _, g in ipairs(M.group_lists[t] or {}) do
+        if g ~= '' and not seen[g] then seen[g] = true; glist[#glist + 1] = g end
+    end
+    if group_name ~= '' then
+        groups[index] = group_name
+        if not seen[group_name] then seen[group_name] = true; glist[#glist + 1] = group_name end
+    else
+        groups[index] = nil
+    end
+    local names = M.by[t] or {}
+    save(t, names, groups, glist)
+    M.by[t] = names
+    M.groups[t] = groups
+    M.group_lists[t] = glist
+    return group_name ~= '' and group_name or 'other'
+end
+function M.categories(t, lang)
+    local zh = lang == 'zh-Hans' or lang == 'zh-Hant'
+    local hant = lang == 'zh-Hant'
+    local out = { { id = 'all', name = hant and '全部分類' or zh and '全部分类' or 'All categories' } }
+    local seen = {}
+    if M.loaded and t then
+        local key = type_key(t)
+        for _, g in ipairs((M.group_lists and M.group_lists[key]) or {}) do
+            if g ~= '' and not seen[g] then seen[g] = true; out[#out + 1] = { id = g, name = g } end
+        end
+        for _, g in pairs((M.groups and M.groups[key]) or {}) do
+            if g ~= '' and not seen[g] then seen[g] = true; out[#out + 1] = { id = g, name = g } end
+        end
+    end
+    out[#out + 1] = { id = 'other', name = hant and '未分類' or zh and '未分类' or 'Unclassified' }
+    return out
 end
 return M

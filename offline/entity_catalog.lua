@@ -232,7 +232,8 @@ function C:refresh(force)
   if not category then for _,rule in ipairs(self.config.rules)do if matches(r,rule)then category=rule.category;break end end end
   r.category=category or(self.config.by_id[r.hint]and r.hint)or self.config.default_category
   r.category_name=label(self.config.by_id[r.category].name,lang)
-  r.name=item.name and label(item.name,lang)or r.base_name
+  local custom=item.name and label(item.name,lang)
+  r.name=(custom and custom~='')and custom or r.base_name
   r.decimal=r.decimal or IDs.decimal(r.hash)
   for _,kind in ipairs(KINDS)do
    local page=not self.lazy[kind]and self.by_entity[kind][r.id]
@@ -249,6 +250,31 @@ function C:reload()
  local ok,t=pcall(N.open,self.folder,self.config,self.records)
  if not ok then self.config_error=t;return nil,t end
  self.config=t;self.config_error=nil;self:refresh(true);self:export_index(true);return true
+end
+function C:record_of(rid_or_hash)
+ local s=tostring(rid_or_hash or''):match('^%s*(.-)%s*$'):upper()
+ local hex=IDs.hex(s)
+ for _,r in ipairs(self.records)do
+  if r.id==s or(hex and r.hash==hex)then return r end
+ end
+end
+function C:set_name(rid_or_hash,name)
+ local r=self:record_of(rid_or_hash)
+ local rid=r and r.id or rid_or_hash
+ local default_name=r and r.base_name or''
+ local ok,why=pcall(N.set_name,self.folder,self.config,rid,name,default_name)
+ if not ok then return nil,why end
+ return self:reload()
+end
+function C:set_group(rid_or_hash,group_target)
+ local r=self:record_of(rid_or_hash)
+ local rid=r and r.id or rid_or_hash
+ local default_name=r and(r.name or r.base_name)or''
+ local ok,target_id=pcall(N.set_group,self.folder,self.config,rid,group_target,default_name)
+ if not ok then return nil,target_id end
+ local reloaded,why=self:reload()
+ if not reloaded then return nil,why end
+ return target_id
 end
 function C:list(kind,category,show_missing,search,tr)
  self:refresh();local words={};for word in (search or''):lower():gmatch('%S+')do words[#words+1]=word end

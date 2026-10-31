@@ -94,7 +94,11 @@ function M.build(c)
   rows('Health','',0,BODY)
   for z=0,37 do
    local base=520+z*552
-   if c.zone_present(at+base+96)then rows((zones[key]or{})[z]or('Body part '..(z+1)),'zone'..z..'_',base,ZONE)end
+   if c.zone_present(at+base+96)then
+    local zid=c.zone_id and c.zone_id(at+base+96)
+    local zname=(zones[key]or{})[z]or(zid and c.part_name_of and c.part_name_of(zid))or('Body part '..(z+1))
+    rows(zname,'zone'..z..'_',base,ZONE)
+   end
   end
   c.by_hash[hash]=page;out.pages[#out.pages+1]=page;out.by_entity[entity]=page
  end
@@ -179,7 +183,8 @@ function M.complete(c,out,zones,owners)
        g.label_of=function()
         local lang=c.lang and c.lang()or'en';local zh=lang=='zh-Hans'or lang=='zh-Hant'
         local value=c.read(field)
-        local suffix=name and value==original and(c.translate and c.translate(name)or name)
+        local resolved=(name and value==original and name)or(value and c.part_name_of and c.part_name_of(value))
+        local suffix=resolved and(c.translate and c.translate(resolved)or resolved)
          or value==0 and(zh and'未配置名称（ID = 0）'or'name ID = 0')
          or(zh and'名称 ID 'or'name ID ')..tostring(value)
         return (zh and'部位 #'or'Body part #')..z..' · '..suffix

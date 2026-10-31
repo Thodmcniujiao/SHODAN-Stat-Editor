@@ -1,11 +1,12 @@
 -- A global preset spans every authoring store. Loading stages changes only;
 -- the game's data/save files still use their explicit bottom Write actions.
 local L=require('preset_library')
+local Network=require('network_preset')
 local M={}
 local function copy(v)return L.copy(v)end
 local function model(name)return rawget(_G,name)end
 function M.capture(c)
- local data={version=2,game=c.game_settings()}
+ local data={version=3,game=c.game_settings(),network=Network.capture()}
  local bridge=model('SHODAN_DEMOLITION_BRIDGE')
  if bridge then data.demolition={values=copy(bridge.panel.values),stale=copy(bridge.panel.stale)}end
  local preload=model('SHODAN_PRELOAD_MODEL')
@@ -39,13 +40,14 @@ local function demolition(bridge,snapshot,merge)
  panel:refilter();return true
 end
 function M.apply(c,p)
- assert(p.scope=='global'and type(p.data)=='table'and p.data.version==2,'Unsupported global preset')
+ assert(p.scope=='global'and type(p.data)=='table'and(p.data.version==2 or p.data.version==3),'Unsupported global preset')
  local d=p.data
  local bridge,preload,save=model('SHODAN_DEMOLITION_BRIDGE'),model('SHODAN_PRELOAD_MODEL'),model('SHODAN_PLAYER_SAVE_MODEL')
  if (d.preload or d.legacy_preload)and not preload then return nil,'此全局预设包含预载方案，但预载编辑器不可用。'end
  if d.loadout and not save then return nil,'此全局预设包含存档配装，但存档编辑器不可用。'end
  if d.loadout and save.save==nil and save.paths then return nil,'请先在配装页读取目标存档，再载入这个全局预设。'end
  if d.demolition and not bridge then return nil,'此全局预设包含拆毁参数，但拆毁编辑器不可用。'end
+ if d.network then local valid,why=Network.validate(d.network);if not valid then return nil,why end end
  local before,why=M.capture(c);if not before then return nil,why end
  local function apply(payload,rollback)
   local data=payload.data;local patch=payload.kind=='patch'
@@ -56,6 +58,7 @@ function M.apply(c,p)
   if data.loadout then local done,problem=save:apply_snapshot(copy(data.loadout));assert(done,problem)
   elseif not patch and save and save.reset then local done,problem=save:reset();assert(done,problem)end
   if data.demolition then local done,problem=demolition(bridge,data.demolition,patch);assert(done,problem)end
+  if data.network then local done,problem=Network.apply(data.network,nil,{merge=patch,rollback=rollback});assert(done,problem)end
   if c.sync then c.sync()end
   return note
  end
@@ -64,15 +67,21 @@ function M.apply(c,p)
   local restored,err=pcall(apply,before,true)
   return nil,tostring(note)..(not restored and('；恢复原修改失败：'..tostring(err))or'；已保留载入前的修改。')
  end
- return true,note
+ return true,note,d.network~=nil
 end
 function M.count(p)
  local d=p.data or{};local count=#(p.values or{})
- for _,key in ipairs({'stacks','own_off'})do for _ in pairs(d.game and d.game[key]or{})do count=count+1 end end
+ for _,key in ipairs({'stacks','own_off','armor_passives'})do for _ in pairs(d.game and d.game[key]or{})do count=count+1 end end
  for _,key in ipairs({'values','stale'})do for _,slots in pairs(d.demolition and d.demolition[key]or{})do for _ in pairs(slots)do count=count+1 end end end
  for _ in pairs(d.loadout and d.loadout.values or{})do count=count+1 end
  for _,key in ipairs({'edits','selected','targets','arrays'})do for _ in pairs(d.preload and d.preload[key]or{})do count=count+1 end end
  if d.legacy_preload then count=count+1 end
+ local network=d.network or{}
+ for _,target in pairs(network.assignments and network.assignments.targets or{})do count=count+#target.effects end
+ for _,entry in pairs(network.definitions and network.definitions.effects or{})do
+  for _ in pairs(entry.changes or{})do count=count+1 end
+  if entry.enabled then count=count+1 end
+ end
  return count
 end
 return M

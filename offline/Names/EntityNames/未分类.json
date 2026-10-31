@@ -206,11 +206,6 @@
       "name": "Fusion Smelter Beam"
     },
     {
-      "hash": "0x089833D2880D9E06",
-      "kind": "entity",
-      "name": "089833D2880D9E06"
-    },
-    {
       "hash": "0x089D35DB35ABA008",
       "kind": "entity",
       "name": "089D35DB35ABA008"
@@ -229,11 +224,6 @@
       "hash": "0x0965AAEBA7CCBCA8",
       "kind": "entity",
       "name": "0965AAEBA7CCBCA8"
-    },
-    {
-      "hash": "0x09DFB04B2E578BC3",
-      "kind": "entity",
-      "name": "09DFB04B2E578BC3"
     },
     {
       "hash": "0x09F0FA5A99510465",
@@ -631,11 +621,6 @@
       "name": "1B255FEF5EC0CBD8"
     },
     {
-      "hash": "0x1B5B9AC4F96B36E5",
-      "kind": "entity",
-      "name": "1B5B9AC4F96B36E5"
-    },
-    {
       "hash": "0x1B633762874A709A",
       "kind": "entity",
       "name": "capital_defense_pillar"
@@ -906,11 +891,6 @@
       "name": "25E8642A54DC51F6"
     },
     {
-      "hash": "0x262351741C53FF0C",
-      "kind": "entity",
-      "name": "凝视者 尖塔"
-    },
-    {
       "hash": "0x2658ACDD88BFC286",
       "kind": "entity",
       "name": "2658ACDD88BFC286"
@@ -1004,11 +984,6 @@
       "hash": "0x29D0A1DFB5FD811F",
       "kind": "entity",
       "name": "29D0A1DFB5FD811F"
-    },
-    {
-      "hash": "0x2A12104F2853AE16",
-      "kind": "entity",
-      "name": "2A12104F2853AE16"
     },
     {
       "hash": "0x2A346BF4552997E2",
@@ -1259,11 +1234,6 @@
       "hash": "0x32890A67670C5224",
       "kind": "entity",
       "name": "Disintigration Beam"
-    },
-    {
-      "hash": "0x32CDEADA234FB8DF",
-      "kind": "entity",
-      "name": "cha_lieutenant_suppressor_jumppack"
     },
     {
       "hash": "0x3357EEBB0184FDEE",
@@ -2176,11 +2146,6 @@
       "name": "坦克 加特林"
     },
     {
-      "hash": "0x52018DEB9AB6827E",
-      "kind": "entity",
-      "name": "cha_conscript_jetpack_standard"
-    },
-    {
       "hash": "0x52071F49263415E4",
       "kind": "entity",
       "name": "SG-88 中折式霰弹枪 (支援武器, 模型)"
@@ -2539,11 +2504,6 @@
       "hash": "0x60D98D3BA6CF9D7E",
       "kind": "entity",
       "name": "poster_sign_infestation"
-    },
-    {
-      "hash": "0x611BA777783B08A2",
-      "kind": "entity",
-      "name": "噪轰引擎 速射加农炮"
     },
     {
       "hash": "0x61EFB2D6A167F285",
@@ -3631,11 +3591,6 @@
       "name": "90679ED549706B8C"
     },
     {
-      "hash": "0x9076EEED17FCEE35",
-      "kind": "entity",
-      "name": "强化侦察纵步者"
-    },
-    {
       "hash": "0x9080B0090BC6F3AB",
       "kind": "entity",
       "name": "9080B0090BC6F3AB"
@@ -3664,11 +3619,6 @@
       "hash": "0x913B7D337E61EE4C",
       "kind": "entity",
       "name": "objective_grinder_terminal"
-    },
-    {
-      "hash": "0x91EBD77931110AFC",
-      "kind": "entity",
-      "name": "91EBD77931110AFC"
     },
     {
       "hash": "0x923282ECD1C5F7BD",
@@ -3751,11 +3701,6 @@
       "name": "95DAB8E3E18CADC7"
     },
     {
-      "hash": "0x96110F9D6B010E02",
-      "kind": "entity",
-      "name": "Cannon Turret"
-    },
-    {
       "hash": "0x962C6A30D56BEA2A",
       "kind": "entity",
       "name": "962C6A30D56BEA2A"
@@ -3809,11 +3754,6 @@
       "hash": "0x98E5D055E6BCD20B",
       "kind": "entity",
       "name": "il_obj_asset_hijack_tech_hub_nexus_machine_top"
-    },
-    {
-      "hash": "0x9926876B2375A1BB",
-      "kind": "entity",
-      "name": "机器人 碉堡炮塔"
     },
     {
       "hash": "0x992B6F65A5BAB53D",
@@ -4091,11 +4031,6 @@
       "name": "A436B278181E1532"
     },
     {
-      "hash": "0xA4552F97033392F4",
-      "kind": "entity",
-      "name": "A4552F97033392F4"
-    },
-    {
       "hash": "0xA45CFD1C3607EEC8",
       "kind": "entity",
       "name": "A45CFD1C3607EEC8"
@@ -4346,11 +4281,6 @@
       "name": "spring_rocker"
     },
     {
-      "hash": "0xAE57FCDB49F74E98",
-      "kind": "entity",
-      "name": "AE57FCDB49F74E98"
-    },
-    {
       "hash": "0xAE74D17D783D38FD",
       "kind": "entity",
       "name": "bug_tcs_01_terminal_screen_b"
@@ -4429,11 +4359,6 @@
       "hash": "0xB04D927AFB137B9B",
       "kind": "entity",
       "name": "dummy"
-    },
-    {
-      "hash": "0xB056F8FC74ABA02D",
-      "kind": "entity",
-      "name": "B056F8FC74ABA02D"
     },
     {
       "hash": "0xB06D036C4E7CEA6B",
@@ -4554,11 +4479,6 @@
       "hash": "0xB4D6F2F83BDE45A9",
       "kind": "entity",
       "name": "crystal_sample_01"
-    },
-    {
-      "hash": "0xB4ED319B39F5457B",
-      "kind": "entity",
-      "name": "B4ED319B39F5457B"
     },
     {
       "hash": "0xB50D0158E80BEA01",
@@ -5286,11 +5206,6 @@
       "name": "D17575A157040482"
     },
     {
-      "hash": "0xD1E990BAF22D5A52",
-      "kind": "entity",
-      "name": "D1E990BAF22D5A52"
-    },
-    {
       "hash": "0xD1F232A6929E6D44",
       "kind": "entity",
       "name": "燃烧机枪蹂躏者 燃烧机枪"
@@ -5779,11 +5694,6 @@
       "hash": "0xE43E990D0B4AE6E4",
       "kind": "entity",
       "name": "poi_text_tablet_seaf_retreat_01"
-    },
-    {
-      "hash": "0xE44EC9F9B3FE1D2A",
-      "kind": "entity",
-      "name": "cha_lieutenant_assault_jumppack"
     },
     {
       "hash": "0xE48C901A7175F638",
@@ -6389,11 +6299,6 @@
       "hash": "0xFC8AC4ACDE96D99A",
       "kind": "entity",
       "name": "poi_text_tablet_advertandpropaganda_01"
-    },
-    {
-      "hash": "0xFC8DEC78BE8AB47D",
-      "kind": "entity",
-      "name": "cha_soldier_jetpack_standard"
     },
     {
       "hash": "0xFC93128B5356CC67",

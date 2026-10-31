@@ -90,17 +90,23 @@ function M:effective_selected()
 end
 function M.new(options)
  local cfg={version=1,edits={},selected={},targets={['18235E0C9EC0E636']=true},arrays={},presets={}}
- local saved=I.read(options.path or'')
- if saved then local parsed=J.decode(saved,128*1024*1024);assert(parsed.version==1,'unsupported preload configuration');cfg=parsed end
+ local saved,problem=require('portable_file').read(options.path or'',{validate=function(raw)
+  local v=J.decode(raw,128*1024*1024)
+  if type(v)~='table'or v.version~=1 then return false end
+  for _,key in ipairs({'edits','selected','targets','arrays','presets'})do if v[key]~=nil and type(v[key])~='table'then return false end end
+  return true
+ end})
+ assert(saved or not problem,problem)
+ if saved then cfg=J.decode(saved,128*1024*1024)end
  for _,k in ipairs({'edits','selected','targets','arrays','presets'})do cfg[k]=cfg[k]or{};assert(type(cfg[k])=='table','invalid preload section: '..k)end
  return setmetatable({options=options,cfg=cfg,arrays={},version=0,report={},catalog=DATA.catalog},M)
 end
 function M:save()
  local p=self.options.path
  if p then
-  local text=J.encode(self.cfg);local tmp=p..'.new';local f=assert(io.open(tmp,'wb'));assert(f:write(text));f:close()
-  assert(I.read(tmp)==text,'preload configuration read-back failed')
-  assert(I.move_file(tmp,p,9)~=0,'could not save preload configuration')
+  assert(require('portable_file').save(p,J.encode(self.cfg),{validate=function(raw)
+   local v=J.decode(raw,128*1024*1024);return type(v)=='table'and v.version==1
+  end}))
  end
  self.report={};self.version=self.version+1;if self.options.changed then self.options.changed()end
  return true

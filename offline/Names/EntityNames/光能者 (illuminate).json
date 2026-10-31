@@ -269,6 +269,16 @@
       "hash": "0xFDFADE29AE5FE1D0",
       "kind": "entity",
       "name": "光能族爆炸筒"
+    },
+    {
+      "hash": "0x262351741C53FF0C",
+      "kind": "entity",
+      "name": "凝视者尖塔 · 轨道炮"
+    },
+    {
+      "hash": "0x96110F9D6B010E02",
+      "kind": "entity",
+      "name": "加农炮塔 · Entry 0673"
     }
   ],
   "group": {

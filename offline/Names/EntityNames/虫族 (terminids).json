@@ -503,12 +503,17 @@
     {
       "hash": "0xFD5247653C897803",
       "kind": "entity",
-      "name": "cha_charger_bull_mission"
+      "name": "强袭虫巨兽 · Entry 1169"
     },
     {
       "hash": "0xFECADA76A501AF4C",
       "kind": "entity",
       "name": "cha_hive_lord_shard_b_01"
+    },
+    {
+      "hash": "0xD1E990BAF22D5A52",
+      "kind": "entity",
+      "name": "掠食追踪虫 · Entry 0957"
     }
   ],
   "group": {

@@ -146,16 +146,30 @@ function M.build(spec,c)
   c.log(spec.KEY..': all '..#spec.FIELDS..' fields'..(full and' (type library layout matches)'
    or(' -- the type library differs, check before editing: '..tostring(why))))
  end
- local names,owners,users={},{},{}
- for _,w in ipairs(c.weapons)do
-  if w.key then names[w.key]=names[w.key]or w.name end
-  if w.enemy and w.enemy.members then
-   for i,m in ipairs(w.enemy.members)do names[m.key]=w.name..(#w.enemy.members>1 and(' · '..i)or'')end
+ -- Page names by entity key: cached while the page list keeps its length (scanning every page's rows on every
+ -- component built made opening a vehicle's components take seconds).
+ local cache=M.names_cache
+ if not cache or cache.weapons~=c.weapons or cache.n~=#c.weapons then
+  cache={weapons=c.weapons,n=#c.weapons,names={}}
+  for _,w in ipairs(c.weapons)do
+   if w.key then cache.names[w.key]=cache.names[w.key]or w.name end
+   if w.enemy and w.enemy.members then
+    for i,m in ipairs(w.enemy.members)do cache.names[m.key]=w.name..(#w.enemy.members>1 and(' · '..i)or'')end
+   end
   end
-  for _,row in ipairs(w.rows)do for _,p in ipairs(row.parts)do
-   if p.field.kind==c.kind and not owners[p.field.key]then owners[p.field.key]={weapon=w,part=p}end
-  end end
+  M.names_cache=cache
  end
+ local names,users=cache.names,{}
+ -- The page that already holds a field (its first user with that part): values stay saved under it.
+ local owners=setmetatable({},{__index=function(t,f)
+  if type(f)~='table'or f.kind~=c.kind then return nil end
+  for _,w in ipairs(f.users or{})do
+   for _,p in pairs(w.by_id or{})do
+    if type(p)=='table'and p.field==f then local o={weapon=w,part=p};rawset(t,f,o);return o end
+   end
+  end
+  rawset(t,f,false);return false
+ end})
  local enums=setmetatable(spec.ENUMS or{},{__index=M.ENUMS})
  -- an entity's name by its hash (16 hex digits): the editor's pages, else the last part of its resource path
  local by_hex={}
@@ -224,7 +238,7 @@ function M.build(spec,c)
      -- a list): the same field and the same choice here
      local value=c.read(shared)
      if value~=nil then
-      row=c.add_row(page,section,id,s[5],shared.storage,{{id=id,field=shared,health_owner=owners[shared.key]}},1,HASH,1,10)
+      row=c.add_row(page,section,id,s[5],shared.storage,{{id=id,field=shared,health_owner=owners[shared]or nil}},1,HASH,1,10)
       row.choice=shared.storage
       page.field_keys[shared.key]=true
      end
@@ -258,7 +272,7 @@ function M.build(spec,c)
       local max=r[2]
       if storage=='enum'and enums[x.enum]and not spec.OPEN_ENUMS then local list=values_of(enums[x.enum]);max=list[#list]end
       if f.most then max=f.most end
-      row=c.add_row(page,section,id,s[5],f.storage,{{id=id,field=f,health_owner=owners[f.key]}},
+      row=c.add_row(page,section,id,s[5],f.storage,{{id=id,field=f,health_owner=owners[f]or nil}},
        math.min(r[1],value),math.max(max,value),r[3],r[4])
       if x.choice then row.choice=x.choice end
       page.field_keys[f.key]=true
