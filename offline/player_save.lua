@@ -173,17 +173,22 @@ function Model:prepare()
  for key,value in pairs(self.values)do data=put(data,M.BY_KEY[key].offset,p32(value))end
  return M.encode(self.save,data)
 end
+local function backup_path(self,kind)
+ local prefix=self.io.backup_prefix and self.io.backup_prefix(self.selected,kind)or(self.selected..'.shodan-'..kind)
+ local stem=prefix..'-'..os.date('%Y%m%d-%H%M%S');local path,n=stem,0
+ while self.io.read(path)do n=n+1;path=stem..'-'..n end
+ return path
+end
 function Model:commit()
  if not self.save then return nil,'请先读取存档。'end
  if self.io.running()then return nil,'请先关闭 Helldivers 2，再写入存档。'end
  if self:count()==0 then self.status='存档没有待写入的修改。';self:touch();return true end
  if self.io.read(self.selected)~=self.save.raw then return nil,'存档已被游戏或 Steam 更新；请重新读取后再修改。'end
  local ok,raw=pcall(self.prepare,self);if not ok then return nil,tostring(raw)end
- local backup=self.selected..'.shodan-backup-'..os.date('%Y%m%d-%H%M%S');local n=0
- while self.io.read(backup)do n=n+1;backup=self.selected..'.shodan-backup-'..os.date('%Y%m%d-%H%M%S')..'-'..n end
+ local backup=backup_path(self,'backup')
  local done,why=self.io.write(backup,self.save.raw);if not done then return nil,'备份失败：'..tostring(why)end
  local temporary=self.selected..'.shodan-tmp'
- done,why=self.io.write(temporary,raw);if not done then return nil,'临时文件验证失败：'..tostring(why)end
+ done,why=self.io.write(temporary,raw);if not done then self.io.remove(temporary);return nil,'临时文件验证失败：'..tostring(why)end
  if self.io.running()or self.io.read(self.selected)~=self.save.raw then self.io.remove(temporary);return nil,'存档状态已变化，未替换原文件。'end
  done,why=self.io.move(temporary,self.selected);if not done then self.io.remove(temporary);return nil,'存档替换失败：'..tostring(why)end
  if self.io.read(self.selected)~=raw then return nil,'写回校验失败；原始内容已保存在 '..backup end
@@ -199,11 +204,10 @@ function Model:restore()
  local current=self.io.read(self.selected)
  if current~=self.save.raw then return nil,'存档已由其他程序更新；请重新读取后再恢复。'end
  -- Restore is also a write transaction: preserve what is currently on disk.
- local before=self.selected..'.shodan-before-restore-'..os.date('%Y%m%d-%H%M%S')
- if self.io.read(before)then return nil,'恢复备份文件名冲突，请稍后重试。'end
+ local before=backup_path(self,'before-restore')
  local done,why=self.io.write(before,current);if not done then return nil,why end
  local tmp=self.selected..'.shodan-tmp';done,why=self.io.write(tmp,raw)
- if not done then return nil,why end
+ if not done then self.io.remove(tmp);return nil,why end
  if self.io.running()or self.io.read(self.selected)~=current then self.io.remove(tmp);return nil,'恢复前存档状态发生变化。'end
  done,why=self.io.move(tmp,self.selected);if not done then self.io.remove(tmp);return nil,why end
  if self.io.read(self.selected)~=raw then return nil,'恢复写回校验失败；恢复前的副本保存在 '..before end

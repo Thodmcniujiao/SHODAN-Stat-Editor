@@ -2,7 +2,7 @@
 
 实体路径哈希是静态全局标识。实体组件列表使用同一份 `EntityNames` 文件夹：一个 JSON 是一个实体组，组内每项有 `hash` 和 `name`。列表中的分类直接来自这些组文件。
 
-名称文件夹位于编辑器数据目录，通常为 `%LOCALAPPDATA%\SHODAN\StatEditor\EntityNames`；以界面“打开JSON文件夹”打开的位置为准。便携版优先读取 exe 旁边的 `Names\EntityNames`（随包分发）；该文件夹不存在时才回退到 `%LOCALAPPDATA%`。
+名称文件夹位于编辑器数据目录，通常为 `<程序目录>\Data\EntityNames`；以界面“打开JSON文件夹”打开的位置为准。便携版优先读取 exe 旁边的 `Names\EntityNames`（随包分发）；该文件夹不存在时才回退到本程序的 `Data`。
 
 ## 操作
 

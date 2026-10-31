@@ -4,6 +4,7 @@
 
 ## 常用功能
 
+- [便携数据目录、参数收藏与名称、更新与旧数据迁移](PORTABLE_DATA.md)
 - [预设、分组与描述](PRESETS.md)
 - [人物数据与角色语音](PLAYER_DATA.md)
 - [生物设置、AI与生物组件](ENEMY_DATA.md)

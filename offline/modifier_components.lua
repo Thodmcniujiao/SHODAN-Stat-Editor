@@ -11,7 +11,7 @@ local DATA=require('modifier_data')
 local M={TYPE=0xDCEA3AEF,GROUP=0x05238A1C,DELTAS=0x683E604F,FILE='generated_modifier_settings.dl_bin',
  OPERATION={GameModeComponentData=true,HiveMindComponentData=true},
  titles={},   -- page name -> {简体, 繁體} (planet_components.translate_name)
- labels={PlanetModifiers={'Modifiers (entity deltas)','星球效果修饰（Modifier）','星球效果修飾（Modifier）'},
+ labels={PlanetModifiers={'Modifiers (entity deltas)','星球效果修饰','星球效果修飾'},
   OperationModifiers={'Operation modifiers','行动修饰符','行動修飾符'}}}
 local function u32(b,o)if o<0 or o+4>#b then return end;local a,c,d,e=b:byte(o+1,o+4);return a+c*256+d*65536+e*16777216 end
 local function u64hex(b,o)return D.hex(b:sub(o+1,o+8))end
@@ -128,7 +128,7 @@ function M.build(c,page,txt,PC,mission_fields)
   r.tip_of=function()return{r.label_of(),type(value)=='function'and value()or tostring(value)}end;p.rows[#p.rows+1]=r;return r
  end
  -- 1. the Modifier settings
- local band_m=function()return txt('Modifier','星球效果修饰（Modifier）','星球效果修飾（Modifier）')end
+ local band_m=function()return txt('Modifier','星球效果修饰','星球效果修飾')end
  for _,kind in ipairs((c.kinds[M.TYPE]or{}).list or{})do
   local t=c.tables[kind];local b=t and c.bytes(kind)
   if b and #b>=24 then

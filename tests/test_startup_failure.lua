@@ -58,7 +58,7 @@ for _,phase in ipairs({'building', 'preparing', 'ready'}) do
     assert(references() == before, 'field users grew after initialization failed')
     assert(collectgarbage('count') < heap + 64, 'failed job heap did not stay bounded')
 end
-local log = assert(io.open(os.getenv('LOCALAPPDATA') .. '/SHODAN/StatEditor/Logs/SHODANStatEditor.log', 'rb'))
+local log = assert(io.open(require('install').logs .. '/SHODANStatEditor.log', 'rb'))
 local text = log:read('*a'); log:close()
 assert(text:find('injected missing runtime module', 1, true))
 assert(text:find('stack traceback:', 1, true))

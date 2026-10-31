@@ -1,4 +1,4 @@
-# SHODAN Stat Editor Offline: the development build. Every push to main is built (LuaJIT at the commit the
+# SHODAN Stat Editor Offline: the development build. Every push to dev is built (LuaJIT at the commit the
 # releases use, libsodium's official build) and published as the "Development build" pre-release (tag: dev),
 # which SSEO follows with Settings > Update channel > Every commit. Pushes to ci/* branches only build (the zip
 # is kept as the run's artifact). Releases are not touched: the updater's Releases channel skips pre-releases.
@@ -6,7 +6,7 @@ name: Development build
 
 on:
   push:
-    branches: [main, 'ci/**']
+    branches: [dev, 'ci/**']
 
 permissions:
   contents: write
@@ -57,33 +57,67 @@ jobs:
           if not exist "%GITHUB_WORKSPACE%\offline\launcher\SHODAN Stat Editor Offline.exe" exit /b 1
           if not exist "%GITHUB_WORKSPACE%\offline\launcher\shodan_hash.dll" exit /b 1
 
-      - name: Package
+      - name: Check source and portable data regressions
+        shell: pwsh
+        run: |
+          $tests = @('check_syntax', 'test_numeric_policy', 'test_field_baselines',
+            'test_weapon_component_groups', 'test_parameter_preferences', 'test_config_migration',
+            'test_portable_data', 'test_portable_save', 'test_startup_failure')
+          foreach ($test in $tests) {
+            $work = Join-Path $env:RUNNER_TEMP "shodan-tests/$test"
+            python tests/run_lua.py "tests/$test.lua" --work $work --isolated-profile
+            if ($LASTEXITCODE -ne 0) { throw "$test failed" }
+          }
+
+      - name: Package and verify clean archive
         shell: pwsh
         env:
           SSEO_CHANNEL: dev
           SSEO_COMMIT: ${{ github.sha }}
         run: |
           $name = "SHODAN-Stat-Editor-Offline-dev-" + $env:SSEO_COMMIT.Substring(0, 12)
+          $env:SSEO_BUILT = (Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmmss')
           python offline/package.py $name
           if ($LASTEXITCODE -ne 0) { throw "package.py failed" }
+          python tests/check_release_package.py "offline/release/$name.zip" --commit $env:SSEO_COMMIT --channel dev
+          if ($LASTEXITCODE -ne 0) { throw "Release archive verification failed" }
+          $hash = (Get-FileHash "offline/release/$name.zip" -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  $name.zip" | Set-Content offline/release/SHA256SUMS.txt -Encoding ascii
           "ZIP=offline/release/$name.zip" >> $env:GITHUB_ENV
 
       - name: Keep the zip (ci/* branches)
-        if: github.ref != 'refs/heads/main'
+        if: github.ref != 'refs/heads/dev'
         uses: actions/upload-artifact@v4
         with:
           name: development-build
-          path: ${{ env.ZIP }}
+          path: |
+            ${{ env.ZIP }}
+            offline/release/SHA256SUMS.txt
 
-      - name: Publish the Development build (main)
-        if: github.ref == 'refs/heads/main'
+      - name: Publish the Development build (dev)
+        if: github.ref == 'refs/heads/dev'
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release delete dev --cleanup-tag --yes 2>$null
           $global:LASTEXITCODE = 0
-          $notes = "The latest commit to main ($env:GITHUB_SHA), built automatically and not tested yet: it may break. " +
-                   "Tested versions are the releases. In SHODAN Stat Editor Offline, Settings > Update channel > " +
-                   "Every commit follows this build."
-          gh release create dev $env:ZIP --prerelease --target $env:GITHUB_SHA --title "Development build" --notes $notes
+          # Point the rolling tag at this build even if an orphaned tag existed.
+          git tag -f dev $env:GITHUB_SHA
+          if ($LASTEXITCODE -ne 0) { throw "Cannot set the development tag" }
+          git push --force origin refs/tags/dev
+          if ($LASTEXITCODE -ne 0) { throw "Cannot publish the development tag" }
+          $base = "https://github.com/$env:GITHUB_REPOSITORY/blob/$env:GITHUB_SHA"
+          $notes = @(
+            "Development build from dev: $env:GITHUB_SHA.",
+            "",
+            "Changes: [CHANGELOG]($base/CHANGELOG.md).",
+            "Settings, parameter favorites, original backups and installation records live in Data beside the program. Keep Data, Presets and customized Names when updating.",
+            "Upgrade and old-data migration: [portable data guide]($base/offline/PORTABLE_DATA.md).",
+            "",
+            "The source regression suite and clean-package audit passed. SHA256SUMS.txt verifies the attached ZIP."
+          ) -join "`n"
+          $notesFile = Join-Path $env:RUNNER_TEMP 'shodan-development-notes.md'
+          [IO.File]::WriteAllText($notesFile, $notes, [Text.UTF8Encoding]::new($false))
+          gh release create dev $env:ZIP offline/release/SHA256SUMS.txt --prerelease --latest=false --target $env:GITHUB_SHA --title "Development build" --notes-file $notesFile
+          if ($LASTEXITCODE -ne 0) { throw "Cannot publish the development release" }

@@ -18,7 +18,7 @@
 
 原 Stat Editor 的 SENTRY / Deployer 拆毁数值与 Entity Demolition 页共用 `entity_demolition.txt`。在任一页修改、恢复或载入预设，另一页直接读取同一份实体设置；原页不再选择共享模板引用，也不会同时改动 Health 的死亡破坏类型。两页都支持 `0` 至 `4294967295` 的整数，并遵守 Settings 的 Changes 开关。安装只使用这份统一设置生成实体独立覆盖。
 
-首次启动会迁移原 `config.txt` 内能对应到这些实体的旧拆毁修改。若同一条记录已有 Entity Demolition 覆盖，保留该覆盖；否则导入旧值。比如旧 Sentry 写 10、实体页写 20，会统一为 20。迁移成功后从 `config.txt` 移除重复的拆毁项，其他参数保留。两份原文件和逐项迁移说明备份在 `%LOCALAPPDATA%\SHODAN\StatEditor\demolition-migration-backups\` 的时间戳子目录。
+首次启动会迁移原 `config.txt` 内能对应到这些实体的旧拆毁修改。若同一条记录已有 Entity Demolition 覆盖，保留该覆盖；否则导入旧值。比如旧 Sentry 写 10、实体页写 20，会统一为 20。迁移成功后从 `config.txt` 移除重复的拆毁项，其他参数保留。两份原文件和逐项迁移说明备份在 `<程序目录>\Data\demolition-migration-backups\` 的时间戳子目录。
 
 原页的修改标记、统计、实体恢复、全局恢复和武器 / 整体预设都通过统一设置处理。直击仍可独立覆盖；清除直击覆盖后，两页都显示继承普通阈值。切换顶部页面或点击安装时会先提交当前输入；无效输入会阻止切换或安装，避免显示值与安装值不一致。
 
@@ -48,7 +48,7 @@
 
 ## 配置和依赖
 
-实体拆毁设置自动保存在 `%LOCALAPPDATA%\SHODAN\StatEditor\entity_demolition.txt`，关闭重开会恢复。资源所有权记录位于同目录的 `entity_assets_installed.txt`；保留该目录与 originals 备份以便恢复。
+实体拆毁设置自动保存在 `<程序目录>\Data\entity_demolition.txt`，关闭重开会恢复。资源所有权记录位于同目录的 `entity_assets_installed.txt`；保留该目录与 originals 备份以便恢复。
 
 ECS 实体独立覆盖读取 Unit 与 package 时使用编辑器自带的归档读取层（`offline/archives.lua`：DSAR 分块 bundles 与独立归档，索引按游戏版本缓存），不再需要 Filediver CLI。原生读取失败时，若找到 Filediver（`Downloads\Compressed\filediver-cli\filediver.exe`、环境变量 `SHODAN_FILEDIVER`、程序旁 `tools\filediver.exe`，或上述配置目录中的 `filediver path.txt`，只放可执行文件完整路径）才回退使用它。
 

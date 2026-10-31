@@ -3,7 +3,7 @@ SHODAN Stat Editor Offline — portable planning names
 EntityNames/  one JSON per entity group (hash + name).
 TypeIdNames/  one JSON per TypeID (local index + planning name).
 
-The editor reads this folder before %LOCALAPPDATA%\SHODAN\StatEditor.
+The editor reads this portable folder first; custom fallback names live in Data beside the program. No AppData files are read.
 Edit a JSON, then click 重载JSON in the entity / TypeID list.
 An empty name ("") means no planning name: the game's own name is shown.
 Names like "source · relation" were traced forward through the ID reference graph.

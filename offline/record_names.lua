@@ -1,7 +1,7 @@
 -- External display ("planning") names for enum/record row ids: 轨道飞鹰 / 游戏数据 left lists.
 -- Legacy import files, read in this order (later wins), then split into TypeIdNames/<type>.json:
---   %LOCALAPPDATA%\SHODAN\StatEditor\record_names.json
---   %LOCALAPPDATA%\SHODAN\StatEditor\record_names.txt
+--   <program>/Data\record_names.json
+--   <program>/Data\record_names.txt
 -- JSON, nested:        {"version":1,"types":{"projectile":{"282":"设计名"}}}
 -- JSON, flat:          {"projectile:282":"设计名"}
 -- JSON, records array: {"records":[{"type":"projectile","id":282,"name":"设计名"}]}
@@ -124,7 +124,7 @@ end
 function M.load(dir,names_dir)
  local previous,previous_count,previous_paths=M.by,M.count,M.paths
  local app_dir=assert(dir)
- -- Portable package: <exe>/Names/TypeIdNames wins over %LOCALAPPDATA%.
+ -- Portable package: <exe>/Names/TypeIdNames wins over the local Data folder.
  -- An empty/missing package folder keeps the old app-data behaviour.
  local use_pack=names_dir and #F.list(names_dir..'/TypeIdNames')>0
  if not use_pack then names_dir=nil end

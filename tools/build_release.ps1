@@ -64,6 +64,7 @@ $files['ENTITY_CATALOG_API.md'] = In-Root 'offline\ENTITY_CATALOG_API.md'
 $files['ENTITY_CATALOG_SCHEMA.json'] = In-Root 'offline\entity_catalog.schema.json'
 $files['LICENSE'] = In-Root 'LICENSE'
 $files['docs\README.md'] = In-Root 'offline\RELEASE_DOCS.md'
+$files['PORTABLE_DATA.md'] = In-Root 'offline\PORTABLE_DATA.md'
 # Keep the portable root focused on starting the editor and editing user data.
 # Keep all reference documents together so their existing relative links still work.
 foreach ($k in @($files.Keys)) {

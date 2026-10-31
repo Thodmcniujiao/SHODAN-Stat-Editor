@@ -1,12 +1,13 @@
 -- SHODAN Stat Editor Offline: finding the game, keeping its original data files and writing the changed ones.
 -- Originals: every file the editor changes is kept once (the game's own, checked: it decrypts to a plain text
--- game.dll expects and nobody changed) in %LOCALAPPDATA%\SHODAN\StatEditor\originals.
+-- game.dll expects and nobody changed) in the program's Data/originals folder.
 -- installed.txt lists the files written into the game (name and a hash of the bytes written); a game file
 -- matching neither is the game's own (a game update or a Steam check put it there) and is the new original.
 -- Writing: every new file goes next to its target first and is read back; installed.txt then lists both the old
 -- and the new bytes, the files are moved over the game's, and installed.txt lists the new ones only.
 local ffi = require('ffi')
 local G = require('gamedata')
+local Paths = require('user_paths')
 
 for _, declaration in ipairs({
     'int MoveFileExA(const char *from, const char *to, uint32_t flags);',
@@ -14,7 +15,6 @@ for _, declaration in ipairs({
     'uint32_t GetLastError(void);',
     'int CreateDirectoryA(const char *path, void *security);',
     'int DeleteFileA(const char *path);',
-    'uint32_t GetEnvironmentVariableA(const char *name, char *out, uint32_t size);',
     'uint32_t GetFileAttributesA(const char *path);',
     'typedef struct { uint32_t size, usage, pid; uintptr_t heap; uint32_t module, threads, parent; int32_t base;'
         .. ' uint32_t flags; uint16_t exe[260]; } host_process_entry;',
@@ -34,12 +34,6 @@ for _, declaration in ipairs({
 local kernel = ffi.C
 
 local M = {}
-
-local function env(name)
-    local out = ffi.new('char[1024]')
-    local n = kernel.GetEnvironmentVariableA(name, out, 1024)
-    return n > 0 and n < 1024 and ffi.string(out, n) or nil
-end
 
 local function exists(path) return kernel.GetFileAttributesA(path) ~= 0xFFFFFFFF end
 M.exists = exists
@@ -87,37 +81,9 @@ function M.list_files(folder, pattern)
     return names
 end
 
--- ---------------------------------------------------------------- the old folder
--- Before 2026-10-22 everything was kept under the Bingus loader's folder (CowboyBingus\Helldivers2\StatEditor, the
--- offline files in its Offline folder). On the first start with the own folder: the values, presets, the list of
--- installed files and the originals are copied over (the old folder stays, for the in-game editor).
-function M.migrate()
-    if exists(M.home) then return nil end
-    local old = (env('LOCALAPPDATA') or '.') .. '/CowboyBingus/Helldivers2/StatEditor'
-    if not exists(old) then return nil end
-    mkdirs(M.home)
-    local copied = 0
-    local function copy(from, to)
-        local data = read(from)
-        if data and write(to, data) then copied = copied + 1 end
-    end
-    for _, name in ipairs(M.list_files(old, '*.txt')) do
-        if name == 'config.txt' or name:match('^preset_%d+%.txt$') or name == 'weapon_presets.txt' then
-            copy(old .. '/' .. name, M.home .. '/' .. name)
-        end
-    end
-    for _, name in ipairs({ 'installed.txt', 'game folder.txt' }) do
-        if exists(old .. '/Offline/' .. name) then copy(old .. '/Offline/' .. name, M.home .. '/' .. name) end
-    end
-    local originals = M.list_files(old .. '/Offline/originals', '*.dl_bin')
-    if #originals > 0 then mkdirs(M.originals_dir) end
-    for _, name in ipairs(originals) do copy(old .. '/Offline/originals/' .. name, M.originals_dir .. '/' .. name) end
-    return copied
-end
-
 -- ---------------------------------------------------------------- the game
-M.home = (env('LOCALAPPDATA') or '.') .. '/SHODAN/StatEditor'
-M.logs = M.home .. '/Logs'
+M.home = Paths.home
+M.logs = Paths.logs
 M.originals_dir = M.home .. '/originals'
 local LIST = M.home .. '/installed.txt'
 local CHOSEN = M.home .. '/game folder.txt'

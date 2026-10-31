@@ -10,6 +10,7 @@ local shim = require('engine_shim')
 local G = require('gamedata')
 local D = require('hostdata')
 local I = require('install')
+local Paths = require('user_paths')
 local F = require('preset_files')
 local U = require('update')
 local Demo = require('demolition')
@@ -84,15 +85,14 @@ local function main()
     local startup_started = clock()
     shim.open('SHODAN Stat Editor Offline', saved_place())
     shim.pump()
-    local migrated = I.migrate()
-    if migrated then log('copied ' .. migrated .. ' files from the CowboyBingus folder') end
+    I.mkdirs(I.home)
+    log('portable data: ' .. I.home)
     screen({ 'SHODAN Stat Editor Offline', 'Looking for Helldivers 2...' })
-    local exe_dir = here:gsub('[/\\]app[/\\]$', ''):gsub('[/\\]$', '')
-    if not rawget(_G,'SHODAN_PRESET_DIRECTORY')then rawset(_G,'SHODAN_PRESET_DIRECTORY',exe_dir..'/Presets')end
+    local exe_dir = Paths.root
+    if not rawget(_G,'SHODAN_PRESET_DIRECTORY')then rawset(_G,'SHODAN_PRESET_DIRECTORY',Paths.presets)end
     -- Portable name pack: <exe>/Names/EntityNames and <exe>/Names/TypeIdNames.
-    -- It wins over %LOCALAPPDATA%; the app-data folders stay the fallback for
-    -- old installs and for users who keep editing their own names.
-    local names_dir = exe_dir .. '/Names'
+    -- User-authored fallback names belong to this program's Data folder too.
+    local names_dir = Paths.names
     local names_entity_dir = names_dir .. '/EntityNames'
     local names_typeid_dir = names_dir .. '/TypeIdNames'
     local entity_names = F.list(names_entity_dir)

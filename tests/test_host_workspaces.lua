@@ -1,8 +1,15 @@
 -- Run the production desktop host offscreen, including its bottom action bar.
--- Uses an isolated LOCALAPPDATA. Live game/save files are read only.
+-- Uses isolated portable data. Live game/save files are read only.
+local app=os.getenv('SHODAN_TEST_APP')
+if app then
+ package.path=app..'/?.lua;'..package.path
+ SHODAN_DATA_DIRECTORY=nil;SHODAN_PRESET_DIRECTORY=nil
+end
 local ffi=require('ffi');local I=require('install');local S=require('engine_shim')
 I.mkdirs(TEST_WORK);I.mkdirs(I.home)
-SHODAN_PRESET_DIRECTORY=TEST_WORK..'/program/Presets'
+if not app then SHODAN_PRESET_DIRECTORY=TEST_WORK..'/program/Presets'end
+assert(I.home:gsub('\\','/'):sub(1,#TEST_WORK+1)==TEST_WORK..'/','host profile must be portable and isolated')
+require('portable_io_guard')
 local function write(path,text)local f=assert(io.open(path,'wb'));assert(f:write(text));f:close()end
 write(I.home..'/game folder.txt',TEST_GAME)
 write(I.home..'/preset_01.txt','name 示例预设\nEF85D6CF58E31D70 unit_demolition 222\n')
@@ -16,7 +23,7 @@ S.focused=function()return false end;S.cursor=function()return nil,nil end
 S.message_box=function(message)error(message,0)end
 local phase,changed=0,0;local began=tonumber(ffi.C.GetTickCount64())
 -- Expose the real control handlers only inside this test process.
-local panel=TEST_ROOT..'/src/stat_editor_offline.lua';local real_loadfile=loadfile
+local panel=app and app..'/stat_editor.lua'or TEST_ROOT..'/src/stat_editor_offline.lua';local real_loadfile=loadfile
 loadfile=function(path,...)
  if path==panel then
   local f=assert(io.open(path,'rb'));local source=f:read('*a');f:close()
@@ -72,7 +79,7 @@ S.present=function()
  end
 end
 SHODAN_OFFLINE_LANG='zh-Hans';arg={[1]=panel}
-assert(loadfile(TEST_ROOT..'/offline/host.lua'))()
+assert(loadfile(app and app..'/host.lua'or TEST_ROOT..'/offline/host.lua'))()
 assert(phase==4,'host failed before all modes were rendered')
 loadfile=real_loadfile
 -- the title: this fork's release and who it is by, then when it was packed (no panel version, no upstream dev commit)

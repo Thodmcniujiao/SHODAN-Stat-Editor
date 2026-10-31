@@ -64,6 +64,7 @@ files = {
     for arc, src in files.items()
 }
 files['docs/README.md'] = os.path.join(HERE, 'RELEASE_DOCS.md')
+files['docs/PORTABLE_DATA.md'] = os.path.join(HERE, 'PORTABLE_DATA.md')
 DEV = re.compile(r'[ \t]*--\[\[DEV\]\].*?--\[\[/DEV\]\][^\n]*\n', re.S)   # test hooks: not in the package
 VERSION = re.search(r"version = '([\d.]+)'", open(PANEL, encoding='utf-8').read()).group(1)
 readme = open(os.path.join(HERE, 'RELEASE_README.txt'), encoding='utf-8').read()

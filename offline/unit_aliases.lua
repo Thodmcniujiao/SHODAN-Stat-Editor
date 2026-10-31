@@ -253,10 +253,8 @@ end
 
 function M.find_filediver(here)
     local configured=read(I.home..'/filediver path.txt')
-    local user=os.getenv('USERPROFILE')or''
     for _,p in ipairs({os.getenv('SHODAN_FILEDIVER')or'',configured and configured:match('^%s*(.-)%s*$')or'',
-        here..'../filediver.exe',here..'../tools/filediver.exe',
-        user..'/Downloads/Compressed/filediver-cli/filediver.exe'})do
+        here..'../filediver.exe',here..'../tools/filediver.exe'})do
         if p~=''and I.exists(p)then return p end
     end
     return nil

@@ -2,7 +2,7 @@
 
 TypeID/index 是某种类型表内的局部编号，可随游戏更新改变。不同类型即便编号相同，也分别命名、搜索和跳转。
 
-编辑器数据目录中的 `TypeIdNames` 文件夹使用每种类型一个 JSON。点击列表上方“打开JSON文件夹”可直达实际目录；通常为 `%LOCALAPPDATA%\SHODAN\StatEditor\TypeIdNames`。便携版优先读取 exe 旁边的 `Names\TypeIdNames`（随包分发）；该文件夹不存在时才回退到 `%LOCALAPPDATA%`。
+编辑器数据目录中的 `TypeIdNames` 文件夹使用每种类型一个 JSON。点击列表上方“打开JSON文件夹”可直达实际目录；通常为 `<程序目录>\Data\TypeIdNames`。便携版优先读取 exe 旁边的 `Names\TypeIdNames`（随包分发）；该文件夹不存在时才回退到本程序的 `Data`。
 
 ## 文件与格式
 

@@ -19,6 +19,7 @@ def main():
     if args.isolated_profile:
         if not args.work:raise SystemExit('--isolated-profile requires --work')
         os.environ['LOCALAPPDATA']=str(args.work.resolve()/'profile-root')
+        (args.work.resolve()/'program'/'Data').mkdir(parents=True, exist_ok=True)
     runtime=root/'offline/runtime'
     dll_path=runtime/'lua51.dll'
     if not dll_path.exists():
@@ -40,7 +41,10 @@ def main():
             source+='TEST_ROOT='+quote(root)+'\n'
             if args.fixtures:source+='TEST_FIXTURES='+quote(args.fixtures)+'\n'
             if args.game:source+='TEST_GAME='+quote(args.game)+'\n'
-            if args.work:source+='TEST_WORK='+quote(args.work)+'\n'
+            if args.work:source+='TEST_WORK='+quote(args.work.resolve())+'\n'
+            if args.isolated_profile:
+                source+='SHODAN_DATA_DIRECTORY='+quote(args.work.resolve()/'program'/'Data')+'\n'
+                source+='SHODAN_PRESET_DIRECTORY='+quote(args.work.resolve()/'program'/'Presets')+'\n'
             source+='assert(loadfile('+quote(args.script.resolve())+'))()\n'
             status=dll.luaL_loadstring(state,source.encode('utf-8'))
             if status==0:status=dll.lua_pcall(state,0,0,0)

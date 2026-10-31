@@ -54,11 +54,11 @@
 - 发布包里已经带有这个文件夹（只有说明文件，没有预设）。
 - 早期的全局预设版本把所有预设放在一个 `preset_library.json` 里。新版本启动时会把它拆成单独的文件，原文件移到 `Presets\backup\` 保留。
 
-`build_release.bat` 每次打包都会生成一个新的文件夹，每个文件夹有自己的 `Presets`。为此，编辑器在用户目录的 `presets_folder.txt` 里记下上次使用的预设文件夹，启动时把那里的预设带过来一次，所以用新快捷方式打开新版本时，预设不会“消失”。
+每个程序文件夹有自己的 `Data` 与 `Presets`，不再跟随 `presets_folder.txt` 自动导入其他程序或用户目录。更新到新文件夹时，请手动复制这两个目录；名称配置也应随 `Names` 一起保留。旧版 AppData 的完整迁移步骤见 [便携数据指南](PORTABLE_DATA.md)。
 
 预设库条目使用稳定 ID，不再限制每个对象五个快捷槽。新库采用经过结构验证的 JSON：先写临时文件，读回验证后再原子替换；如果另一个编辑器改过库文件，则拒绝覆盖。
 
-首次使用自动导入（另包括旧位置 `%LOCALAPPDATA%/SHODAN/StatEditor/preset_library.json` 中的命名预设）：
+首次使用只从本程序的 `Data` 自动导入旧格式（包括手动放入 `Data/preset_library.json` 的命名预设）：
 
 - `preset_01.txt` 至 `preset_50.txt` 和 `enemy_preset_01.txt` 至 `enemy_preset_50.txt`。
 - `weapon_presets.txt` 中的旧快捷槽，转换成“旧单项预设”命名条目；这类条目只合并自己记录的参数，不清除其他修改。

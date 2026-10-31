@@ -1,6 +1,6 @@
 -- Run each phase in a fresh Lua process with the same isolated profile/game copy.
 io.stdout:setvbuf('no')
-local app=os.getenv('SHODAN_TEST_APP');if app then package.path=app..'/?.lua;'..package.path end
+local app=os.getenv('SHODAN_TEST_APP');if app then package.path=app..'/?.lua;'..package.path;SHODAN_DATA_DIRECTORY=nil;SHODAN_PRESET_DIRECTORY=nil end
 local ffi=require('ffi');local I=require('install');local G=require('gamedata');local H=require('hostdata')
 local Assets=require('entity_assets');local S=require('engine_shim')
 local mode=assert(os.getenv('SHODAN_CACHE_TEST_PHASE'))
@@ -44,7 +44,8 @@ local info=ffi.new('host_bitmapinfo');info.size=ffi.sizeof(info);info.width,info
 local bits=ffi.new('void *[1]');local dib=gdi.CreateDIBSection(S.dc,info,0,bits,nil,0);assert(dib~=nil)
 gdi.SelectObject(S.dc,dib);S.bits=ffi.cast('uint32_t *',bits[0]);gdi.SetBkMode(S.dc,1);gdi.SetTextAlign(S.dc,24)
 S.open=function()end;S.set_title=function()end;S.message_box=function(text)error(text,0)end;S.present=function()end
-SHODAN_PRESET_DIRECTORY=TEST_WORK..'/program/Presets';SHODAN_OFFLINE_LANG='en'
+if not app then SHODAN_PRESET_DIRECTORY=TEST_WORK..'/program/Presets'end;SHODAN_OFFLINE_LANG='en'
+require('portable_io_guard')
 local phase,down=0,false;local started=tonumber(ffi.C.GetTickCount64());local saw_reload=false
 S.focused=function()return phase>0 end
 S.cursor=function()return mode:match('^restore')and 400 or 80,1055 end

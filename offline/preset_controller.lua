@@ -17,11 +17,6 @@ function M.new(c)
   I.mkdirs(P.directory)
   -- one file per preset, named after it (preset_library.lua's folder storage; preset_files.lua: Unicode names)
   P.library=Library.new({dir=P.directory,log=c.log})
-  local function bring(what,fn,...)   -- an import that must not stop the editor: logged
-   local done,ok,n=pcall(fn,P.library,...)
-   if not(done and ok)then c.log('presets: '..what..' not imported: '..tostring(done and n or ok))
-   elseif n>0 then c.log('presets: '..n..' imported from '..what)end
-  end
   -- the first global-preset builds kept every preset in one preset_library.json here: split into one file each,
   -- that file kept under backup\ (so the folder lists the presets only)
   local single=P.directory..'/preset_library.json'
@@ -32,16 +27,8 @@ function M.new(c)
     c.log('presets: '..tostring(n)..' split out of preset_library.json')
    else c.log('presets: preset_library.json not split: '..tostring(done and n or ok))end
   end
-  -- the folder used last time (build_release.bat makes a new build folder each time, each with its own
-  -- Presets): its presets come along once. First, so its import markers keep the older sources below from
-  -- adding the same presets again.
-  local last_file=c.folder()..'/presets_folder.txt'
-  local last=I.read(last_file);last=last and last:match('^%s*(.-)%s*$')
-  if last and last~=''and last~=P.directory then
-   bring(last,P.library.import_folder,last)
-   bring(last..'/preset_library.json',P.library.import_library,last..'/preset_library.json')
-  end
-  if last~=P.directory then local f=io.open(last_file,'wb');if f then f:write(P.directory);f:close()end end
+  -- Only import legacy formats deliberately placed in this copy's Data folder.
+  -- A stale presets_folder.txt must not reconnect a portable copy to another profile.
   local migrated,count=P.library:import_library(c.folder()..'/preset_library.json');assert(migrated,count)
   local ok,count=P.library:import_legacy(c.folder(),c.parse_number);assert(ok,count)
   assert(P.library:globalize())

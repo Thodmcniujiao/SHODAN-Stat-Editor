@@ -64,11 +64,11 @@ Windows x64 · 无需 mod loader · GPL-3.0 · English / 简体中文 / 繁體�
 1. 从 [Releases](../../releases) 下载 `SHODAN-Stat-Editor-Offline-*.zip`，解压到任意可写目录。exe、DLL 和 `app` 文件夹必须放在一起。
 2. **关闭《绝地潜兵 2》**，运行 `SHODAN Stat Editor Offline.exe`。
    - 程序通过 Steam 查找游戏。
-   - 找不到时，把游戏目录写进 `%LOCALAPPDATA%\SHODAN\StatEditor\game folder.txt`，再启动。
+   - 找不到时，把游戏目录写进 `<程序目录>\Data\game folder.txt`，再启动。
 3. 在界面里改数值，点底部的 **写入游戏**，然后启动游戏。
 4. 想回到原版，点 **恢复游戏原始文件**。恢复成功后会丢弃待写入改动并自动重新读取页面数值，例如生命 99999 回到 125；命名预设保留。
 
-**更新方式：** 本 fork 不自动更新。下载新的便携包，解压覆盖程序文件即可；`%LOCALAPPDATA%\SHODAN\StatEditor` 里的配置、预设、日志和游戏原件不会被覆盖。
+**更新方式：** 本 fork 不自动更新。下载新的便携包，解压覆盖程序文件即可；保留程序旁的 `Data`、`Presets` 和自定义的 `Names`。换新目录时需完整复制这三个目录，不自动读取 AppData。
 
 **第一次运行**可能出现 Windows SmartScreen 或杀毒软件提示，因为 exe 没有代码签名。请自行确认来源。
 
@@ -260,7 +260,7 @@ SHODAN Stat Editor Offline/
 
 - `EntityNames/`：每个 JSON 是一个实体组，条目包含字符串 `hash` 与 `name`；未分类实体放入 `未分类.json`。实体列表上下输入框支持精确的十进制、十六进制哈希；下方搜索跨所有实体组匹配名称与哈希。
 - `TypeIdNames/`：每种 TypeID 一个 JSON，例如 `projectile.json`、`damage.json`、`eagle.json`。同号的不同类型分别命名，搜索与跳转严格限定当前种类。
-- 便携版优先读取 exe 旁边的 `Names\EntityNames` / `Names\TypeIdNames`（随包分发）；只有该文件夹不存在时才回退到 `%LOCALAPPDATA%\SHODAN\StatEditor`。
+- 便携版优先读取 exe 旁边的 `Names\EntityNames` / `Names\TypeIdNames`（随包分发）；只有该文件夹不存在时才回退到 `Data`。
 - 上方输入框输入时自动跳转，无需回车；“重载JSON”和“打开JSON文件夹”使用统一布局。
 
 轨道编辑与飞鹰编辑使用各自组件数组的 `ComponentIndexData.index`（从 0 开始）；轨道武器编辑使用全局 EntityHash。游戏数据中的战备、伤害、射弹等使用各自 TypeID。局部编号以当前游戏表为准。
@@ -285,7 +285,7 @@ SHODAN Stat Editor Offline/
 
 ### 写入、恢复与兼容
 
-- **写入游戏**只在游戏关闭时执行。程序会找出有改动的文件，保留文件原有的校验和，必要时生成 `.patch_N` 资源包；写入前把原件保存到 `%LOCALAPPDATA%\SHODAN\StatEditor\originals`，失败时回滚。
+- **写入游戏**只在游戏关闭时执行。程序会找出有改动的文件，保留文件原有的校验和，必要时生成 `.patch_N` 资源包；写入前把原件保存到 `<程序目录>\Data\originals`，失败时回滚。
 - **恢复游戏原始文件**把编辑器改过的文件恢复为安装前的状态，并移除本编辑器拥有的资源补丁；其他 mod 的文件会保留。
 - **与其他 mod 共存：** 先装其他 mod，再点本编辑器的“写入游戏”，本编辑器会保留它们的改动并在上面叠加；同一数值冲突时以本编辑器为准。这个流程没有经过穷尽测试。
 - **游戏更新 / Steam 校验文件：** 游戏原文件会回来。先点“恢复游戏原始文件”，再点“写入游戏”，否则可能无法连接 EAC。
@@ -306,7 +306,7 @@ SHODAN Stat Editor Offline/
 | 存档配装 | 当前存档中的可编辑配装字段；载入只暂存，回配装页点“写入存档”才写文件 |
 | 预载方案 | 包清单、额外包选择、加载目标、数组修改及预载页的资源参数 |
 
-- 所有命名预设保存在 `%LOCALAPPDATA%\SHODAN\StatEditor\preset_library.json`，使用稳定 ID，不再限制“每把武器 5 个”。
+- 所有命名预设保存在程序旁的 `Presets`，使用稳定 ID，不再限制“每把武器 5 个”。
 - 首次使用会自动导入 `preset_01.txt`–`preset_50.txt`、`enemy_preset_01.txt`–`enemy_preset_50.txt`、`weapon_presets.txt`、`player_save_presets.json` 和 `preload_config.json` 里的旧预设；原文件保留，导入来源有标记，重启不会重复导入。
 - 新库使用结构校验的 JSON：先写临时文件、读回验证，再原子替换；如果另一个编辑器改过库文件，会拒绝覆盖。
 - 键盘：**Enter** 载入、**Insert** 新建、**Shift+Insert** 覆盖、**F2** 重命名、**Del** 删除、**Esc** 返回。
@@ -331,7 +331,7 @@ SHODAN Stat Editor Offline/
 | 清除所有修改 | 清除编辑器跨启动记住的全部改动（数值、被动堆叠、预载、拆毁、装备栏、名称与描述）；不动预设，也不动已写入的游戏文件（二次确认） |
 | 每次关闭后清除修改器缓存 | 默认关；开启后关闭编辑器会丢弃未写入改动，重启从已写入的游戏文件读回数值；不会把已安装的 99999 显示成备份中的 125 |
 | 更新 / 更新渠道 | 本 fork 不检查更新；选项保留但不会替换本地版本 |
-| 本fork / 原仓库 / 日志与预设 | 打开本 fork 或原仓库（SHODAN）的 GitHub 页面，或 `%LOCALAPPDATA%\SHODAN\StatEditor` |
+| 本fork / 原仓库 / 日志与预设 | 打开本 fork 或原仓库（SHODAN）的 GitHub 页面，或 `Data` |
 
 设置会立即保存到 `config.txt`。
 
@@ -351,12 +351,12 @@ SHODAN Stat Editor Offline/
 
 ### 文件与数据位置
 
-所有用户数据在 `%LOCALAPPDATA%\SHODAN\StatEditor`：
+设置、日志、缓存、游戏原始备份与安装记录位于程序旁的 `Data`，预设位于 `Presets`，名称位于 `Names`。新版本不读取或自动导入 AppData 数据。更新到新文件夹时，请完整复制这三个目录；从旧版迁移的步骤见 [便携数据指南](offline/PORTABLE_DATA.md)。以下未标明的路径均相对于 `Data`：
 
 | 路径 | 内容 |
 |---|---|
 | `config.txt` | 设置、普通修改、隐藏标签页等 |
-| `preset_library.json` | 命名预设库 |
+| `..\Presets\` | 命名预设与分组（程序旁） |
 | `entity_demolition.txt` | 实体拆毁覆盖 |
 | `entity_assets_installed.txt` | 资源补丁所有权记录 |
 | `preload_config.json` | 预载包清单、数组和方案 |
@@ -405,7 +405,7 @@ python tests\run_lua.py tests\test_preset_library.lua --isolated-profile --work 
 
 **CI：** `.github/workflows/dev-build.yml` 会在推送到 `main` 时构建 Development build 预发布；本 fork 关闭了客户端自动更新，CI 产物不会自动替换本地版本。
 
-**Filediver（可选）：** 游戏数据包（DSAR 分块 bundles 与独立归档）由 `offline/archives.lua` 直接读取，预载、实体拆毁的 Unit 克隆、名称与描述、载具物理与动画都不再需要 [Filediver](https://github.com/xypwn/filediver)。原生读取失败且配置了 Filediver（`SHODAN_FILEDIVER`、`tools\filediver.exe` 或 `%LOCALAPPDATA%\SHODAN\StatEditor\filediver path.txt`）时，实体拆毁才回退使用它。
+**Filediver（可选）：** 游戏数据包（DSAR 分块 bundles 与独立归档）由 `offline/archives.lua` 直接读取，预载、实体拆毁的 Unit 克隆、名称与描述、载具物理与动画都不再需要 [Filediver](https://github.com/xypwn/filediver)。原生读取失败且配置了 Filediver（`SHODAN_FILEDIVER`、`tools\filediver.exe` 或 `<程序目录>\Data\filediver path.txt`）时，实体拆毁才回退使用它。
 
 ### 目录结构
 
@@ -555,11 +555,11 @@ UI languages: **English, Simplified Chinese, Traditional Chinese, Russian**. Ver
 1. Download `SHODAN-Stat-Editor-Offline-*.zip` from [Releases](../../releases) and unzip it to any writable folder. The exe, the DLLs and the `app` folder must stay together.
 2. **Close Helldivers 2**, then run `SHODAN Stat Editor Offline.exe`.
    - The program finds the game through Steam.
-   - If it cannot, write the game folder's path into `%LOCALAPPDATA%\SHODAN\StatEditor\game folder.txt` and start it again.
+   - If it cannot, write the game folder's path into `<program>\Data\game folder.txt` and start it again.
 3. Edit values, press **Install into the game** at the bottom, then start the game.
 4. To go back to the game's own values, press **Restore the game's files**. A successful restore discards staged edits and reloads the displayed values immediately, for example health 99999 returns to 125. Named presets stay.
 
-**Updates:** this fork does not update itself. Download a new portable package and unzip it over the program files; config, presets, logs and the game's originals in `%LOCALAPPDATA%\SHODAN\StatEditor` are not overwritten.
+**Updates:** this fork does not update itself. Download a new portable package and unzip it over the program files; keep `Data`, `Presets` and customized `Names` beside the program. Carry these folders over when using a new directory; AppData is not imported automatically.
 
 **The first run** may show a Windows SmartScreen or antivirus warning because the exe is not code-signed. Check where it came from.
 
@@ -751,7 +751,7 @@ Static entity hashes and local TypeID/index values use separate name folders:
 
 - `EntityNames/`: one JSON per entity group, with string `hash` and `name` entries. `未分类.json` holds unclassified and newly discovered entities. Search spans entity groups and accepts planning names, decimal hashes and hexadecimal hashes.
 - `TypeIdNames/`: one JSON per type, such as `projectile.json`, `damage.json` and `eagle.json`. Search and jump stay within the current type, even when another type uses the same number.
-- The portable build reads `Names\EntityNames` / `Names\TypeIdNames` beside the executable first; it falls back to `%LOCALAPPDATA%\SHODAN\StatEditor` only when that folder is absent.
+- The portable build reads `Names\EntityNames` / `Names\TypeIdNames` beside the executable first; it falls back to `Data` only when that folder is absent.
 - The upper box jumps as you type, without Enter. Reload JSON and Open JSON folder have matching layouts on both kinds of list.
 
 Orbital and Eagle editing use their respective zero-based `ComponentIndexData.index`; orbital weapon editing uses EntityHash. Game data uses each record's own TypeID. Local index meanings follow the current game tables.
@@ -776,7 +776,7 @@ The upstream README's per-field tables remain a reference for these values; this
 
 ### Install, restore and compatibility
 
-- **Install into the game** runs only while the game is closed. The editor finds the changed files, keeps the checksum the game expects and writes a `.patch_N` package when needed; before writing it keeps the originals in `%LOCALAPPDATA%\SHODAN\StatEditor\originals` and rolls back on failure.
+- **Install into the game** runs only while the game is closed. The editor finds the changed files, keeps the checksum the game expects and writes a `.patch_N` package when needed; before writing it keeps the originals in `<program>\Data\originals` and rolls back on failure.
 - **Restore the game's files** puts the files the editor changed back to their state before installation and removes the asset patches this editor owns; other mods' files are kept.
 - **Other mods:** install the other mod first, then press Install here. This editor keeps their changes and adds yours on top; where both change the same value, this editor wins. This has not been exhaustively tested.
 - **Game updates / Steam's file verification:** the game's own files come back. Restore first, then Install again, or the game may fail to connect to EAC.
@@ -797,7 +797,7 @@ There are 4 preset scopes:
 | Save loadout | The editable loadout fields of the current save; loading only stages them, and "Write save" on the loadout page writes the file |
 | Preload plans | Package manifests, extra package choices, load targets, array edits and the preload pages' resource values |
 
-- All named presets live in `%LOCALAPPDATA%\SHODAN\StatEditor\preset_library.json` with stable ids; there is no longer a "5 per weapon" limit.
+- All named presets live in `Presets` beside the executable with stable ids; there is no longer a "5 per weapon" limit.
 - On first use, old presets in `preset_01.txt`–`preset_50.txt`, `enemy_preset_01.txt`–`enemy_preset_50.txt`, `weapon_presets.txt`, `player_save_presets.json` and `preload_config.json` are imported; the original files stay, the import source is recorded, and a restart does not import them again.
 - The library uses schema-checked JSON: write a temporary file, read it back, then replace atomically. If another editor changed the library, the write is refused.
 - Keyboard: **Enter** load, **Insert** new, **Shift+Insert** overwrite, **F2** rename, **Del** delete, **Esc** back.
@@ -822,7 +822,7 @@ See [PRESETS.md](offline/PRESETS.md).
 | Clear all changes | Drops every change the editor keeps between runs (values, passive stacks, preloads, demolition, loadouts, names and descriptions); presets and the game's files stay (asks twice) |
 | Clear the cache on close | Off by default; when enabled, unsaved edits are discarded on close and the next start reads installed numeric values from the game files |
 | Updates / Update channel | This fork does not check for updates; the options remain and never replace the local build |
-| This fork / Original repo / Logs and Presets | Open this fork's or the original repository's (SHODAN) GitHub page, or `%LOCALAPPDATA%\SHODAN\StatEditor` |
+| This fork / Original repo / Logs and Presets | Open this fork's or the original repository's (SHODAN) GitHub page, or `Data` |
 
 Settings are saved to `config.txt` immediately.
 
@@ -842,12 +842,12 @@ Settings are saved to `config.txt` immediately.
 
 ### Files and data locations
 
-All user data is in `%LOCALAPPDATA%\SHODAN\StatEditor`:
+Settings, logs, caches, game originals and installation records live in `Data` beside the program; presets live in `Presets` and names in `Names`. Offline builds do not read or automatically import AppData data. Carry these folders over when updating into a new directory; see the [portable data guide](offline/PORTABLE_DATA.md) for older installations. Paths below are relative to `Data` unless stated otherwise:
 
 | Path | Contents |
 |---|---|
 | `config.txt` | Settings, ordinary overrides, hidden tabs |
-| `preset_library.json` | Named preset library |
+| `..\Presets\` | Named presets and groups beside the executable |
 | `entity_demolition.txt` | Entity demolition overrides |
 | `entity_assets_installed.txt` | Asset patch ownership |
 | `preload_config.json` | Preload manifests, arrays and plans |
@@ -896,7 +896,7 @@ Some tests need the local game data or test fixtures; pass `--fixtures`, `--game
 
 **CI:** `.github/workflows/dev-build.yml` builds a Development build pre-release on pushes to `main`; this fork disables the client's auto-update, so a CI build never replaces the local version by itself.
 
-**Filediver (optional):** the game's archives (DSAR chunked bundles and loose archives) are read by `offline/archives.lua`; preload, entity demolition's Unit cloning, names and descriptions, vehicle physics and animation no longer need [Filediver](https://github.com/xypwn/filediver). Only when native reading fails and Filediver is configured (`SHODAN_FILEDIVER`, `tools\filediver.exe` or `%LOCALAPPDATA%\SHODAN\StatEditor\filediver path.txt`) does entity demolition fall back to it.
+**Filediver (optional):** the game's archives (DSAR chunked bundles and loose archives) are read by `offline/archives.lua`; preload, entity demolition's Unit cloning, names and descriptions, vehicle physics and animation no longer need [Filediver](https://github.com/xypwn/filediver). Only when native reading fails and Filediver is configured (`SHODAN_FILEDIVER`, `tools\filediver.exe` or `<program>\Data\filediver path.txt`) does entity demolition fall back to it.
 
 ### Repository layout
 

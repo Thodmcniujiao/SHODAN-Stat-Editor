@@ -1,6 +1,6 @@
 -- Real codec + file transactions against an in-memory filesystem. The live save is read only.
 local S=require('player_save');local D=require('demolition');local I=require('install')
-local fixture=assert(os.getenv('SHODAN_PLAYER_SAVE_FIXTURE'),'fixture path required')
+local fixture=assert(TEST_PLAYER_SAVE_FIXTURE or os.getenv('SHODAN_PLAYER_SAVE_FIXTURE'),'fixture path required')
 local f=assert(io.open(fixture,'rb'));local original=f:read('*a');f:close()
 local save=S.decode(original)
 assert(S.crc32('123456789')==0xCBF43926)
@@ -75,8 +75,15 @@ local IO=require('player_save_io');local adapter=IO.new();adapter.running=functi
 local isolated=TEST_WORK..'/transaction-fixture.sav';assert(adapter.write(isolated,original))
 local disk=S.new{io=adapter,catalog=cat,paths={isolated}}
 assert(disk:set('primary',42)and disk:commit())
+assert(disk.backup:sub(1,#I.home+1)==I.home..'/','save backup escaped portable Data')
+assert(not adapter.read(isolated..'.shodan-tmp'),'save temporary file was left behind')
 assert(S.decode(adapter.read(isolated)).data==decoded.data and adapter.read(disk.backup)==original)
 assert(disk:restore()and adapter.read(isolated)==original)
+assert(adapter.latest_backup(isolated)==disk.backup,'portable backup not rediscovered')
+assert(IO.backup_folder('C:/Steam/userdata/123/553850/remote/testament_new.sav')==
+ IO.backup_folder('E:/NewSteam/userdata/123/553850/remote/testament_new.sav'),'Steam relocation lost backup identity')
+assert(IO.backup_folder('C:/Steam/userdata/123/553850/remote/testament_new.sav')~=
+ IO.backup_folder('C:/Steam/userdata/456/553850/remote/testament_new.sav'),'Steam accounts share backups')
 local detected=IO.discover(TEST_GAME);local matched=false
 for _,path in ipairs(detected)do if path:gsub('\\','/'):lower()==fixture:gsub('\\','/'):lower()then matched=true end end
 assert(matched,'Steam userdata save discovery failed')

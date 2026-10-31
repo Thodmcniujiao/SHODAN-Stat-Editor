@@ -2,7 +2,7 @@
 -- At start the latest release is asked for in the background (shodan_hash.dll's fetch thread). When it is newer,
 -- Update downloads its zip (only from this repository's releases) and shodan_hash.dll installs it (update.c: it
 -- unpacks and checks the zip, swaps the new files in next to the program, the running exe and DLLs renamed to
--- *.old and removed at the next start) and starts the new one. Nothing in %LOCALAPPDATA%\SHODAN\StatEditor
+-- *.old and removed at the next start) and starts the new one. Nothing in the portable Data, Presets or Names folders
 -- (values, presets, originals) is touched.
 local ffi = require('ffi')
 local I = require('install')
