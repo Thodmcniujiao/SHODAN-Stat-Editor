@@ -32,4 +32,7 @@ assert(loadfile(TEST_ROOT..'/offline/weapon_component_groups.lua'))
 assert(loadfile(TEST_ROOT..'/offline/field_baselines.lua'))
 assert(loadfile(TEST_ROOT..'/offline/installed_values.lua'))
 assert(loadfile(TEST_ROOT..'/offline/parameter_preferences.lua'))
+for _,name in ipairs({'galactic_effects','galactic_effect_view','galactic_effect_data'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
+for _,name in ipairs({'planet_effects','planet_effect_view','planet_effect_data'})do assert(loadfile(TEST_ROOT..'/offline/'..name..'.lua'))end
+assert(loadfile(TEST_ROOT..'/offline/network_proxy.lua'))
 print('PASS: all offline modules and the original panel compile with the bundled LuaJIT')

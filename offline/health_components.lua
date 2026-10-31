@@ -144,7 +144,7 @@ function M.complete(c,out,zones,owners)
     local s=meta[row.id];local bucket=assert(s and s[9].bucket,'Health field has no category: '..row.id)
     row.health_path,row.health_offset,row.health_group=s[1],s[2],s[4]
     if row.storage=='f32'then
-     row.input_text=function()return string.format('%.17g',c.read(row.parts[1].field))end
+     row.input_text=function()return require('numeric_policy').input(row,c.read(row.parts[1].field))end
      local tip=row.tip_of
      row.tip_of=function()
       local lines=tip();lines[#lines+1]=V.pick(c.lang and c.lang()or'en',{

@@ -10,7 +10,7 @@ local function value(v)
  if type(v)=='number'then
   if math.abs(v)==3.4028234663852886e38 then return v<0 and'-FLT_MAX'or'FLT_MAX'end
   if v%1==0 and math.abs(v)<=9007199254740992 then return string.format('%.0f',v)end
-  return string.format('%.9g',v)
+  return require('numeric_policy').display(v)
  end
  return tostring(v)
 end

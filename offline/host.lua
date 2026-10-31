@@ -23,6 +23,7 @@ local PreloadIO=require('preload_io')
 local PlayerSave=require('player_save')
 local PlayerSaveIO=require('player_save_io')
 local EditorFooter=require('editor_footer')
+local Steam=require('steam_integration')
 local GameTexts=require('game_texts')
 local Physics=require('physics')
 local LOCAL_ENTITY_EXTENSION = true
@@ -43,9 +44,9 @@ local BACK = { 255, 12, 15, 19 }
 local RED = { 255, 255, 72, 60 }   -- the Enemy Editor's (editor.lua's red)
 local GOLD, WHITE, MUTED, WARN, GOOD = { 255, 255, 213, 0 }, { 255, 238, 242, 246 }, { 255, 153, 171, 184 },
                                         { 255, 255, 150, 60 }, { 255, 120, 220, 140 }
--- This fork's own release (CHANGELOG.md: "v0.0.8 · Thodmc Reorganized"): the window title shows it instead of the
+-- This fork's own release: the window title shows it instead of the
 -- panel's version and the upstream dev commit, then the build's stamp.
-local FORK_VERSION = '0.0.8'
+local FORK_VERSION = '0.0.8.5'
 
 local function centred(text, y, size, c)
     shim.text(text, (shim.w - shim.text_width(text, size)) / 2, y, size, c)
@@ -83,11 +84,11 @@ end
 
 local function main()
     local startup_started = clock()
-    shim.open('SHODAN Stat Editor Offline', saved_place())
+    shim.open('SHODAN Stat Editor', saved_place())
     shim.pump()
     I.mkdirs(I.home)
     log('portable data: ' .. I.home)
-    screen({ 'SHODAN Stat Editor Offline', 'Looking for Helldivers 2...' })
+    screen({ 'SHODAN Stat Editor', 'Looking for Helldivers 2...' })
     local exe_dir = Paths.root
     if not rawget(_G,'SHODAN_PRESET_DIRECTORY')then rawset(_G,'SHODAN_PRESET_DIRECTORY',Paths.presets)end
     -- Portable name pack: <exe>/Names/EntityNames and <exe>/Names/TypeIdNames.
@@ -107,7 +108,7 @@ local function main()
     end
     log('game: ' .. game)
     log('hash search: ' .. (G.native and 'native, every core' or 'Lua (shodan_hash.dll not found)'))
-    screen({ 'SHODAN Stat Editor Offline', 'Reading the game\'s data files...' })
+    screen({ 'SHODAN Stat Editor', 'Reading the game\'s data files...' })
     shim.pump()
     local originals, ours, problems, count, installed = I.originals(game)
     if count == 0 then fatal('No game data files in ' .. game) end
@@ -151,7 +152,7 @@ local function main()
     end
 
     -- ------------------------------------------------------------ the editor
-    screen({ 'SHODAN Stat Editor Offline', 'Finding the stats...' })
+    screen({ 'SHODAN Stat Editor', 'Finding the stats...' })
     rawset(_G, 'SHODAN_OFFLINE', true)
     -- the panel's first language (until one is chosen in Settings): Windows' display language, if translated
     pcall(ffi.cdef, 'uint16_t GetUserDefaultUILanguage(void);')
@@ -174,11 +175,20 @@ local function main()
     if not ok then fatal('Stat Editor did not start:\n' .. tostring(err)) end
     local state = rawget(_G, 'ShodanStatEditor')
     if type(state) ~= 'table' then fatal('Stat Editor did not start (no state).') end
+    Steam.disable_auto=function()if state.set_steam_auto_config then state.set_steam_auto_config(false)end end
+    state.host_steam=function(action)
+        local ok,why
+        if action=='restore'then ok,why=Steam.restore()else ok,why=Steam.repair()end
+        -- The full state is also displayed on the planet assignments page.
+        shim.message_box(Steam.status().message,ok and 0x40 or 0x30)
+        return ok,why
+    end
     local build = U.build(here)   -- app/build.txt: version, commit, channel, dev
     -- The window's title: this fork's own release (CHANGELOG.md), not the panel's version or the upstream dev commit,
     -- then when it was packed. build_release.bat stamps that.
-    shim.set_title('SHODAN Stat Editor Offline ' .. FORK_VERSION .. ' Reorganized by Thodmc'
-                   .. (build.built and ' build ' .. build.built or ''))
+    state.window_title='SHODAN Stat Editor ' .. FORK_VERSION .. ' Reorganized by Thodmc'
+                   .. (build.built and ' build ' .. build.built or '')
+    shim.set_title(state.window_title)
     -- the host's own text in the panel's language, drawn with its font
     local function tr(text) return type(state.tr) == 'function' and state.tr(text) or text end
     if type(state.lang) == 'function' then shim.lang = state.lang end
@@ -454,6 +464,15 @@ local function main()
         local function L(en, zhs, zht) return lang == 'zh-Hans' and zhs or lang == 'zh-Hant' and zht or en end
         if which == 'launch_game' then
             if I.game_running() then say(L('Helldivers 2 is already running.', '游戏已在运行。', '遊戲已在執行。'), WARN)
+            elseif require('network_proxy').enabled()and not require('network_proxy').steam_ready()then
+                local s=Steam.poll(type(state.steam_auto_config)~='function'or state.steam_auto_config(),true)
+                say(s.message..' '..L('See planet assignments for Repair / Restart Steam.','可在“星球词条分配”页修复接入或重启 Steam 并修复。','可在「星球詞條分配」頁修復接入或重啟 Steam 並修復。'),WARN)
+            elseif require('network_proxy').enabled()and not require('network_proxy').status().alive then
+                local ok,why=require('network_proxy').start()
+                if ok then bar.proxy_launch_pending=clock()+45;say(L('Preparing the local proxy before Steam launch…','正在准备本机代理，就绪后通过 Steam 启动…','正在準備本機代理，就緒後透過 Steam 啟動…'),MUTED)
+                else say(tostring(why),WARN)end
+            elseif require('network_proxy').enabled()and not require('network_proxy').status().trusted then
+                say(L('Trust this program\'s local CA on the Planet effects page first.','请先在“星球词条分配”页信任本机 CA。','請先在「星球詞條分配」頁信任本機 CA。'),WARN)
             elseif I.launch_game() then say(L('Starting Helldivers 2 through Steam...', '正在通过 Steam 启动游戏…', '正在透過 Steam 啟動遊戲…'), GOOD)
             else say(L('Could not ask Steam to start the game.', '无法让 Steam 启动游戏。', '無法讓 Steam 啟動遊戲。'), WARN) end
             return
@@ -726,6 +745,19 @@ local function main()
     local last = clock()
     while shim.pump() do
         local now = clock()
+        if state.phase=='ready'then Steam.poll(type(state.steam_auto_config)~='function'or state.steam_auto_config())end
+        if bar.proxy_launch_pending then
+            local proxy=require('network_proxy').status()
+            if proxy.alive and proxy.trusted then
+                bar.proxy_launch_pending=nil
+                if not require('network_proxy').steam_ready()then say('Steam 桥接配置已变化，游戏未启动。',WARN)
+                elseif I.launch_game()then say('代理已就绪，正在通过 Steam 启动游戏…',GOOD)else say('Steam 启动失败。',WARN)end
+            elseif proxy.alive and not proxy.trusted then
+                bar.proxy_launch_pending=nil;say('请先在“星球词条分配”页点击“信任本机 CA”，再启动游戏。',WARN)
+            elseif now>bar.proxy_launch_pending then
+                bar.proxy_launch_pending=nil;say('代理未能在 45 秒内就绪；游戏未启动。',WARN)
+            end
+        end
         sync_component_page()
         if demolition_on and demolition then demolition:update(shim)
         else update(math.min(0.1, now - last)) end
@@ -858,6 +890,9 @@ local function main()
         local ok, why = pcall(state.host_closing)
         if not ok then log('closing: ' .. tostring(why)) end
     end
+    local stopped, stop_error = require('network_proxy').editor_closed(
+        type(state.proxy_stop_on_exit) == 'function' and state.proxy_stop_on_exit())
+    if not stopped then log('closing proxy: ' .. tostring(stop_error)) end
     if bar.restart then
         local go = true
         if go and not U.launch(bar.restart) then
@@ -870,5 +905,5 @@ end
 local ok, err = xpcall(main, debug.traceback)
 if not ok then
     log('error: ' .. tostring(err))
-    shim.message_box('SHODAN Stat Editor Offline stopped:\n\n' .. tostring(err), 0x10)
+    shim.message_box('SHODAN Stat Editor stopped:\n\n' .. tostring(err), 0x10)
 end

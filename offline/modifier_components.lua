@@ -150,6 +150,7 @@ function M.build(c,page,txt,PC,mission_fields)
    local name=string.format('Modifier · %s%08X',title and(title[1]..' · ')or'',id)
    if title then M.titles[name]={string.format('星球效果修饰 · %s · %08X',title[2],id),string.format('星球效果修飾 · %s · %08X',title[2],id)}end
    local p=page('PlanetModifiers',name,'modifier/'..ordinal..'/'..id)
+   p.modifier_id=id
    p.note_of=function()return txt('Definition selected by runtime ID; applies deltas to the entities listed. This is not a per-planet attachment list.',
     '运行时按编号选用的定义：把差异套用到所列实体；此处不是每颗星球的携带列表。','執行時按編號選用的定義：把差異套用到所列實體；此處不是每顆星球的攜帶列表。')end
    p.ensure_rows=function()

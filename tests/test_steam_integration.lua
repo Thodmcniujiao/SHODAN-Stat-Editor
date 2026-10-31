@@ -1,0 +1,20 @@
+-- Exercise the actual Windows file lock/atomic replace only inside TEST_WORK.
+local S=require('steam_integration')
+local F=require('preset_files')
+local I=require('install')
+assert(TEST_WORK);I.mkdirs(TEST_WORK)
+require('portable_io_guard')
+local path=TEST_WORK..'/Steam配置.vdf'
+assert(F.write(path,'original'))
+assert(S.commit(path,'original','updated',function()return true end))
+assert(F.read(path)=='updated'and not F.read(path..'.shodan-tmp'))
+assert(not S.commit(path,'original','overwrite',function()return true end))
+assert(F.read(path)=='updated')
+assert(not S.commit(path,'updated','overwrite',function()return false end))
+assert(F.read(path)=='updated')
+local calls=0
+assert(not S.commit(path,'updated','overwrite',function()calls=calls+1;return calls==1 end))
+assert(calls==2 and F.read(path)=='updated'and not F.read(path..'.shodan-tmp'))
+assert(S.commit(path,'updated','restored',function()return true end))
+assert(F.read(path)=='restored','failed operation leaked a file handle')
+print('PASS native Steam transaction: Unicode file, exclusive writer lock, atomic replace, stale data/live-start guards, temp cleanup and handle release; no real Steam writes')

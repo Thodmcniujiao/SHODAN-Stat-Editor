@@ -6,11 +6,14 @@ local PC=require('preload_components')
 local MODS=require('modifier_components')
 local MODDATA=require('modifier_data')
 local ASSIGN=require('modifier_assignments')
+local EFFECTS=require('galactic_effect_view')
 local M={data=DATA,pages={},ROOTS={},ENTITY_TYPES={},FILES={},labels={
  PlanetData={'Planet generation','星球生成','星球生成'},PlanetTypes={'Planet types','星球类型','星球類型'},
  PlanetEnvironment={'Environment','环境设置','環境設定'},PlanetWeather={'Weather','天气设置','天氣設定'},
  PlanetSpace={'Solar / galactic','星系表现','星系表現'},PlanetRegions={'Regions / territory','区域领土','區域領土'},
  PlanetComponents={'Environment ECS','环境组件','環境組件'},
+ PlanetEffectIds={'Effect ID definitions','词条 ID 定义','詞條 ID 定義'},
+ PlanetEffectAssignments={'Planet effects','星球词条分配','星球詞條分配'},
  PlanetModifiers=MODS.labels.PlanetModifiers,OperationModifiers=MODS.labels.OperationModifiers,
  PlanetModifierLists=ASSIGN.labels.PlanetModifierLists,GalacticModifierLists=ASSIGN.labels.GalacticModifierLists}}
 local ROOT_ZH={LevelGenerationPlanetData='星球生成',SolarSystemObjectTypes='星球类型',EnvironmentSettings='环境',WeatherSettings='天气',
@@ -201,7 +204,7 @@ end
 function M.build(c)
  for _,list in pairs(M.pages)do for _,p in ipairs(list)do if c.by_hash[p.hash]==p then c.by_hash[p.hash]=nil end end end
  M.pages={PlanetData={},PlanetTypes={},PlanetEnvironment={},PlanetWeather={},PlanetSpace={},PlanetRegions={},PlanetComponents={},
-  PlanetModifiers={},OperationModifiers={},PlanetModifierLists={},GalacticModifierLists={}}
+  PlanetEffectAssignments={},PlanetEffectIds={},PlanetModifiers={},OperationModifiers={},PlanetModifierLists={},GalacticModifierLists={}}
  local function tx(en,zh)return pick(c.lang(),en,zh)end
  local owners={};for _,p in pairs(c.by_hash)do for _,r in ipairs(p.rows or{})do for _,part in ipairs(r.parts or{})do if not owners[part.field.key]then owners[part.field.key]={weapon=p,part=part}end end end end
  local function page(slot,name,key)
@@ -390,10 +393,14 @@ function M.build(c)
  if not ok and c.log then c.log('planet: modifiers rejected: '..tostring(why))end
  local oka,whya=pcall(ASSIGN.build,c,page,txt,PC)
  if not oka and c.log then c.log('planet: modifier attachments rejected: '..tostring(whya))end
+ local oke,whye=pcall(EFFECTS.build,c,page,txt,M.pages)
+ if not oke and c.log then c.log('planet: galactic effects rejected: '..tostring(whye))end
  for _,list in pairs(M.pages)do table.sort(list,function(a,b)return a.name:lower()<b.name:lower()end)end
  return M.pages
 end
 function M.translate_name(v,lang)
+ local target=require('planet_effect_view').translate_name(v,lang);if target then return target end
+ local effect=EFFECTS.translate_name(v,lang);if effect then return effect end
  local assignment=ASSIGN.translate_name(v,lang);if assignment then return assignment end
  local t=MODS.titles[v];if t then return lang=='zh-Hans'and t[1]or lang=='zh-Hant'and t[2]or nil end
  local root,name=v:match('^(%w+) · (.*)$');if not(root and ROOT_ZH[root])then return end
@@ -411,9 +418,10 @@ function M.list(tab,query,tr)
  local list=M.pages[tab];if not list then return end
  if not query or query==''then return list end
  local out={};for _,p in ipairs(list)do
-  local hay=(p.search..' '..(tr and tr(p.name)or'')..' '..(p.entity_hash or'')):lower();local found=true
+  local hay=(p.search..' '..(p.search_extra and p.search_extra()or'')..' '..(tr and tr(p.name)or'')..' '..(p.entity_hash or'')):lower();local found=true
   for word in query:lower():gmatch('%S+')do if not hay:find(word,1,true)then found=false;break end end
   if found then out[#out+1]=p end
  end;return out
 end
+function M.network_status_revision()return require('planet_effect_view').status_revision()end
 return M

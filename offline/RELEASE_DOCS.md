@@ -11,6 +11,7 @@
 - [刷怪编辑器](SPAWN_EDITOR.md)
 - [存档与配装编辑](PLAYER_SAVE.md)
 - [任务与星球设置](PLANET_SETTINGS.md)
+- [指定星球添加词条、独立图标与实际效果定义、可选网络接入](PLANET_EFFECT_IDS.md)
 - [预载与资源包](PRELOAD_COMPONENTS.md)
 - [修饰符与挂载](MODIFIER_ATTACHMENTS.md)
 

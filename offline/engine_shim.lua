@@ -77,7 +77,7 @@ for _, declaration in ipairs({
 
 local user, gdi, kernel = ffi.load('user32'), ffi.load('gdi32'), ffi.C
 
-local M = { window = nil, w = 0, h = 0, title = 'SHODAN Stat Editor Offline Reorganized by Thodmc' }
+local M = { window = nil, w = 0, h = 0, title = 'SHODAN Stat Editor Reorganized by Thodmc' }
 local function window_title(text)
     text = tostring(text or M.title)
     local suffix = 'Reorganized by Thodmc'

@@ -20,6 +20,14 @@ files = {
 for name in sorted(os.listdir(HERE)):
     if name.endswith('.lua') and os.path.isfile(os.path.join(HERE, name)):
         files['app/' + name] = os.path.join(HERE, name)
+files['app/network/galactic_effect_proxy.py'] = os.path.join(HERE, 'network', 'galactic_effect_proxy.py')
+files['app/network/run_effect_proxy.ps1'] = os.path.join(HERE, 'network', 'run_effect_proxy.ps1')
+files['app/network/run_game_with_effect_proxy.ps1'] = os.path.join(HERE, 'network', 'run_game_with_effect_proxy.ps1')
+files['app/network/mitmdump.exe'] = os.path.join(HERE, 'runtime', 'network', 'mitmdump.exe')
+files['app/network/steam_bridge.exe'] = os.path.join(HERE, 'launcher', 'steam_bridge.exe')
+files['app/network/runtime.json'] = os.path.join(HERE, 'runtime', 'network', 'runtime.json')
+files['licenses/mitmproxy.txt'] = os.path.join(HERE, 'runtime', 'network', 'LICENSE.txt')
+files['PLANET_EFFECT_IDS.md'] = os.path.join(HERE, 'PLANET_EFFECT_IDS.md')
 files['app/entity_names.tsv'] = os.path.join(HERE, 'entity_names.tsv')
 files['app/entity_catalog.default.json'] = os.path.join(HERE, 'entity_catalog.default.json')
 # Portable planning-name pack beside the exe (Names/EntityNames, Names/TypeIdNames).
@@ -66,7 +74,7 @@ files = {
 files['docs/README.md'] = os.path.join(HERE, 'RELEASE_DOCS.md')
 files['docs/PORTABLE_DATA.md'] = os.path.join(HERE, 'PORTABLE_DATA.md')
 DEV = re.compile(r'[ \t]*--\[\[DEV\]\].*?--\[\[/DEV\]\][^\n]*\n', re.S)   # test hooks: not in the package
-VERSION = re.search(r"version = '([\d.]+)'", open(PANEL, encoding='utf-8').read()).group(1)
+VERSION = re.search(r"local FORK_VERSION = '([\d.]+)'", open(os.path.join(HERE, 'host.lua'), encoding='utf-8').read()).group(1)
 readme = open(os.path.join(HERE, 'RELEASE_README.txt'), encoding='utf-8').read()
 # app/build.txt: which build this is, for the updater (a development build is new when its commit differs).
 # The commit: SSEO_COMMIT (the CI's), else the GitHub repository's HEAD (package after committing a release).
@@ -93,7 +101,7 @@ name = sys.argv[1] if len(sys.argv) > 1 else 'SHODAN-Stat-Editor-Offline-v' + VE
 out = os.path.join(RELEASE, name + '.zip')
 with zipfile.ZipFile(out, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as z:
     for arc, src in sorted(files.items()):
-        if arc.startswith('app/') and arc != 'app/stat_editor.lua':
+        if arc.startswith('app/') and arc != 'app/stat_editor.lua' and not arc.endswith(('.exe','.dll')):
             text = DEV.sub('', open(src, encoding='utf-8').read())
             assert '--[[DEV]]' not in text and 'SHODAN_HOST_TEST' not in text, arc
             z.writestr(TOP + '/' + arc, text)

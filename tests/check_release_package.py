@@ -20,6 +20,8 @@ def main():
         'lua51.dll': root / 'offline/runtime/lua51.dll',
         'libsodium.dll': root / 'offline/runtime/libsodium.dll',
         'shodan_hash.dll': root / 'offline/launcher/shodan_hash.dll',
+        'app/network/mitmdump.exe': root / 'offline/runtime/network/mitmdump.exe',
+        'app/network/steam_bridge.exe': root / 'offline/launcher/steam_bridge.exe',
     }
     dev_block = re.compile(r'[ \t]*--\[\[DEV\]\].*?--\[\[/DEV\]\][^\n]*\n', re.S)
     with zipfile.ZipFile(args.archive) as archive:
@@ -42,11 +44,14 @@ def main():
             assert path.suffix.lower() not in {'.sav', '.dl_bin', '.dl_typelib', '.dmp', '.log', '.tmp', '.lnk', '.xlsx', '.xlsm', '.pdb'}, name
             if path.suffix.lower() in {'.exe', '.dll'}:
                 assert relative in binary_sources, name
-            elif path.suffix.lower() in {'.lua', '.json', '.txt', '.md', '.tsv'}:
+            elif path.suffix.lower() in {'.lua', '.json', '.txt', '.md', '.tsv', '.py', '.ps1'}:
                 assert not secrets.search(archive.read(name)), f'Credential-shaped text in {name}'
         for relative, source in binary_sources.items():
             assert archive.read(top + relative) == source.read_bytes(), relative
         assert archive.read(top + 'app/stat_editor.lua') == (root / 'src/stat_editor_offline.lua').read_bytes()
+        for source in (root / 'offline/network').iterdir():
+            if source.suffix in {'.py', '.ps1'}:
+                assert archive.read(top + 'app/network/' + source.name) == source.read_bytes()
         for source in (root / 'offline').glob('*.lua'):
             expected = dev_block.sub('', source.read_text(encoding='utf-8'))
             assert archive.read(top + 'app/' + source.name).decode('utf-8') == expected, source.name
@@ -55,6 +60,8 @@ def main():
             assert top + required in names, required
         metadata = dict(line.split('=', 1) for line in archive.read(top + 'app/build.txt').decode().splitlines() if '=' in line)
         assert metadata['commit'] == args.commit and metadata['channel'] == args.channel, metadata
+        version = re.search(r"local FORK_VERSION = '([\d.]+)'", (root / 'offline/host.lua').read_text(encoding='utf-8')).group(1)
+        assert metadata['version'] == version, 'Package and window versions differ'
         assert re.fullmatch(r'\d{8}-\d{6}', metadata['built']), 'Missing window build stamp'
     print(f'PASS clean release ZIP: {len(names)} files; exact source/runtime, portable modules, no personal data; SHA256 {hashlib.sha256(args.archive.read_bytes()).hexdigest()}')
 

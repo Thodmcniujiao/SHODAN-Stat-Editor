@@ -32,6 +32,14 @@ $files['libsodium.dll']      = In-Root 'offline\runtime\libsodium.dll'
 $files['shodan_hash.dll']    = In-Root 'offline\launcher\shodan_hash.dll'
 $files['app\stat_editor.lua'] = In-Root 'src\stat_editor_offline.lua'
 foreach ($m in $modules) { $files['app\' + $m + '.lua'] = In-Root ('offline\' + $m + '.lua') }
+$files['app\network\galactic_effect_proxy.py'] = In-Root 'offline\network\galactic_effect_proxy.py'
+$files['app\network\run_effect_proxy.ps1'] = In-Root 'offline\network\run_effect_proxy.ps1'
+$files['app\network\run_game_with_effect_proxy.ps1'] = In-Root 'offline\network\run_game_with_effect_proxy.ps1'
+$files['app\network\mitmdump.exe'] = In-Root 'offline\runtime\network\mitmdump.exe'
+$files['app\network\steam_bridge.exe'] = In-Root 'offline\launcher\steam_bridge.exe'
+$files['app\network\runtime.json'] = In-Root 'offline\runtime\network\runtime.json'
+$files['licenses\mitmproxy.txt'] = In-Root 'offline\runtime\network\LICENSE.txt'
+$files['PLANET_EFFECT_IDS.md'] = In-Root 'offline\PLANET_EFFECT_IDS.md'
 $files['app\entity_names.tsv']  = In-Root 'offline\entity_names.tsv'
 $files['app\entity_catalog.default.json'] = In-Root 'offline\entity_catalog.default.json'
 $files['ENTITY_DEMOLITION.md']  = In-Root 'offline\ENTITY_DEMOLITION.md'
@@ -86,7 +94,8 @@ if ($missing.Count -gt 0) { Fail ("缺少源文件：`n  " + ($missing -join "`n
 
 $panel = $files['app\stat_editor.lua']
 $panelText = [IO.File]::ReadAllText($panel, $utf8)
-if ($panelText -match "version = '([\d.]+)'") { $version = $Matches[1] } else { Fail '在 src\stat_editor_offline.lua 里找不到版本号' }
+$hostText = [IO.File]::ReadAllText((In-Root 'offline\host.lua'), $utf8)
+if ($hostText -match "local FORK_VERSION = '([\d.]+)'") { $version = $Matches[1] } else { Fail '在 offline\host.lua 里找不到本 fork 版本号' }
 $srcHash = Sha $panel
 
 # ------------------------------------------------------------------ 2. 打包
@@ -246,4 +255,4 @@ foreach ($place in $places) {
 }
 if ($found -eq 0) { Say '没有找到指向编辑器的快捷方式。' }
 Say ''
-Say ('完成。请用项目根目录的“' + $top + '.lnk”启动；窗口标题会显示“SHODAN Stat Editor Offline 0.0.8 Reorganized by Thodmc build ' + $stamp + '”。') 'Cyan'
+Say ('完成。请用项目根目录的“' + $top + '.lnk”启动；窗口标题会显示“SHODAN Stat Editor ' + $version + ' Reorganized by Thodmc build ' + $stamp + '”。') 'Cyan'

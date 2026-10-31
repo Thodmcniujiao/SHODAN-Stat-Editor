@@ -7,6 +7,11 @@ I.mkdirs(I.home); I.mkdirs(TEST_WORK)
 assert(I.home:gsub('\\', '/'):sub(1, #TEST_WORK + 1) == TEST_WORK .. '/')
 if not app then require('user_paths').names = TEST_WORK .. '/program/Names' end
 require('portable_io_guard')
+-- Desktop smoke tests never configure the user's actual Steam installation.
+local steam=require('steam_integration')
+steam.poll=function(enabled)steam.test_enabled=enabled;return{state='waiting',message='测试：等待 Steam 退出。'}end
+steam.status=function()return{state='waiting',message='测试：等待 Steam 退出。'}end
+steam.ready=function()return false end
 I.find_game = function() return TEST_GAME .. '/data/game' end
 I.write_files = function() error('test must not write game files') end
 require('entity_assets').begin = function() error('test must not write game assets') end
@@ -33,7 +38,7 @@ loadfile = function(path, ...)
         return loadstring(source .. [[
 TEST_PARAMETERS={ui=ui,click=click,keyboard=keyboard,settings=settings,by_hash=by_hash,weapons=weapons,
  select=select_weapon,row_value=row_value,change=change,MOD=MOD,reset_row=reset_row,presets=presets,
- read=read_field,default_of=default_of}
+ read=read_field,default_of=default_of,format=fmt,save=save_config}
 ]], '@' .. path)
     end
     return real_loadfile(path, ...)

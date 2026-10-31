@@ -1,6 +1,36 @@
 -- Storage limits shared by every view and writer. Game tuning ranges are not type limits.
 local M={F32_MAX=3.4028234663852886e38}
 local float=require('ffi').new('float[1]')
+-- Display simple decimals within one float32 storage unit, without dropping
+-- meaningful digits from less regular values or rounding tiny values to zero.
+function M.display(value)
+ if value==nil then return '?'end
+ if value~=value or math.abs(value)==math.huge then return tostring(value)end
+ if math.abs(value)==M.F32_MAX then return value<0 and'-FLT_MAX'or'FLT_MAX'end
+ if value==0 then return'0'end
+ if value%1==0 and math.abs(value)<=9007199254740992 then return string.format('%.0f',value)end
+ local _,exponent=math.frexp(math.abs(value))
+ local unit=math.max(2^-149,math.ldexp(1,exponent-24))
+ for digits=1,9 do
+  local text=string.format('%.'..digits..'g',value)
+  if math.abs(tonumber(text)-value)<=unit then return text end
+ end
+ return string.format('%.9g',value)
+end
+-- For arithmetic, use the shortest decimal which reproduces the exact stored
+-- float. Adding 0.1 twice to float32(200) must equal float32(200.2), rather than
+-- carrying float32(200.1)'s binary residue into the next addition.
+function M.increment(value,amount)
+ float[0]=value
+ if tonumber(float[0])==value then
+  for digits=1,9 do
+   local decimal=tonumber(string.format('%.'..digits..'g',value))
+   float[0]=decimal
+   if tonumber(float[0])==value then return decimal+amount end
+  end
+ end
+ return value+amount
+end
 local R={u8={0,255},i8={-128,127},u16={0,65535},i16={-32768,32767},
  u32={0,4294967295},enum={0,4294967295},i32={-2147483648,2147483647},flag={0,1}}
 local SELECTOR={gun=true,grenade=true,tier=true}
@@ -79,6 +109,7 @@ function M.accept(row,c)
  return c:match('^[%da-fA-FxXeE%.,%+%-]$')~=nil
 end
 function M.input(row,value)
+ if value~=nil and row.storage=='f32'and math.abs(value)~=M.F32_MAX then return M.display(value)end
  if value~=nil and M.bounds(row.storage)then return string.format('%.17g',value)end
 end
 return M

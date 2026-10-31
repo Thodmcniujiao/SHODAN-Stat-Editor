@@ -67,12 +67,20 @@ jobs:
         run: |
           $tests = @('check_syntax', 'test_numeric_policy', 'test_field_baselines',
             'test_weapon_component_groups', 'test_parameter_preferences', 'test_config_migration',
-            'test_portable_data', 'test_portable_save', 'test_startup_failure')
+            'test_portable_data', 'test_portable_save', 'test_startup_failure', 'test_galactic_effects', 'test_planet_effects', 'test_proxy_close', 'test_steam_launch_options', 'test_steam_integration', 'test_steam_restart')
           foreach ($test in $tests) {
             $work = Join-Path $env:RUNNER_TEMP "shodan-tests/$test"
             python tests/run_lua.py "tests/$test.lua" --work $work --isolated-profile
             if ($LASTEXITCODE -ne 0) { throw "$test failed" }
           }
+          python -m unittest discover -s tests -p test_galactic_effect_proxy.py
+          if ($LASTEXITCODE -ne 0) { throw 'Effect proxy tests failed' }
+          python -m unittest discover -s tests -p test_planet_effect_proxy.py
+          if ($LASTEXITCODE -ne 0) { throw 'Planet assignment proxy tests failed' }
+          python -m unittest discover -s tests -p test_proxy_tls.py
+          if ($LASTEXITCODE -ne 0) { throw 'Proxy TLS tests failed' }
+          python -m unittest discover -s tests -p test_effect_launch_wrapper.py
+          if ($LASTEXITCODE -ne 0) { throw 'Effect launch wrapper tests failed' }
 
       - name: Package and verify clean archive
         shell: pwsh
@@ -80,6 +88,8 @@ jobs:
           SSEO_CHANNEL: dev
           SSEO_COMMIT: ${{ github.sha }}
         run: |
+          python tools/fetch_proxy_runtime.py
+          if ($LASTEXITCODE -ne 0) { throw 'Proxy runtime verification failed' }
           $name = "SHODAN-Stat-Editor-Offline-dev-" + $env:SSEO_COMMIT.Substring(0, 12)
           $env:SSEO_BUILT = (Get-Date).ToUniversalTime().ToString('yyyyMMdd-HHmmss')
           python offline/package.py $name

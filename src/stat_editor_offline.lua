@@ -18770,7 +18770,7 @@ local config_dirty_at = nil
 -- runs when it closes (off: they stay, as before).
 local settings = { changes = true, block_input = true, size = 80, side = 'right', opacity = 90,
                    component_show_missing = true, component_category = 'all', weapon_category = 'all', enemy_category = 'all',
-                   arc_mp = true, updates = 'ask', update_channel = 'releases', cache_clear_on_exit = false,
+                   arc_mp = true, updates = 'ask', update_channel = 'releases', cache_clear_on_exit = false, proxy_stop_on_exit = false, steam_auto_config = true,
                    stacks = {}, own_off = {}, hidden = {}, lang = MOD.lang or MOD.offline and rawget(_G, 'SHODAN_OFFLINE_LANG') or 'en',
                    last = { stat = {}, enemy = {} }, enemy_last = false,
                    -- the settings page's two links: this fork, then the original it is built on
@@ -18982,6 +18982,8 @@ local function save_config()
         lines[#lines + 1] = 'updates ' .. settings.updates
         lines[#lines + 1] = 'update_channel ' .. settings.update_channel
         lines[#lines + 1] = 'cache_clear_on_exit ' .. onoff(settings.cache_clear_on_exit)
+        lines[#lines + 1] = 'proxy_stop_on_exit ' .. onoff(settings.proxy_stop_on_exit)
+        lines[#lines + 1] = 'steam_auto_config ' .. onoff(settings.steam_auto_config)
         -- passive_stack <passive id> <passive id>,<passive id>...: the passives stacked on it
         local ids, NAMES = {}, KINDS[TYPES.passive].NAMES
         for id in pairs(settings.stacks) do ids[#ids + 1] = id end
@@ -19068,8 +19070,11 @@ local function load_config()
         end
         local own = line:match('^%s*passive_own%s+(%d+)%s+off%s*$')
         if own and MOD.offline then settings.own_off[tonumber(own)], known = true, true end
-        if name == 'changes' or name == 'block_input' then
-            settings[name] = value ~= 'off'
+        if name == 'changes' then
+            settings.changes = MOD.offline or value ~= 'off'
+            known = true
+        elseif name == 'block_input' then
+            settings.block_input = value ~= 'off'
             known = true
         elseif name == 'remember' then   -- the old Settings choice: always on now
             known = true
@@ -19080,6 +19085,12 @@ local function load_config()
             known = true
         elseif name == 'cache_clear_on_exit' then
             settings.cache_clear_on_exit = value ~= 'off'
+            known = true
+        elseif name == 'proxy_stop_on_exit' then
+            settings.proxy_stop_on_exit = value == 'on'
+            known = true
+        elseif name == 'steam_auto_config' then
+            settings.steam_auto_config = value ~= 'off'
             known = true
         elseif name == 'updates' and (value == 'ask' or value == 'auto') then
             settings.updates = value
@@ -20054,6 +20065,8 @@ local function prepare(deadline)
                 bytes=function(kind)local t=tables[kind];return api.read(t.copies[1]+HEADER_BYTES,t.payload)end})
             MOD.planet.build({tables=tables,kinds=KINDS,weapons=weapons,by_hash=by_hash,field_at=field_at,
                 read=read_field,add_row=add_row,default_of=default_of,
+                open_page=function(page)return MOD.open_stratagem_entity(page)end,
+                copy_text=function(text)return MOD.clipboard.copy(text)end,
                 schemas=(rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')or{}).schemas,
                 names=rawget(_G,'SHODAN_COMPONENT_NAMES'),lang=function()return settings.lang end,log=log,
                 bytes=function(kind)local t=tables[kind];return api.read(t.copies[1]+HEADER_BYTES,t.payload)end})
@@ -20509,6 +20522,7 @@ MOD.nav.PAGES = {
         -- regeneration, position and effects come from the server, so they are not here (the pages' note says so).
         { name = { 'Planet settings', '星球设置', '星球設置' },
             tabs = { 'PlanetData', 'PlanetModifiers', 'PlanetEnvironment', 'PlanetWeather', 'PlanetTypes', 'PlanetSpace', 'PlanetRegions', 'PlanetComponents' } },
+        { name = { 'Planet effects', '星球词条', '星球詞條' }, tabs = { 'PlanetEffectAssignments', 'PlanetEffectIds' } },
         { name = { 'Local environment entities', '本地环境实体', '本機環境實體' }, tabs = { 'PlanetModifierLists', 'GalacticModifierLists' } },
         { name = { 'Campaign editing', '战役编辑', '戰役編輯' }, todo = {
             { note = { 'Applies from the next map.', '需下一次地图', '需下一次地圖' }, items = { { 'Active', '活跃', '活躍' }, { 'Planet', '行星', '行星' }, { 'Event flag', '活动标识', '活動標識' }, { 'Count', '计数', '計數' }, { 'Type', '类型', '類型' }, { 'Faction', '种族', '種族' } } },
@@ -21184,7 +21198,7 @@ function MOD.record_names.seed_tables()
         if list[1]then MOD.record_names.seed(list[1].component_type,entries)end
     end
 end
-function MOD.component_rows()return(MOD.component_kind()or MOD.record_names.is_tab(ui.tab))and 21 or(MOD.weapon_browser_active()or MOD.enemy_browser())and 26 or LIST_ROWS end
+function MOD.component_rows()return(MOD.component_kind()or MOD.record_names.is_tab(ui.tab)or ui.tab=='PlanetEffectIds'or ui.tab=='PlanetEffectAssignments')and 21 or(MOD.weapon_browser_active()or MOD.enemy_browser())and 26 or LIST_ROWS end
 local W, H = 1000, 980       -- panel size in its own units
 
 -- The weapons (or stratagems) of a tab; tab '?search': those of every tab whose name holds every
@@ -21446,7 +21460,7 @@ end
 local function fmt(v, storage)
     if v == nil then return '?' end
     if storage=='f32'and math.abs(v)==3.4028234663852886e38 then return v<0 and'-FLT_MAX'or'FLT_MAX'end
-    if storage=='f32' then return string.format('%.9g',v)end
+    if storage=='f32' then return MOD.numeric.display(v)end
     if storage == 'gun' then   -- its place in the list of weapons
         local g = MOD.enemy.gun_choices().by_id[v]
         return g and ('#' .. g.n) or '?'
@@ -21578,6 +21592,9 @@ function MOD.parameter_name_finish(save, reset)
 end
 
 local function select_weapon(weapon)
+    if weapon and weapon.on_select then
+        local ok,why=weapon.on_select();if not ok then MOD.notify(tostring(why),6)end
+    end
     if weapon and weapon.ensure_rows then weapon.ensure_rows() end
     if weapon and weapon.sync_rows then weapon.sync_rows() end
     MOD.parameter_refresh(weapon)
@@ -21616,6 +21633,13 @@ end
 
 -- Direct jump by enum/record row id (or a component EntityHash, hex or decimal): 轨道飞鹰 / 游戏数据 lists.
 function MOD.record_names.jump(tab, text)
+    if tab=='PlanetEffectIds'then
+        local id=tonumber(text)
+        return id and require('galactic_effect_view').by_id[id]or nil
+    end
+    if tab=='PlanetEffectAssignments'then
+        local id=tonumber(text);return id and require('planet_effect_view').by_index[id]or nil
+    end
     local kind=MOD.component_kind(tab)
     if kind and MOD.component_catalog then
         for _,hash in ipairs(MOD.name_ids.hashes(text))do
@@ -21961,7 +21985,8 @@ local function change(row, delta_sign, big, exact)
         ui.version = ui.version + 1
         return
     end
-    local target = exact or current + delta_sign * step_of(row, current, big)
+    local amount = exact==nil and delta_sign * step_of(row, current, big) or 0
+    local target = exact or (row.storage=='f32' and MOD.numeric.increment(current,amount) or current+amount)
     if row.storage == 'u32' or row.storage=='i32' or row.storage=='u16' or row.storage=='u8' or row.storage=='i8' then target = math.floor(target + 0.5)
     end
     if row.limit and delta_sign > 0 and current >= row.max then
@@ -22043,6 +22068,12 @@ local function finish_value(keep)
         return
     end
     if row then MOD.numeric.row(row)end
+    -- Opening a cleaned display value and confirming it is not a numeric edit.
+    -- Keep the stored float bits until the user actually types or pastes a value.
+    if row and row.storage=='f32' and edit.fresh then
+        local shown=row.input_text and row.input_text()or MOD.numeric.input(row,row_value(row))
+        if edit.text==shown then ui.version=ui.version+1;return end
+    end
     local typed = row and tonumber((edit.text:gsub(',', '.')))
     if not typed or not MOD.parse_number(typed)then
         if row then ui.value=edit;ui.message={text='Enter a finite number.',till=api.now()+5}end
@@ -22378,6 +22409,7 @@ local function clear_editor_cache()
 end
 
 function settings.set_changes(on)
+    if MOD.offline then on = true end
     if settings.changes == on then return end
     settings.changes = on
     if on then
@@ -22730,8 +22762,10 @@ local function draw(width, height)
     local enemy_categories,enemy_key=nil,nil
     if not component_browser and not weapon_browser and MOD.enemy_browser()then enemy_categories,enemy_key=MOD.enemy_categories()end
     local record_tab = MOD.record_names.is_tab(ui.tab)
-    local list_rows=(component_browser or record_tab)and 21 or(weapon_browser or enemy_key)and 26 or LIST_ROWS
-    local list_top=(component_browser or record_tab)and 222 or(weapon_browser or enemy_key)and 126 or 96
+    local planet_effect_tab=ui.tab=='PlanetEffectAssignments'
+    local effect_tab = ui.tab=='PlanetEffectIds'or planet_effect_tab
+    local list_rows=(component_browser or record_tab or effect_tab)and 21 or(weapon_browser or enemy_key)and 26 or LIST_ROWS
+    local list_top=(component_browser or record_tab or effect_tab)and 222 or(weapon_browser or enemy_key)and 126 or 96
     ui.list_top, ui.list_rows = list_top, list_rows
     if component_browser then
         local catalog=MOD.component_catalog
@@ -22762,22 +22796,22 @@ local function draw(width, height)
         button('enemy_cat:next','>',302,94,32,28,true)
     end
     -- Hash and TypeID lists share the same jump/reload/folder control geometry.
-    if (component_browser or record_tab)and not presets_tab and not ui.settings and not todo_view and not solo_view then
+    if (component_browser or record_tab or effect_tab)and not presets_tab and not ui.settings and not todo_view and not solo_view then
         local rid,active=ui.record_id,ui.record_id.active
         local hash_mode=component_browser or ui.tab=='OrbitalBeam'
-        if record_tab then
-            text(hash_mode and 'EntityHash' or 'TypeID / ComponentIndexData.index',24,102,16,MUTED,302)
+        if record_tab or effect_tab then
+            text(planet_effect_tab and 'planetIndex' or effect_tab and 'galacticEffectId' or hash_mode and 'EntityHash' or 'TypeID / ComponentIndexData.index',24,102,16,MUTED,302)
             text(MOD.nav.text({'Jump as you type; search this list below','输入即跳转；下方搜索当前列表','輸入即跳轉；下方搜尋目前列表'}),24,134,14,DIM,302)
         end
         rect(16,158,318,30,active and color(20,26,34)or color(28,34,42),951)
         outline(16,158,318,30,active and GOLD or(ui.hover=='record_id'and GOLD or color(70,82,94)))
         if rid.text==''and not active then
-            text(hash_mode and MOD.nav.text({'Jump to hash (hex / decimal)','跳转哈希（十六进制 / 十进制）','跳轉雜湊（十六進位 / 十進位）'})
+            text(planet_effect_tab and MOD.nav.text({'Jump to planet index','跳转星球编号','跳轉星球編號'})or effect_tab and MOD.nav.text({'Jump to effect ID','跳转词条 ID','跳轉詞條 ID'})or hash_mode and MOD.nav.text({'Jump to hash (hex / decimal)','跳转哈希（十六进制 / 十进制）','跳轉雜湊（十六進位 / 十進位）'})
                 or MOD.nav.text({'Jump to current TypeID index','跳转当前 TypeID 的索引','跳轉目前 TypeID 的索引'}),24,165,14,DIM,302)
         else text(rid.text..(active and '_'or''),24,164,16,WHITE,302)end
         region('record_id',16,158,318,30)
-        button(component_browser and'component_reload'or'record_names_reload',MOD.nav.text({'Reload JSON','重载JSON','重載JSON'}),16,194,116,26,true)
-        button(component_browser and'component_config'or'record_names_folder',MOD.nav.text({'Open JSON folder','打开JSON文件夹','開啟JSON資料夾'}),138,194,196,26,true)
+        button(effect_tab and'effect_plan_reload'or component_browser and'component_reload'or'record_names_reload',MOD.nav.text({'Reload JSON','重载JSON','重載JSON'}),16,194,116,26,true)
+        button(effect_tab and'effect_plan_folder'or component_browser and'component_config'or'record_names_folder',MOD.nav.text({'Open JSON folder','打开JSON文件夹','開啟JSON資料夾'}),138,194,196,26,true)
     end
     local searching = ui.search.text ~= '' or ui.search.active
     local list = (presets_tab or ui.settings or todo_view or solo_view) and {} or weapons_in((ui.search.text ~= '' or ui.search.edited) and '?search' or ui.tab)
@@ -22852,7 +22886,7 @@ local function draw(width, height)
         rect(16, sy, 234, 30, active and color(20, 26, 34) or color(28, 34, 42), 951)
         outline(16, sy, 234, 30, active and GOLD or (ui.hover == 'search' and GOLD or color(70, 82, 94)))
         if ui.search.text == '' and not active then
-            text(record_tab and MOD.nav.text({'Search name or design name','搜索名称或策划名','搜尋名稱或策劃名'})or component_browser and MOD.nav.text({'Search design name / hex / decimal','搜索策划名 / 十六进制 / 十进制','搜尋策劃名 / 十六進位 / 十進位'})or MOD.enemy.on and 'Search enemies' or 'Search weapons and stratagems', 24, sy + 7, 15, DIM, 218)
+            text(planet_effect_tab and MOD.nav.text({'Search planet / index / effect','搜索星球／编号／词条','搜尋星球／編號／詞條'})or effect_tab and MOD.nav.text({'Search ID / effect / payload','搜索 ID／效果／载荷','搜尋 ID／效果／載荷'})or record_tab and MOD.nav.text({'Search name or design name','搜索名称或策划名','搜尋名稱或策劃名'})or component_browser and MOD.nav.text({'Search design name / hex / decimal','搜索策划名 / 十六进制 / 十进制','搜尋策劃名 / 十六進位 / 十進位'})or MOD.enemy.on and 'Search enemies' or 'Search weapons and stratagems', 24, sy + 7, 15, DIM, 218)
         else
             text(ui.search.text .. (active and '_' or ''), 24, sy + 6, 16, WHITE, 218)
         end
@@ -22913,13 +22947,23 @@ local function draw(width, height)
                           'auto', { 'Auto', '自动', '自動' }, settings.render_height > 0)
             y = y + 38
         end
+        if MOD.offline then
+            text(MOD.nav.text({ 'Repair Steam integration on startup', '启动时自动修复Steam接入', '啟動時自動修復Steam接入' }), x0, y + 6, 16, WHITE, 590)
+            button('set:steam_auto_config:on', 'On', 640, y, 60, 28, true, settings.steam_auto_config)
+            button('set:steam_auto_config:off', 'Off', 704, y, 60, 28, true, not settings.steam_auto_config)
+            button('steam_repair', MOD.nav.text({ 'Repair', '修复接入', '修復接入' }), 776, y, 100, 28, true)
+            button('steam_restore', MOD.nav.text({ 'Restore', '恢复原选项', '恢復原選項' }), 884, y, 100, 28, true)
+            y = y + 36
+        end
         -- offline (the panel is the window, edits go into the game's files) only the rows that apply there
-        if not MOD.offline then choice('Block game input while open', 'block_input', ONOFF, onoff(settings.block_input)) end
-        choice('Apply my changes', 'changes', ONOFF, onoff(settings.changes))
-        text(settings.changes and ('On: your ' .. #overrides .. ' change(s) are applied.')
-             or ('Off: the game\'s values everywhere; your ' .. #overrides .. ' change(s) are kept for when you turn them on.'),
-             x0 + 16, y - 6, 14, settings.changes and MUTED or WARN, W - x0 - 40)
-        y = y + 14
+        if not MOD.offline then
+            choice('Block game input while open', 'block_input', ONOFF, onoff(settings.block_input))
+            choice('Apply my changes', 'changes', ONOFF, onoff(settings.changes))
+            text(settings.changes and ('On: your ' .. #overrides .. ' change(s) are applied.')
+                 or ('Off: the game\'s values everywhere; your ' .. #overrides .. ' change(s) are kept for when you turn them on.'),
+                 x0 + 16, y - 6, 14, settings.changes and MUTED or WARN, W - x0 - 40)
+            y = y + 14
+        end
         local function percent(label, key)
             text(label, x0, y + 6, 16, WHITE, 270)
             local r = settings.RANGE[key]
@@ -22938,22 +22982,6 @@ local function draw(width, height)
             percent('Panel size', 'size')
             choice('Panel side', 'side', { { 'left', 'Left' }, { 'right', 'Right' } }, settings.side)
             percent('Background opacity', 'opacity')
-        end
-        if MOD.offline then   -- wider buttons than choice()'s: 'Automatic', 'Every commit' in every language
-            text('Updates', x0, y + 6, 16, WHITE, 270)
-            for k, o in ipairs({ { 'ask', 'Ask' }, { 'auto', 'Automatic' } }) do
-                button('set:updates:' .. o[1], o[2], 640 + (k - 1) * 134, y, 130, 28, true, settings.updates == o[1])
-            end
-            y = y + 36
-            text('Update channel', x0, y + 6, 16, WHITE, 270)
-            for k, o in ipairs({ { 'releases', 'Releases' }, { 'commits', 'Every commit' } }) do
-                button('set:update_channel:' .. o[1], o[2], 640 + (k - 1) * 134, y, 130, 28, true,
-                       settings.update_channel == o[1])
-            end
-            text(settings.update_channel == 'commits' and 'Every change as soon as it is pushed, before testing: it may break.'
-                 or 'Tested releases only.', x0 + 16, y + 34, 14, settings.update_channel == 'commits' and WARN or MUTED,
-                 W - x0 - 40)
-            y = y + 56
         end
         local arc = settings.arc
         if not MOD.offline then
@@ -22995,16 +23023,18 @@ local function draw(width, height)
              x0 + 16, y + 12, 14, warn and WARN or MUTED, W - x0 - 40)
         y = y + 32
         end
-        -- the tabs: each on / off, wrapped under the label (one stays on)
-        text('Tabs shown', x0, y + 6, 16, WHITE, 270)
-        local tx = 640
-        for _, tab in ipairs(TABS) do
-            local w = math.max(#tab * 7 + 8, width(tab, 15) + 18)
-            if tx + w > W - 16 then tx, y = 640, y + 34 end
-            button('set:tab:' .. tab, tab, tx, y, w, 28, true, not settings.hidden[tab])
-            tx = tx + w + 4
+        if not MOD.offline then
+            -- the tabs: each on / off, wrapped under the label (one stays on)
+            text('Tabs shown', x0, y + 6, 16, WHITE, 270)
+            local tx = 640
+            for _, tab in ipairs(TABS) do
+                local w = math.max(#tab * 7 + 8, width(tab, 15) + 18)
+                if tx + w > W - 16 then tx, y = 640, y + 34 end
+                button('set:tab:' .. tab, tab, tx, y, w, 28, true, not settings.hidden[tab])
+                tx = tx + w + 4
+            end
+            y = y + 38
         end
-        y = y + 42
         -- 修改器缓存: every change the editor keeps between runs — the values (with the preload plans and the
         -- demolition overrides), the passive stacks, the typed names and descriptions, the loadout edits. One button
         -- clears them all (twice to confirm); the switch clears them at every close instead of keeping them (off:
@@ -23021,35 +23051,50 @@ local function draw(width, height)
             return false
         end
         local sure_clear = ui.confirm and ui.confirm.kind == 'cache_clear'
-        button('cache_clear', sure_clear and 'Sure?' or
-               MOD.nav.text({ 'Clear all changes', '清除所有修改', '清除所有修改' }),
-               x0, y, 188, 28, any_cached_change(), sure_clear)
+        if not MOD.offline then
+            button('cache_clear', sure_clear and 'Sure?' or
+                   MOD.nav.text({ 'Clear all changes', '清除所有修改', '清除所有修改' }),
+                   x0, y, 188, 28, any_cached_change(), sure_clear)
+        end
         if MOD.offline then
+            text(MOD.nav.text({ 'Stop proxy on close', '关闭修改器时停止代理', '關閉修改器時停止代理' }),
+                 x0, y + 6, 16, WHITE, 230)
+            button('set:proxy_stop_on_exit:on', 'On', x0 + 232, y, 56, 28, true, settings.proxy_stop_on_exit)
+            button('set:proxy_stop_on_exit:off', 'Off', x0 + 292, y, 56, 28, true, not settings.proxy_stop_on_exit)
             text(MOD.nav.text({ 'Clear the cache on close', '每次关闭后清除修改器缓存', '每次關閉後清除修改器快取' }),
                  630, y + 6, 16, WHITE, 300, true)
             button('set:cache_clear_on_exit:on', 'On', 640, y, 60, 28, true, settings.cache_clear_on_exit)
             button('set:cache_clear_on_exit:off', 'Off', 704, y, 60, 28, true, not settings.cache_clear_on_exit)
         end
         y = y + 30
-        text(MOD.nav.text({ 'Values, passive stacks, preloads, demolition, loadouts, names; presets and the game\'s files stay.',
+        text(MOD.nav.text(MOD.offline and {
+                            'Left on: stop proxy and disconnect game on exit; off: keep proxy running. Right: clear cache; keep presets and game files.',
+                            '左项开启：退出时停止代理，会断开游戏连接；关闭则继续后台运行。右项清缓存，保留预设与游戏文件。',
+                            '左項開啟：退出時停止代理，會中斷遊戲連線；關閉則繼續背景執行。右項清快取，保留預設與遊戲檔案。' } or {
+                            'Values, passive stacks, preloads, demolition, loadouts, names; presets and the game\'s files stay.',
                             '清除本修改器记住的全部改动：数值、被动堆叠、预载、拆毁、装备栏与名称描述；预设和游戏文件不受影响。',
                             '清除本修改器記住的全部改動：數值、被動堆疊、預載、拆毀、裝備欄與名稱描述；預設和遊戲檔案不受影響。' }),
              x0, y, 14, MUTED, W - x0 - 40)
-        y = y + 42
+        y = y + 36
         button('restore_examples', 'Restore built-in presets', x0, y, 248, 28, true)
+        if MOD.offline then
+            button('cache_clear', sure_clear and 'Sure?' or
+                   MOD.nav.text({ 'Clear all changes', '清除所有修改', '清除所有修改' }),
+                   x0 + 264, y, 188, 28, any_cached_change(), sure_clear)
+        end
         text('Puts the built-in example presets (Horde, Glass Cannon, Elite) back as they came. Your own presets stay.',
              x0 + 16, y + 30, 14, MUTED, W - x0 - 40)
-        y = y + 50
-        y = y + 16
+        y = y + 44
+        y = y + 8
         rect(x0, y, W - x0 - 16, 1, color(70, 82, 94), 951)
         y = y + 14
-        text(MOD.title .. ' v' .. MOD.version, x0, y, 18, GOLD)
+        text(MOD.offline and state.window_title or (MOD.title .. ' v' .. MOD.version), x0, y, 18, GOLD)
         -- who made what: this fork's author, and the author of the original editor it is built on
         text(MOD.nav.text({ 'Fork by Thodmcniujiao · original by SHODAN',
                             '本fork作者 Thodmcniujiao　原仓库作者 SHODAN',
                             '本fork作者 Thodmcniujiao　原倉庫作者 SHODAN' }), x0, y + 30, 16, WHITE, W - x0 - 40)
         if not MOD.offline then text('Bingus Shared Loader by CowboyBingus', x0, y + 54, 16, MUTED) end
-        y = y + (MOD.offline and 64 or 88)
+        y = y + (MOD.offline and 58 or 88)
         -- the two repositories: this fork's, then the original one it is built on
         local function repository(label, url, key)
             text(label, x0, y + 6, 16, WHITE)
@@ -23067,6 +23112,23 @@ local function draw(width, height)
         button('link:log_open', 'Folder', 896, y, 88, 28, true)
         text(MOD.offline and (data_dir('StatEditor') or ''):gsub('/', '\\') or log_dir .. '\\' .. MOD.log,
              x0, y + 33, 14, MUTED, W - x0 - 16)
+        y = y + 60
+        if MOD.offline then   -- wider buttons than choice()'s: 'Automatic', 'Every commit' in every language
+            text('Updates', x0, y + 6, 16, WHITE, 270)
+            for k, o in ipairs({ { 'ask', 'Ask' }, { 'auto', 'Automatic' } }) do
+                button('set:updates:' .. o[1], o[2], 640 + (k - 1) * 134, y, 130, 28, true, settings.updates == o[1])
+            end
+            y = y + 36
+            text('Update channel', x0, y + 6, 16, WHITE, 270)
+            for k, o in ipairs({ { 'releases', 'Releases' }, { 'commits', 'Every commit' } }) do
+                button('set:update_channel:' .. o[1], o[2], 640 + (k - 1) * 134, y, 130, 28, true,
+                       settings.update_channel == o[1])
+            end
+            text(settings.update_channel == 'commits' and 'Every change as soon as it is pushed, before testing: it may break.'
+                 or 'Tested releases only.', x0 + 16, y + 34, 14, settings.update_channel == 'commits' and WARN or MUTED,
+                 W - x0 - 40)
+            y = y + 48
+        end
     elseif presets_tab then
         -- drawn above
     elseif todo_view then
@@ -23500,6 +23562,8 @@ local function draw(width, height)
     elseif ui.value and ui.value.setting then
         local r = settings.RANGE[ui.value.setting]
         text(string.format('Type the percent (%d-%d): Enter sets it, Esc cancels.', r[1], r[2]), fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+    elseif ui.value and effect_tab then
+        text(MOD.nav.text({'Enter saves; Esc cancels. Use effect IDs or the field\'s JSON format.','回车保存，Esc 取消；输入词条 ID 或该字段的 JSON 格式。','Enter 儲存，Esc 取消；輸入詞條 ID 或該欄位的 JSON 格式。'}),fx,H-56,14,MUTED,W-fx-18)
     elseif ui.value then
         text('Type the value: Enter sets it, Esc cancels. Values out of range are set to the nearest allowed one.',
              fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
@@ -23511,12 +23575,16 @@ local function draw(width, height)
              fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     elseif todo_view then
         text(MOD.nav.text(MOD.nav.T.todo_help), fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
+    elseif effect_tab then
+        text(MOD.nav.text({'Choose planet, choose effect, add; then enable the plan and start the proxy.','选择星球 → 选择词条 → 添加；再启用方案并启动代理。','選擇星球 → 選擇詞條 → 新增；再啟用方案並啟動代理。'}),fx,H-56,14,MUTED,W-fx-18)
     else
         text('Up/Down choose a stat, Left/Right change it (Shift: bigger steps), click a value or press Enter to type it,',
              fx, H - 56, 14, MUTED, MOD.offline and W-fx-18 or W-260)
     end
     if ui.message then
         text(ui.message.text, fx, H - 34, 14, GOOD, MOD.offline and W-fx-18 or W-260)
+    elseif effect_tab then
+        text(MOD.nav.text({'Network plans save immediately in portable Data; Write to game is not needed.','网络方案即时保存在程序旁的 Data，无需点击“写入游戏”。','網路方案即時儲存於程式旁的 Data，無需點擊「寫入遊戲」。'}),fx,H-34,14,MUTED,W-fx-18)
     elseif MOD.offline and state.host_status then
         text(state.host_status(),fx,H-34,14,MUTED,W-fx-18)
     elseif presets_tab then
@@ -23875,6 +23943,8 @@ local function click(key)
     elseif kind=='workspace_back'then return MOD.workspace.open('editor')
     elseif kind=='preset_scope'then return presets.select_scope(arg)
     elseif kind=='preset_folder'then return presets.open_folder()
+    elseif kind=='steam_repair'or kind=='steam_restore'then
+        return state.host_steam and state.host_steam(kind=='steam_repair'and'repair'or'restore')
     elseif kind=='game_launch'or kind=='game_kill'then   -- (the desktop host's: offline/host.lua)
         return state.host_game and state.host_game(kind=='game_launch'and'launch_game'or'kill_game')
     elseif kind == 'value' and (arg == 'size' or arg == 'opacity' or settings.DISPLAY[arg]) then
@@ -23891,6 +23961,8 @@ local function click(key)
         elseif name == 'updates' and (value == 'ask' or value == 'auto') then settings.updates = value
         elseif name == 'update_channel' and (value == 'releases' or value == 'commits') then settings.update_channel = value
         elseif name == 'cache_clear_on_exit' then settings.cache_clear_on_exit = value == 'on'
+        elseif name == 'proxy_stop_on_exit' then settings.proxy_stop_on_exit = value == 'on'
+        elseif name == 'steam_auto_config' then settings.steam_auto_config = value == 'on'
         elseif name == 'arc_mp' then settings.arc_mp, settings.arc.next_check = value == 'on', 0
         elseif name == 'vehicles' then
             MOD.vehicles.on = value == 'on'; MOD.vehicles.apply()
@@ -23955,6 +24027,13 @@ local function click(key)
             ui.record_id.active = true
             ui.search.active = false
         end
+    elseif kind == 'effect_plan_folder' then
+        settings.open(require('user_paths').home:gsub('/','\\'))
+    elseif kind == 'effect_plan_reload' then
+        local ok,why=require('galactic_effect_view').reload()
+        if ok then ok,why=require('planet_effect_view').model:reload()end
+        MOD.notify(ok and MOD.nav.text({'Effect definitions reloaded.','词条定义已重载。','詞條定義已重載。'})or tostring(why),6)
+        ui.version=ui.version+1
     elseif kind == 'record_names_folder' then
         MOD.record_names.ensure()
         settings.open((ui.tab=='OrbitalBeam'and MOD.component_catalog.folder or MOD.record_names.folder):gsub('/','\\'))
@@ -24093,6 +24172,9 @@ state.open_workspace=MOD.workspace.open
 state.panel_message=function()return ui.message~=nil end
 -- offline/host.lua, when its window closes: Settings > Clear the cache on close drops the changes the editor kept
 -- (presets and the game's files stay). The host has stopped redrawing by then, so the config is written here.
+state.proxy_stop_on_exit=function()return settings.proxy_stop_on_exit end
+state.steam_auto_config=function()return settings.steam_auto_config end
+state.set_steam_auto_config=function(v)settings.steam_auto_config=v==true;save_config()end
 state.host_closing=function()
     if not settings.cache_clear_on_exit then return end
     local ok, why = clear_editor_cache()
@@ -25319,7 +25401,7 @@ local function panel_frame(now)
                                      tostring(ui.hover), tostring(ui.drag ~= nil), ui.weapon and ui.weapon.hash or '-', ui.version,
                                      tostring(ui.settings), tostring(ui.binding), hotkey_name,
                                      #overrides, presets.scope, tostring(ui.fslot), ui.fpage,
-                                     state.demolition_revision or 0,
+                                     state.demolition_revision or 0,MOD.planet.network_status_revision(),
                                      MOD.component_catalog and MOD.component_catalog.revision or 0,
                                      tostring(settings.component_show_missing),settings.component_category,tostring(ui.component_menu),
                                      settings.weapon_category,tostring(ui.weapon_menu),
