@@ -5,6 +5,7 @@
 name: Development build
 
 on:
+  workflow_dispatch:
   push:
     branches: [dev, 'ci/**']
 
