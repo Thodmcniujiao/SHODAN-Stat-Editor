@@ -3,6 +3,7 @@
 local J = require('json_data')
 local M = {}
 function M.identity(page, row, tables, kinds)
+    if row.parameter_identity then return row.parameter_identity end
     local parts, kinds_seen = {}, {}
     for _, p in ipairs(row.parts or {}) do
         local f = p.field

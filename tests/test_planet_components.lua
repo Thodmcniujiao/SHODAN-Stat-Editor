@@ -28,9 +28,9 @@ assert(at[16].alias=='planet_description_loc'and at[16].source=='value')
 local palette=DATA.schemas[at[176].type];assert(palette.members[1].alias=='asset_grading')
 -- planets by their debug name
 local n=0;for _ in pairs(DATA.planets)do n=n+1 end;assert(n>=250,n)
-assert(DATA.planets.planet_000.en=='Super Earth'and DATA.planets.planet_000.zhs=='超级地球'and DATA.planets.planet_000.zht=='超級地球')
+assert(DATA.planets.planet_000.en=='SUPER EARTH'and DATA.planets.planet_000.zhs=='超级地球'and DATA.planets.planet_000.zht=='超級地球')
 assert(P.translate_name('LevelGenerationPlanetData · planet_000 [#1]','zh-Hans')=='超级地球（planet_000 [#1]）')
-assert(P.translate_name('LevelGenerationPlanetData · planet_000 [#1]','en')=='Super Earth（planet_000 [#1]）')
+assert(P.translate_name('LevelGenerationPlanetData · planet_000 [#1]','en')=='SUPER EARTH（planet_000 [#1]）')
 assert(P.translate_name('WeatherSettings · x [#2]','zh-Hant')=='天氣 · x [#2]')
 assert(P.provenance('value',.87,'zh-Hans'):find('87%%'))
 -- group keys to member chains
@@ -44,6 +44,7 @@ local rec={};for i=1,size do rec[i]='\0'end
 local function put(off,s)for i=1,#s do rec[off+i]=s:sub(i,i)end end
 local name_at=size;local mods_at=size+16
 put(88,u64le(name_at))
+put(8,u64le(1441504339):sub(1,4))
 put(424,u64le(mods_at));put(432,string.char(1,0,0,0,0,0,0,0))
 local b=table.concat(rec)..'planet_000\0'..string.rep('\0',5)..u64le(0x1122334455667788)
 local KINDS={};P.register(KINDS)
@@ -72,7 +73,7 @@ local lang='zh-Hans'
 local pages=P.build({tables=tables,kinds=KINDS,weapons={},by_hash={},field_at=field_at,read=read,add_row=add_row,default_of=read,
  schemas=schemas,names={},lang=function()return lang end,log=print,bytes=function()return b end})
 local p=pages.PlanetData[1];assert(p and P.translate_name(p.name,'zh-Hans'):find('超级地球'))
-assert(p.search:find('Super Earth')and p.search:find('超级地球'))
+assert(p.search:find('SUPER EARTH')and p.search:find('超级地球'))
 p.ensure_rows()
 -- one band, each group's rows together, the planet first
 local seen,last={},nil

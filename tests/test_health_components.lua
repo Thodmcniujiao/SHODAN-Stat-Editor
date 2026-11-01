@@ -24,7 +24,11 @@ end end end
 local zone_count=0
 for id,p in pairs(enemy.by_id)do
  if id:match('^zone%d+_')and not id:match('_%d+$')then
-  local q=assert(page.by_id[id],'body part field missing: '..id)
+  local q=page.by_id[id]
+  -- The complete native view uses schema names for fields such as bleed-out.
+  -- Legacy enemy aliases must still point to its canonical field object.
+  if not q then for _,candidate in pairs(page.by_id)do if candidate.field==p.field then q=candidate;break end end end
+  assert(q,'body part field missing: '..id)
   assert(q.field==p.field,'body part has a duplicate backend: '..id);zone_count=zone_count+1
  end
 end

@@ -1,5 +1,6 @@
 -- Portable network plans only. Certificates, proxy processes, Steam integration
--- and machine paths never belong to a preset. Imports stage with masters off.
+-- and machine paths never belong to a preset. Each master restores its saved
+-- state, independently of the other master and the proxy auto-start preference.
 local J=require('json_data');local G=require('galactic_effects')
 local M={}
 local function copy(v)return J.decode(J.encode(v))end
@@ -115,7 +116,7 @@ function M.apply(snapshot,models,o)
  for _,kind in ipairs({'assignments','definitions'})do if data[kind]then
   local model=models[kind];local before=copy(model.cfg)
   local cfg=o.merge and merged(kind,before,data[kind])or data[kind]
-  if not o.rollback then cfg.enabled=false end
+  cfg.enabled=data[kind].enabled
   local ok,note=write(kind,cfg)
   if not ok then
    local failures={}

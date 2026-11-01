@@ -22,19 +22,26 @@ M.texts_of = texts_of
 
 -- data_root: the game's data folder; cache / stamp: archives.index's (where the strings files are, kept per game
 -- build). Returns the texts: { english = { id = text }, files = { { key, archive } }, store }
-function M.load(data_root, cache, stamp, list_files, store)
+function M.load(data_root, cache, stamp, list_files, store, options)
     store = store or A.open(data_root)
     local typ = A.raw(M.STRINGS)
     local index = A.index(store, { [typ] = true }, cache, stamp, list_files)
-    local out = { english = {}, files = {}, store = store }
+    local out = { english = {}, localized = {}, files = {}, store = store }
+    local locales = options and options.languages or {}
     for key, archives in pairs(index) do
         local f = key:sub(9) == typ and store:directory(archives[1]).by[key]
         if f and f.main[2] >= 16 then   -- (a file's header first: only the English ones are read now)
             out.files[#out.files + 1] = { key = key, archive = archives[1] }
-            if u32(store:read(archives[1], f.main[1], 16), 12) == M.ENGLISH then
+            local language = u32(store:read(archives[1], f.main[1], 16), 12)
+            local locale = locales[language]
+            if language == M.ENGLISH or locale then
                 local d = store:read(archives[1], f.main[1], f.main[2])
                 if 16 + 8 * u32(d, 8) <= #d then
-                    for _, t in ipairs(texts_of(d)) do out.english[t[1]] = t[2] end
+                    if locale then out.localized[locale] = out.localized[locale] or {} end
+                    for _, t in ipairs(texts_of(d)) do
+                        if language == M.ENGLISH then out.english[t[1]] = t[2] end
+                        if locale and (not options.ids or options.ids[t[1]]) then out.localized[locale][t[1]] = t[2] end
+                    end
                 end
             end
         end

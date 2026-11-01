@@ -34,9 +34,9 @@
 | demolition_strength：电弧破坏力 | +88 | uint32 |
 | unk_bool_0x005C：未知标志位 | +92 bit 0 | 保留同字节其他位 |
 | unk_uint32_0x0060：未知整数 | +96 | uint32 |
-| unk_bool_0x0064：未知标志位 | +100 bit 0 | 保留同字节其他位 |
+| unk_bool_0x0064：免疫自伤 | +100 bit 0 | 保留同字节其他位 |
 
-最后三个为当前版本新增、含义尚未确认的成员，按偏移命名。`explosion_effect_path` 是粒子特效资源哈希，不是 `explosion_id`；`hit_effect_damage_type` 是视觉效果枚举，不是 `damage_id`。
+`unk_bool_0x005C` 和 `unk_uint32_0x0060` 为当前版本新增、含义尚未确认的成员，按偏移命名；`unk_bool_0x0064` 已确认为“免疫自伤”，归入“命中效果与破坏”分组（0/1 的具体方向以游戏内实测为准）。`explosion_effect_path` 是粒子特效资源哈希，不是 `explosion_id`；`hit_effect_damage_type` 是视觉效果枚举，不是 `damage_id`。
 
 ## 界面与兼容
 

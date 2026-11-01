@@ -4,6 +4,28 @@
 `https://api.live.prod.thehelldiversgame.com/api/WarSeason/GalacticWarEffects`，
 本次快照共 312 项，其中 290 项为四位 ID。目录按数值排序，上框输入即跳转，下框搜索当前目录的 ID、名称、载荷与关联本地定义。
 
+## 星球与词条名称的核对
+
+星球名称直接读取游戏 strings 资源：英语 `03F97B57`、简体 `5942CCF7`、繁体 `9EBA952A`，分别解析，
+不使用繁简转换或同音字猜译。API 的 273 颗星球全部具有游戏内文本。优先用 WarInfo.settingsHash
+匹配本地 debug_name 的资源哈希高 32 位，再读取 planet_name_loc。API 22、23 的资源哈希与本地
+调试名不一致，通过 API 目录的唯一英文原名对应原文文本 ID；不把星球编号当作 planet_XXX 后缀。
+本地 438 条记录中有 389 条中文文本、399 条英文文本；缺少文本的测试记录保持未确认。同调试名
+的记录以自身文本 ID 区分，不借用另一条记录的名称。
+
+词条逐项查询 API 的 nameHash、短说明、长说明和背景说明哈希。未命中时，type 71 的实际载荷
+可精确引用本地 GalacticPresenceSettings；其当前名称文本 ID 在 +0x20、说明文本 ID 在 +0x24，
+不是旧推断标签所在的 +0x30/+0x34。只接受唯一的资源哈希对应。已核实的生效／图标配对可以
+共用显示名称，但两个 ID 和载荷保持独立。当前可确认 171 条中文名称、187 条英文名称；仅凭
+描述识别的名称明确标为“说明”，旧资料的名称标为“参考”。名称来源与文本哈希可在详情查看。
+
+当前剩余未命中名称的条目，其 API 说明哈希也未在安装资源中找到对应字符串；不会据此编造名称。
+程序启动读取上述三种原文中的相关 ID，内置精简快照用于资源不可用时回退。更新快照时先运行
+`tools/localization_gen/extract.lua`（使用 `tests/run_lua.py --game ... --work ... --isolated-profile`），
+工作目录需有官方 GalacticWarEffects 的 `effects.json`，再运行 `tools/update_game_localizations.py`
+并传入提取结果、WarInfo 和 helldivers-2/json 的 planets.json。工具记录数据来源并拒绝歧义匹配；
+只更新显示文本，网络数值定义与个人配置保持原样。
+
 ## 给指定星球添加现有词条
 
 1. 在“星球词条分配”左侧选择目标星球；可以搜索名称或输入星球编号跳转。当前 WarInfo 目录包含 273 个星球。

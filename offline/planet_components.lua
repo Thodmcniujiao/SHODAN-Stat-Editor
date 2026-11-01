@@ -2,6 +2,7 @@
 local D=require('demolition')
 local V=require('component_view')
 local DATA=require('planet_data')
+local L=require('game_localization')
 local PC=require('preload_components')
 local MODS=require('modifier_components')
 local MODDATA=require('modifier_data')
@@ -202,6 +203,7 @@ function M.clear(kinds)
  for _,r in ipairs(DATA.roots)do if kinds[r.hash]and kinds[r.hash].name=='planet '..r.name then kinds[r.hash].list={}end end
 end
 function M.build(c)
+ M.native_planets={}
  for _,list in pairs(M.pages)do for _,p in ipairs(list)do if c.by_hash[p.hash]==p then c.by_hash[p.hash]=nil end end end
  M.pages={PlanetData={},PlanetTypes={},PlanetEnvironment={},PlanetWeather={},PlanetSpace={},PlanetRegions={},PlanetComponents={},
   PlanetEffectAssignments={},PlanetEffectIds={},PlanetModifiers={},OperationModifiers={},PlanetModifierLists={},GalacticModifierLists={}}
@@ -334,6 +336,7 @@ function M.build(c)
    local name=type_name..' · '..identity..(group.name and(' · '..group.name)or'')
    local p=page(slot,name,key);p.planet_root=root;p.source_file=metadata.file;p.source_ordinal=metadata.ordinal
    local planet=metadata.planet
+   if root==146979202 then M.native_planets[p.name]=planet or false end
    if planet then p.search=p.search..' '..planet.en..' '..planet.zhs..' '..planet.zht..' '..planet.sector end
    p.note_of=function()return txt('Local planet configuration: the galaxy map\'s owner, health, regeneration, position and effects come from the server and are not edited here.',
     '本地星球配置：银河地图上的归属、生命值、恢复速度、坐标与效果由服务器下发，不在此修改。',
@@ -343,8 +346,10 @@ function M.build(c)
     local band=function()return txt(type_name,(ROOT_ZH[type_name]or type_name)..'（'..type_name..'）',(ROOT_ZH_T[type_name]or ROOT_ZH[type_name]or type_name)..'（'..type_name..'）')end
     local head=function()return txt('Source','来源','來源')end
     if planet then
-     info(p,'planet',function()return txt('Planet','星球','星球')end,function()
-      return txt(planet.en,planet.zhs,planet.zht)..' · '..txt('galaxy index ','银河编号 ','銀河編號 ')..planet.index..' · '..planet.sector end,'source',head,type_name,band)
+     local r=info(p,'planet',function()return txt('Planet','星球','星球')end,function()
+      return txt(planet.en,planet.zhs,planet.zht)..(planet.index and(' · '..txt('galaxy index ','银河编号 ','銀河編號 ')..planet.index)or'')..' · '..planet.sector end,'source',head,type_name,band)
+     r.tip_of=function()return{txt('Installed game text; Simplified and Traditional are resolved separately.',
+      '游戏内文本原文；简体与繁体分别解析。'),'planet_name_loc = '..planet.name_hash}end
     end
     info(p,'source',function()return txt('File','文件','檔案')end,metadata.file or'generated_entities.dl_bin','source',head,type_name,band)
     info(p,'layout',function()return txt('Type','类型','類型')end,type_name..string.format(' · 0x%08X · %d bytes',root,DATA.schemas[root].size),'source',head,type_name,band)
@@ -356,7 +361,7 @@ function M.build(c)
   for _,kind in ipairs(c.kinds[r.hash].list or{})do
    local t=c.tables[kind];local b=c.bytes(kind);local location=PC.location(t.copies[1]);local ordinal=location and location:match(':(%d+)$')or'1'
    local identity=M.identity(b,r.hash,t.copies[1]+24)
-   local planet=r.name=='LevelGenerationPlanetData'and(DATA.planets or{})[identity]or nil
+   local planet=r.name=='LevelGenerationPlanetData'and L.planet(identity,u32(b,8))or nil
    build_record(r.slot,r.name,r.hash,kind,b,t.copies[1]+24,(identity~=''and identity or'#'..ordinal)..' [#'..ordinal..']',0,
     {key=r.file..'/'..r.hash..'/'..ordinal,file=r.file,ordinal=tonumber(ordinal),planet=planet})
   end
@@ -407,7 +412,8 @@ function M.translate_name(v,lang)
  local root,name=v:match('^(%w+) · (.*)$');if not(root and ROOT_ZH[root])then return end
  local zt=lang=='zh-Hant'and(ROOT_ZH_T[root]or ROOT_ZH[root])or ROOT_ZH[root]
  if root=='LevelGenerationPlanetData'then
-  local debug=name:match('^(%S+)');local planet=debug and(DATA.planets or{})[debug]
+  local debug=name:match('^(%S+)');local planet=M.native_planets and M.native_planets[v]
+  if planet==nil then planet=debug and L.planet(debug)end
   if planet then
    local shown=lang=='zh-Hans'and planet.zhs or lang=='zh-Hant'and planet.zht or planet.en
    return shown..'（'..name..'）'

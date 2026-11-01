@@ -163,7 +163,7 @@ function M.new(c)
    if not ok then return nil,why end
    local network=p.data and p.data.network
    say(tx('Loaded global preset: ','已载入全局预设：')..p.name..(why and('；'..why)or'')..(p.data and p.data.loadout and'；配装已暂存，需另行写入存档。'or'')
-    ..(network and(network.assignments or network.definitions)and tx(' · Network plans staged; enable them on the planet effects pages.','；网络劫持方案已暂存，请在星球词条页面启用。')or''))
+    ..(network and(network.assignments or network.definitions)and tx(' · Network plans and saved switches restored.','；网络劫持方案及保存的开关状态已恢复。')or''))
    return true
   end)
  end

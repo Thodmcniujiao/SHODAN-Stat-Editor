@@ -7,9 +7,7 @@
 - `planet_data.base.lua`：各星球设置类型的完整布局（来自游戏类型库）以及旧版按成员顺序推断的名称，是本工具的输入。
 - 解密后的游戏设置文件（`generated_planet_data.dl_bin` 等），放在 `../component_gen/work/`，或用环境变量 `COMPONENT_GEN_WORK` 指定。解密方法见 `../component_gen/README.md`。
 - https://github.com/shalzuth/HelldiversData（2025-09 的 `data/settings/*.json`）：克隆到 `../component_gen/HelldiversData`，或用 `SHALZUTH` 指定。
-- https://github.com/helldivers-2/json（星球英文名与繁体中文名）：克隆到本目录的 `json`，或用 `HD2JSON` 指定。
-- https://github.com/BYVoid/OpenCC（只用 `data/dictionary` 里的繁简对照表）：克隆到本目录的 `OpenCC`，或用 `OPENCC` 指定。
-- `warinfo_index.csv`：银河战争接口 `WarSeason/801/warinfo` 中每颗星球的编号和 settingsHash。settingsHash 等于星球 debug_name 的 64 位 murmur 哈希的高 32 位，据此把游戏里的星球记录对应到编号和名称。
+- `offline/localization_data.lua`：先用 `tools/localization_gen/extract.lua` 提取安装游戏的三种语言原文，再由 `tools/update_game_localizations.py` 与 API 对应。简体与繁体分别读取文本 ID，不再使用 OpenCC 转换译名。星球编号不等于调试名的数字后缀；重复调试名由运行时按记录自身的文本 ID 解析。
 
 ## 运行
 

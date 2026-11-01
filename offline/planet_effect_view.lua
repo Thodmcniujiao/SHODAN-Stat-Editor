@@ -1,5 +1,5 @@
 local P=require('planet_effects')
-local D=require('demolition')
+local L=require('game_localization')
 local N=require('network_proxy')
 local Steam=require('steam_integration')
 local M={by_index={},titles={}}
@@ -10,12 +10,8 @@ function M.status_revision()
 end
 function M.build(c,page,txt,definitions,model)
  M.model=model;M.by_index={};M.titles={}
- local names={}
- for debug,p in pairs(require('planet_data').planets or{})do
-  names[tonumber(D.hex(D.hash_resource(debug)):sub(1,8),16)]=p
- end
  function M.name(index)
-  local ref=model.planets[index];local p=ref and names[ref.settingsHash]
+  local ref=model.planets[index];local p=ref and L.planet_index(index,ref.settingsHash)
   return p and txt(p.en,p.zhs,p.zht)or txt('Planet #','星球 #')..tostring(index)
  end
  local function row(p,id,label,section)
@@ -42,7 +38,7 @@ function M.build(c,page,txt,definitions,model)
  for _,ref in ipairs(P.data.planets)do
   local index=ref.index
   local function name(lang)
-   local n=names[ref.settingsHash];local zh=lang=='zh-Hans'or lang=='zh-Hant'
+   local n=L.planet_index(index,ref.settingsHash);local zh=lang=='zh-Hans'or lang=='zh-Hant'
    return string.format('%03d · %s',index,n and(zh and(lang=='zh-Hant'and n.zht or n.zhs)or n.en)or('Planet #'..index))
   end
   local p=page('PlanetEffectAssignments',name('en'),'planet-effect-assignment/'..index)

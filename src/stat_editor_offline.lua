@@ -2323,6 +2323,7 @@ MOD.langs = {
       ['Several vehicles of a kind'] = '同类载具数量',
       ['Shape'] = '形状',
       ['Shared by every armor with this passive. Multipliers: 1 = no change.'] = '所有带此被动的护甲共用。倍率：1 = 不变。',
+      ['Shared by every armor with this passive. Each effect has its own operation and raw value.'] = '所有带此词条的护甲共用；每项效果分别设置运算方式与原始数值。',
       ['Shear'] = '切变',
       ['Shells per salvo'] = '每次齐射弹数',
       ['Shield'] = '盾雷',
@@ -2569,6 +2570,12 @@ MOD.langs = {
       ['Torso inside'] = '躯干内部',
       ['Torso outside'] = '躯干外部',
       ['Torso underside'] = '躯干底部',
+      ['Corpse cleanup'] = '尸体清理',
+      ['Element damage'] = '元素伤害',
+      ['Corpse disappearance delay (s)'] = '尸体消失延迟（秒）',
+      ['Sinking acceleration (x)'] = '下沉加速度（倍）',
+      ['the shortest and longest decay delay of every enemy; 0 leaves the game value'] = '每个敌人的最短与最长消散延迟；0 保持游戏原值',
+      ['how fast a corpse sinks once decay starts'] = '尸体开始消散后下沉的速度',
       ['Toughness'] = '耐久',
       ['Tracer rounds'] = '曳光弹',
       ['Tracking after losing sight (x)'] = '失去视线后的追踪（x）',
@@ -6108,6 +6115,7 @@ MOD.langs = {
       ['Several vehicles of a kind'] = '同類載具數量',
       ['Shape'] = '形狀',
       ['Shared by every armor with this passive. Multipliers: 1 = no change.'] = '所有帶此被動的護甲共用。倍率：1 = 不變。',
+      ['Shared by every armor with this passive. Each effect has its own operation and raw value.'] = '所有帶此詞條的護甲共用；每項效果分別設定運算方式與原始數值。',
       ['Shear'] = '雷射剪',
       ['Shells per salvo'] = '每次齊射彈數',
       ['Shield'] = '防護罩',
@@ -6354,6 +6362,12 @@ MOD.langs = {
       ['Torso inside'] = '軀幹內部',
       ['Torso outside'] = '軀幹外部',
       ['Torso underside'] = '軀幹底部',
+      ['Corpse cleanup'] = '屍體清理',
+      ['Element damage'] = '元素傷害',
+      ['Corpse disappearance delay (s)'] = '屍體消失延遲（秒）',
+      ['Sinking acceleration (x)'] = '下沉加速度（倍）',
+      ['the shortest and longest decay delay of every enemy; 0 leaves the game value'] = '每個敵人的最短與最長消散延遲；0 保持遊戲原值',
+      ['how fast a corpse sinks once decay starts'] = '屍體開始消散後下沉的速度',
       ['Toughness'] = '耐久',
       ['Tracer rounds'] = '曳光彈',
       ['Tracking after losing sight (x)'] = '失去視線後的追蹤（x）',
@@ -10029,6 +10043,12 @@ MOD.langs = {
       ['Torso inside'] = 'Внутренняя часть торса',
       ['Torso outside'] = 'Внешняя часть торса',
       ['Torso underside'] = 'Низ торса',
+      ['Corpse cleanup'] = 'Очистка трупов',
+      ['Element damage'] = 'Урон стихий',
+      ['Corpse disappearance delay (s)'] = 'Задержка исчезновения трупа (с)',
+      ['Sinking acceleration (x)'] = 'Ускорение погружения (x)',
+      ['the shortest and longest decay delay of every enemy; 0 leaves the game value'] = 'минимальная и максимальная задержка распада у всех врагов; 0 — значение игры',
+      ['how fast a corpse sinks once decay starts'] = 'как быстро труп погружается после начала распада',
       ['Toughness'] = 'Живучесть',
       ['Tracer rounds'] = 'Трассирующие боеприпасы',
       ['Tracking after losing sight (x)'] = 'Преследование вне видимости (x)',
@@ -12315,6 +12335,7 @@ MOD.weapon_components.register = function()   -- (a function: the main chunk is 
     end
     -- the hellpods' components (offline/hellpod_components.lua, 实体组件 › 地狱舱): descent, payload, rack, ship
     for _, spec in ipairs(require('hellpod_components').SPECS) do specs[#specs + 1] = spec end
+    for _, spec in ipairs(require('interference_components').SPECS) do specs[#specs + 1] = spec end
     -- 敌人设置 › 刷怪编辑器 (offline/spawn_components.lua): the hive mind regrouped as 敌人生成's groups, SEAF objectives
     for _, spec in ipairs(require('spawn_components').SPECS) do specs[#specs + 1] = spec end
     -- 敌人设置 › AI设置 and 生命与拆毁 › 接触伤害 (offline/ai_components.lua): the enemies' AI, senses, contact damage
@@ -12394,28 +12415,11 @@ KINDS[TYPES.deltas].parse = function(blob, stride, spec, address)
 end
 
 -- Armor passive: +0 passive id, +4 name, +8 icon, +16 modifiers (pointer, count: 16 bytes each: id,
--- type 0 set / 1 add / 2 multiply / 3 seconds, value f32 +8, text), +32 weapon stat modifiers (pointer,
--- count: 12 bytes each: stat, f32, value f32 +8). The index: its id and where each value is.
+-- type 0 Set / 1 Add / 2 Multiply / 3 Time, value f32 +8, text), +32 weapon stat modifiers (pointer,
+-- count: 12 bytes each: stat, add_value f32 +4, mul_value f32 +8). +48 is an unconfirmed u32.
 KINDS[TYPES.passive].parse = function(blob, stride, spec, address)
-    local id, mcount, scount = u32(blob, 0), u32(blob, 24), u32(blob, 40)
-    if not (id and mcount and scount) or id > 1000 or mcount > 32 or scount > 32 or u32(blob, 28) ~= 0 or u32(blob, 44) ~= 0 then
-        return nil, 'passive layout does not match this build'
-    end
-    local function at(ptr, count, size)
-        if count == 0 then return 0 end
-        local lo, hi = u32(blob, ptr), u32(blob, ptr + 4)
-        local o = lo and hi and lo + hi * 4294967296 - address - HEADER_BYTES
-        if not o or o < 48 or o + count * size > #blob then return nil end
-        return o
-    end
-    local mo, so = at(16, mcount, 16), at(32, scount, 12)
-    if not mo or not so then return nil, 'passive layout does not match this build' end
-    local index = { id = id, mods = {}, stats = {} }
-    for k = 0, mcount - 1 do
-        index.mods[k + 1] = { id = u32(blob, mo + k * 16), type = u32(blob, mo + k * 16 + 4), offset = mo + k * 16 + 8 }
-    end
-    for k = 0, scount - 1 do index.stats[k + 1] = { stat = u32(blob, so + k * 12), offset = so + k * 12 + 8 } end
-    return index, mcount + scount
+    local source=rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE')
+    return require('armor_passive_components').parse(blob,address,HEADER_BYTES,source and source.schemas)
 end
 KINDS[TYPES.passive].group_key = function(blob) return 'armor passive ' .. u32(blob, 0) end
 -- names by passive id, as the armory shows them (matched to the wiki by their values)
@@ -12932,6 +12936,7 @@ end
 -- Favorites are a UI projection. Computation and bulk operations must consume
 -- the original rows exactly once, excluding favorite shortcuts and empty hints.
 function MOD.parameter_rows(page)
+    if page.enemy_component_rows then return page.enemy_component_rows end
     if page.rows == page.parameter_view_rows and page.parameter_raw_rows then return page.parameter_raw_rows end
     return page.rows
 end
@@ -13257,7 +13262,7 @@ KINDS[TYPES.passive].build = function()
         if index.id ~= 0 and not by_hash[hash] then
             list[#list + 1] = { name = spec.NAMES[index.id] or ('Passive ' .. index.id), slot = 'Armors', hash = hash,
                                 key = hash_key(hash), rows = {}, by_id = {}, passive = group,
-                                note = 'Shared by every armor with this passive. Multipliers: 1 = no change.' }
+                                note = 'Shared by every armor with this passive. Each effect has its own operation and raw value.' }
             by_hash[hash] = list[#list]
         end
     end
@@ -13581,6 +13586,19 @@ KINDS[TYPES.avatar].health_band = function(row, id)
     local part = id:match('^zone%d+_') ~= nil
     row.section = part and 'quick_health:parts' or 'quick_health:body'
     row.section_of = function() return MOD.nav.text(part and { 'Body parts', '身体部位', '身體部位' } or { 'Body', '本体', '本體' }) end
+    if row.element_label then   -- element damage: its own band inside the health component
+        row.section = 'quick_health:elements'
+        row.section_of = function() return MOD.nav.text({ 'Element damage', '元素伤害', '元素傷害' }) end
+        row.label_of = function()
+            local label = MOD.nav.text(row.element_label)
+            if row.element_type and row.element_name then
+                local v = read_field(row.parts[1].field)
+                local name = v and row.element_name(v)
+                if name then label = label .. ': ' .. MOD.nav.text(name) end
+            end
+            return label
+        end
+    end
 end
 -- 快速编辑's faction box: the helldiver's three factions only (FactionComponentData's 阵营 group, from
 -- offline/faction_components.lua: the same fields as its 实体组件 › 生命与拆毁 › 阵营 page, so a change on one shows on the other),
@@ -13657,6 +13675,33 @@ KINDS[TYPES.avatar].resolve = function(entry)
                 end
             end
         end
+        -- element damage (HealthComponentData +21500 .. +21528): the same eight rows as the Health page,
+        -- a type and a multiplier for each of the four slots
+        local ET = (require('health_schema').ENUMS or {})['e86B0A9AC']
+        local function element_name(v)
+            local e = ET and ET[v]
+            return e and { e[1], e[2], e[3] } or nil
+        end
+        for i = 0, 3 do
+            local tp = part('element_type_' .. i, TYPES.health, h + 21500 + i * 8, 'u32', 10)
+            local tv = default_of(tp.field)
+            if tv and tv >= 0 and tv <= 10 then
+                local tr = add('Element damage', 'element_type_' .. i,
+                    'Element damage ' .. (i + 1) .. ' · Element type', 'u32', { tp }, 0, 10, 1, 1)
+                tr.element_row, tr.element_type, tr.element_name = true, true, element_name
+                tr.element_label = { 'Element damage ' .. (i + 1) .. ' · Element type',
+                                     '元素伤害 ' .. (i + 1) .. ' · 元素类型', '元素傷害 ' .. (i + 1) .. ' · 元素類型' }
+            end
+            local mp = part('element_mult_' .. i, TYPES.health, h + 21504 + i * 8, 'f32', 100)
+            local mv = default_of(mp.field)
+            if mv and mv >= 0 and mv <= 100 then
+                local mr = add('Element damage', 'element_mult_' .. i,
+                    'Element damage ' .. (i + 1) .. ' · Multiplier', 'f32', { mp }, 0, 100, 0.05, 0.25)
+                mr.element_row = true
+                mr.element_label = { 'Element damage ' .. (i + 1) .. ' · Multiplier',
+                                     '元素伤害 ' .. (i + 1) .. ' · 元素伤害倍率', '元素傷害 ' .. (i + 1) .. ' · 元素傷害倍率' }
+            end
+        end
     end
     local m = at and at.index[key]
     if m then
@@ -13702,11 +13747,13 @@ KINDS[TYPES.avatar].resolve = function(entry)
     for _, box in ipairs(A.DOC) do
         for _, f in ipairs(box.fields) do if f.id then in_doc[f.id] = true end end
     end
-    local function health(id) return id == 'health' or id == 'health_regen' or id:find('^zone%d+_health$') ~= nil or id:find('^zone%d+_to_body$') ~= nil end
+    local function health(id) return id == 'health' or id == 'health_regen' or id:find('^zone%d+_health$') ~= nil or id:find('^zone%d+_to_body$') ~= nil or id:find('^element_type_%d+$') ~= nil or id:find('^element_mult_%d+$') ~= nil end
     local function named(n) return function() return MOD.nav.text(n) end end
     local function put(r, section, section_of, label_of, tip)
         local row = add_row(entry, section, r.id, r.label, r.storage, r.parts, r.min, r.max, r.small, r.big)
         row.note, row.section_of, row.label_of, row.tip = r.note, section_of, label_of, tip or r.tip
+        if r.element_label then row.element_label = r.element_label end
+        if r.element_type then row.element_type, row.element_name = true, r.element_name end
         r.placed = true
     end
     -- a field of the document the editor has no stat for: shown, left empty
@@ -13759,38 +13806,15 @@ KINDS[TYPES.avatar].resolve = function(entry)
     end
 end
 
--- A passive's rows: each modifier (named, or by its id), then its weapon stat modifiers.
+-- A passive's native fields: operations, values, text references and both stat operands.
 KINDS[TYPES.passive].resolve = function(entry)
-    local spec, t = KINDS[TYPES.passive], tables[entry.passive]
+    local spec,t=KINDS[TYPES.passive],tables[entry.passive]
     if not t then return end
-    --        type: min, max, small step, big step
-    local RANGE = { [0] = { 0, 10, 1, 1 }, [1] = { 0, 1000, 0.5, 5 }, [2] = { 0, 10, 0.05, 0.25 }, [3] = { 0, 600, 0.5, 2 } }
-    local joined = {}   -- a modifier the game describes with another -> that one's row
-    for k, m in ipairs(t.index.mods) do
-        local r = RANGE[m.type]
-        if m.id ~= 0 and r then
-            local id = string.format('mod_%08X', m.id)
-            if entry.by_id[id] then id = id .. '_' .. k end
-            local p, with = part(id, entry.passive, m.offset, 'f32', 100000), spec.JOINED[m.id]
-            local row = with and joined[with .. '_' .. m.type]
-            if row then
-                row.parts[#row.parts + 1] = p
-                entry.by_id[id], p.row = p, row
-                p.field.users[#p.field.users + 1] = entry
-            else
-                row = add_row(entry, 'Passive', id, spec.MODS[with or m.id] or string.format('Modifier %08X', m.id), 'f32',
-                              { p }, r[1], r[2], r[3], r[4])
-                if with then joined[with .. '_' .. m.type] = row end
-            end
-        end
-    end
-    for _, st in ipairs(t.index.stats) do
-        local id = 'stat_' .. st.stat
-        if not entry.by_id[id] then
-            add_row(entry, 'Weapon stats', id, spec.STATS[st.stat] or ('Stat ' .. st.stat), 'f32',
-                    { part(id, entry.passive, st.offset, 'f32', 100000) }, 0, 10, 0.05, 0.25)
-        end
-    end
+    require('armor_passive_components').build(entry,t.index,{
+        add=add_row,part=part,read=read_field,text=function(v)return MOD.nav.text(v)end,
+        translate=function(v)return state.tr and state.tr(v)or v end,
+        mod_names=spec.MODS,joined=spec.JOINED,stat_names=spec.STATS,
+        game_text=function(id)local texts=rawget(_G,'SHODAN_TEXTS');return texts and texts.texts[id]end})
 end
 
 -- Adds a damage row's stats (the first `count`, default all) to `entry`, ids `prefix` .. stat id.
@@ -17298,6 +17322,18 @@ function MOD.enemy.resolve(entry)
         "how fast a body part's bleed-out health runs out")
     row('Health', 'regen', 'Regeneration (health/s)', 4, 'f32', 1000000, 100000, 1, 10)
     row('Health', 'regen_delay', 'Regeneration delay after damage (s)', 12, 'f32', 3600, 600, 0.1, 1)
+    -- corpse cleanup (offline/integration v1.3.2.3): the two native decay delays as one value, and how fast it sinks
+    local decay = {}
+    for n, m in ipairs(members) do
+        decay[#decay + 1] = part(n == 1 and 'decay_min' or ('decay_min_' .. n), TYPES.health, m.at + 21540, 'f32', 120)
+        decay[#decay + 1] = part(n == 1 and 'decay_max' or ('decay_max_' .. n), TYPES.health, m.at + 21544, 'f32', 120)
+    end
+    if read_field(decay[1].field) ~= nil then
+        local d = add_row(entry, 'Corpse cleanup', 'decay_delay', 'Corpse disappears after (s)', 'f32', decay, 0, 120, 0.5, 5)
+        d.lead, d.note = true, 'the shortest and longest decay delay together; R restores the game value'
+    end
+    local sink = row('Corpse cleanup', 'decay_sink', 'Sinking acceleration (m/s²)', 21536, 'f32', 10, 10, 0.1, 0.5)
+    if sink then sink.note = 'how fast a corpse sinks once decay starts' end
     local names = {}
     for z, n in (entry.enemy.zones or ''):gmatch('(%d+)=([^;]*)') do names[tonumber(z)] = n end
     local ht = tables[TYPES.health]
@@ -17704,6 +17740,11 @@ MOD.enemy.FACTION_STATS = {
       function(page, r) return not page.enemy.gun and r.id == 'flinch' end },
     { 'Suppression', 'all_danger_radius', 'Shots count within (x)', 'mult', 10, nil,
       function(page, r) return not page.enemy.gun and r.id == 'danger_radius' end },
+    { 'Corpse cleanup', 'all_corpse_delay', 'Corpse disappearance delay (s)', 'set', 120,
+      'the shortest and longest decay delay of every enemy; 0 leaves the game value',
+      function(page, r) return not page.enemy.gun and r.id == 'decay_delay' end },
+    { 'Corpse cleanup', 'all_corpse_sink', 'Sinking acceleration (x)', 'mult', 10, nil,
+      function(page, r) return not page.enemy.gun and r.id == 'decay_sink' end },
 }
 
 -- Death explosions (ExplosionType ids of this build, checked against their records: the acid deaths carry acid):
@@ -17879,6 +17920,7 @@ local function resolve(weapon)
     end
     if weapon.booster then MOD.boosters.resolve(weapon); return end
     if weapon.enemy then
+        weapon.enemy_component_rows,weapon.component_groups,weapon.sync_rows=nil,nil,nil
         if weapon.slot == 'Spawning' then MOD.enemy.spawning_resolve(weapon)
         elseif weapon.enemy.faction then MOD.enemy.faction_resolve(weapon)
         elseif weapon.enemy.blasts then MOD.enemy.blasts_resolve(weapon)
@@ -18628,6 +18670,22 @@ function MOD.explosion.rows(page,at)
             if group=='unknown'or field:match('^unk_')then lines[#lines+1]=MOD.nav.text({'Meaning unknown; current type-library offset and storage verified.','含义尚未确认；已核对当前类型库的偏移和存储类型。','含義尚未確認；已核對目前型別庫的偏移與儲存型別。'})end
             if field=='persistent_status_volume'or field=='hit_effect_damage_type'then lines[#lines+1]=MOD.nav.text({
                 'Template/effect enum, not a status-effect or damage record ID.','这是模板/特效枚举，不是状态效果或伤害记录 ID。','這是範本/特效列舉，不是狀態效果或傷害記錄 ID。'})end
+            if off==104 then
+                local volume=read_field(field_at(T_EXPLOSION,at+100,'u32',4294967295))
+                if volume==nil then lines[#lines+1]=MOD.nav.text({
+                    'The persistent volume template (+100) could not be read; the duration only applies to a gas or static-field volume.',
+                    '无法读取持续区域模板（+100）；该时长只对气体或静电场区域生效。',
+                    '無法讀取持續區域模板（+100）；該時長只對氣體或靜電場區域生效。'})
+                elseif volume==0 then lines[#lines+1]=MOD.nav.text({
+                    'This record has no persistent volume (+100 = 0): the duration is not used.',
+                    '这条记录的持续区域模板为 0（没有区域）：该时长不会生效。',
+                    '這條記錄的持續區域模板為 0（沒有區域）：該時長不會生效。'})
+                else lines[#lines+1]=MOD.nav.text({
+                    'This record\'s +100 template is '..volume..'; the duration applies only when it is a gas or static-field volume.',
+                    '这条记录的 +100 模板为 '..volume..'；只有它是气体或静电场区域时该时长才生效。',
+                    '這條記錄的 +100 模板為 '..volume..'；只有它是氣體或靜電場區域時該時長才生效。'})
+                end
+            end
             return lines
         end
         return row
@@ -18714,10 +18772,10 @@ function MOD.arc.rows(page,at)
         row.component_of=function()return MOD.nav.text({'ArcType','电弧类型（ArcType）','電弧類型（ArcType）'})end
         row.section='ArcType:'..s[4]
         row.section_of=function()return MOD.nav.text(C.GROUPS[s[4]])end
-        row.label_of=function()return MOD.nav.text({name=='type'and'Arc ID'or name=='damage_info_type'and'Damage ID'or name:gsub('_',' '),s[5],s[6]})end
+        row.label_of=function()return MOD.nav.text({name=='type'and'Arc ID'or name=='damage_info_type'and'Damage ID'or name=='unk_bool_0x0064'and'Immune to self-damage'or name:gsub('_',' '),s[5],s[6]})end
         row.tip_of=function()
             local lines={name,MOD.nav.text({s[5],s[5],s[6]})..' / '..name,'ArcInfo +'..off..' · '..(storage=='u64'and'uint64 (exact decimal)'or storage)}
-            if name:match('^unk_')then lines[#lines+1]=MOD.nav.text({'Meaning unknown; current type-library offset and storage verified.','含义尚未确认；已核对当前类型库的偏移和存储类型。','含義尚未確認；已核對目前型別庫的偏移與儲存型別。'})end
+            if name:match('^unk_')and s[5]:find('未知',1,true)then lines[#lines+1]=MOD.nav.text({'Meaning unknown; current type-library offset and storage verified.','含义尚未确认；已核对当前类型库的偏移和存储类型。','含義尚未確認；已核對目前型別庫的偏移與儲存型別。'})end
             if name=='explosion_effect_path'then lines[#lines+1]=MOD.nav.text({'Particle resource hash, not an explosion record ID.','这是粒子特效资源哈希，不是爆炸记录 ID。','這是粒子特效資源雜湊，不是爆炸記錄 ID。'})end
             if name=='hit_effect_damage_type'then lines[#lines+1]=MOD.nav.text({'Visual hit-effect enum, not a damage record ID.','这是命中特效枚举，不是伤害记录 ID。','這是命中特效列舉，不是傷害記錄 ID。'})end
             return lines
@@ -18759,13 +18817,17 @@ function MOD.beam.rows(page,at)
         row.component_of=function()return MOD.nav.text({'BeamType','激光类型（BeamType）','雷射類型（BeamType）'})end
         row.section='BeamType:'..s[4]
         row.section_of=function()return MOD.nav.text(C.GROUPS[s[4]])end
-        row.label_of=function()return MOD.nav.text({name=='type'and'Beam ID'or name=='damage_info_type'and'Damage ID'or name=='explosion_type'and'Explosion ID'or name:gsub('_',' '),s[5],s[6]})end
+        row.label_of=function()return MOD.nav.text({name=='type'and'Beam ID'or name=='damage_info_type'and'Damage ID'or name=='explosion_type'and'Explosion ID'or off==20 and'Focal shoulder width (m)'or off==28 and'Focal damage multiplier'or name:gsub('_',' '),s[5],s[6]})end
         row.tip_of=function()
             local lines={name,MOD.nav.text({s[5],s[5],s[6]})..' / '..name,'BeamInfo +'..off..' · '..(storage=='u64'and'uint64 (exact decimal)'or storage)}
-            if name:match('^unk_')then lines[#lines+1]=MOD.nav.text({'Meaning unknown; current type-library offset and storage verified.','含义尚未确认；已核对当前类型库的偏移和存储类型。','含義尚未確認；已核對目前型別庫的偏移與儲存型別。'})end
+            if name:match('^unk_')and off~=20 and off~=28 then lines[#lines+1]=MOD.nav.text({'Meaning unknown; current type-library offset and storage verified.','含义尚未确认；已核对当前类型库的偏移和存储类型。','含義尚未確認；已核對目前型別庫的偏移與儲存型別。'})end
             if C.ENUM_TYPES[name]then lines[#lines+1]=MOD.nav.text({'Label derived from enum type: ','界面名称依据枚举类型：','介面名稱依據列舉型別：'})..C.ENUM_TYPES[name]end
             if name=='effect_damage_type'then lines[#lines+1]=MOD.nav.text({'Visual hit-effect enum, not a damage record ID.','这是命中特效枚举，不是伤害记录 ID。','這是命中特效列舉，不是傷害記錄 ID。'})end
-            if off>=16 and off<=36 then lines[#lines+1]=MOD.nav.text({'The old focal_shoulder_width has no unique mapping to these six current floats.','旧版 focal_shoulder_width 无法唯一映射到这六个新版浮点字段。','舊版 focal_shoulder_width 無法唯一映射到這六個新版浮點欄位。'})end
+            if off==20 or off==28 then lines[#lines+1]=MOD.nav.text({
+                'Named from the integration v1.3.2.3 beam rows; the other floats at +16..+36 stay unknown. Check the effect in game before relying on it.',
+                '名称取自整合包 v1.3.2.3 的光束行；+16..+36 其余浮点仍未知，使用前请在游戏内核对效果。',
+                '名稱取自整合包 v1.3.2.3 的光束行；+16..+36 其餘浮點仍未知，使用前請在遊戲內核對效果。'})end
+            if off>=16 and off<=36 and off~=20 and off~=28 then lines[#lines+1]=MOD.nav.text({'The old focal_shoulder_width has no unique mapping to these six current floats.','旧版 focal_shoulder_width 无法唯一映射到这六个新版浮点字段。','舊版 focal_shoulder_width 無法唯一映射到這六個新版浮點欄位。'})end
             return lines
         end
     end
@@ -19210,7 +19272,7 @@ local config_dirty_at = nil
 local settings = { changes = true, block_input = true, size = 80, side = 'right', opacity = 90,
                    component_show_missing = true, component_category = 'all', weapon_category = 'all', enemy_category = 'all',
                    arc_mp = true, updates = 'ask', update_channel = 'releases', cache_clear_on_exit = false, proxy_stop_on_exit = false, proxy_auto_start = true, steam_auto_config = true,
-                   stacks = {}, own_off = {}, armor_passives = {}, hidden = {}, lang = MOD.lang or MOD.offline and rawget(_G, 'SHODAN_OFFLINE_LANG') or 'en',
+                   stacks = {}, own_off = {}, armor_passives = {}, quick_restore = {}, hidden = {}, lang = MOD.lang or MOD.offline and rawget(_G, 'SHODAN_OFFLINE_LANG') or 'en',
                    last = { stat = {}, enemy = {} }, enemy_last = false,
                    -- the settings page's two links: this fork, then the original it is built on
                    FORK = 'https://github.com/Thodmcniujiao/SHODAN-Stat-Editor',
@@ -19426,6 +19488,7 @@ local function save_config()
         lines[#lines + 1] = 'proxy_stop_on_exit ' .. onoff(settings.proxy_stop_on_exit)
         lines[#lines + 1] = 'proxy_auto_start ' .. onoff(settings.proxy_auto_start)
         lines[#lines + 1] = 'steam_auto_config ' .. onoff(settings.steam_auto_config)
+        lines[#lines+1]='quick_restore '..require('json_data').encode(settings.quick_restore)
         local armors={};for id in pairs(settings.armor_passives)do armors[#armors+1]=id end;table.sort(armors)
         for _,id in ipairs(armors)do local list=settings.armor_passives[id]
             lines[#lines+1]=string.format('armor_passive %08X %s',id,#list>0 and table.concat(list,',')or'none')
@@ -19541,6 +19604,13 @@ local function load_config()
         if name=='component_category'and value:match('^[%w_-]+$')then settings.component_category=value;known=true end
         if name=='weapon_category'and value:match('^[%w_-]+$')then settings.weapon_category=value;known=true end
         if name=='enemy_category'and value:match('^[%w_-]+$')then settings.enemy_category=value;known=true end
+        local quick_json=line:match('^%s*quick_restore%s+(.+)$')
+        if quick_json then
+            local ok,value=pcall(require('json_data').decode,quick_json)
+            if ok and require('quick_modifications').valid_restore(value)then settings.quick_restore=value
+            else log('config: invalid quick restore context ignored')end
+            known=true
+        end
         local target, sources = line:match('^%s*passive_stack%s+(%d+)%s+([%d,]+)%s*$')
         if target and MOD.offline then
             local list, seen = {}, { [tonumber(target)] = true }
@@ -19817,6 +19887,54 @@ local function set_override(weapon, p, value)
     if p.field and p.field.storage == 'grenade' then MOD.queue_grenade(weapon, p, value) end
     mark_config_dirty()
 end
+
+-- Fixed-value shortcuts share the components' fields and canonical save owners.
+MOD.quick={}
+function MOD.quick.targets(id)
+    if state.phase~='ready'then return nil,'The editor is still loading.'end
+    local entity='4D1C334D294DFA97'
+    local page,ids,target
+    if id=='god'then
+        page=MOD.health_components and MOD.health_components.by_entity[entity]
+        if not(page and page.health_full)then return nil,'The native Health layout is unavailable.'end
+        page.ensure_rows();ids={'health','default_damageable_zone_info_health'};target=99999
+        for z=0,37 do
+            local p=page.by_id['zone'..z..'_info_zone_name']
+            local value=p and read_field(p.field)
+            if value==nil then return nil,'Could not read the body-part layout.'end
+            if value~=0 then ids[#ids+1]='zone'..z..'_health'end
+        end
+    elseif id=='stims'then
+        for _,p in ipairs(MOD.inventory_components and MOD.inventory_components.pages or{})do
+            if p.entity_hash==entity then page=p;break end
+        end
+        if not page then return nil,'The helldiver Inventory component is unavailable.'end
+        if page.ensure_rows then page.ensure_rows()end
+        ids={'start_amount_stims','refill_amount_stims','max_amount_stims'};target=99
+    else return nil,'Unknown quick modification'end
+    local out,seen={},{}
+    for _,id in ipairs(ids)do
+        local p=page.by_id[id];if not(p and p.field)then return nil,'Missing component field '..id end
+        local owner=page
+        if p.health_owner then owner,p=p.health_owner.weapon,p.health_owner.part end
+        if not seen[p.field.key]then
+            seen[p.field.key]=true
+            out[#out+1]={page=owner,part=p,key=owner.hash..'/'..p.id,target=target}
+        end
+    end
+    return out
+end
+MOD.quick.model=require('quick_modifications').new({
+    targets=MOD.quick.targets,enabled=function()return settings.changes end,
+    restore=function()return settings.quick_restore end,set_restore=function(v)settings.quick_restore=v end,
+    read=function(t)return read_field(t.part.field)end,default=function(t)return default_of(t.part.field)end,
+    valid=function(t,v)return MOD.numeric.valid(t.part.field,v)end,
+    write=function(t,v)
+        local original=default_of(t.part.field);local ok,why=write_field(t.part.field,v)
+        if ok then local value=v;if v==original then value=nil end;set_override(t.page,t.part,value)end
+        return ok,why
+    end,
+    persist=function()mark_config_dirty();return save_config()end})
 
 -- Installed values come from authenticated game files, never from the disposable
 -- editor cache. Keep the original defaults for Reset and stage cached edits last.
@@ -20595,6 +20713,7 @@ local function prepare(deadline)
                 metadata=rawget(_G,'SHODAN_COMPONENT_CATALOG_SOURCE'),bridge=rawget(_G,'SHODAN_DEMOLITION_BRIDGE'),
                 weapons=weapons,by_hash=by_hash,add_row=add_row,lang=function()return settings.lang end})
             state.component_entity_count=#MOD.component_catalog.records
+            MOD.attach_enemy_components()
             MOD.attach_weapon_components()
             MOD.attach_eagle_components()
             MOD.attach_stratagem_components()
@@ -21008,8 +21127,8 @@ MOD.nav = { BASE = { Orbital = 'Stratagems', Eagle = 'Stratagems', RecProjectile
 -- the page shown, by page the sub-page shown, by sub-page ('<page>:<n>') its tab shown, by tab the page last chosen
 ui.nav = { page = 'armory', sub = {}, cat = {}, weapon = {} }
 MOD.nav.PAGES = {
-    { id = 'features', name = { 'Features', '游戏功能', '遊戲功能' }, subs = {
-        { name = { 'Player', '玩家主体', '玩家主體' }, todo = {
+    { id = 'features', name = { 'Quick modifications', '快速修改', '快速修改' }, subs = {
+        { name = { 'Player', '玩家主体', '玩家主體' }, quick = true, todo = {
             { items = { { 'God mode', '无敌', '無敵' }, { 'Infinite stims', '无限治疗针', '無限治療針' }, { 'Infinite backpack', '无限背包', '無限背包' }, { 'Infinite stamina', '无限耐力', '無限耐力' }, { 'No fall damage', '坠落无伤', '墜落無傷' }, { 'Melee speed', '近战攻速设置', '近戰攻速設置' }, { 'Edit current health', '当前玩家血量编辑', '當前玩家血量編輯' }, { 'Infinite shield', '无限护盾', '無限護盾' }, { 'Ignore Automaton jammers', '无视机器人干扰塔', '無視機器人干擾塔' }, { 'Ignore Illuminate interference', '无视光能者干扰', '無視光能者干擾' }, { 'Show every objective on the map', '显示全图目标', '顯示全圖目標' }, { 'Infinite reinforcements', '无限增援', '無限增援' } } },
         } },
         { name = { 'Movement', '玩家移动', '玩家移動' }, todo = {
@@ -21106,6 +21225,7 @@ MOD.nav.PAGES = {
                      'FactionComponents' } },
         -- 地狱舱: the hellpods' components (offline/hellpod_components.lua); the descent's values are the 额外 page's
         { name = { 'Hellpods', '地狱舱', '地獄艙' }, tabs = require('hellpod_components').SUBS.hellpod },
+        { name = { 'Interference', '干扰', '干擾' }, tabs = require('interference_components').SUBS.interference },
     } },
     { id = 'orbitals', name = { 'Orbital & Eagle', '轨道飞鹰', '軌道飛鷹' }, subs = {
         { name = { 'Orbital editing', '轨道编辑', '軌道編輯' }, tabs = { 'Orbital' } },
@@ -21264,6 +21384,8 @@ KINDS[TYPES.avatar].group_doc = function(entry, made, order, key, is_health)
         if is_health(r.id) then
             local row = add_row(entry, 'Health', r.id, r.label, r.storage, r.parts, r.min, r.max, r.small, r.big)
             row.tip = r.tip
+            if r.element_label then row.element_label = r.element_label end
+            if r.element_type then row.element_type, row.element_name = true, r.element_name end
             for _, p in ipairs(row.parts) do p.row = row; entry.by_id[p.id] = p end
             KINDS[TYPES.avatar].health_band(row, r.id)
             health_rows[#health_rows + 1] = row
@@ -21564,9 +21686,53 @@ function MOD.component_groups.wrap(entry, groups, sub_label)
         ui.scroll = math.max(1, math.min(ui.scroll or 1, #visible))
     end
     ui.expanded_components = ui.expanded_components or {}
+    for _,g in ipairs(kept)do
+        local key=entry.hash..':'..g.type
+        if g.default_expanded and ui.expanded_components[key]==nil then ui.expanded_components[key]=true end
+    end
     entry.component_groups = kept
     entry.sync_rows = sync_rows
     sync_rows()
+end
+function MOD.attach_enemy_components()
+    local infos={}
+    local function info(kind,type_name,en,zh,zht,order,hide)
+        infos[kind]={type=type_name,label={en,zh,zht or zh},order=order,hide_type=hide}
+    end
+    info(TYPES.health,'HealthComponentData','Health component','生命组件','生命組件',1)
+    info(TYPES.hitreact,'HitReactComponentData','Hit reaction component','硬直反应组件','硬直反應組件',2)
+    info(TYPES.status_rx,'StatusEffectReceiverComponentData','Status receiver component','状态接收组件','狀態接收組件',3)
+    info(T_DAMAGE,'DamageType','Damage type','伤害类型','傷害類型',4)
+    info(T_PROJECTILE,'ProjectileType','Projectile type','射弹类型','射彈類型',5)
+    info(T_BEAM,'BeamType','Beam type','激光类型','雷射類型',5)
+    info(T_EXPLOSION,'ExplosionType','Explosion type','爆炸类型','爆炸類型',5)
+    info(TYPES.ai_enemy,'AiEnemyComponentData','Enemy AI component','敌人 AI 组件','敵人 AI 組件',6)
+    info(TYPES.ai_character,'AiCharacterComponentData','Character AI component','角色 AI 组件','角色 AI 組件',7)
+    info(TYPES.physics,'AnimationStateMachine','Animation state machine resource','动画状态机资源','動畫狀態機資源',8,true)
+    info(TYPES.sensor,'SensorEyeComponentData','Vision component','视觉组件','視覺組件',9)
+    info(TYPES.ear,'SensorEarComponentData','Hearing component','听觉组件','聽覺組件',10)
+    info(TYPES.retention,'Component_0xFF67A367','Target retention component','目标记忆组件','目標記憶組件',11)
+    info(TYPES.danger,'SensorDangerComponentData','Danger sense component','压制感知组件','壓制感知組件',12)
+    info(TYPES.targeting,'TargetingComponentData','Targeting component','瞄准组件','瞄準組件',13)
+    info(TYPES.faction,'FactionComponentData','Faction component','阵营组件','陣營組件',14)
+    info(TYPES.inventory,'InventoryComponentData','Inventory component','物品栏组件','物品欄組件',15)
+    info(TYPES.unit,'UnitComponentData','Unit component','单位组件','單位組件',16)
+    info(TYPES.shield,'ShieldComponentData','Shield component','护盾组件','護盾組件',17)
+    info(TYPES.jammer,'StratagemBlockerComponentData','Stratagem jammer component','战备干扰组件','戰備干擾組件',18)
+    info(TYPES.scrambler,'StratagemScramblerComponentData','Stratagem scrambler component','战备扰码组件','戰備擾碼組件',19)
+    info(TYPES.curve,'Component_0x333C9A62','Movement curve component','移动曲线组件','移動曲線組件',20)
+    for _,spec in ipairs(MOD.weapon_components.SPECS)do
+        if not infos[spec.HASH]then infos[spec.HASH]={type=spec.TYPE,label=spec.COMPONENT,order=50,hide_type=true}end
+    end
+    local slots={Terminids=true,Automatons=true,Illuminate=true,SEAF=true}
+    require('enemy_component_groups').attach({weapons=weapons,slots=slots,rows=MOD.parameter_rows,
+        wrap=MOD.component_groups.wrap,text=MOD.nav.text,
+        identity=function(page,row)return require('parameter_preferences').identity(page,row,tables,KINDS)end,
+        info=function(kind)
+            if infos[kind]then return infos[kind]end
+            local spec=KINDS[kind];local name=spec and spec.name or tostring(kind)
+            return{type=type(kind)=='number'and string.format('Type_%08X',kind)or tostring(kind),label={name,name,name},order=100}
+        end})
 end
 function MOD.component_groups.stratagem_page(entry)
     if entry.component_groups then return end
@@ -23218,6 +23384,15 @@ end
 
 function MOD.nav.reset_page(nav_page)
     if not nav_page then return end
+    if nav_page.id=='features'then
+        for _,id in ipairs(require('quick_modifications').ORDER)do
+            local status=MOD.quick.model:state(id)
+            if status.available and(status.active or status.custom)then local ok,why=MOD.quick.model:toggle(id,false)
+                if not ok then ui.message={text=tostring(why),till=api.now()+6};return end
+            end
+        end
+        ui.version=ui.version+1;return
+    end
     local tabs, tab_set, kind_set = MOD.nav.tabs_and_kinds(nav_page)
     if ui.weapon and tab_set[ui.tab] then reset_weapon(ui.weapon) end
     for _, t in ipairs(tabs) do
@@ -23341,6 +23516,7 @@ local function reset_all()
         if not ok then ui.message = {text=tostring(why),till=api.now()+5}; return nil,why end
     end
     overrides = {}
+    settings.quick_restore={}
     mark_config_dirty()
     ui.version = ui.version + 1
     return true
@@ -23434,10 +23610,13 @@ local presets = require('preset_controller').new({
         end
         for id,value in pairs(settings.own_off or{})do own_off[tostring(id)]=value end
         local armor={};for id,list in pairs(settings.armor_passives)do local a={};for i,v in ipairs(list)do a[i]=v end;armor[tostring(id)]=a end
-        return {stacks=stacks,own_off=own_off,armor_passives=armor}
+        return {stacks=stacks,own_off=own_off,armor_passives=armor,quick_restore=require('json_data').decode(require('json_data').encode(settings.quick_restore))}
     end,
+    quick_capture=function(values,game)return MOD.quick.model:capture(values,game)end,
     apply=function(preset)
-        local stacks,own_off,armor
+        local switches=preset.data and preset.data.quick_switches
+        if switches~=nil then assert(require('quick_modifications').valid_switches(switches),'Invalid quick modification switches')end
+        local stacks,own_off,armor,quick_restore
         if preset.data and((preset.scope=='game'and preset.kind=='snapshot')or preset.scope=='global')then
             assert(type(preset.data.stacks)=='table'and type(preset.data.own_off)=='table','Invalid armor configuration in preset')
             stacks,own_off={},{}
@@ -23457,6 +23636,10 @@ local presets = require('preset_controller').new({
                 for _,v in ipairs(list)do assert(type(v)=='number'and v%1==0 and by_hash[string.format('FFFFFFFE%08X',v)]and not seen[v],'Unknown or duplicate passive');seen[v]=true;armor[n][#armor[n]+1]=v end
             end
         end
+        if preset.data and preset.data.quick_restore then
+            assert(require('quick_modifications').valid_restore(preset.data.quick_restore),'Invalid quick restore context')
+            quick_restore=require('json_data').decode(require('json_data').encode(preset.data.quick_restore))
+        end
         if preset.scope=='global'and preset.kind~='patch'then
             local ok,why=reset_all();assert(ok,why)
             pending,apply_at={},1
@@ -23468,7 +23651,13 @@ local presets = require('preset_controller').new({
             end
             overrides=kept;mark_config_dirty()
         elseif preset.kind~='patch'then MOD.reset_side(preset.scope=='enemy')end
+        if preset.kind~='patch'and(preset.scope=='global'or preset.scope=='game')then
+            settings.quick_restore=quick_restore or{}
+        elseif quick_restore then
+            for id,entries in pairs(quick_restore)do settings.quick_restore[id]=entries end
+        end
         if stacks then settings.stacks,settings.own_off=stacks,own_off;settings.armor_passives=armor or{};MOD.kits.migrate();state.writes=state.writes+1;mark_config_dirty()end
+        if switches then local ok,why=MOD.quick.model:apply_switches(switches,false);assert(ok,why)end
         local refused=0
         for _,o in ipairs(preset.values)do
             local weapon=by_hash[o.hash]
@@ -23483,6 +23672,7 @@ local presets = require('preset_controller').new({
             end
             if not ok then refused=refused+1;log('preset '..preset.name..': '..o.hash..' '..o.id..': '..tostring(why))end
         end
+        if switches then local ok,why=MOD.quick.model:apply_switches(switches,true);assert(ok,why)end
         ui.version=ui.version+1
         return true,refused>0 and(tostring(refused)..' 个参数在当前版本不可用。')or nil
     end,
@@ -23528,6 +23718,12 @@ function MOD.preset_jump(entry)
     local jump=entry and entry.jump
     local function fail(text)ui.message={text=text,till=api.now()+5};ui.version=ui.version+1;return false end
     if not jump then return false end
+    if jump.quick and require('quick_modifications').LABELS[jump.quick]then
+        local back=presets.jump_state()
+        local ok,why=MOD.workspace.open('editor');if not ok then return fail(tostring(why))end
+        state.nav_open('features',1);ui.preset_return=back;ui.version=ui.version+1
+        return true
+    end
     local target=jump.hash and by_hash[jump.hash]
     if not target and jump.planet then target=require('planet_effect_view').by_index[jump.planet]end
     if not target and jump.effect then target=require('galactic_effect_view').by_id[jump.effect]end
@@ -24307,6 +24503,36 @@ local function draw(width, height)
     elseif presets_tab then
         -- drawn above
     elseif todo_view then
+        if nav_sub.quick then
+            local x,y,right=24,100,W-24
+            text(MOD.nav.text(nav_sub.name),x,y,24,GOLD,right-x)
+            y=y+38
+            local cx=x
+            for n,item in ipairs(nav_sub.todo[1].items)do
+                local id=n==1 and'god'or n==2 and'stims'or nil
+                local status=id and MOD.quick.model:state(id)
+                local key=id and('quick:'..id)or('quick_pending:'..n)
+                local label=MOD.nav.text(item)
+                local w=math.min(right-x,width(label,15)+26)
+                if cx>x and cx+w>right then cx,y=x,y+36 end
+                button(key,label,cx,y,w,30,status and status.available and settings.changes or false,
+                    status and status.active,status and status.active and GOLD or status and WHITE or nil)
+                if id and ui.hover==key then
+                    local description=id=='god'and{'Main/default-zone health and all configured body parts = 99999.',
+                        '主生命值、默认受伤区域和全部已配置部位 = 99999。','主生命值、預設受傷區域和全部已配置部位 = 99999。'}
+                        or{'Starting / resupply / maximum stims = 99.','初始／补给／最大治疗针数量 = 99。','初始／補給／最大治療針數量 = 99。'}
+                    local lines={MOD.nav.text(description),MOD.nav.text({'Click to toggle; Write to game applies it. Turning off restores previous values.',
+                        '点击切换；写入游戏后生效。关闭时恢复开启前的值。',
+                        '點擊切換；寫入遊戲後生效。關閉時恢復開啟前的值。'}),
+                        MOD.nav.text({'Uses component parameters; no live memory freeze.',
+                            '复用组件参数；不持续锁定游戏运行时数值。','共用組件參數；不持續鎖定遊戲執行時數值。'})}
+                    if status.custom then lines[#lines+1]=MOD.nav.text({'Parameters customized; click to reapply this recipe.',
+                        '参数已自定义；点击重新套用此方案。','參數已自訂；點擊重新套用此方案。'})end
+                    tip_overlay={lines=lines,x=cx,y=y+32}
+                end
+                cx=cx+w+8
+            end
+        else
         -- a placeholder: a feature of the layout document not in the editor yet, and what it is to hold
         local x, y, right = 24, 100, W - 24
         text(MOD.nav.text((MOD.nav.TODO_TABS[ui.tab] or nav_sub).name), x, y, 24, GOLD, right - x)
@@ -24335,6 +24561,7 @@ local function draw(width, height)
                 cx, any = cx + w + 8, true
             end
             y = y + (any and 50 or 14)
+        end
         end
     elseif not weapon then
         text(component_browser and MOD.nav.text({'Choose an entity on the left.','在左侧选择一个实体。','在左側選擇一個實體。'})or'Choose a weapon on the left.', x0, 100, 18, MUTED)
@@ -24774,6 +25001,8 @@ local function draw(width, height)
     elseif presets_tab then
         text('Up/Down choose, Enter loads, Insert makes a new one, Shift+Insert saves into it, F2 renames, Del deletes.',
              fx, H - 56, 14, MUTED, footer_w)
+    elseif todo_view and nav_sub.quick then
+        text(MOD.nav.text({'Click a button to toggle.', '点击按钮切换。', '點擊按鈕切換。'}),fx,H-56,14,MUTED,footer_w)
     elseif todo_view then
         text(MOD.nav.text(MOD.nav.T.todo_help), fx, H - 56, 14, MUTED, footer_w)
     elseif effect_tab then
@@ -25287,6 +25516,14 @@ local function click(key)
                 ui.tab, ui.weapon = 'todo', nil
             end
         end
+    elseif kind=='quick'then
+        if state.commit_value then local ok,why=state.commit_value();if not ok then
+            ui.message={text=tostring(why),till=api.now()+6};return
+        end end
+        local ok,on=MOD.quick.model:toggle(arg)
+        ui.message={text=ok and MOD.nav.text(on and{'Recipe activated. Write to game to apply.','方案已激活；点击“写入游戏”后生效。','方案已啟用；點擊「寫入遊戲」後生效。'}
+            or{'Previous values restored. Write to game to apply.','已恢复开启前的值；点击“写入游戏”后生效。','已恢復開啟前的值；點擊「寫入遊戲」後生效。'})or tostring(on),till=api.now()+6}
+        ui.version=ui.version+1
     elseif kind == 'enemy_mode' then   -- the other editor, on the tab and page it was left on
         MOD.enemy.on = not MOD.enemy.on
         settings.enemy_last = MOD.enemy.on

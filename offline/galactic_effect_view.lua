@@ -3,6 +3,7 @@
 local G=require('galactic_effects')
 local J=require('json_data')
 local D=require('demolition')
+local L=require('game_localization')
 local PLANETS=require('planet_effect_view')
 local M={titles={}}
 local FIELD_TEXT={
@@ -36,11 +37,13 @@ local TYPES={
 local function plain(s)return((s or''):gsub('<[^>]*>',''):gsub('[\r\n]+',' '))end
 local function title(entry,lang)
  local zh=lang=='zh-Hans'or lang=='zh-Hant'
- local name=entry[zh and'name_zh'or'name_en']
+ local name,ref=L.effect_text(entry,'name',lang)
+ if name and ref and ref.source=='description'then name=(zh and'说明：'or'Description: ')..name end
  if not name or name==''then
   -- Historical names can embed old magnitudes. Payload numbers below are current.
   name=entry.reference_name and entry.reference_name:gsub('%b()',''):gsub('（.-）','')
   if name and(name:match('^未知')or name=='')then name=nil end
+  if name then name=(zh and'[参考] 'or'[Reference] ')..name end
  end
  return plain(name or(zh and'未确认名称的词条'or'Unnamed effect'))
 end
@@ -94,7 +97,7 @@ function M.build(c,page,txt,pages)
   end
   local p=page('PlanetEffectIds',name('en'),'galactic-effect/'..id);p.effect_id=id
   M.titles[p.name]=name;M.by_id[id]=p
-  p.search=p.search..' '..name('zh-Hans')..' '..plain(entry.reference_note)..' '..base.effectType..' '..J.encode(base.values)
+  p.search=p.search..' '..name('zh-Hans')..' '..name('zh-Hant')..' '..plain(entry.reference_note)..' '..base.effectType..' '..J.encode(base.values)
   local targets=local_targets(model:read(id,'effectType'),model:read(id,'values'))
   p.local_definition_targets=targets
   for _,target in ipairs(targets)do p.search=p.search..' '..target.name end
@@ -118,8 +121,25 @@ function M.build(c,page,txt,pages)
    info(p,'category',function()return txt('Payload interpretation','载荷含义')end,function()
     local t=TYPES[model:read(id,'effectType')];return(t and txt(t[1],t[2])or txt('Unresolved effect type','尚未确认的效果类型'))..' · effectType '..model:read(id,'effectType')
    end)
-   local description=entry.description_zh or entry.description_en or entry.long_description_zh or entry.long_description_en
-   if description then info(p,'description',function()return txt('Game description (snapshot)','游戏说明（目录快照）')end,plain(description))end
+   local function provenance(ref,short)
+    if not ref then return txt('Unconfirmed reference; no matching game text hash.','未确认参考名；尚未匹配到游戏文本哈希。')end
+    local source=({api_hash=txt('API text hash','API 文本哈希'),local_presence=txt('Linked native definition','关联的游戏本地定义'),
+     paired_icon=txt('Verified paired icon definition','已核实配对的图标定义'),description=txt('Derived from description, not an official title','取自说明，非正式名称')})[ref.source]or ref.source
+    return source..' · '..ref.hash..(not short and ref.debug and(' · '..ref.debug..' +0x'..string.format('%X',ref.offset))or'')..
+     (ref.paired_id and(' · ID '..ref.paired_id)or'')
+   end
+   local source_row=info(p,'name_source',function()return txt('Name source','名称来源')end,function()
+    local _,ref=L.effect_text(entry,'name',c.lang());return provenance(ref,true)end)
+   source_row.tip_of=function()local _,ref=L.effect_text(entry,'name',c.lang());return{provenance(ref)}end
+   local function description()
+    for _,field in ipairs({'description','long_description','fluff_description'})do
+     local text,ref=L.effect_text(entry,field,c.lang());if text then return plain(text),ref end
+    end
+   end
+   if description()then
+    local r=info(p,'description',function()return txt('Game description','游戏说明')end,description)
+    r.tip_of=function()local text,ref=description();return{text,provenance(ref)}end
+   end
    if role then
     local r=row(p,'paired_id',function()return role.kind=='effect'and txt('Separate icon ID','对应的独立图标 ID')or txt('Separate gameplay ID','对应的独立生效 ID')end,'Identity')
     r.custom_value=function()return 0 end;r.custom_text=function()return tostring(role.other)..' →'end

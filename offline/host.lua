@@ -46,7 +46,7 @@ local GOLD, WHITE, MUTED, WARN, GOOD = { 255, 255, 213, 0 }, { 255, 238, 242, 24
                                         { 255, 255, 150, 60 }, { 255, 120, 220, 140 }
 -- This fork's own release: the window title shows it instead of the
 -- panel's version and the upstream dev commit, then the build's stamp.
-local FORK_VERSION = '0.0.8.6'
+local FORK_VERSION = '0.0.8.7'
 
 local function centred(text, y, size, c)
     shim.text(text, (shim.w - shim.text_width(text, size)) / 2, y, size, c)
@@ -232,12 +232,13 @@ local function main()
     local texts_ok,game_texts=pcall(function()
         local cache=UnitAliases.cache_dir(I.home,game,EntityAssets.owned());I.mkdirs(cache)
         local started=clock()
-        local t=GameTexts.load(data_root,cache..'/strings-index.bin',cache,function(dir,pattern)return I.list_files(dir,pattern)end)
+        local t=GameTexts.load(data_root,cache..'/strings-index.bin',cache,function(dir,pattern)return I.list_files(dir,pattern)end,nil,
+            {languages={[0x5942CCF7]='zhs',[0x9EBA952A]='zht'},ids=require('game_localization').required_ids()})
         local n=0;for _ in pairs(t.english)do n=n+1 end
         log(string.format('game texts: %d English texts, %d strings files (%.2f s)',n,#t.files,clock()-started))
         return t
     end)
-    if texts_ok then rawset(_G,'SHODAN_TEXTS',{texts=game_texts.english})
+    if texts_ok then rawset(_G,'SHODAN_TEXTS',{texts=game_texts.english,localized=game_texts.localized})
     else log('game texts unavailable: '..tostring(game_texts))end
     -- vehicle handling, the exosuits' movement and the enemies' animation speed (physics.lua: their files found by the
     -- archive index, kept per game build; read when the panel first shows a vehicle or an enemy)

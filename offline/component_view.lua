@@ -122,6 +122,8 @@ end
 -- spec: TYPE, KEY (namespace), SIZE, SLOT, FLAG (page flag), COMPONENT {en, 简体, 繁體}, GROUPS
 -- ({key, en, 简体, 繁體} in page order), FIELDS, LAYOUT, NESTED, ENUMS (extra names)
 function M.prepare(spec)
+ -- curated names, groups and help text, before the group table and the row order are built
+ require('component_overrides').apply(spec)
  spec.GROUP={};for i,g in ipairs(spec.GROUPS)do spec.GROUP[g[1]]={n=i,name={g[2],g[3],g[4]}}end
  for i,s in ipairs(spec.FIELDS)do s.n=i;assert(spec.GROUP[s[4]],s[1])end
  table.sort(spec.FIELDS,function(a,b)
@@ -317,7 +319,7 @@ function M.build(spec,c)
         '名稱取自 2024 年資料（shalzuth/HelldiversData），該結構與當前類型庫逐成員一致。'})
       end
       if x.desc then lines[#lines+1]=pick(lang(),{'2024 description: ','2024 年说明：','2024 年說明：'})..x.desc end
-      if field:find('unk_')and not x.resolved_name then
+      if field:find('unk_')and not x.resolved_name and not x.known then
        lines[#lines+1]=pick(lang(),{'Meaning unknown; position and type checked against the type library.',
         '含义尚未确认；位置与类型已按类型库核对。','含義尚未確認；位置與類型已按類型庫核對。'})
       end

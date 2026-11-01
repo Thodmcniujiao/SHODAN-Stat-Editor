@@ -3,6 +3,7 @@ local V=require('component_view')
 local J=require('json_data')
 local U=require('stratagem_components')
 local Merge=require('preset_merge')
+local Quick=require('quick_modifications')
 local M={}
 local function keys(t)local out={};for k in pairs(t or{})do out[#out+1]=k end;table.sort(out,function(a,b)return tostring(a)<tostring(b)end);return out end
 local function value(v)
@@ -21,8 +22,8 @@ function M.build(p,c)
  local pages,by_tab={},{}
  for _,spec in ipairs(c.navigation or{})do
   local page={id=spec.id,label=tr(spec.name),sections={},count=0}
-  for si,sub in ipairs(spec.subs)do for _,tab in ipairs(sub.tabs or{})do
-   local tab_label=c.tab_label and c.tab_label(tab)or c.tr(tab)
+  for si,sub in ipairs(spec.subs)do for _,tab in ipairs(sub.tabs or(sub.quick and{Quick.PRESET_TAB})or{})do
+   local tab_label=tab==Quick.PRESET_TAB and tr(sub.name)or c.tab_label and c.tab_label(tab)or c.tr(tab)
    local section={id=tab,label=tr(sub.name)..(tab_label~=tr(sub.name)and(' / '..tab_label)or''),rows={},count=0}
    page.sections[#page.sections+1]=section;by_tab[tab]={page,section}
   end end
@@ -99,6 +100,15 @@ function M.build(p,c)
  end
  local d=p.data or{}
  local game=p.scope=='game'and d or d.game or{}
+ for _,id in ipairs(Quick.ORDER)do
+  local on=game.quick_switches and game.quick_switches[id]
+  if on~=nil then
+   local label=V.pick(c.lang(),Quick.LABELS[id])
+   local function state(v)return v and tx('On','开启')or tx('Off','关闭')end
+   add(Quick.PRESET_TAB,tx('Player','玩家主体'),label,id,state(on),state(false),on or p.kind=='patch',
+    {store='game',key='quick_switches',id=id},{tab=Quick.PRESET_TAB,quick=id})
+  end
+ end
  for _,key in ipairs({'stacks','own_off'})do for _,id in ipairs(keys(game[key]))do
   local title=c.passive_name and c.passive_name(id)or id
   add('Armors',title,tx(key=='stacks'and'Additional passives'or'Own passive disabled',key=='stacks'and'叠加被动'or'关闭自身被动'),key..':'..id,game[key][id],nil,true,

@@ -1,7 +1,7 @@
 # Regenerates offline/planet_data.lua's names: every member of the planet settings types (current type library)
 # matched to the 2025 settings dump of shalzuth/HelldiversData by value across every record, then by order and kind;
 # names an earlier member-order pairing gave are kept where the values do not say otherwise. Adds the Chinese
-# labels of every name and the planets' display names (helldivers-2/json, matched by the hash of the debug name).
+# labels of every name; planets' display names use independently resolved native localization IDs.
 #
 #   python gen.py            (environment: see README.md)
 import os, sys, json, re, struct, collections
@@ -17,8 +17,6 @@ DATA = os.environ.get('PLANET_DATA', os.path.join(HERE, 'planet_data.base.lua'))
 OUT = os.environ.get('OUT', os.path.join(ROOT, 'offline', 'planet_data.lua'))
 WORK = os.environ.get('COMPONENT_GEN_WORK', os.path.join(HERE, '..', 'component_gen', 'work'))     # decrypted .dl_bin files
 SHAL = os.environ.get('SHALZUTH', os.path.join(HERE, '..', 'component_gen', 'HelldiversData'))
-HD2JSON = os.environ.get('HD2JSON', os.path.join(HERE, 'json'))                                      # helldivers-2/json
-OPENCC = os.environ.get('OPENCC', os.path.join(HERE, 'OpenCC'))                                      # BYVoid/OpenCC (dictionaries)
 
 exec(open(os.path.join(HERE, '..', 'component_gen', 'zh.py'), encoding='utf-8').read())
 from planet_zh import PZ, PW
@@ -98,37 +96,13 @@ left = sorted({w for n, (a, b) in labels.items() for w in re.findall(r'[a-z]{2,}
 if left: print('untranslated words:', ' '.join(left))
 
 # ------------------------------------------------------------------ planet names
-def t2s_loader():
-    d = os.path.join(OPENCC, 'data', 'dictionary')
-    def load(f):
-        out = {}
-        for l in open(os.path.join(d, f), encoding='utf-8'):
-            if l.strip() and not l.startswith('#'):
-                k, v = l.rstrip('\n').split('\t', 1); out[k] = v.split(' ')[0]
-        return out
-    P, C = load('TSPhrases.txt'), load('TSCharacters.txt'); ML = max(map(len, P))
-    def t2s(s):
-        out, i = [], 0
-        while i < len(s):
-            for L in range(min(ML, len(s) - i), 1, -1):
-                if s[i:i + L] in P: out.append(P[s[i:i + L]]); i += L; break
-            else: out.append(C.get(s[i], s[i])); i += 1
-        return ''.join(out)
-    return t2s
-t2s = t2s_loader()
-index_of = {int(h): int(i) for i, h in (l.strip().split(',') for l in open(os.path.join(HERE, 'warinfo_index.csv')) if l.strip())}
-planets_json = json.load(open(os.path.join(HD2JSON, 'planets', 'planets.json'), encoding='utf-8'))
-planets = {}
-pd = [r for r in base['roots'] if r['name'] == 'LevelGenerationPlanetData'][0]
-for at, t, p in records(os.path.join(WORK, pd['file'])):
-    if t != pd['hash']: continue
-    q = struct.unpack_from('<Q', p, 88)[0]
-    dn = p[q:p.index(b'\0', q)].decode()
-    i = index_of.get(murmur64a(dn.encode()) >> 32)
-    if i is None or str(i) not in planets_json: continue
-    j = planets_json[str(i)]
-    hant = j.get('names', {}).get('zh-Hant') or j['name']
-    planets[dn] = {'index': i, 'en': j['name'], 'zhs': t2s(hant), 'zht': hant, 'sector': j.get('sector', '')}
+# Names must come from the native locale, never OpenCC or a phonetic guess.
+# Generate offline/localization_data.lua first with tools/update_game_localizations.py.
+localization_path = os.path.join(ROOT, 'offline', 'localization_data.lua')
+localized = json.loads(open(localization_path, encoding='utf-8').read().split('[===[', 1)[1].split(']===]', 1)[0])
+sys.path.insert(0, os.path.join(ROOT, 'tools'))
+from update_game_localizations import planet_names
+planets = planet_names(localized)
 stats['planets named'] = len(planets)
 
 base['zh'] = labels

@@ -2,7 +2,7 @@
 -- previews the plan (additions, conflicts, blocked items) before replacing the target.
 -- A ref names one item of a preset payload, as preset_details.lua attaches it to its rows:
 --   {store='values',hash=,ids={...}}            parameter values (a 64-bit pair: both ids)
---   {store='game',key='armor_passives'|'stacks'|'own_off',id=}
+--   {store='game',key='armor_passives'|'stacks'|'own_off'|'quick_switches',id=}
 --   {store='demolition',bucket='values'|'stale',id=,key=}
 --   {store='loadout',key=}
 --   {store='preload',bucket='selected'|'targets'|'edits'|'arrays'|'merge_enabled',hash=|key=}
@@ -70,9 +70,10 @@ local function put(target,source,ref,value)
   end
   for _,id in ipairs(ref.ids)do if value[id]~=nil then kept[#kept+1]={hash=ref.hash,id=id,value=value[id]}end end
   target.values=kept
+  require('quick_modifications').merge_restore(target,source,ref)
  elseif s=='game'then
   d.game=d.game or{}
-  for _,k in ipairs({'stacks','own_off','armor_passives'})do d.game[k]=d.game[k]or{}end
+  for _,k in ipairs({'stacks','own_off','armor_passives','quick_switches'})do d.game[k]=d.game[k]or{}end
   d.game[ref.key][ref.id]=copy(value)
  elseif s=='demolition'then
   d.demolition=d.demolition or{values={},stale={}}

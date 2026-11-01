@@ -1,12 +1,18 @@
--- A global preset spans every authoring store. Loading stages changes only;
--- the game's data/save files still use their explicit bottom Write actions.
+-- A global preset spans every authoring store. Game data/save edits stay staged;
+-- network plans and their saved master states update the proxy's portable files.
 local L=require('preset_library')
 local Network=require('network_preset')
 local M={}
 local function copy(v)return L.copy(v)end
 local function model(name)return rawget(_G,name)end
-function M.capture(c)
+function M.capture(c,o)
  local data={version=3,game=c.game_settings(),network=Network.capture()}
+ local values=copy(c.values(nil))
+ if c.quick_capture and not(o and o.runtime)then
+  local game;values,game=c.quick_capture(values,data.game)
+  if not values then return nil,game end
+  data.game=game
+ end
  local bridge=model('SHODAN_DEMOLITION_BRIDGE')
  if bridge then data.demolition={values=copy(bridge.panel.values),stale=copy(bridge.panel.stale)}end
  local preload=model('SHODAN_PRELOAD_MODEL')
@@ -21,7 +27,7 @@ function M.capture(c)
    end
   elseif save.count and save:count()>0 then return nil,why or'Could not capture edited equipment' end
  end
- return {values=copy(c.values(nil)),data=data,scope='global',kind='snapshot'}
+ return {values=values,data=data,scope='global',kind='snapshot'}
 end
 local function demolition(bridge,snapshot,merge)
  local panel=bridge.panel
@@ -48,7 +54,8 @@ function M.apply(c,p)
  if d.loadout and save.save==nil and save.paths then return nil,'请先在配装页读取目标存档，再载入这个全局预设。'end
  if d.demolition and not bridge then return nil,'此全局预设包含拆毁参数，但拆毁编辑器不可用。'end
  if d.network then local valid,why=Network.validate(d.network);if not valid then return nil,why end end
- local before,why=M.capture(c);if not before then return nil,why end
+ -- Rollback restores the exact runtime fields and undo contexts, including partially customized recipes.
+ local before,why=M.capture(c,{runtime=true});if not before then return nil,why end
  local function apply(payload,rollback)
   local data=payload.data;local patch=payload.kind=='patch'
   local ok,note=c.apply({scope='global',name=payload.name or'Global preset',kind=payload.kind,values=payload.values,data=data.game})
@@ -71,7 +78,7 @@ function M.apply(c,p)
 end
 function M.count(p)
  local d=p.data or{};local count=#(p.values or{})
- for _,key in ipairs({'stacks','own_off','armor_passives'})do for _ in pairs(d.game and d.game[key]or{})do count=count+1 end end
+ for _,key in ipairs({'stacks','own_off','armor_passives','quick_switches'})do for _ in pairs(d.game and d.game[key]or{})do count=count+1 end end
  for _,key in ipairs({'values','stale'})do for _,slots in pairs(d.demolition and d.demolition[key]or{})do for _ in pairs(slots)do count=count+1 end end end
  for _ in pairs(d.loadout and d.loadout.values or{})do count=count+1 end
  for _,key in ipairs({'edits','selected','targets','arrays'})do for _ in pairs(d.preload and d.preload[key]or{})do count=count+1 end end

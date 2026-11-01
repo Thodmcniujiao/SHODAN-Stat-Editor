@@ -29,7 +29,7 @@ M.FIELDS={
  {'demolition_strength',88,'u32','impact','电弧破坏力','電弧破壞力'},
  {'unk_bool_0x005C',92,'bit0','unknown','未知标志位 +0x5C','未知旗標位元 +0x5C'},
  {'unk_uint32_0x0060',96,'u32','unknown','未知整数 +0x60','未知整數 +0x60'},
- {'unk_bool_0x0064',100,'bit0','unknown','未知标志位 +0x64','未知旗標位元 +0x64'},
+ {'unk_bool_0x0064',100,'bit0','impact','免疫自伤','免疫自傷'},
 }
 M.LEGACY={ArcTypeID='type',Speed='speed',Distance='distance',MaxAngleSpreadDistance='distance_at_max_angle_spread',
  FirstShotMaxAngleSpreadDistance='distance_at_max_angle_spread_first_shot',MaxAngleSpread='max_angle_spread',
